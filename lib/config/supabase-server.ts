@@ -1,8 +1,5 @@
 import { cookies } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/auth-helpers-nextjs';
-
-type NextRequestCookies = Awaited<ReturnType<typeof cookies>>;
 
 function getSupabaseUrl() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,23 +23,16 @@ function getSupabaseAnonKey() {
   return key;
 }
 
-export function createBrowserSupabaseClient() {
-  return createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
-}
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies();
 
-export function createServerSupabaseClient(cookies: NextRequestCookies) {
   return createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
     cookies: {
       getAll: async () =>
-        cookies.getAll().map(({ name, value }) => ({ name, value })),
+        cookieStore.getAll().map(({ name, value }) => ({ name, value })),
       setAll: async (supabaseCookies) => {
         supabaseCookies.forEach(({ name, value, options }) => {
-          cookies.set(name, value, options);
+          cookieStore.set(name, value, options);
         });
       },
     },

@@ -2,10 +2,9 @@
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { signInAction, type AuthActionState } from '@/lib/actions/auth';
+import { signUpAction, type AuthActionState } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
-import Link from 'next/link';
 
 const initialState: AuthActionState = { success: false, message: '' };
 
@@ -14,13 +13,13 @@ function SubmitButton() {
 
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Signing in…' : 'Continue'}
+      {pending ? 'Creating account…' : 'Create account'}
     </Button>
   );
 }
 
-export function SignInForm() {
-  const [state, formAction] = useActionState(signInAction, initialState);
+export function SignUpForm() {
+  const [state, formAction] = useActionState(signUpAction, initialState);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -57,11 +56,6 @@ export function SignInForm() {
       <div className="mt-4">
         <GoogleSignInButton />
       </div>
-      <p className="text-muted-foreground text-sm">
-        <Link href="/auth/forgot-password" className="text-primary font-medium">
-          Forgot your password?
-        </Link>
-      </p>
     </form>
   );
 }
