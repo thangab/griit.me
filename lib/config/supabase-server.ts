@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/auth-helpers-nextjs';
 
 function getSupabaseUrl() {
@@ -23,6 +24,16 @@ function getSupabaseAnonKey() {
   return key;
 }
 
+function getSupabaseServiceRoleKey() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!key) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable.');
+  }
+
+  return key;
+}
+
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
 
@@ -37,4 +48,8 @@ export async function createServerSupabaseClient() {
       },
     },
   });
+}
+
+export function createServiceSupabaseClient() {
+  return createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 }

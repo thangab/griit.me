@@ -2,7 +2,10 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import {
+  createServerSupabaseClient,
+  createServiceSupabaseClient,
+} from '@/lib/config/supabase-server';
 
 export interface AuthActionState {
   success: boolean;
@@ -59,6 +62,27 @@ export async function signUpAction(
 
   if (error) {
     return { success: false, message: error.message };
+  }
+
+  const userId = data.user?.id;
+
+  if (userId) {
+    const serviceSupabase = createServiceSupabaseClient();
+    const { error: profileError } = await serviceSupabase
+      .from('profiles')
+      .upsert(
+        {
+          id: userId,
+          email,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'id' },
+      );
+
+    if (profileError) {
+      console.error('Failed to create profile after sign up:', profileError);
+    }
   }
 
   if (!data.session) {

@@ -25,6 +25,23 @@ export default function AuthCallbackPage() {
         return;
       }
 
+      const user = data.session.user;
+      const payload = {
+        userId: user.id,
+        email: user.email,
+        full_name:
+          (user.user_metadata as any)?.full_name ||
+          (user.user_metadata as any)?.name ||
+          null,
+        avatar_url: user.user_metadata?.avatar_url || user.avatar_url || null,
+      };
+
+      await fetch('/api/profile-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
       router.replace('/dashboard');
     }
 
