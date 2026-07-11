@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { subscriptionPlans } from '@/lib/constants/billing';
 import { Button } from '@/components/ui/button';
 import type { SubscriptionState } from '@/lib/types/billing';
@@ -7,10 +11,48 @@ export function SubscriptionCard({
 }: {
   subscription: SubscriptionState;
 }) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO;
+
   const currentPlan = subscription.plan === 'pro' ? 'pro' : 'free';
   const currentPlanData = subscriptionPlans[currentPlan];
   const otherPlan = currentPlan === 'pro' ? 'free' : 'pro';
   const otherPlanData = subscriptionPlans[otherPlan];
+
+  const handleCheckout = async () => {
+    setError(null);
+    if (!priceId) {
+      setError('Stripe price is not configured.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    const response = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId }),
+    });
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (error) {
+      setError('Unable to parse server response.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!response.ok || !data.url) {
+      setError(data?.error || 'Unable to start checkout.');
+      setIsLoading(false);
+      return;
+    }
+
+    window.location.href = data.url;
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -41,9 +83,21 @@ export function SubscriptionCard({
           ))}
         </ul>
 
-        <Button className="mt-6 w-full" variant="outline">
-          {currentPlan === 'pro' ? 'Manage subscription' : 'Upgrade to Pro'}
+        <Button
+          className="mt-6 w-full"
+          variant={currentPlan === 'pro' ? 'default' : 'outline'}
+          onClick={handleCheckout}
+          disabled={isLoading || currentPlan === 'pro'}
+        >
+          {currentPlan === 'pro'
+            ? 'Manage subscription'
+            : isLoading
+              ? 'Redirecting…'
+              : 'Upgrade to Pro'}
         </Button>
+        {error ? (
+          <p className="text-destructive mt-3 text-sm">{error}</p>
+        ) : null}
       </div>
 
       <div className="border-border bg-background rounded-2xl border p-6 shadow-sm">
@@ -68,9 +122,10 @@ export function SubscriptionCard({
 
         <Button
           className="mt-6 w-full"
-          variant={currentPlan === 'pro' ? 'default' : 'outline'}
+          variant={currentPlan === 'pro' ? 'outline' : 'default'}
+          onClick={() => router.push('/dashboard/settings')}
         >
-          {currentPlan === 'pro' ? 'Downgrade to Free' : 'Upgrade to Pro'}
+          {currentPlan === 'pro' ? 'View your plan' : 'Learn more'}
         </Button>
       </div>
     </div>

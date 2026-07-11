@@ -10,6 +10,7 @@ import {
 import { dashboardNavItems } from '@/lib/constants/navigation';
 import { Button } from '@/components/ui/button';
 import { getSession, signOutAction } from '@/lib/actions/auth';
+import { getSubscriptionState } from '@/lib/services/billing';
 
 const iconMap = {
   LayoutGrid,
@@ -21,6 +22,7 @@ const iconMap = {
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+  const subscription = await getSubscriptionState();
 
   return (
     <div className="bg-background min-h-screen">
@@ -75,6 +77,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-3">
                 <div className="border-border bg-card/70 text-muted-foreground hidden rounded-full border px-4 py-2 text-sm sm:block">
                   {session?.user?.email ?? 'Authenticated user'}
+                </div>
+                <div className="hidden rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-900 sm:block">
+                  {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
                 </div>
                 <Button variant="outline" size="sm">
                   Preview
