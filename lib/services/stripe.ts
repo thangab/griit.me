@@ -3,7 +3,9 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '');
 
 function formatStripePrice(price: Stripe.Price) {
-  const amount = price.unit_amount ?? (price.unit_amount_decimal ? Number(price.unit_amount_decimal) : null);
+  const amount =
+    price.unit_amount ??
+    (price.unit_amount_decimal ? Number(price.unit_amount_decimal) : null);
   if (amount === null) {
     return 'Custom price';
   }

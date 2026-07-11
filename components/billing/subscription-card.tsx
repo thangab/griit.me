@@ -23,9 +23,13 @@ export function SubscriptionCard({
   const otherPlan = currentPlan === 'pro' ? 'free' : 'pro';
   const otherPlanData = subscriptionPlans[otherPlan];
   const currentPriceLabel =
-    currentPlan === 'pro' ? proPriceLabel ?? currentPlanData.price : currentPlanData.price;
+    currentPlan === 'pro'
+      ? (proPriceLabel ?? currentPlanData.price)
+      : currentPlanData.price;
   const otherPriceLabel =
-    otherPlan === 'pro' ? proPriceLabel ?? otherPlanData.price : otherPlanData.price;
+    otherPlan === 'pro'
+      ? (proPriceLabel ?? otherPlanData.price)
+      : otherPlanData.price;
 
   const handleCheckout = async () => {
     setError(null);
@@ -45,7 +49,7 @@ export function SubscriptionCard({
     let data;
     try {
       data = await response.json();
-    } catch (error) {
+    } catch {
       setError('Unable to parse server response.');
       setIsLoading(false);
       return;

@@ -64,7 +64,7 @@ export async function POST(request: Request) {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
-        { onConflict: ['stripe_customer_id'] },
+        { onConflict: 'user_id' },
       );
     }
 
@@ -75,6 +75,11 @@ export async function POST(request: Request) {
       customer: stripeCustomerId,
       metadata: {
         user_id: customerId,
+      },
+      subscription_data: {
+        metadata: {
+          user_id: customerId,
+        },
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard`,

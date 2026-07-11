@@ -15,6 +15,20 @@
       "when": 1783675786265,
       "tag": "0001_add_fks_to_billing",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783676000000,
+      "tag": "0002_add_rls_and_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783677000000,
+      "tag": "0003_add_profile_builder_schema",
+      "breakpoints": true
     }
   ]
 }

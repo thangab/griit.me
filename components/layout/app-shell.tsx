@@ -9,8 +9,7 @@ import {
 } from 'lucide-react';
 import { dashboardNavItems } from '@/lib/constants/navigation';
 import { Button } from '@/components/ui/button';
-import { getSession, signOutAction } from '@/lib/actions/auth';
-import { getSubscriptionState } from '@/lib/services/billing';
+import { signOutAction } from '@/lib/actions/auth';
 
 const iconMap = {
   LayoutGrid,
@@ -21,9 +20,6 @@ const iconMap = {
 };
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const session = await getSession();
-  const subscription = await getSubscriptionState();
-
   return (
     <div className="bg-background min-h-screen">
       <div className="flex min-h-screen">
@@ -66,32 +62,6 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="border-border bg-background/80 border-b px-6 py-4 backdrop-blur">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-muted-foreground text-sm font-medium">
-                  Athlete dashboard
-                </p>
-                <h1 className="text-xl font-semibold">Welcome back</h1>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="border-border bg-card/70 text-muted-foreground hidden rounded-full border px-4 py-2 text-sm sm:block">
-                  {session?.user?.email ?? 'Authenticated user'}
-                </div>
-                <div className="hidden rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-900 sm:block">
-                  {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
-                </div>
-                <Button variant="outline" size="sm">
-                  Preview
-                </Button>
-                <div className="bg-secondary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold">
-                  {session?.user?.email
-                    ? session.user.email.charAt(0).toUpperCase()
-                    : 'U'}
-                </div>
-              </div>
-            </div>
-          </header>
           <main className="flex-1 p-6">{children}</main>
         </div>
       </div>

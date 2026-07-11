@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
 
+type AuthWithSessionFromUrl = {
+  getSessionFromUrl?: () => Promise<unknown>;
+};
+
 export function ResetPasswordForm() {
   const router = useRouter();
   const [newPassword, setNewPassword] = useState('');
@@ -18,7 +22,7 @@ export function ResetPasswordForm() {
   useEffect(() => {
     async function handleSession() {
       const supabase = createBrowserSupabaseClient();
-      const auth = supabase.auth as any;
+      const auth = supabase.auth as AuthWithSessionFromUrl;
 
       if (typeof auth.getSessionFromUrl === 'function') {
         await auth.getSessionFromUrl();

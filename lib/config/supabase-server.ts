@@ -43,7 +43,12 @@ export async function createServerSupabaseClient() {
         cookieStore.getAll().map(({ name, value }) => ({ name, value })),
       setAll: async (supabaseCookies) => {
         supabaseCookies.forEach(({ name, value, options }) => {
-          cookieStore.set(name, value, options);
+          try {
+            cookieStore.set(name, value, options);
+          } catch {
+            // Server Components can read cookies but cannot write them.
+            // Server Actions and Route Handlers will still apply these updates.
+          }
         });
       },
     },

@@ -14,7 +14,7 @@ export default async function SettingsPage() {
     <div className="space-y-6">
       <div className="border-border bg-background rounded-2xl border p-6">
         <h2 className="text-2xl font-semibold">Billing & subscription</h2>
-        <p className="mt-2 text-sm font-semibold text-foreground">
+        <p className="text-foreground mt-2 text-sm font-semibold">
           Pro plan price: <span className="text-primary">{proPriceLabel}</span>
         </p>
         <p className="text-muted-foreground mt-2 text-sm">
@@ -22,7 +22,10 @@ export default async function SettingsPage() {
           expansion.
         </p>
       </div>
-      <SubscriptionCard subscription={subscription} proPriceLabel={proPriceLabel} />
+      <SubscriptionCard
+        subscription={subscription}
+        proPriceLabel={proPriceLabel}
+      />
     </div>
   );
 }

@@ -34,7 +34,20 @@ function parseDocumentCookies() {
     });
 }
 
-function serializeCookie(name: string, value: string, options: any = {}) {
+interface BrowserCookieOptions {
+  path?: string;
+  domain?: string;
+  maxAge?: number;
+  expires?: string | number | Date;
+  sameSite?: boolean | 'lax' | 'strict' | 'none' | 'Lax' | 'Strict' | 'None';
+  secure?: boolean;
+}
+
+function serializeCookie(
+  name: string,
+  value: string,
+  options: BrowserCookieOptions = {},
+) {
   let cookie = `${name}=${encodeURIComponent(value)}`;
 
   if (options.path) {

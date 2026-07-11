@@ -5,5 +5,5 @@ export interface SubscriptionState {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   isActive: boolean;
-  features: string[];
+  features: readonly string[];
 }

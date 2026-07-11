@@ -5,6 +5,18 @@ import { useRouter } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
 
+type AuthWithSessionFromUrl = {
+  getSessionFromUrl?: () => Promise<unknown>;
+};
+
+function getStringMetadataValue(
+  metadata: Record<string, unknown>,
+  key: string,
+) {
+  const value = metadata[key];
+  return typeof value === 'string' ? value : null;
+}
+
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [message, setMessage] = useState('Completing Google sign-in...');
@@ -12,7 +24,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     async function handleCallback() {
       const supabase = createBrowserSupabaseClient();
-      const auth = supabase.auth as any;
+      const auth = supabase.auth as AuthWithSessionFromUrl;
 
       if (typeof auth.getSessionFromUrl === 'function') {
         await auth.getSessionFromUrl();
@@ -26,14 +38,15 @@ export default function AuthCallbackPage() {
       }
 
       const user = data.session.user;
+      const metadata = user.user_metadata;
       const payload = {
         userId: user.id,
         email: user.email,
         full_name:
-          (user.user_metadata as any)?.full_name ||
-          (user.user_metadata as any)?.name ||
+          getStringMetadataValue(metadata, 'full_name') ||
+          getStringMetadataValue(metadata, 'name') ||
           null,
-        avatar_url: user.user_metadata?.avatar_url || user.avatar_url || null,
+        avatar_url: getStringMetadataValue(metadata, 'avatar_url'),
       };
 
       await fetch('/api/profile-sync', {
