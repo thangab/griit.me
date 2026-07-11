@@ -8,8 +8,10 @@ import type { SubscriptionState } from '@/lib/types/billing';
 
 export function SubscriptionCard({
   subscription,
+  proPriceLabel,
 }: {
   subscription: SubscriptionState;
+  proPriceLabel?: string;
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +22,10 @@ export function SubscriptionCard({
   const currentPlanData = subscriptionPlans[currentPlan];
   const otherPlan = currentPlan === 'pro' ? 'free' : 'pro';
   const otherPlanData = subscriptionPlans[otherPlan];
+  const currentPriceLabel =
+    currentPlan === 'pro' ? proPriceLabel ?? currentPlanData.price : currentPlanData.price;
+  const otherPriceLabel =
+    otherPlan === 'pro' ? proPriceLabel ?? otherPlanData.price : otherPlanData.price;
 
   const handleCheckout = async () => {
     setError(null);
@@ -62,9 +68,12 @@ export function SubscriptionCard({
             <p className="text-muted-foreground text-sm font-medium">
               Current plan
             </p>
-            <h3 className="mt-1 text-2xl font-semibold">
-              {currentPlanData.name}
-            </h3>
+            <div className="mt-1 flex items-baseline gap-3">
+              <h3 className="text-2xl font-semibold">{currentPlanData.name}</h3>
+              <span className="text-muted-foreground text-sm font-medium">
+                {currentPriceLabel}
+              </span>
+            </div>
             <p className="text-muted-foreground mt-2 text-sm">
               {currentPlanData.description}
             </p>
@@ -105,7 +114,12 @@ export function SubscriptionCard({
           <p className="text-muted-foreground text-sm font-medium">
             Alternative plan
           </p>
-          <h3 className="mt-1 text-2xl font-semibold">{otherPlanData.name}</h3>
+          <div className="mt-1 flex items-baseline gap-3">
+            <h3 className="text-2xl font-semibold">{otherPlanData.name}</h3>
+            <span className="text-muted-foreground text-sm font-medium">
+              {otherPriceLabel}
+            </span>
+          </div>
           <p className="text-muted-foreground mt-2 text-sm">
             {otherPlanData.description}
           </p>
