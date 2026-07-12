@@ -1,20 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { PublicProfileView } from '@/components/profile/public-profile-view';
+import {
+  DesktopProfileFrame,
+  MobileProfileFrame,
+} from '@/components/dashboard/mobile-profile-frame';
 import { Button } from '@/components/ui/button';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
 const previewStyles = {
   mobile: {
-    wrapper: 'mx-auto w-full max-w-[320px] sm:max-w-[360px] xl:h-full',
     frame:
-      'h-[clamp(320px,calc(100dvh-250px),560px)] sm:h-[clamp(360px,calc(100dvh-270px),640px)] xl:h-full',
+      'h-[clamp(320px,calc(100dvh-250px),560px)] sm:h-[clamp(360px,calc(100dvh-270px),640px)] xl:h-auto',
   },
   desktop: {
-    wrapper: 'mx-auto w-full max-w-[900px] xl:h-full',
     frame:
-      'h-[clamp(300px,calc(100dvh-250px),420px)] sm:h-[clamp(320px,calc(100dvh-270px),520px)] xl:h-full',
+      'h-[clamp(300px,calc(100dvh-250px),420px)] sm:h-[clamp(320px,calc(100dvh-270px),520px)] xl:h-auto',
   },
 };
 
@@ -51,32 +52,20 @@ export function DesignPreview({ builder }: { builder: ProfileBuilderState }) {
       </div>
 
       <div className="max-w-full overflow-hidden p-2 sm:p-4 xl:flex xl:min-h-0 xl:flex-1 xl:items-center">
-        <div
-          className={`relative overflow-hidden rounded-xl bg-white shadow-xl ${previewStyles[mode].wrapper}`}
-        >
-          {mode === 'desktop' ? (
-            <div className="absolute top-0 left-0 z-10 h-12 w-full bg-slate-950/90" />
-          ) : null}
-          <div
-            className={`relative overflow-hidden rounded-xl border border-white/10 bg-slate-50 ${previewStyles[mode].frame}`}
-          >
-            {mode === 'desktop' ? (
-              <div className="flex h-full flex-col">
-                <div className="shrink-0 border-b border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-800">
-                  griit.me/{builder.profile.username}
-                </div>
-                <div className="min-h-0 flex-1">
-                  <PublicProfileView
-                    builder={builder}
-                    variant="desktop-preview"
-                  />
-                </div>
-              </div>
-            ) : (
-              <PublicProfileView builder={builder} variant="mobile-preview" />
-            )}
-          </div>
-        </div>
+        {mode === 'mobile' ? (
+          <MobileProfileFrame
+            builder={builder}
+            className="mx-auto sm:max-w-[360px] xl:h-full xl:max-h-full"
+            fillHeight
+            viewportClassName={previewStyles.mobile.frame}
+          />
+        ) : (
+          <DesktopProfileFrame
+            builder={builder}
+            className="mx-auto xl:h-full"
+            viewportClassName={previewStyles.desktop.frame}
+          />
+        )}
       </div>
     </div>
   );

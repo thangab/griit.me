@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ExternalLink, Pencil } from 'lucide-react';
-import { PublicProfileView } from '@/components/profile/public-profile-view';
+import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,7 +14,7 @@ import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
 function MobileProfilePreview({ builder }: { builder: ProfileBuilderState }) {
   return (
-    <aside className="border-border bg-card overflow-hidden rounded-xl border shadow-sm xl:sticky xl:top-6">
+    <aside className="border-border bg-card flex h-full min-h-0 flex-col overflow-hidden rounded-xl border shadow-sm">
       <div className="border-border bg-background/70 flex items-center justify-between gap-3 border-b px-5 py-4">
         <div>
           <p className="text-lg font-semibold">Your profile</p>
@@ -30,18 +30,8 @@ function MobileProfilePreview({ builder }: { builder: ProfileBuilderState }) {
         </Button>
       </div>
 
-      <div className="flex justify-center p-5 sm:p-7">
-        <div className="w-full max-w-[320px] rounded-xl bg-slate-950 p-2 shadow-2xl">
-          <div className="mb-2 flex h-8 items-center gap-2 rounded-full bg-white/15 px-3 text-[11px] text-white/70">
-            <span className="h-2 w-2 rounded-full bg-white/45" />
-            <span className="min-w-0 flex-1 truncate">
-              griit.me/{builder.profile.username}
-            </span>
-          </div>
-          <div className="h-[560px] overflow-hidden rounded-xl bg-slate-50">
-            <PublicProfileView builder={builder} variant="mobile-preview" />
-          </div>
-        </div>
+      <div className="flex min-h-0 flex-1 justify-center p-5 sm:p-7">
+        <MobileProfileFrame builder={builder} className="h-full" fillHeight />
       </div>
     </aside>
   );
@@ -59,8 +49,8 @@ export default async function DashboardHomePage() {
   const publicUrl = `griit.me/${builder.profile.username}`;
 
   return (
-    <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
-      <div className="min-w-0 space-y-6">
+    <div className="grid min-w-0 gap-6 xl:h-[calc(100dvh-3rem)] xl:grid-cols-[minmax(0,1fr)_400px] xl:overflow-hidden">
+      <div className="min-w-0 space-y-6 xl:h-full xl:overflow-y-auto xl:pr-1">
         <div className="border-border bg-card/80 rounded-xl border p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
@@ -177,7 +167,7 @@ export default async function DashboardHomePage() {
         </Card>
       </div>
 
-      <div className="min-w-0">
+      <div className="min-w-0 xl:h-full xl:min-h-0">
         <MobileProfilePreview builder={builder} />
       </div>
     </div>
