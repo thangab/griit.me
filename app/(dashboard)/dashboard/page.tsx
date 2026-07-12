@@ -14,7 +14,7 @@ import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
 function MobileProfilePreview({ builder }: { builder: ProfileBuilderState }) {
   return (
-    <aside className="border-border bg-card overflow-hidden rounded-[1.75rem] border shadow-sm xl:sticky xl:top-6">
+    <aside className="border-border bg-card overflow-hidden rounded-xl border shadow-sm xl:sticky xl:top-6">
       <div className="border-border bg-background/70 flex items-center justify-between gap-3 border-b px-5 py-4">
         <div>
           <p className="text-lg font-semibold">Your profile</p>
@@ -31,14 +31,14 @@ function MobileProfilePreview({ builder }: { builder: ProfileBuilderState }) {
       </div>
 
       <div className="flex justify-center p-5 sm:p-7">
-        <div className="w-full max-w-[320px] rounded-[2rem] bg-slate-950 p-2 shadow-2xl">
+        <div className="w-full max-w-[320px] rounded-xl bg-slate-950 p-2 shadow-2xl">
           <div className="mb-2 flex h-8 items-center gap-2 rounded-full bg-white/15 px-3 text-[11px] text-white/70">
             <span className="h-2 w-2 rounded-full bg-white/45" />
             <span className="min-w-0 flex-1 truncate">
               griit.me/{builder.profile.username}
             </span>
           </div>
-          <div className="h-[560px] overflow-hidden rounded-[1.5rem] bg-slate-50">
+          <div className="h-[560px] overflow-hidden rounded-xl bg-slate-50">
             <PublicProfileView builder={builder} variant="mobile-preview" />
           </div>
         </div>
@@ -61,7 +61,7 @@ export default async function DashboardHomePage() {
   return (
     <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
       <div className="min-w-0 space-y-6">
-        <div className="border-border bg-card/80 rounded-[2rem] border p-8">
+        <div className="border-border bg-card/80 rounded-xl border p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-muted-foreground text-sm font-medium">
@@ -98,23 +98,23 @@ export default async function DashboardHomePage() {
               </CardDescription>
             </CardHeader>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="border-border bg-background rounded-3xl border p-5">
+              <div className="border-border bg-background rounded-xl border p-5">
                 <p className="text-sm font-medium">Content blocks</p>
                 <p className="mt-2 text-3xl font-semibold">{enabledBlocks}</p>
               </div>
-              <div className="border-border bg-background rounded-3xl border p-5">
+              <div className="border-border bg-background rounded-xl border p-5">
                 <p className="text-sm font-medium">Published pages</p>
                 <p className="mt-2 text-3xl font-semibold">
                   {builder.pages.filter((page) => page.isPublished).length}
                 </p>
               </div>
-              <div className="border-border bg-background rounded-3xl border p-5">
+              <div className="border-border bg-background rounded-xl border p-5">
                 <p className="text-sm font-medium">Public URL</p>
                 <p className="mt-2 truncate text-2xl font-semibold">
                   {publicUrl}
                 </p>
               </div>
-              <div className="border-border bg-background rounded-3xl border p-5">
+              <div className="border-border bg-background rounded-xl border p-5">
                 <p className="text-sm font-medium">Builder state</p>
                 <p className="mt-2 text-3xl font-semibold">
                   {builder.source === 'database' ? 'Saved' : 'Draft'}
@@ -145,7 +145,7 @@ export default async function DashboardHomePage() {
           </Card>
         </div>
 
-        <Card className="border-border bg-background/50 rounded-3xl border border-dashed p-6">
+        <Card className="border-border bg-background/50 rounded-xl border border-dashed p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Editor status</CardTitle>
@@ -161,7 +161,7 @@ export default async function DashboardHomePage() {
           </div>
         </Card>
 
-        <Card className="border-border bg-background/50 rounded-3xl border border-dashed p-6 xl:hidden">
+        <Card className="border-border bg-background/50 rounded-xl border border-dashed p-6 xl:hidden">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Public page</CardTitle>

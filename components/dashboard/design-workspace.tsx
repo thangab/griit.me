@@ -50,7 +50,7 @@ const initialTemplateState: ProfileBuilderActionState = {
 
 function ContentPanel({ builder }: { builder: ProfileBuilderState }) {
   return (
-    <aside className="border-border bg-background/80 min-w-0 space-y-4 rounded-2xl border p-4 sm:rounded-3xl sm:p-5 xl:h-full xl:overflow-y-auto">
+    <aside className="border-border bg-background/80 min-w-0 space-y-4 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto">
       <ContentEditor builder={builder} />
 
       <div className="border-border border-t pt-4">
@@ -69,12 +69,12 @@ function ContentPanel({ builder }: { builder: ProfileBuilderState }) {
         </div>
       </div>
 
-      <div className="border-border bg-card space-y-3 rounded-3xl border p-4">
+      <div className="border-border bg-card space-y-3 rounded-xl border p-4">
         <p className="text-sm font-semibold">Content</p>
         {pageSections.map((section) => (
           <div
             key={section.label}
-            className="border-border bg-background rounded-2xl border p-4"
+            className="border-border bg-background rounded-lg border p-4"
           >
             <p className="text-sm font-semibold">{section.label}</p>
             <p className="text-muted-foreground text-sm">{section.subtitle}</p>
@@ -82,7 +82,7 @@ function ContentPanel({ builder }: { builder: ProfileBuilderState }) {
         ))}
       </div>
 
-      <div className="border-border bg-card rounded-3xl border p-4">
+      <div className="border-border bg-card rounded-xl border p-4">
         <p className="text-sm font-semibold">Sections</p>
         <p className="text-muted-foreground mt-2 text-sm">
           Blocks will use the profile data saved above and render in the preview
@@ -118,7 +118,7 @@ function TemplateSelector({
   return (
     <form
       action={formAction}
-      className="border-border bg-card rounded-3xl border p-4"
+      className="border-border bg-card rounded-xl border p-4"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -154,7 +154,7 @@ function TemplateSelector({
             <label
               key={template.id}
               className={cn(
-                'border-border bg-background flex cursor-pointer gap-3 rounded-2xl border p-3 transition',
+                'border-border bg-background flex cursor-pointer gap-3 rounded-lg border p-3 transition',
                 selectedTemplateId === template.id && 'border-primary/50',
               )}
             >
@@ -199,7 +199,7 @@ function StylesPanel({
   onTemplateSelect: (templateId: ProfileTemplateId) => void;
 }) {
   return (
-    <aside className="border-border bg-background/80 min-w-0 space-y-5 rounded-2xl border p-4 sm:rounded-3xl sm:p-5 xl:h-full xl:overflow-y-auto">
+    <aside className="border-border bg-background/80 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto">
       <div>
         <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
           Styles
@@ -217,7 +217,7 @@ function StylesPanel({
         {styleSections.map((section) => (
           <button
             key={section}
-            className="border-border bg-card hover:border-primary/40 flex w-full items-center justify-between rounded-2xl border px-4 py-4 text-left transition"
+            className="border-border bg-card hover:border-primary/40 flex w-full items-center justify-between rounded-lg border px-4 py-4 text-left transition"
             type="button"
           >
             <span className="font-medium">{section}</span>
@@ -226,7 +226,7 @@ function StylesPanel({
         ))}
       </div>
 
-      <div className="border-border bg-card rounded-3xl border p-4">
+      <div className="border-border bg-card rounded-xl border p-4">
         <p className="text-sm font-semibold">Need more?</p>
         <p className="text-muted-foreground mt-2 text-sm">
           Pro unlocks more page styles, fonts, and advanced sharing options.

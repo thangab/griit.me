@@ -25,7 +25,7 @@ export function DesignPreview({ builder }: { builder: ProfileBuilderState }) {
 
   return (
     <div className="flex min-h-0 flex-col gap-4 xl:h-full">
-      <div className="border-border bg-card flex shrink-0 flex-col gap-3 rounded-3xl border p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-border bg-card flex shrink-0 flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold">Preview</p>
           <p className="text-muted-foreground text-sm">
@@ -52,13 +52,13 @@ export function DesignPreview({ builder }: { builder: ProfileBuilderState }) {
 
       <div className="max-w-full overflow-hidden p-2 sm:p-4 xl:flex xl:min-h-0 xl:flex-1 xl:items-center">
         <div
-          className={`relative overflow-hidden rounded-2xl bg-white shadow-xl sm:rounded-4xl ${previewStyles[mode].wrapper}`}
+          className={`relative overflow-hidden rounded-xl bg-white shadow-xl ${previewStyles[mode].wrapper}`}
         >
           {mode === 'desktop' ? (
             <div className="absolute top-0 left-0 z-10 h-12 w-full bg-slate-950/90" />
           ) : null}
           <div
-            className={`relative overflow-hidden rounded-2xl border border-white/10 bg-slate-50 sm:rounded-4xl ${previewStyles[mode].frame}`}
+            className={`relative overflow-hidden rounded-xl border border-white/10 bg-slate-50 ${previewStyles[mode].frame}`}
           >
             {mode === 'desktop' ? (
               <div className="flex h-full flex-col">

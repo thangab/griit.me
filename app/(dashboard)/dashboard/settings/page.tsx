@@ -19,7 +19,7 @@ export default async function SettingsPage() {
     <div className="space-y-6">
       <PublicProfileSettings builder={builder} />
 
-      <div className="border-border bg-background rounded-2xl border p-6">
+      <div className="border-border bg-background rounded-xl border p-6">
         <h2 className="text-2xl font-semibold">Billing & subscription</h2>
         <p className="text-foreground mt-2 text-sm font-semibold">
           Pro plan price: <span className="text-primary">{proPriceLabel}</span>
