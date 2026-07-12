@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { ExternalLink, Pencil } from 'lucide-react';
+import { PublicProfileView } from '@/components/profile/public-profile-view';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,6 +10,42 @@ import {
 } from '@/components/ui/card';
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getProfileBuilderState } from '@/lib/services/profile-builder';
+import type { ProfileBuilderState } from '@/lib/types/profile-builder';
+
+function MobileProfilePreview({ builder }: { builder: ProfileBuilderState }) {
+  return (
+    <aside className="border-border bg-card overflow-hidden rounded-[1.75rem] border shadow-sm xl:sticky xl:top-6">
+      <div className="border-border bg-background/70 flex items-center justify-between gap-3 border-b px-5 py-4">
+        <div>
+          <p className="text-lg font-semibold">Your profile</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            griit.me/{builder.profile.username}
+          </p>
+        </div>
+        <Button asChild size="sm" variant="outline">
+          <Link href="/dashboard/design">
+            Edit
+            <Pencil className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+
+      <div className="flex justify-center p-5 sm:p-7">
+        <div className="w-full max-w-[320px] rounded-[2rem] bg-slate-950 p-2 shadow-2xl">
+          <div className="mb-2 flex h-8 items-center gap-2 rounded-full bg-white/15 px-3 text-[11px] text-white/70">
+            <span className="h-2 w-2 rounded-full bg-white/45" />
+            <span className="min-w-0 flex-1 truncate">
+              griit.me/{builder.profile.username}
+            </span>
+          </div>
+          <div className="h-[560px] overflow-hidden rounded-[1.5rem] bg-slate-50">
+            <PublicProfileView builder={builder} variant="mobile-preview" />
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
 
 export default async function DashboardHomePage() {
   const [subscription, builder] = await Promise.all([
@@ -21,110 +59,127 @@ export default async function DashboardHomePage() {
   const publicUrl = `griit.me/${builder.profile.username}`;
 
   return (
-    <div className="space-y-6">
-      <div className="border-border bg-card/80 rounded-[2rem] border p-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-muted-foreground text-sm font-medium">
-              Overview
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-              Shape {builder.profile.displayName}&apos;s public page.
-            </h1>
-            <p className="text-muted-foreground mt-4">
-              Track your build progress, open the page editor, and prepare
-              {builder.profile.isPublished
-                ? ' your live athlete profile.'
-                : ' your draft athlete profile.'}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-emerald-900 uppercase">
-              {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
-            </span>
-            <Link href="/dashboard/design">
-              <Button>Open Design</Button>
-            </Link>
+    <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">
+      <div className="min-w-0 space-y-6">
+        <div className="border-border bg-card/80 rounded-[2rem] border p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-muted-foreground text-sm font-medium">
+                Overview
+              </p>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+                Shape {builder.profile.displayName}&apos;s public page.
+              </h1>
+              <p className="text-muted-foreground mt-4">
+                Track your build progress, open the page editor, and prepare
+                {builder.profile.isPublished
+                  ? ' your live athlete profile.'
+                  : ' your draft athlete profile.'}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-emerald-900 uppercase">
+                {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
+              </span>
+              <Button asChild>
+                <Link href="/dashboard/design">Open Design</Link>
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="space-y-6">
-          <CardHeader>
-            <CardTitle>Project summary</CardTitle>
-            <CardDescription>
-              Your public page is the hub for your links, socials, and latest
-              highlights.
-            </CardDescription>
-          </CardHeader>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="border-border bg-background rounded-3xl border p-5">
-              <p className="text-sm font-medium">Content blocks</p>
-              <p className="mt-2 text-3xl font-semibold">{enabledBlocks}</p>
+        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <Card className="space-y-6">
+            <CardHeader>
+              <CardTitle>Project summary</CardTitle>
+              <CardDescription>
+                Your public page is the hub for your links, socials, and latest
+                highlights.
+              </CardDescription>
+            </CardHeader>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="border-border bg-background rounded-3xl border p-5">
+                <p className="text-sm font-medium">Content blocks</p>
+                <p className="mt-2 text-3xl font-semibold">{enabledBlocks}</p>
+              </div>
+              <div className="border-border bg-background rounded-3xl border p-5">
+                <p className="text-sm font-medium">Published pages</p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {builder.pages.filter((page) => page.isPublished).length}
+                </p>
+              </div>
+              <div className="border-border bg-background rounded-3xl border p-5">
+                <p className="text-sm font-medium">Public URL</p>
+                <p className="mt-2 truncate text-2xl font-semibold">
+                  {publicUrl}
+                </p>
+              </div>
+              <div className="border-border bg-background rounded-3xl border p-5">
+                <p className="text-sm font-medium">Builder state</p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {builder.source === 'database' ? 'Saved' : 'Draft'}
+                </p>
+              </div>
             </div>
-            <div className="border-border bg-background rounded-3xl border p-5">
-              <p className="text-sm font-medium">Published pages</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {builder.pages.filter((page) => page.isPublished).length}
-              </p>
+          </Card>
+
+          <Card className="space-y-6">
+            <CardHeader>
+              <CardTitle>Quick actions</CardTitle>
+              <CardDescription>
+                Jump straight into the editor, preview your public page, or
+                manage your subscription.
+              </CardDescription>
+            </CardHeader>
+            <div className="space-y-3">
+              <Button asChild className="w-full">
+                <Link href="/dashboard/design">Open page editor</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/dashboard/settings">Manage billing</Link>
+              </Button>
+              <Button asChild variant="ghost" className="w-full">
+                <Link href="/dashboard/analytics">View analytics</Link>
+              </Button>
             </div>
-            <div className="border-border bg-background rounded-3xl border p-5">
-              <p className="text-sm font-medium">Public URL</p>
-              <p className="mt-2 truncate text-2xl font-semibold">
-                {publicUrl}
-              </p>
+          </Card>
+        </div>
+
+        <Card className="border-border bg-background/50 rounded-3xl border border-dashed p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>Editor status</CardTitle>
+              <CardDescription>
+                {builder.source === 'database'
+                  ? 'Your saved profile is ready to edit.'
+                  : 'No saved public profile yet. Design is showing the initial builder state.'}
+              </CardDescription>
             </div>
-            <div className="border-border bg-background rounded-3xl border p-5">
-              <p className="text-sm font-medium">Builder state</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {builder.source === 'database' ? 'Saved' : 'Draft'}
-              </p>
-            </div>
+            <Button asChild variant="secondary">
+              <Link href="/dashboard/design">Go to Design</Link>
+            </Button>
           </div>
         </Card>
 
-        <Card className="space-y-6">
-          <CardHeader>
-            <CardTitle>Quick actions</CardTitle>
-            <CardDescription>
-              Jump straight into the editor, preview your public page, or manage
-              your subscription.
-            </CardDescription>
-          </CardHeader>
-          <div className="space-y-3">
-            <Link href="/dashboard/design">
-              <Button className="w-full">Open page editor</Button>
-            </Link>
-            <Link href="/dashboard/settings">
-              <Button variant="outline" className="w-full">
-                Manage billing
-              </Button>
-            </Link>
-            <Link href="/dashboard/analytics">
-              <Button variant="ghost" className="w-full">
-                View analytics
-              </Button>
-            </Link>
+        <Card className="border-border bg-background/50 rounded-3xl border border-dashed p-6 xl:hidden">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle>Public page</CardTitle>
+              <CardDescription>{publicUrl}</CardDescription>
+            </div>
+            <Button asChild variant="outline">
+              <a href={`/${builder.profile.username}`}>
+                Open public page
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
           </div>
         </Card>
       </div>
 
-      <Card className="border-border bg-background/50 rounded-3xl border border-dashed p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <CardTitle>Editor status</CardTitle>
-            <CardDescription>
-              {builder.source === 'database'
-                ? 'Your saved profile is ready to edit.'
-                : 'No saved public profile yet. Design is showing the initial builder state.'}
-            </CardDescription>
-          </div>
-          <Link href="/dashboard/design">
-            <Button variant="secondary">Go to Design</Button>
-          </Link>
-        </div>
-      </Card>
+      <div className="min-w-0">
+        <MobileProfilePreview builder={builder} />
+      </div>
     </div>
   );
 }
