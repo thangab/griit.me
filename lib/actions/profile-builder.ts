@@ -20,15 +20,6 @@ const urlSchema = z
   .transform((value) => value || null);
 
 const builderSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(3, 'Username must be at least 3 characters.')
-    .max(32, 'Username must be 32 characters or less.')
-    .regex(
-      /^[a-z0-9_]+$/,
-      'Username can only contain lowercase letters, numbers, and underscores.',
-    ),
   displayName: z.string().trim().min(1, 'Display name is required.').max(120),
   bio: z.string().trim().max(300).optional(),
   sport: z.string().trim().max(80).optional(),
@@ -42,6 +33,19 @@ const builderSchema = z.object({
   galleryUrls: z.array(urlSchema).max(3),
 });
 
+const usernameSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, 'Username must be at least 3 characters.')
+    .max(32, 'Username must be 32 characters or less.')
+    .regex(
+      /^[a-z0-9_]+$/,
+      'Username can only contain lowercase letters, numbers, and underscores.',
+    ),
+});
+
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? '').trim();
 }
@@ -49,6 +53,15 @@ function getString(formData: FormData, key: string) {
 function getGalleryUrls(formData: FormData) {
   return ['galleryUrl1', 'galleryUrl2', 'galleryUrl3'].map((key) =>
     getString(formData, key),
+  );
+}
+
+function deriveUsername(email?: string | null) {
+  return (
+    email
+      ?.split('@')[0]
+      ?.toLowerCase()
+      .replace(/[^a-z0-9_]/g, '') || 'athlete'
   );
 }
 
@@ -207,7 +220,6 @@ export async function saveProfileBuilderAction(
   }
 
   const parsed = builderSchema.safeParse({
-    username: getString(formData, 'username').toLowerCase(),
     displayName: getString(formData, 'displayName'),
     bio: getString(formData, 'bio'),
     sport: getString(formData, 'sport'),
@@ -232,22 +244,14 @@ export async function saveProfileBuilderAction(
   const serviceSupabase = createServiceSupabaseClient();
 
   await ensurePrivateProfile(userData.user);
-
-  const { data: existingUsernameOwner } = await serviceSupabase
+  const { data: existingProfile } = await serviceSupabase
     .from('public_profiles')
-    .select('user_id')
-    .eq('username', input.username)
+    .select('username')
+    .eq('user_id', userData.user.id)
     .maybeSingle();
 
-  if (
-    existingUsernameOwner &&
-    existingUsernameOwner.user_id !== userData.user.id
-  ) {
-    return {
-      success: false,
-      message: 'This username is already taken.',
-    };
-  }
+  const username =
+    existingProfile?.username ?? deriveUsername(userData.user.email);
 
   const now = new Date().toISOString();
   const { data: profileData, error: profileError } = await serviceSupabase
@@ -255,7 +259,7 @@ export async function saveProfileBuilderAction(
     .upsert(
       {
         user_id: userData.user.id,
-        username: input.username,
+        username,
         display_name: input.displayName,
         bio: input.bio || null,
         sport: input.sport || null,
@@ -297,10 +301,101 @@ export async function saveProfileBuilderAction(
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/design');
-  revalidatePath(`/${input.username}`);
+  revalidatePath(`/${username}`);
 
   return {
     success: true,
     message: 'Profile saved.',
+  };
+}
+
+export async function updateProfileUrlAction(
+  _prevState: ProfileBuilderActionState,
+  formData: FormData,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      success: false,
+      message: 'You need to be signed in to update your profile URL.',
+    };
+  }
+
+  const parsed = usernameSchema.safeParse({
+    username: getString(formData, 'username'),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? 'Invalid username.',
+    };
+  }
+
+  const { username } = parsed.data;
+  const serviceSupabase = createServiceSupabaseClient();
+
+  await ensurePrivateProfile(userData.user);
+
+  const { data: existingUsernameOwner } = await serviceSupabase
+    .from('public_profiles')
+    .select('user_id')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (
+    existingUsernameOwner &&
+    existingUsernameOwner.user_id !== userData.user.id
+  ) {
+    return {
+      success: false,
+      message: 'This username is already taken.',
+    };
+  }
+
+  const { data: existingProfile } = await serviceSupabase
+    .from('public_profiles')
+    .select('username, display_name')
+    .eq('user_id', userData.user.id)
+    .maybeSingle();
+
+  const previousUsername = existingProfile?.username;
+  const fallbackDisplayName =
+    existingProfile?.display_name ||
+    userData.user.user_metadata?.full_name ||
+    userData.user.user_metadata?.name ||
+    username;
+
+  const { error } = await serviceSupabase.from('public_profiles').upsert(
+    {
+      user_id: userData.user.id,
+      username,
+      display_name: String(fallbackDisplayName),
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' },
+  );
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard/design');
+  revalidatePath('/dashboard/settings');
+  revalidatePath(`/${username}`);
+
+  if (previousUsername && previousUsername !== username) {
+    revalidatePath(`/${previousUsername}`);
+  }
+
+  return {
+    success: true,
+    message: 'Public URL updated.',
   };
 }

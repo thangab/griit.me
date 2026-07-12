@@ -41,7 +41,7 @@ function Field({
   );
 }
 
-export function DesignEditor({ builder }: { builder: ProfileBuilderState }) {
+export function ContentEditor({ builder }: { builder: ProfileBuilderState }) {
   const [state, formAction, pending] = useActionState(
     saveProfileBuilderAction,
     initialState,
@@ -55,7 +55,7 @@ export function DesignEditor({ builder }: { builder: ProfileBuilderState }) {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
-            Editor
+            Content
           </p>
           <p className="mt-2 font-semibold">Profile details</p>
         </div>
@@ -78,12 +78,6 @@ export function DesignEditor({ builder }: { builder: ProfileBuilderState }) {
       ) : null}
 
       <div className="space-y-3">
-        <Field
-          label="Username"
-          name="username"
-          defaultValue={profile.username}
-          placeholder="gumhy"
-        />
         <Field
           label="Display name"
           name="displayName"
