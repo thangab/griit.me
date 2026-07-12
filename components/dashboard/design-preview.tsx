@@ -50,7 +50,7 @@ export function DesignPreview({ builder }: { builder: ProfileBuilderState }) {
         </div>
       </div>
 
-      <div className="border-border max-w-full overflow-hidden rounded-2xl border bg-slate-950 p-2 shadow-xl sm:rounded-4xl sm:p-4 xl:flex xl:min-h-0 xl:flex-1 xl:items-center">
+      <div className="max-w-full overflow-hidden p-2 sm:p-4 xl:flex xl:min-h-0 xl:flex-1 xl:items-center">
         <div
           className={`relative overflow-hidden rounded-2xl bg-white shadow-xl sm:rounded-4xl ${previewStyles[mode].wrapper}`}
         >

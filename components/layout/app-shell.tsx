@@ -8,7 +8,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         <DashboardSidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <MobileDashboardNav />
-          <main className="min-w-0 flex-1 p-4 sm:p-6">{children}</main>
+          <main className="bg-accent min-w-0 flex-1 p-4 sm:p-6">
+            {children}
+          </main>
         </div>
       </div>
     </div>
