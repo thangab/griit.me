@@ -91,6 +91,39 @@ function SelectField({
   );
 }
 
+function SportsField({
+  availableSports,
+  selectedSlugs,
+}: {
+  availableSports: ProfileBuilderState['availableSports'];
+  selectedSlugs: string[];
+}) {
+  const selected = new Set(selectedSlugs);
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium">Sports</p>
+      <div className="grid grid-cols-2 gap-2">
+        {availableSports.map((sport) => (
+          <label
+            key={sport.slug}
+            className="border-border bg-background has-checked:border-primary has-checked:bg-primary/5 flex min-h-10 items-center gap-2 rounded-md border px-3 text-sm transition"
+          >
+            <input
+              className="h-4 w-4"
+              defaultChecked={selected.has(sport.slug)}
+              name="sportSlugs"
+              type="checkbox"
+              value={sport.slug}
+            />
+            <span>{sport.name}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ContentEditor({ builder }: { builder: ProfileBuilderState }) {
   const [state, formAction, pending] = useActionState(
     saveProfileBuilderAction,
@@ -199,11 +232,9 @@ export function ContentEditor({ builder }: { builder: ProfileBuilderState }) {
           defaultValue={profile.bio}
           placeholder="Tell the story in a few lines."
         />
-        <Field
-          label="Sport"
-          name="sport"
-          defaultValue={profile.sport}
-          placeholder="Running"
+        <SportsField
+          availableSports={builder.availableSports}
+          selectedSlugs={profile.sportSlugs}
         />
         <Field
           label="Location"

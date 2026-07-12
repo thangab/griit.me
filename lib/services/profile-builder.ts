@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
 import { defaultProfileTemplateId } from '@/lib/constants/profile-templates';
+import { defaultSports } from '@/lib/constants/sports';
 import type {
   BuilderBlock,
   BuilderGalleryItem,
@@ -22,7 +23,6 @@ interface PublicProfileRow {
   username: string;
   display_name: string;
   bio: string | null;
-  sport: string | null;
   location: string | null;
   avatar_url: string | null;
   cover_url: string | null;
@@ -55,6 +55,19 @@ interface SocialLinkRow {
   url: string;
   sort_order: number;
   is_enabled: boolean;
+}
+
+interface SportRow {
+  id: number;
+  name: string;
+  slug: string;
+  is_enabled: boolean;
+}
+
+interface ProfileSportRow {
+  sort_order: number;
+  is_enabled: boolean;
+  sports: SportRow | SportRow[] | null;
 }
 
 interface GalleryItemRow {
@@ -132,7 +145,8 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       username,
       displayName: username,
       bio: 'I run and build my athlete story.',
-      sport: 'Running',
+      sports: ['Running'],
+      sportSlugs: ['running'],
       location: 'Bangkok',
       avatarUrl: defaultAvatarUrl,
       coverUrl: defaultCoverUrl,
@@ -236,6 +250,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         isEnabled: true,
       },
     ],
+    availableSports: [...defaultSports],
   };
 }
 
@@ -245,7 +260,8 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     username: row.username,
     displayName: row.display_name,
     bio: row.bio ?? '',
-    sport: row.sport ?? '',
+    sports: [],
+    sportSlugs: [],
     location: row.location ?? '',
     avatarUrl: row.avatar_url ?? defaultAvatarUrl,
     coverUrl: row.cover_url ?? defaultCoverUrl,
@@ -333,6 +349,10 @@ function mapGoal(row: GoalRow): BuilderGoalItem {
   };
 }
 
+function getProfileSport(row: ProfileSportRow) {
+  return Array.isArray(row.sports) ? row.sports[0] : row.sports;
+}
+
 async function mapProfileBuilderState(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   profileRow: PublicProfileRow,
@@ -340,6 +360,8 @@ async function mapProfileBuilderState(
   const [
     pagesResult,
     socialsResult,
+    availableSportsResult,
+    sportsResult,
     galleryResult,
     achievementsResult,
     activitiesResult,
@@ -354,6 +376,17 @@ async function mapProfileBuilderState(
       .from('profile_social_links')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('sports')
+      .select('*')
+      .eq('is_enabled', true)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('profile_sports')
+      .select('sort_order, is_enabled, sports(*)')
+      .eq('profile_id', profileRow.id)
+      .eq('is_enabled', true)
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_gallery_items')
@@ -388,9 +421,23 @@ async function mapProfileBuilderState(
         .order('sort_order', { ascending: true })
     : { data: [] };
 
+  const availableSports = (
+    (availableSportsResult.data ?? []) as SportRow[]
+  ).map((sport) => ({
+    name: sport.name,
+    slug: sport.slug,
+  }));
+  const selectedSports = ((sportsResult.data ?? []) as ProfileSportRow[])
+    .map(getProfileSport)
+    .filter((sport): sport is SportRow => Boolean(sport));
+
   return {
     source: 'database',
-    profile: mapProfile(profileRow),
+    profile: {
+      ...mapProfile(profileRow),
+      sports: selectedSports.map((sport) => sport.name),
+      sportSlugs: selectedSports.map((sport) => sport.slug),
+    },
     pages: pages.map(mapPage),
     blocks: ((blockData ?? []) as BlockRow[]).map(mapBlock),
     socialLinks: ((socialsResult.data ?? []) as SocialLinkRow[]).map(
@@ -406,6 +453,9 @@ async function mapProfileBuilderState(
       mapActivity,
     ),
     goals: ((goalsResult.data ?? []) as GoalRow[]).map(mapGoal),
+    availableSports: availableSports.length
+      ? availableSports
+      : [...defaultSports],
   };
 }
 

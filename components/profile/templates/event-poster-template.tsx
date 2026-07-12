@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils/cn';
+import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import type { ProfileTemplateVariant } from '@/components/profile/templates/goal-spotlight-template';
 
@@ -22,6 +23,13 @@ export function EventPosterTemplate({
   const goalDescription =
     primaryGoal?.description ?? 'This athlete is preparing the next objective.';
   const goalTarget = primaryGoal?.targetLabel ?? 'No target date';
+  const profileSummary =
+    formatProfileSummary({
+      bio: profile.bio,
+      location: profile.location,
+      sports: profile.sports,
+    }) || 'More context coming soon.';
+  const sports = profile.sports;
 
   return (
     <main
@@ -83,10 +91,20 @@ export function EventPosterTemplate({
           <div className="rounded-[2rem] border border-white/10 bg-white/10 p-5">
             <p className="text-sm font-semibold">Athlete context</p>
             <p className="mt-3 text-sm leading-6 text-white/65">
-              {[profile.bio, profile.location, profile.sport]
-                .filter(Boolean)
-                .join(' · ') || 'More context coming soon.'}
+              {profileSummary}
             </p>
+            {sports.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {sports.map((sport) => (
+                  <span
+                    key={sport}
+                    className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950"
+                  >
+                    {sport}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <div className="mt-4 flex flex-wrap gap-2">
               {socialLinks.map((link) => (
                 <a

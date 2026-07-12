@@ -73,7 +73,6 @@ export const public_profiles = pgTable(
     username: varchar('username', { length: 32 }).notNull(),
     display_name: varchar('display_name', { length: 120 }).notNull(),
     bio: text('bio'),
-    sport: varchar('sport', { length: 80 }),
     location: varchar('location', { length: 120 }),
     avatar_url: text('avatar_url'),
     cover_url: text('cover_url'),
@@ -161,6 +160,47 @@ export const profile_social_links = pgTable(
     profileIdx: index('profile_social_links_profile_id_idx').on(
       table.profile_id,
     ),
+  }),
+);
+
+export const sports = pgTable(
+  'sports',
+  {
+    id: serial('id').primaryKey(),
+    name: varchar('name', { length: 80 }).notNull(),
+    slug: varchar('slug', { length: 80 }).notNull(),
+    sort_order: integer('sort_order').default(0).notNull(),
+    is_enabled: boolean('is_enabled').default(true).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    slugUnique: uniqueIndex('sports_slug_unique').on(table.slug),
+    slugIdx: index('sports_slug_idx').on(table.slug),
+  }),
+);
+
+export const profile_sports = pgTable(
+  'profile_sports',
+  {
+    id: serial('id').primaryKey(),
+    profile_id: integer('profile_id')
+      .notNull()
+      .references(() => public_profiles.id),
+    sport_id: integer('sport_id')
+      .notNull()
+      .references(() => sports.id),
+    sort_order: integer('sort_order').default(0).notNull(),
+    is_enabled: boolean('is_enabled').default(true).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    profileIdx: index('profile_sports_profile_id_idx').on(table.profile_id),
+    sportIdx: index('profile_sports_sport_id_idx').on(table.sport_id),
+    profileSportUnique: uniqueIndex(
+      'profile_sports_profile_id_sport_id_unique',
+    ).on(table.profile_id, table.sport_id),
   }),
 );
 

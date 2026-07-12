@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils/cn';
+import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
 export type ProfileTemplateVariant =
@@ -24,9 +25,12 @@ export function GoalSpotlightTemplate({
     primaryGoal?.description ?? 'This athlete is preparing the next objective.';
   const goalTarget = primaryGoal?.targetLabel ?? 'No target date';
   const profileSummary =
-    [profile.bio, profile.location, profile.sport]
-      .filter(Boolean)
-      .join(' · ') || 'More context coming soon.';
+    formatProfileSummary({
+      bio: profile.bio,
+      location: profile.location,
+      sports: profile.sports,
+    }) || 'More context coming soon.';
+  const sports = profile.sports;
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
   const isDesktopPreview = variant === 'desktop-preview';
@@ -118,6 +122,18 @@ export function GoalSpotlightTemplate({
           <div className="rounded-3xl bg-white p-6 shadow-sm">
             <p className="text-sm font-semibold">Athlete context</p>
             <p className="mt-3 leading-7 text-slate-600">{profileSummary}</p>
+            {sports.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {sports.map((sport) => (
+                  <span
+                    key={sport}
+                    className="rounded-full bg-slate-950 px-3 py-1.5 text-xs font-medium text-white"
+                  >
+                    {sport}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             {socialLinks.length ? (
               <div className="mt-5 flex flex-wrap gap-2">
                 {socialLinks.map((link) => (

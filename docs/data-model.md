@@ -15,6 +15,9 @@ core model.
   can add more pages.
 - `profile_blocks`: ordered content blocks on a page.
 - `profile_social_links`: ordered external links and social accounts.
+- `sports`: global sport catalog used by the builder and discovery surfaces.
+- `profile_sports`: ordered join table linking public profiles to one or more
+  sports. This powers future sport-based profile discovery.
 - `profile_gallery_items`: profile media gallery.
 - `profile_achievements`: manual achievements, races, milestones or titles.
 - `profile_activities`: manual activity feed, later usable by integrations.

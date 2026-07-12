@@ -35,7 +35,7 @@ const dateSchema = z
 const builderSchema = z.object({
   displayName: z.string().trim().min(1, 'Display name is required.').max(120),
   bio: z.string().trim().max(300).optional(),
-  sport: z.string().trim().max(80).optional(),
+  sportSlugs: z.array(z.string().trim().max(80)).max(8),
   location: z.string().trim().max(120).optional(),
   avatarUrl: urlSchema,
   coverUrl: urlSchema,
@@ -94,6 +94,13 @@ function getGoals(formData: FormData) {
     targetAt: getString(formData, `goalTargetAt${index}`),
     status: getString(formData, `goalStatus${index}`) || 'planned',
   }));
+}
+
+function getSportSlugs(formData: FormData) {
+  return formData
+    .getAll('sportSlugs')
+    .map((value) => String(value).trim())
+    .filter(Boolean);
 }
 
 function deriveUsername(email?: string | null) {
@@ -211,6 +218,58 @@ async function replaceGoals(
   }
 }
 
+async function replaceSports(
+  profileId: number,
+  input: z.infer<typeof builderSchema>,
+) {
+  const serviceSupabase = createServiceSupabaseClient();
+  await serviceSupabase
+    .from('profile_sports')
+    .delete()
+    .eq('profile_id', profileId);
+
+  if (!input.sportSlugs.length) {
+    return;
+  }
+
+  const { data: sportsData, error } = await serviceSupabase
+    .from('sports')
+    .select('id, slug')
+    .in('slug', input.sportSlugs);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const sportIdBySlug = new Map(
+    ((sportsData ?? []) as { id: number; slug: string }[]).map((sport) => [
+      sport.slug,
+      sport.id,
+    ]),
+  );
+
+  const sportRows = input.sportSlugs
+    .map((slug, index) => {
+      const sportId = sportIdBySlug.get(slug);
+
+      if (!sportId) {
+        return null;
+      }
+
+      return {
+        profile_id: profileId,
+        sport_id: sportId,
+        sort_order: index,
+        is_enabled: true,
+      };
+    })
+    .filter((sport): sport is NonNullable<typeof sport> => Boolean(sport));
+
+  if (sportRows.length) {
+    await serviceSupabase.from('profile_sports').insert(sportRows);
+  }
+}
+
 async function ensureHomePageAndBlocks(profileId: number) {
   const serviceSupabase = createServiceSupabaseClient();
   const { data: pageData, error: pageError } = await serviceSupabase
@@ -297,7 +356,7 @@ export async function saveProfileBuilderAction(
   const parsed = builderSchema.safeParse({
     displayName: getString(formData, 'displayName'),
     bio: getString(formData, 'bio'),
-    sport: getString(formData, 'sport'),
+    sportSlugs: getSportSlugs(formData),
     location: getString(formData, 'location'),
     avatarUrl: getString(formData, 'avatarUrl'),
     coverUrl: getString(formData, 'coverUrl'),
@@ -338,7 +397,6 @@ export async function saveProfileBuilderAction(
         username,
         display_name: input.displayName,
         bio: input.bio || null,
-        sport: input.sport || null,
         location: input.location || null,
         avatar_url: input.avatarUrl,
         cover_url: input.coverUrl,
@@ -365,6 +423,7 @@ export async function saveProfileBuilderAction(
       replaceSocialLinks(profileId, input),
       replaceGalleryItems(profileId, input),
       replaceGoals(profileId, input),
+      replaceSports(profileId, input),
     ]);
   } catch (error) {
     return {

@@ -3,12 +3,18 @@ export interface BuilderProfile {
   username: string;
   displayName: string;
   bio: string;
-  sport: string;
+  sports: string[];
+  sportSlugs: string[];
   location: string;
   avatarUrl: string;
   coverUrl: string;
   isPublished: boolean;
   theme: Record<string, unknown>;
+}
+
+export interface BuilderSport {
+  name: string;
+  slug: string;
 }
 
 export interface BuilderPage {
@@ -77,4 +83,5 @@ export interface ProfileBuilderState {
   achievements: BuilderTimelineItem[];
   activities: BuilderTimelineItem[];
   goals: BuilderGoalItem[];
+  availableSports: BuilderSport[];
 }
