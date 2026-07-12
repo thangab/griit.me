@@ -10,6 +10,7 @@ core model.
 
 - `profiles`: private account profile synced from Supabase Auth.
 - `public_profiles`: public athlete identity and top-level theme state.
+  `theme.templateId` selects the public profile template.
 - `profile_pages`: pages under a public profile. MVP uses `home`; future plans
   can add more pages.
 - `profile_blocks`: ordered content blocks on a page.
@@ -17,6 +18,8 @@ core model.
 - `profile_gallery_items`: profile media gallery.
 - `profile_achievements`: manual achievements, races, milestones or titles.
 - `profile_activities`: manual activity feed, later usable by integrations.
+- `profile_goals`: active or planned athlete objectives with optional target
+  dates and status.
 
 ## Billing Tables
 
@@ -33,3 +36,12 @@ All profile builder tables use RLS.
 Owners can read and write their own profile builder data. Published/enabled data
 can be selected publicly so public profile pages can render without service-role
 access.
+
+## Templates
+
+Profile templates are registered in code and selected through
+`public_profiles.theme.templateId`.
+
+The default template is `goal_spotlight`. Premium templates can be marked as
+Pro-only and must be gated on the server before writing the selected template to
+the profile theme JSON.

@@ -1,7 +1,9 @@
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import { defaultProfileTemplateId } from '@/lib/constants/profile-templates';
 import type {
   BuilderBlock,
   BuilderGalleryItem,
+  BuilderGoalItem,
   BuilderPage,
   BuilderSocialLink,
   BuilderTimelineItem,
@@ -82,6 +84,16 @@ interface ActivityRow {
   is_enabled: boolean;
 }
 
+interface GoalRow {
+  id: number;
+  title: string;
+  description: string | null;
+  target_at: string | null;
+  status: string;
+  sort_order: number;
+  is_enabled: boolean;
+}
+
 function deriveUsername(email?: string | null) {
   return (
     email
@@ -102,6 +114,14 @@ function formatDateLabel(value: string | null) {
   }).format(new Date(value));
 }
 
+function formatDateInput(value: string | null) {
+  return value ? value.slice(0, 10) : '';
+}
+
+function formatGoalTargetLabel(value: string | null) {
+  return value ? formatDateLabel(value) : 'No target date';
+}
+
 function createInitialBuilderState(email?: string | null): ProfileBuilderState {
   const username = deriveUsername(email);
 
@@ -117,7 +137,9 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       avatarUrl: defaultAvatarUrl,
       coverUrl: defaultCoverUrl,
       isPublished: false,
-      theme: {},
+      theme: {
+        templateId: defaultProfileTemplateId,
+      },
     },
     pages: [
       {
@@ -132,10 +154,18 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
     blocks: [
       {
         id: null,
+        type: 'goals',
+        title: 'Goals',
+        content: {},
+        sortOrder: 0,
+        isEnabled: true,
+      },
+      {
+        id: null,
         type: 'hero',
         title: 'Athlete intro',
         content: {},
-        sortOrder: 0,
+        sortOrder: 1,
         isEnabled: true,
       },
       {
@@ -143,7 +173,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         type: 'gallery',
         title: 'Gallery',
         content: {},
-        sortOrder: 1,
+        sortOrder: 2,
         isEnabled: true,
       },
       {
@@ -151,7 +181,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         type: 'achievements',
         title: 'Achievements',
         content: {},
-        sortOrder: 2,
+        sortOrder: 3,
         isEnabled: true,
       },
     ],
@@ -189,6 +219,19 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         title: 'Recent activity',
         description: 'Add a manual workout or future integration activity.',
         dateLabel: 'Manual',
+        sortOrder: 0,
+        isEnabled: true,
+      },
+    ],
+    goals: [
+      {
+        id: null,
+        title: 'Run 10K under 40 minutes',
+        description:
+          'A clear performance goal to guide the next training block.',
+        targetDate: '',
+        targetLabel: 'No target date',
+        status: 'planned',
         sortOrder: 0,
         isEnabled: true,
       },
@@ -277,33 +320,30 @@ function mapActivity(row: ActivityRow): BuilderTimelineItem {
   };
 }
 
-export async function getProfileBuilderState(): Promise<ProfileBuilderState> {
-  const supabase = await createServerSupabaseClient();
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
+function mapGoal(row: GoalRow): BuilderGoalItem {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description ?? '',
+    targetDate: formatDateInput(row.target_at),
+    targetLabel: formatGoalTargetLabel(row.target_at),
+    status: row.status,
+    sortOrder: row.sort_order,
+    isEnabled: row.is_enabled,
+  };
+}
 
-  if (!user) {
-    return createInitialBuilderState();
-  }
-
-  const { data: profileData } = await supabase
-    .from('public_profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  const profileRow = profileData as PublicProfileRow | null;
-
-  if (!profileRow) {
-    return createInitialBuilderState(user.email);
-  }
-
+async function mapProfileBuilderState(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  profileRow: PublicProfileRow,
+): Promise<ProfileBuilderState> {
   const [
     pagesResult,
     socialsResult,
     galleryResult,
     achievementsResult,
     activitiesResult,
+    goalsResult,
   ] = await Promise.all([
     supabase
       .from('profile_pages')
@@ -327,6 +367,11 @@ export async function getProfileBuilderState(): Promise<ProfileBuilderState> {
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_activities')
+      .select('*')
+      .eq('profile_id', profileRow.id)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('profile_goals')
       .select('*')
       .eq('profile_id', profileRow.id)
       .order('sort_order', { ascending: true }),
@@ -360,5 +405,48 @@ export async function getProfileBuilderState(): Promise<ProfileBuilderState> {
     activities: ((activitiesResult.data ?? []) as ActivityRow[]).map(
       mapActivity,
     ),
+    goals: ((goalsResult.data ?? []) as GoalRow[]).map(mapGoal),
   };
+}
+
+export async function getProfileBuilderState(): Promise<ProfileBuilderState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData.user;
+
+  if (!user) {
+    return createInitialBuilderState();
+  }
+
+  const { data: profileData } = await supabase
+    .from('public_profiles')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const profileRow = profileData as PublicProfileRow | null;
+
+  if (!profileRow) {
+    return createInitialBuilderState(user.email);
+  }
+
+  return mapProfileBuilderState(supabase, profileRow);
+}
+
+export async function getPublicProfileBuilderState(username: string) {
+  const supabase = await createServerSupabaseClient();
+  const { data: profileData } = await supabase
+    .from('public_profiles')
+    .select('*')
+    .eq('username', username)
+    .eq('is_published', true)
+    .maybeSingle();
+
+  const profileRow = profileData as PublicProfileRow | null;
+
+  if (!profileRow) {
+    return null;
+  }
+
+  return mapProfileBuilderState(supabase, profileRow);
 }

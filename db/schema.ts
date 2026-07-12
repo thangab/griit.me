@@ -231,3 +231,24 @@ export const profile_activities = pgTable(
     profileIdx: index('profile_activities_profile_id_idx').on(table.profile_id),
   }),
 );
+
+export const profile_goals = pgTable(
+  'profile_goals',
+  {
+    id: serial('id').primaryKey(),
+    profile_id: integer('profile_id')
+      .notNull()
+      .references(() => public_profiles.id),
+    title: varchar('title', { length: 160 }).notNull(),
+    description: text('description'),
+    target_at: timestamp('target_at'),
+    status: varchar('status', { length: 32 }).default('planned').notNull(),
+    sort_order: integer('sort_order').default(0).notNull(),
+    is_enabled: boolean('is_enabled').default(true).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    profileIdx: index('profile_goals_profile_id_idx').on(table.profile_id),
+  }),
+);

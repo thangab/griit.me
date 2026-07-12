@@ -6,6 +6,12 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from '@/lib/config/supabase-server';
+import {
+  defaultProfileTemplateId,
+  getProfileTemplate,
+  isProfileTemplateId,
+} from '@/lib/constants/profile-templates';
+import { getSubscriptionState } from '@/lib/services/billing';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -16,6 +22,13 @@ const urlSchema = z
   .string()
   .trim()
   .url()
+  .or(z.literal(''))
+  .transform((value) => value || null);
+
+const dateSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Target date must be a valid date.')
   .or(z.literal(''))
   .transform((value) => value || null);
 
@@ -31,6 +44,20 @@ const builderSchema = z.object({
   socialLabel: z.string().trim().max(80).optional(),
   socialUrl: urlSchema,
   galleryUrls: z.array(urlSchema).max(3),
+  goals: z
+    .array(
+      z.object({
+        title: z.string().trim().max(160),
+        description: z.string().trim().max(500).optional(),
+        targetAt: dateSchema,
+        status: z
+          .string()
+          .trim()
+          .max(32)
+          .regex(/^[a-z_]*$/, 'Goal status is invalid.'),
+      }),
+    )
+    .max(3),
 });
 
 const usernameSchema = z.object({
@@ -46,6 +73,10 @@ const usernameSchema = z.object({
     ),
 });
 
+const templateSchema = z.object({
+  templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
+});
+
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? '').trim();
 }
@@ -54,6 +85,15 @@ function getGalleryUrls(formData: FormData) {
   return ['galleryUrl1', 'galleryUrl2', 'galleryUrl3'].map((key) =>
     getString(formData, key),
   );
+}
+
+function getGoals(formData: FormData) {
+  return [1, 2, 3].map((index) => ({
+    title: getString(formData, `goalTitle${index}`),
+    description: getString(formData, `goalDescription${index}`),
+    targetAt: getString(formData, `goalTargetAt${index}`),
+    status: getString(formData, `goalStatus${index}`) || 'planned',
+  }));
 }
 
 function deriveUsername(email?: string | null) {
@@ -144,6 +184,33 @@ async function replaceGalleryItems(
   }
 }
 
+async function replaceGoals(
+  profileId: number,
+  input: z.infer<typeof builderSchema>,
+) {
+  const serviceSupabase = createServiceSupabaseClient();
+  await serviceSupabase
+    .from('profile_goals')
+    .delete()
+    .eq('profile_id', profileId);
+
+  const goalRows = input.goals
+    .filter((goal) => goal.title)
+    .map((goal, index) => ({
+      profile_id: profileId,
+      title: goal.title,
+      description: goal.description || null,
+      target_at: goal.targetAt,
+      status: goal.status || 'planned',
+      sort_order: index,
+      is_enabled: true,
+    }));
+
+  if (goalRows.length) {
+    await serviceSupabase.from('profile_goals').insert(goalRows);
+  }
+}
+
 async function ensureHomePageAndBlocks(profileId: number) {
   const serviceSupabase = createServiceSupabaseClient();
   const { data: pageData, error: pageError } = await serviceSupabase
@@ -180,10 +247,18 @@ async function ensureHomePageAndBlocks(profileId: number) {
   await serviceSupabase.from('profile_blocks').insert([
     {
       page_id: homePageId,
+      type: 'goals',
+      title: 'Goals',
+      content: {},
+      sort_order: 0,
+      is_enabled: true,
+    },
+    {
+      page_id: homePageId,
       type: 'hero',
       title: 'Athlete intro',
       content: {},
-      sort_order: 0,
+      sort_order: 1,
       is_enabled: true,
     },
     {
@@ -191,7 +266,7 @@ async function ensureHomePageAndBlocks(profileId: number) {
       type: 'gallery',
       title: 'Gallery',
       content: {},
-      sort_order: 1,
+      sort_order: 2,
       is_enabled: true,
     },
     {
@@ -199,7 +274,7 @@ async function ensureHomePageAndBlocks(profileId: number) {
       type: 'achievements',
       title: 'Achievements',
       content: {},
-      sort_order: 2,
+      sort_order: 3,
       is_enabled: true,
     },
   ]);
@@ -231,6 +306,7 @@ export async function saveProfileBuilderAction(
     socialLabel: getString(formData, 'socialLabel'),
     socialUrl: getString(formData, 'socialUrl'),
     galleryUrls: getGalleryUrls(formData),
+    goals: getGoals(formData),
   });
 
   if (!parsed.success) {
@@ -288,6 +364,7 @@ export async function saveProfileBuilderAction(
       ensureHomePageAndBlocks(profileId),
       replaceSocialLinks(profileId, input),
       replaceGalleryItems(profileId, input),
+      replaceGoals(profileId, input),
     ]);
   } catch (error) {
     return {
@@ -397,5 +474,90 @@ export async function updateProfileUrlAction(
   return {
     success: true,
     message: 'Public URL updated.',
+  };
+}
+
+export async function updateProfileTemplateAction(
+  _prevState: ProfileBuilderActionState,
+  formData: FormData,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      success: false,
+      message: 'You need to be signed in to update your template.',
+    };
+  }
+
+  const parsed = templateSchema.safeParse({
+    templateId: getString(formData, 'templateId'),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? 'Invalid template.',
+    };
+  }
+
+  const template = getProfileTemplate(parsed.data.templateId);
+  const subscription = await getSubscriptionState();
+
+  if (template?.proOnly && !subscription.isActive) {
+    return {
+      success: false,
+      message: 'This template requires the Pro plan.',
+    };
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: existingProfile, error: existingError } = await serviceSupabase
+    .from('public_profiles')
+    .select('username, theme')
+    .eq('user_id', userData.user.id)
+    .maybeSingle();
+
+  if (existingError || !existingProfile) {
+    return {
+      success: false,
+      message:
+        existingError?.message ??
+        'Save your profile before selecting a template.',
+    };
+  }
+
+  const existingTheme =
+    existingProfile.theme && typeof existingProfile.theme === 'object'
+      ? (existingProfile.theme as Record<string, unknown>)
+      : {};
+  const templateId = parsed.data.templateId || defaultProfileTemplateId;
+
+  const { error } = await serviceSupabase
+    .from('public_profiles')
+    .update({
+      theme: {
+        ...existingTheme,
+        templateId,
+      },
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userData.user.id);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard/design');
+  revalidatePath(`/${existingProfile.username}`);
+
+  return {
+    success: true,
+    message: 'Template updated.',
   };
 }

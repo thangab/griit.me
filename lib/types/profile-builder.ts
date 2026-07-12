@@ -56,6 +56,17 @@ export interface BuilderTimelineItem {
   isEnabled: boolean;
 }
 
+export interface BuilderGoalItem {
+  id: number | null;
+  title: string;
+  description: string;
+  targetDate: string;
+  targetLabel: string;
+  status: string;
+  sortOrder: number;
+  isEnabled: boolean;
+}
+
 export interface ProfileBuilderState {
   source: 'database' | 'initial';
   profile: BuilderProfile;
@@ -65,4 +76,5 @@ export interface ProfileBuilderState {
   galleryItems: BuilderGalleryItem[];
   achievements: BuilderTimelineItem[];
   activities: BuilderTimelineItem[];
+  goals: BuilderGoalItem[];
 }

@@ -5,7 +5,7 @@ import type { SubscriptionState } from '@/lib/types/billing';
 const defaultSubscriptionState: SubscriptionState = {
   plan: 'free',
   status: 'free',
-  isActive: true,
+  isActive: false,
   features: subscriptionPlans.free.features,
 };
 
