@@ -209,7 +209,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         isEnabled: true,
       },
     ],
-    galleryItems: Array.from({ length: 3 }, (_, index) => ({
+    galleryItems: Array.from({ length: 1 }, (_, index) => ({
       id: null,
       imageUrl: defaultGalleryUrl,
       caption: `Training moment ${index + 1}`,
@@ -218,25 +218,8 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       isEnabled: true,
     })),
     achievements: [
-      {
-        id: null,
-        title: 'First milestone',
-        description: 'Add your race, event, or personal achievement.',
-        dateLabel: 'Manual',
-        sortOrder: 0,
-        isEnabled: true,
-      },
     ],
-    activities: [
-      {
-        id: null,
-        title: 'Recent activity',
-        description: 'Add a manual workout or future integration activity.',
-        dateLabel: 'Manual',
-        sortOrder: 0,
-        isEnabled: true,
-      },
-    ],
+    activities: [],
     goals: [
       {
         id: null,
@@ -255,6 +238,14 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
 }
 
 function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
+  const theme = row.theme ?? {};
+  const hasThemeCoverUrl = Object.prototype.hasOwnProperty.call(
+    theme,
+    'coverImageUrl',
+  );
+  const themeCoverUrl =
+    typeof theme.coverImageUrl === 'string' ? theme.coverImageUrl : null;
+
   return {
     id: row.id,
     username: row.username,
@@ -264,9 +255,11 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     sportSlugs: [],
     location: row.location ?? '',
     avatarUrl: row.avatar_url ?? defaultAvatarUrl,
-    coverUrl: row.cover_url ?? defaultCoverUrl,
+    coverUrl: hasThemeCoverUrl
+      ? themeCoverUrl || defaultCoverUrl
+      : row.cover_url || defaultCoverUrl,
     isPublished: row.is_published,
-    theme: row.theme ?? {},
+    theme,
   };
 }
 
@@ -320,6 +313,7 @@ function mapAchievement(row: AchievementRow): BuilderTimelineItem {
     title: row.title,
     description: row.description ?? '',
     dateLabel: formatDateLabel(row.achieved_at),
+    date: formatDateInput(row.achieved_at),
     sortOrder: row.sort_order,
     isEnabled: row.is_enabled,
   };
@@ -331,6 +325,7 @@ function mapActivity(row: ActivityRow): BuilderTimelineItem {
     title: row.title,
     description: row.activity_type ?? '',
     dateLabel: formatDateLabel(row.occurred_at),
+    date: formatDateInput(row.occurred_at),
     sortOrder: row.sort_order,
     isEnabled: row.is_enabled,
   };

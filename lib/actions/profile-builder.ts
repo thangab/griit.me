@@ -12,6 +12,13 @@ import {
   isProfileTemplateId,
 } from '@/lib/constants/profile-templates';
 import { getSubscriptionState } from '@/lib/services/billing';
+import {
+  colorPresets,
+  fontPresets,
+  galleryLayouts,
+  overlayPresets,
+  radiusPresets,
+} from '@/lib/constants/profile-theme';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -36,14 +43,30 @@ const builderSchema = z.object({
   displayName: z.string().trim().min(1, 'Display name is required.').max(120),
   bio: z.string().trim().max(300).optional(),
   sportSlugs: z.array(z.string().trim().max(80)).max(8),
-  location: z.string().trim().max(120).optional(),
   avatarUrl: urlSchema,
-  coverUrl: urlSchema,
   isPublished: z.boolean(),
   socialPlatform: z.string().trim().max(48).optional(),
   socialLabel: z.string().trim().max(80).optional(),
   socialUrl: urlSchema,
-  galleryUrls: z.array(urlSchema).max(3),
+  galleryUrls: z.array(urlSchema).max(50),
+  achievements: z
+    .array(
+      z.object({
+        title: z.string().trim().max(160),
+        description: z.string().trim().max(500).optional(),
+        achievedAt: dateSchema,
+      }),
+    )
+    .max(3),
+  activities: z
+    .array(
+      z.object({
+        title: z.string().trim().max(160),
+        activityType: z.string().trim().max(80).optional(),
+        occurredAt: dateSchema,
+      }),
+    )
+    .max(1),
   goals: z
     .array(
       z.object({
@@ -75,6 +98,12 @@ const usernameSchema = z.object({
 
 const templateSchema = z.object({
   templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
+  coverUrl: urlSchema,
+  colorPreset: z.enum(colorPresets.map((item) => item.id) as [string, ...string[]]),
+  fontPreset: z.enum(fontPresets.map((item) => item.id) as [string, ...string[]]),
+  coverOverlay: z.enum(overlayPresets),
+  radiusPreset: z.enum(radiusPresets),
+  galleryLayout: z.enum(galleryLayouts),
 });
 
 function getString(formData: FormData, key: string) {
@@ -82,9 +111,14 @@ function getString(formData: FormData, key: string) {
 }
 
 function getGalleryUrls(formData: FormData) {
-  return ['galleryUrl1', 'galleryUrl2', 'galleryUrl3'].map((key) =>
-    getString(formData, key),
-  );
+  return Array.from(formData.entries())
+    .filter(([key]) => /^galleryUrl\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftIndex = Number(left.replace('galleryUrl', ''));
+      const rightIndex = Number(right.replace('galleryUrl', ''));
+      return leftIndex - rightIndex;
+    })
+    .map(([, value]) => String(value).trim());
 }
 
 function getGoals(formData: FormData) {
@@ -94,6 +128,24 @@ function getGoals(formData: FormData) {
     targetAt: getString(formData, `goalTargetAt${index}`),
     status: getString(formData, `goalStatus${index}`) || 'planned',
   }));
+}
+
+function getAchievements(formData: FormData) {
+  return [1, 2, 3].map((number) => ({
+    title: getString(formData, `achievementTitle${number}`),
+    description: getString(formData, `achievementDescription${number}`),
+    achievedAt: getString(formData, `achievementDate${number}`),
+  }));
+}
+
+function getActivities(formData: FormData) {
+  return [
+    {
+      title: getString(formData, 'activityTitle1'),
+      activityType: getString(formData, 'activityType1'),
+      occurredAt: getString(formData, 'activityDate1'),
+    },
+  ];
 }
 
 function getSportSlugs(formData: FormData) {
@@ -215,6 +267,59 @@ async function replaceGoals(
 
   if (goalRows.length) {
     await serviceSupabase.from('profile_goals').insert(goalRows);
+  }
+}
+
+async function replaceAchievements(
+  profileId: number,
+  input: z.infer<typeof builderSchema>,
+) {
+  const serviceSupabase = createServiceSupabaseClient();
+  await serviceSupabase
+    .from('profile_achievements')
+    .delete()
+    .eq('profile_id', profileId);
+
+  const rows = input.achievements
+    .filter((item) => item.title)
+    .map((item, index) => ({
+      profile_id: profileId,
+      title: item.title,
+      description: item.description || null,
+      achieved_at: item.achievedAt,
+      sort_order: index,
+      is_enabled: true,
+    }));
+
+  if (rows.length) {
+    await serviceSupabase.from('profile_achievements').insert(rows);
+  }
+}
+
+async function replaceActivities(
+  profileId: number,
+  input: z.infer<typeof builderSchema>,
+) {
+  const serviceSupabase = createServiceSupabaseClient();
+  await serviceSupabase
+    .from('profile_activities')
+    .delete()
+    .eq('profile_id', profileId);
+
+  const rows = input.activities
+    .filter((item) => item.title)
+    .map((item, index) => ({
+      profile_id: profileId,
+      title: item.title,
+      activity_type: item.activityType || null,
+      occurred_at: item.occurredAt,
+      metrics: {},
+      sort_order: index,
+      is_enabled: true,
+    }));
+
+  if (rows.length) {
+    await serviceSupabase.from('profile_activities').insert(rows);
   }
 }
 
@@ -357,14 +462,14 @@ export async function saveProfileBuilderAction(
     displayName: getString(formData, 'displayName'),
     bio: getString(formData, 'bio'),
     sportSlugs: getSportSlugs(formData),
-    location: getString(formData, 'location'),
     avatarUrl: getString(formData, 'avatarUrl'),
-    coverUrl: getString(formData, 'coverUrl'),
     isPublished: formData.get('isPublished') === 'on',
     socialPlatform: getString(formData, 'socialPlatform').toLowerCase(),
     socialLabel: getString(formData, 'socialLabel'),
     socialUrl: getString(formData, 'socialUrl'),
     galleryUrls: getGalleryUrls(formData),
+    achievements: getAchievements(formData),
+    activities: getActivities(formData),
     goals: getGoals(formData),
   });
 
@@ -376,6 +481,23 @@ export async function saveProfileBuilderAction(
   }
 
   const input = parsed.data;
+  const goalCount = input.goals.filter((goal) => goal.title).length;
+  const galleryCount = input.galleryUrls.filter(Boolean).length;
+
+  if (goalCount > 1 || galleryCount > 3) {
+    const subscription = await getSubscriptionState();
+
+    if (!subscription.isActive) {
+      return {
+        success: false,
+        message:
+          goalCount > 1
+            ? 'Multiple goals require the Pro plan.'
+            : 'More than 3 gallery images require the Pro plan.',
+      };
+    }
+  }
+
   const serviceSupabase = createServiceSupabaseClient();
 
   await ensurePrivateProfile(userData.user);
@@ -397,9 +519,7 @@ export async function saveProfileBuilderAction(
         username,
         display_name: input.displayName,
         bio: input.bio || null,
-        location: input.location || null,
         avatar_url: input.avatarUrl,
-        cover_url: input.coverUrl,
         is_published: input.isPublished,
         updated_at: now,
       },
@@ -422,6 +542,8 @@ export async function saveProfileBuilderAction(
       ensureHomePageAndBlocks(profileId),
       replaceSocialLinks(profileId, input),
       replaceGalleryItems(profileId, input),
+      replaceAchievements(profileId, input),
+      replaceActivities(profileId, input),
       replaceGoals(profileId, input),
       replaceSports(profileId, input),
     ]);
@@ -552,6 +674,12 @@ export async function updateProfileTemplateAction(
 
   const parsed = templateSchema.safeParse({
     templateId: getString(formData, 'templateId'),
+    coverUrl: getString(formData, 'coverUrl'),
+    colorPreset: getString(formData, 'colorPreset'),
+    fontPreset: getString(formData, 'fontPreset'),
+    coverOverlay: getString(formData, 'coverOverlay'),
+    radiusPreset: getString(formData, 'radiusPreset'),
+    galleryLayout: getString(formData, 'galleryLayout'),
   });
 
   if (!parsed.success) {
@@ -568,6 +696,23 @@ export async function updateProfileTemplateAction(
     return {
       success: false,
       message: 'This template requires the Pro plan.',
+    };
+  }
+
+  const selectedColor = colorPresets.find((item) => item.id === parsed.data.colorPreset);
+  const selectedFont = fontPresets.find((item) => item.id === parsed.data.fontPreset);
+  const premiumSetting = [
+    selectedColor?.proOnly ? `the ${selectedColor.name} color theme` : null,
+    selectedFont?.proOnly ? `the ${selectedFont.name} typography` : null,
+    parsed.data.galleryLayout !== 'grid'
+      ? `the ${parsed.data.galleryLayout} gallery layout`
+      : null,
+  ].find(Boolean);
+
+  if (!subscription.isActive && premiumSetting) {
+    return {
+      success: false,
+      message: `${premiumSetting[0].toUpperCase()}${premiumSetting.slice(1)} requires the Pro plan.`,
     };
   }
 
@@ -599,6 +744,12 @@ export async function updateProfileTemplateAction(
       theme: {
         ...existingTheme,
         templateId,
+        coverImageUrl: parsed.data.coverUrl,
+        colorPreset: parsed.data.colorPreset,
+        fontPreset: parsed.data.fontPreset,
+        coverOverlay: parsed.data.coverOverlay,
+        radiusPreset: parsed.data.radiusPreset,
+        galleryLayout: parsed.data.galleryLayout,
       },
       updated_at: new Date().toISOString(),
     })
@@ -618,5 +769,47 @@ export async function updateProfileTemplateAction(
   return {
     success: true,
     message: 'Template updated.',
+  };
+}
+
+export async function setProfilePublishedAction(
+  isPublished: boolean,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      success: false,
+      message: 'You need to be signed in to publish your profile.',
+    };
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: profile, error } = await serviceSupabase
+    .from('public_profiles')
+    .update({
+      is_published: isPublished,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userData.user.id)
+    .select('username')
+    .maybeSingle();
+
+  if (error || !profile) {
+    return {
+      success: false,
+      message:
+        error?.message ?? 'Save your profile before changing its visibility.',
+    };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard/design');
+  revalidatePath(`/${profile.username}`);
+
+  return {
+    success: true,
+    message: isPublished ? 'Profile published.' : 'Profile unpublished.',
   };
 }

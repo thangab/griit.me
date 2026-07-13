@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { Eye, EyeOff, Globe2, Monitor, Smartphone } from 'lucide-react';
 import {
   DesktopProfileFrame,
   MobileProfileFrame,
 } from '@/components/dashboard/mobile-profile-frame';
-import { Button } from '@/components/ui/button';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
 const previewStyles = {
@@ -19,35 +19,109 @@ const previewStyles = {
   },
 };
 
-export function DesignPreview({ builder }: { builder: ProfileBuilderState }) {
+export function DesignPreview({
+  builder,
+  onPublishChange,
+  publishMessage,
+  publishPending,
+}: {
+  builder: ProfileBuilderState;
+  onPublishChange: (isPublished: boolean) => void;
+  publishMessage: string;
+  publishPending: boolean;
+}) {
   const [mode, setMode] = useState<'mobile' | 'desktop'>('mobile');
   const activeMobile = mode === 'mobile';
   const activeDesktop = mode === 'desktop';
 
   return (
     <div className="flex min-h-0 flex-col gap-4 xl:h-full">
-      <div className="border-border bg-card flex shrink-0 flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold">Preview</p>
-          <p className="text-muted-foreground text-sm">
-            Toggle mobile or desktop to inspect your public page layout.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            variant={activeMobile ? 'default' : 'outline'}
+      <div className="border-border bg-card flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-xl border p-3">
+        <div className="bg-muted flex rounded-lg p-1" aria-label="Preview device">
+          <button
+            className={`flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
+              activeMobile
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            type="button"
             onClick={() => setMode('mobile')}
           >
+            <Smartphone className="h-4 w-4" />
             Mobile
-          </Button>
-          <Button
-            size="sm"
-            variant={activeDesktop ? 'default' : 'outline'}
+          </button>
+          <button
+            className={`flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
+              activeDesktop
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            type="button"
             onClick={() => setMode('desktop')}
           >
+            <Monitor className="h-4 w-4" />
             Desktop
-          </Button>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Globe2 className="text-muted-foreground hidden h-4 w-4 shrink-0 sm:block" />
+          <span className="hidden min-w-0 sm:block">
+            <span className="block text-sm font-medium">Profile visibility</span>
+            <span
+              className="text-muted-foreground block text-xs"
+              title={publishMessage || undefined}
+            >
+              {publishPending
+                ? 'Updating visibility…'
+                : builder.profile.isPublished
+                  ? 'Your page is visible to everyone.'
+                  : 'Make your page visible to everyone.'}
+            </span>
+          </span>
+          <div
+            className={`bg-muted flex rounded-lg p-1 ${publishPending ? 'opacity-60' : ''}`}
+            aria-label="Profile visibility"
+          >
+            <button
+              className={`flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition ${
+                !builder.profile.isPublished
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              type="button"
+              disabled={publishPending || !builder.profile.isPublished}
+              onClick={() => {
+                if (
+                  !window.confirm(
+                    'Move your profile back to draft? It will no longer be publicly accessible.',
+                  )
+                ) {
+                  return;
+                }
+
+                onPublishChange(false);
+              }}
+            >
+              <EyeOff className="h-3.5 w-3.5" />
+              Draft
+            </button>
+            <button
+              className={`flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition ${
+                builder.profile.isPublished
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              type="button"
+              disabled={publishPending || builder.profile.isPublished}
+              onClick={() => onPublishChange(true)}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              {publishPending && !builder.profile.isPublished
+                ? 'Publishing…'
+                : 'Live'}
+            </button>
+          </div>
         </div>
       </div>
 

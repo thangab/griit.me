@@ -58,6 +58,7 @@ export interface BuilderTimelineItem {
   title: string;
   description: string;
   dateLabel: string;
+  date: string;
   sortOrder: number;
   isEnabled: boolean;
 }

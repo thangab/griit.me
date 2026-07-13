@@ -10,7 +10,10 @@ core model.
 
 - `profiles`: private account profile synced from Supabase Auth.
 - `public_profiles`: public athlete identity and top-level theme state.
-  `theme.templateId` selects the public profile template.
+  `theme.templateId` selects the public profile template and
+  `theme.coverImageUrl` stores its cover visual. Future visual settings such as
+  colors and typography also live in this JSON object through `colorPreset`,
+  `fontPreset`, `coverOverlay`, `radiusPreset` and `galleryLayout`.
 - `profile_pages`: pages under a public profile. MVP uses `home`; future plans
   can add more pages.
 - `profile_blocks`: ordered content blocks on a page.

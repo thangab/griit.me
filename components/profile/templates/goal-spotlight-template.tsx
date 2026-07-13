@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
+import { getThemeRuntime } from '@/lib/constants/profile-theme';
 
 export type ProfileTemplateVariant =
   'full' | 'mobile-preview' | 'desktop-preview';
@@ -20,6 +21,8 @@ export function GoalSpotlightTemplate({
   const secondaryGoals = goals.slice(1);
   const galleryItems = builder.galleryItems.filter((item) => item.isEnabled);
   const socialLinks = builder.socialLinks.filter((link) => link.isEnabled);
+  const achievements = builder.achievements.filter((item) => item.isEnabled);
+  const activities = builder.activities.filter((item) => item.isEnabled);
   const goalTitle = primaryGoal?.title ?? 'Next goal coming soon';
   const goalDescription =
     primaryGoal?.description ?? 'This athlete is preparing the next objective.';
@@ -27,20 +30,20 @@ export function GoalSpotlightTemplate({
   const profileSummary =
     formatProfileSummary({
       bio: profile.bio,
-      location: profile.location,
-      sports: profile.sports,
     }) || 'More context coming soon.';
   const sports = profile.sports;
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
   const isDesktopPreview = variant === 'desktop-preview';
+  const theme = getThemeRuntime(profile.theme);
 
   return (
     <main
       className={cn(
-        'bg-slate-50 text-slate-950',
+        '',
         isPreview ? 'h-full overflow-y-auto overscroll-contain' : 'min-h-dvh',
       )}
+      style={{ backgroundColor: theme.color.colors[0], color: theme.color.colors[1], fontFamily: theme.fontFamilies.body }}
     >
       <section
         className={cn(
@@ -52,7 +55,7 @@ export function GoalSpotlightTemplate({
         )}
         style={{ backgroundImage: `url('${profile.coverUrl}')` }}
       >
-        <div className="absolute inset-0 bg-slate-950/60" />
+        <div className="absolute inset-0 bg-slate-950" style={{ opacity: theme.overlayOpacity }} />
         <div
           className={cn(
             'relative mx-auto flex w-full flex-col',
@@ -69,7 +72,6 @@ export function GoalSpotlightTemplate({
             />
             <div>
               <p className="font-semibold">{profile.displayName}</p>
-              <p className="text-sm text-white/70">@{profile.username}</p>
             </div>
           </div>
 
@@ -86,6 +88,7 @@ export function GoalSpotlightTemplate({
                     ? 'text-5xl'
                     : 'text-5xl sm:text-6xl lg:text-7xl',
               )}
+              style={{ fontFamily: theme.fontFamilies.heading }}
             >
               {goalTitle}
             </h1>
@@ -100,9 +103,6 @@ export function GoalSpotlightTemplate({
             <div className="mt-7 flex flex-wrap gap-2 text-sm font-medium">
               <span className="rounded-full bg-white px-4 py-2 text-slate-950">
                 {goalTarget}
-              </span>
-              <span className="rounded-full bg-white/15 px-4 py-2 text-white">
-                {primaryGoal?.status ?? 'planned'}
               </span>
             </div>
           </div>
@@ -119,7 +119,7 @@ export function GoalSpotlightTemplate({
         )}
       >
         <div className="space-y-6">
-          <div className="rounded-3xl bg-white p-6 shadow-sm">
+          <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.color.colors[1], color: theme.color.colors[0] }}>
             <p className="text-sm font-semibold">Athlete context</p>
             <p className="mt-3 leading-7 text-slate-600">{profileSummary}</p>
             {sports.length ? (
@@ -127,7 +127,8 @@ export function GoalSpotlightTemplate({
                 {sports.map((sport) => (
                   <span
                     key={sport}
-                    className="rounded-full bg-slate-950 px-3 py-1.5 text-xs font-medium text-white"
+                    className="rounded-full px-3 py-1.5 text-xs font-medium"
+                    style={{ backgroundColor: theme.color.colors[2], color: theme.color.colors[0] }}
                   >
                     {sport}
                   </span>
@@ -156,7 +157,8 @@ export function GoalSpotlightTemplate({
               {secondaryGoals.map((goal) => (
                 <div
                   key={`${goal.title}-${goal.sortOrder}`}
-                  className="rounded-3xl bg-white p-5 shadow-sm"
+                  className={cn(theme.radiusClass, 'p-5 shadow-sm')}
+                  style={{ backgroundColor: theme.color.colors[1], color: theme.color.colors[0] }}
                 >
                   <p className="text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase">
                     Also chasing
@@ -172,20 +174,57 @@ export function GoalSpotlightTemplate({
               ))}
             </div>
           ) : null}
+
+          {achievements.length ? (
+            <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.color.colors[1], color: theme.color.colors[0] }}>
+              <p className="text-sm font-semibold">Achievements</p>
+              {achievements.map((item) => (
+                <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
+                  <p className="font-semibold">{item.title}</p>
+                  {item.description ? (
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      {item.description}
+                    </p>
+                  ) : null}
+                  <p className="mt-2 text-xs font-medium text-slate-500">
+                    {item.dateLabel}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {activities.length ? (
+            <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.color.colors[1], color: theme.color.colors[0] }}>
+              <p className="text-sm font-semibold">Recent activities</p>
+              {activities.map((item) => (
+                <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
+                  <p className="font-semibold">{item.title}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {[item.description, item.dateLabel]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {galleryItems.length ? (
           <div
             className={cn(
-              'grid grid-cols-3 gap-2',
-              isDesktopPreview && 'grid-cols-1',
-              !isMobilePreview && 'lg:grid-cols-1',
+              'gap-2',
+              theme.galleryLayout === 'carousel' ? 'flex snap-x overflow-x-auto' : 'grid grid-cols-3',
+              theme.galleryLayout === 'editorial' && 'grid-cols-2',
+              theme.galleryLayout === 'grid' && isDesktopPreview && 'grid-cols-1',
+              theme.galleryLayout === 'grid' && !isMobilePreview && 'lg:grid-cols-1',
             )}
           >
-            {galleryItems.slice(0, 3).map((item, index) => (
+            {galleryItems.map((item, index) => (
               <div
                 key={`${item.imageUrl}-${index}`}
-                className="aspect-square rounded-3xl bg-slate-200 bg-cover bg-center"
+                className={cn('aspect-square bg-slate-200 bg-cover bg-center', theme.radiusClass, theme.galleryLayout === 'carousel' && 'w-52 shrink-0 snap-center')}
                 style={{ backgroundImage: `url('${item.imageUrl}')` }}
               />
             ))}

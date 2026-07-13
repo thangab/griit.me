@@ -7,12 +7,8 @@ export function parseSports(value: string) {
 
 export function formatProfileSummary({
   bio,
-  location,
-  sports,
 }: {
   bio: string;
-  location: string;
-  sports: string[];
 }) {
-  return [bio, location, sports.join(' / ')].filter(Boolean).join(' · ');
+  return bio.trim();
 }

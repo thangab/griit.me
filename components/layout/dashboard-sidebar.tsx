@@ -36,7 +36,7 @@ export function DashboardSidebar() {
     >
       <div
         className={cn(
-          'group/sidebar border-border bg-card/70 flex h-full min-h-screen flex-col border-r py-6 transition-[width,padding] duration-200',
+          'group/sidebar border-border bg-card/70 flex h-full min-h-0 flex-col border-r py-6 transition-[width,padding] duration-200',
           isCompact
             ? 'absolute top-0 left-0 z-30 w-20 px-3 hover:w-72 hover:px-5'
             : 'w-72 px-5',
