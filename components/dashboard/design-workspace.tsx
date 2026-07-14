@@ -181,19 +181,51 @@ function createLivePreviewState(
       sortOrder: index,
       isEnabled: true,
     }));
+  const contentBlockTypes = ['gallery', 'achievements', 'activities'];
+  const contentBlockOrder = data
+    .getAll('contentBlockOrder')
+    .map(String)
+    .filter((type) => contentBlockTypes.includes(type));
+  const baseBlocks = builder.blocks.filter(
+    (block) => !contentBlockTypes.includes(block.type),
+  );
+  const blocks = [
+    ...baseBlocks,
+    ...contentBlockOrder.map((type, index) => {
+      const existingBlock = builder.blocks.find((block) => block.type === type);
+
+      return (
+        existingBlock ?? {
+          id: null,
+          type,
+          title:
+            type === 'gallery'
+              ? 'Image gallery'
+              : type[0].toUpperCase() + type.slice(1),
+          content: { builderManaged: true },
+          sortOrder: index + 2,
+          isEnabled: true,
+        }
+      );
+    }),
+  ];
   const activityTitle = getValue('activityTitle1');
   const activityDate = getValue('activityDate1');
-  const achievements = [1, 2, 3]
-    .map((number, index) => {
-      const title = getValue(`achievementTitle${number}`);
+  const achievements = Array.from(data.entries())
+    .filter(([key]) => /^achievementTitle\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftIndex = Number(left.replace('achievementTitle', ''));
+      const rightIndex = Number(right.replace('achievementTitle', ''));
+      return leftIndex - rightIndex;
+    })
+    .map(([key, value], index) => {
+      const number = Number(key.replace('achievementTitle', ''));
+      const sourceIndex = number - 1;
+      const title = String(value).trim();
       const date = getValue(`achievementDate${number}`);
 
-      if (!data.has(`achievementTitle${number}`)) {
-        return null;
-      }
-
       return {
-        id: builder.achievements[index]?.id ?? null,
+        id: builder.achievements[sourceIndex]?.id ?? null,
         title: title || 'New achievement',
         description: getValue(`achievementDescription${number}`),
         date,
@@ -201,11 +233,11 @@ function createLivePreviewState(
         sortOrder: index,
         isEnabled: true,
       };
-    })
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    });
 
   return {
     ...builder,
+    blocks,
     profile: {
       ...builder.profile,
       displayName: getValue('displayName'),
@@ -384,25 +416,89 @@ function TemplateSelector({
         </p>
       ) : null}
 
-      <input name="colorPreset" type="hidden" value={themeSettings.colorPreset} />
+      <input
+        name="colorPreset"
+        type="hidden"
+        value={themeSettings.colorPreset}
+      />
       <input name="fontPreset" type="hidden" value={themeSettings.fontPreset} />
-      <input name="coverOverlay" type="hidden" value={themeSettings.coverOverlay} />
-      <input name="radiusPreset" type="hidden" value={themeSettings.radiusPreset} />
-      <input name="galleryLayout" type="hidden" value={themeSettings.galleryLayout} />
-      <input name="customBackground" type="hidden" value={themeSettings.customColors.background} />
-      <input name="customSurface" type="hidden" value={themeSettings.customColors.surface} />
-      <input name="customForeground" type="hidden" value={themeSettings.customColors.foreground} />
-      <input name="customAccent" type="hidden" value={themeSettings.customColors.accent} />
-      <input name="customSocial" type="hidden" value={themeSettings.customColors.social} />
-      <input name="customHeaderText" type="hidden" value={themeSettings.customColors.headerText} />
-      <input name="customBlockTitle" type="hidden" value={themeSettings.customColors.blockTitle} />
-      <input name="customDescription" type="hidden" value={themeSettings.customColors.description} />
-      <input name="customAccentText" type="hidden" value={themeSettings.customColors.accentText} />
-      <input name="customSocialText" type="hidden" value={themeSettings.customColors.socialText} />
+      <input
+        name="coverOverlay"
+        type="hidden"
+        value={themeSettings.coverOverlay}
+      />
+      <input
+        name="radiusPreset"
+        type="hidden"
+        value={themeSettings.radiusPreset}
+      />
+      <input
+        name="galleryLayout"
+        type="hidden"
+        value={themeSettings.galleryLayout}
+      />
+      <input
+        name="customBackground"
+        type="hidden"
+        value={themeSettings.customColors.background}
+      />
+      <input
+        name="customSurface"
+        type="hidden"
+        value={themeSettings.customColors.surface}
+      />
+      <input
+        name="customForeground"
+        type="hidden"
+        value={themeSettings.customColors.foreground}
+      />
+      <input
+        name="customAccent"
+        type="hidden"
+        value={themeSettings.customColors.accent}
+      />
+      <input
+        name="customSocial"
+        type="hidden"
+        value={themeSettings.customColors.social}
+      />
+      <input
+        name="customHeaderText"
+        type="hidden"
+        value={themeSettings.customColors.headerText}
+      />
+      <input
+        name="customBlockTitle"
+        type="hidden"
+        value={themeSettings.customColors.blockTitle}
+      />
+      <input
+        name="customDescription"
+        type="hidden"
+        value={themeSettings.customColors.description}
+      />
+      <input
+        name="customAccentText"
+        type="hidden"
+        value={themeSettings.customColors.accentText}
+      />
+      <input
+        name="customSocialText"
+        type="hidden"
+        value={themeSettings.customColors.socialText}
+      />
       <input name="coverType" type="hidden" value={themeSettings.coverType} />
       <input name="coverColor" type="hidden" value={themeSettings.coverColor} />
-      <input name="coverGradientFrom" type="hidden" value={themeSettings.coverGradientFrom} />
-      <input name="coverGradientTo" type="hidden" value={themeSettings.coverGradientTo} />
+      <input
+        name="coverGradientFrom"
+        type="hidden"
+        value={themeSettings.coverGradientFrom}
+      />
+      <input
+        name="coverGradientTo"
+        type="hidden"
+        value={themeSettings.coverGradientTo}
+      />
 
       <div className="space-y-3">
         <StyleSection
@@ -460,7 +556,9 @@ function TemplateSelector({
               <button
                 type="button"
                 key={coverType}
-                onClick={() => handleThemeChange({ ...themeSettings, coverType })}
+                onClick={() =>
+                  handleThemeChange({ ...themeSettings, coverType })
+                }
                 className={cn(
                   'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
                   themeSettings.coverType === coverType
@@ -502,10 +600,12 @@ function TemplateSelector({
                   <button
                     type="button"
                     key={overlay}
-                    onClick={() => handleThemeChange({
-                      ...themeSettings,
-                      coverOverlay: overlay,
-                    })}
+                    onClick={() =>
+                      handleThemeChange({
+                        ...themeSettings,
+                        coverOverlay: overlay,
+                      })
+                    }
                     className={cn(
                       'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
                       themeSettings.coverOverlay === overlay
@@ -529,10 +629,12 @@ function TemplateSelector({
                   className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
                   type="color"
                   value={themeSettings.coverColor}
-                  onChange={(event) => handleThemeChange({
-                    ...themeSettings,
-                    coverColor: event.target.value,
-                  })}
+                  onChange={(event) =>
+                    handleThemeChange({
+                      ...themeSettings,
+                      coverColor: event.target.value,
+                    })
+                  }
                 />
                 <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
                   {themeSettings.coverColor}
@@ -547,7 +649,10 @@ function TemplateSelector({
                 { key: 'coverGradientFrom' as const, label: 'Start color' },
                 { key: 'coverGradientTo' as const, label: 'End color' },
               ].map((color) => (
-                <label key={color.key} className="flex items-center justify-between gap-3">
+                <label
+                  key={color.key}
+                  className="flex items-center justify-between gap-3"
+                >
                   <span className="text-xs font-medium">{color.label}</span>
                   <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
                     <input
@@ -555,10 +660,12 @@ function TemplateSelector({
                       className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
                       type="color"
                       value={themeSettings[color.key]}
-                      onChange={(event) => handleThemeChange({
-                        ...themeSettings,
-                        [color.key]: event.target.value,
-                      })}
+                      onChange={(event) =>
+                        handleThemeChange({
+                          ...themeSettings,
+                          [color.key]: event.target.value,
+                        })
+                      }
                     />
                     <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
                       {themeSettings[color.key]}
@@ -583,7 +690,10 @@ function TemplateSelector({
         >
           <div className="space-y-2">
             {colorGroups.map((group) => (
-              <div key={group.title} className="border-border rounded-lg border p-3">
+              <div
+                key={group.title}
+                className="border-border rounded-lg border p-3"
+              >
                 <div className="mb-2.5">
                   <p className="text-xs font-semibold">{group.title}</p>
                   <p className="text-muted-foreground mt-0.5 text-[11px]">
@@ -603,14 +713,16 @@ function TemplateSelector({
                           className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
                           type="color"
                           value={themeSettings.customColors[color.key]}
-                          onChange={(event) => handleThemeChange({
-                            ...themeSettings,
-                            colorPreset: 'custom',
-                            customColors: {
-                              ...themeSettings.customColors,
-                              [color.key]: event.target.value,
-                            },
-                          })}
+                          onChange={(event) =>
+                            handleThemeChange({
+                              ...themeSettings,
+                              colorPreset: 'custom',
+                              customColors: {
+                                ...themeSettings.customColors,
+                                [color.key]: event.target.value,
+                              },
+                            })
+                          }
                         />
                         <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
                           {themeSettings.customColors[color.key]}
@@ -626,9 +738,13 @@ function TemplateSelector({
           <details className="border-border group/presets overflow-hidden rounded-lg border">
             <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold">Quick presets</span>
+                <span className="block text-xs font-semibold">
+                  Quick presets
+                </span>
                 <span className="text-muted-foreground block text-[11px]">
-                  {colorPresets.find((preset) => preset.id === themeSettings.colorPreset)?.name ?? 'Custom colors'}
+                  {colorPresets.find(
+                    (preset) => preset.id === themeSettings.colorPreset,
+                  )?.name ?? 'Custom colors'}
                 </span>
               </span>
               <ChevronDown className="text-muted-foreground h-4 w-4 transition-transform group-open/presets:rotate-180" />
@@ -638,25 +754,28 @@ function TemplateSelector({
                 <button
                   type="button"
                   key={preset.id}
-                  onClick={() => handleThemeChange({
-                    ...themeSettings,
-                    colorPreset: preset.id,
-                    customColors: {
-                      background: preset.colors[0],
-                      surface: preset.colors[1],
-                      foreground: preset.colors[2],
-                      accent: preset.colors[3],
-                      social: preset.colors[4],
-                      headerText: preset.colors[5],
-                      blockTitle: preset.colors[6],
-                      description: preset.colors[7],
-                      accentText: preset.colors[8],
-                      socialText: preset.colors[9],
-                    },
-                  })}
+                  onClick={() =>
+                    handleThemeChange({
+                      ...themeSettings,
+                      colorPreset: preset.id,
+                      customColors: {
+                        background: preset.colors[0],
+                        surface: preset.colors[1],
+                        foreground: preset.colors[2],
+                        accent: preset.colors[3],
+                        social: preset.colors[4],
+                        headerText: preset.colors[5],
+                        blockTitle: preset.colors[6],
+                        description: preset.colors[7],
+                        accentText: preset.colors[8],
+                        socialText: preset.colors[9],
+                      },
+                    })
+                  }
                   className={cn(
                     'border-border cursor-pointer rounded-lg border p-2.5 text-left',
-                    themeSettings.colorPreset === preset.id && 'border-primary/60 ring-primary/10 ring-2',
+                    themeSettings.colorPreset === preset.id &&
+                      'border-primary/60 ring-primary/10 ring-2',
                   )}
                 >
                   <span className="flex gap-1">
@@ -686,15 +805,21 @@ function TemplateSelector({
             <button
               type="button"
               key={preset.id}
-              onClick={() => handleThemeChange({ ...themeSettings, fontPreset: preset.id })}
+              onClick={() =>
+                handleThemeChange({ ...themeSettings, fontPreset: preset.id })
+              }
               className={cn(
                 'border-border flex w-full cursor-pointer items-center justify-between rounded-lg border px-3 py-2.5 text-left',
                 themeSettings.fontPreset === preset.id && 'border-primary/60',
               )}
             >
               <span>
-                <span className="block text-sm font-semibold">{preset.name}</span>
-                <span className="text-muted-foreground text-xs">{preset.sample}</span>
+                <span className="block text-sm font-semibold">
+                  {preset.name}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {preset.sample}
+                </span>
               </span>
               {preset.proOnly ? <Lock className="h-3.5 w-3.5" /> : null}
             </button>
@@ -707,8 +832,16 @@ function TemplateSelector({
           icon={SlidersHorizontal}
         >
           {[
-            { label: 'Corners', key: 'radiusPreset' as const, values: radiusPresets },
-            { label: 'Gallery layout', key: 'galleryLayout' as const, values: galleryLayouts },
+            {
+              label: 'Corners',
+              key: 'radiusPreset' as const,
+              values: radiusPresets,
+            },
+            {
+              label: 'Gallery layout',
+              key: 'galleryLayout' as const,
+              values: galleryLayouts,
+            },
           ].map((group) => (
             <div key={group.key}>
               <p className="text-xs font-semibold">{group.label}</p>
@@ -717,7 +850,12 @@ function TemplateSelector({
                   <button
                     type="button"
                     key={value}
-                    onClick={() => handleThemeChange({ ...themeSettings, [group.key]: value })}
+                    onClick={() =>
+                      handleThemeChange({
+                        ...themeSettings,
+                        [group.key]: value,
+                      })
+                    }
                     className={cn(
                       'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
                       themeSettings[group.key] === value
@@ -726,7 +864,9 @@ function TemplateSelector({
                     )}
                   >
                     {value}
-                    {group.key === 'galleryLayout' && value !== 'grid' ? ' · Pro' : ''}
+                    {group.key === 'galleryLayout' && value !== 'grid'
+                      ? ' · Pro'
+                      : ''}
                   </button>
                 ))}
               </div>

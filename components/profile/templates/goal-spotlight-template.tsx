@@ -36,13 +36,26 @@ export function GoalSpotlightTemplate({
   const sports = profile.sports;
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
-  const isDesktopPreview = variant === 'desktop-preview';
   const theme = getThemeRuntime(profile.theme);
-  const coverStyle = theme.coverType === 'image'
-    ? { backgroundImage: `url('${profile.coverUrl}')` }
-    : theme.coverType === 'gradient'
-      ? { backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})` }
-      : { backgroundColor: theme.coverColor };
+  const contentBlockOrder = builder.blocks
+    .filter((block) =>
+      ['gallery', 'achievements', 'activities'].includes(block.type),
+    )
+    .map((block) => block.type);
+  if (galleryItems.length && !contentBlockOrder.includes('gallery'))
+    contentBlockOrder.push('gallery');
+  if (achievements.length && !contentBlockOrder.includes('achievements'))
+    contentBlockOrder.push('achievements');
+  if (activities.length && !contentBlockOrder.includes('activities'))
+    contentBlockOrder.push('activities');
+  const coverStyle =
+    theme.coverType === 'image'
+      ? { backgroundImage: `url('${profile.coverUrl}')` }
+      : theme.coverType === 'gradient'
+        ? {
+            backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
+          }
+        : { backgroundColor: theme.coverColor };
 
   return (
     <main
@@ -50,7 +63,11 @@ export function GoalSpotlightTemplate({
         '',
         isPreview ? 'h-full overflow-y-auto overscroll-contain' : 'min-h-dvh',
       )}
-      style={{ backgroundColor: theme.palette.background, color: theme.palette.text, fontFamily: theme.fontFamilies.body }}
+      style={{
+        backgroundColor: theme.palette.background,
+        color: theme.palette.text,
+        fontFamily: theme.fontFamilies.body,
+      }}
     >
       <section
         className={cn(
@@ -63,7 +80,10 @@ export function GoalSpotlightTemplate({
         style={{ ...coverStyle, color: theme.palette.headerText }}
       >
         {theme.coverType === 'image' ? (
-          <div className="absolute inset-0 bg-slate-950" style={{ opacity: theme.overlayOpacity }} />
+          <div
+            className="absolute inset-0 bg-slate-950"
+            style={{ opacity: theme.overlayOpacity }}
+          />
         ) : null}
         <div
           className={cn(
@@ -85,7 +105,10 @@ export function GoalSpotlightTemplate({
           </div>
 
           <div className="max-w-4xl">
-            <p className="text-xs font-semibold tracking-[0.28em] uppercase" style={{ color: theme.palette.mutedHeaderText }}>
+            <p
+              className="text-xs font-semibold tracking-[0.28em] uppercase"
+              style={{ color: theme.palette.mutedHeaderText }}
+            >
               Next goal
             </p>
             <h1
@@ -111,7 +134,13 @@ export function GoalSpotlightTemplate({
               {goalDescription}
             </p>
             <div className="mt-7 flex flex-wrap gap-2 text-sm font-medium">
-              <span className="rounded-full px-4 py-2" style={{ backgroundColor: theme.palette.accent, color: theme.palette.accentText }}>
+              <span
+                className="rounded-full px-4 py-2"
+                style={{
+                  backgroundColor: theme.palette.accent,
+                  color: theme.palette.accentText,
+                }}
+              >
                 {goalTarget}
               </span>
             </div>
@@ -121,24 +150,42 @@ export function GoalSpotlightTemplate({
 
       <section
         className={cn(
-          'mx-auto grid gap-6',
+          'mx-auto',
           isPreview
             ? 'max-w-4xl px-4 py-5'
-            : 'max-w-6xl px-5 py-8 sm:px-8 lg:grid-cols-[1fr_320px] lg:px-12',
-          isDesktopPreview && 'grid-cols-[1fr_260px]',
+            : 'max-w-6xl px-5 py-8 sm:px-8 lg:px-12',
         )}
       >
         <div className="space-y-6">
-          <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.palette.surface, color: theme.palette.text }}>
-            <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>Athlete context</p>
-            <p className="mt-3 whitespace-pre-line leading-7" style={{ color: theme.palette.mutedText }}>{profileSummary}</p>
+          <div
+            className={cn(theme.radiusClass, 'p-6 shadow-sm')}
+            style={{
+              backgroundColor: theme.palette.surface,
+              color: theme.palette.text,
+            }}
+          >
+            <p
+              className="text-sm font-semibold"
+              style={{ color: theme.palette.blockTitle }}
+            >
+              About
+            </p>
+            <p
+              className="mt-3 leading-7 whitespace-pre-line"
+              style={{ color: theme.palette.mutedText }}
+            >
+              {profileSummary}
+            </p>
             {sports.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {sports.map((sport) => (
                   <span
                     key={sport}
                     className="rounded-full px-3 py-1.5 text-xs font-medium"
-                    style={{ backgroundColor: theme.palette.accent, color: theme.palette.accentText }}
+                    style={{
+                      backgroundColor: theme.palette.accent,
+                      color: theme.palette.accentText,
+                    }}
                   >
                     {sport}
                   </span>
@@ -152,10 +199,21 @@ export function GoalSpotlightTemplate({
                     key={`${link.platform}-${link.url}`}
                     aria-label={link.label || link.platform}
                     className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition"
-                    style={{ backgroundColor: theme.palette.social, color: theme.palette.socialText }}
+                    style={{
+                      backgroundColor: theme.palette.social,
+                      color: theme.palette.socialText,
+                    }}
                     href={getSocialLinkHref(link.platform, link.url)}
-                    rel={link.platform === 'email' || link.platform === 'phone' ? undefined : 'noreferrer'}
-                    target={link.platform === 'email' || link.platform === 'phone' ? undefined : '_blank'}
+                    rel={
+                      link.platform === 'email' || link.platform === 'phone'
+                        ? undefined
+                        : 'noreferrer'
+                    }
+                    target={
+                      link.platform === 'email' || link.platform === 'phone'
+                        ? undefined
+                        : '_blank'
+                    }
                   >
                     <SocialPlatformIcon platform={link.platform} />
                     {link.label ? <span>{link.label}</span> : null}
@@ -171,16 +229,33 @@ export function GoalSpotlightTemplate({
                 <div
                   key={`${goal.title}-${goal.sortOrder}`}
                   className={cn(theme.radiusClass, 'p-5 shadow-sm')}
-                  style={{ backgroundColor: theme.palette.surface, color: theme.palette.text }}
+                  style={{
+                    backgroundColor: theme.palette.surface,
+                    color: theme.palette.text,
+                  }}
                 >
-                  <p className="text-xs font-semibold tracking-[0.2em] uppercase" style={{ color: theme.palette.description }}>
+                  <p
+                    className="text-xs font-semibold tracking-[0.2em] uppercase"
+                    style={{ color: theme.palette.description }}
+                  >
                     Also chasing
                   </p>
-                  <p className="mt-3 text-lg font-semibold" style={{ color: theme.palette.blockTitle }}>{goal.title}</p>
-                  <p className="mt-2 text-sm leading-6" style={{ color: theme.palette.description }}>
+                  <p
+                    className="mt-3 text-lg font-semibold"
+                    style={{ color: theme.palette.blockTitle }}
+                  >
+                    {goal.title}
+                  </p>
+                  <p
+                    className="mt-2 text-sm leading-6"
+                    style={{ color: theme.palette.description }}
+                  >
                     {goal.description}
                   </p>
-                  <p className="mt-4 text-sm font-medium" style={{ color: theme.palette.mutedDescription }}>
+                  <p
+                    className="mt-4 text-sm font-medium"
+                    style={{ color: theme.palette.mutedDescription }}
+                  >
                     {goal.targetLabel}
                   </p>
                 </div>
@@ -188,65 +263,123 @@ export function GoalSpotlightTemplate({
             </div>
           ) : null}
 
-          {achievements.length ? (
-            <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.palette.surface, color: theme.palette.text }}>
-              <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>Achievements</p>
-              {achievements.map((item) => (
-                <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
-                  <p className="font-semibold" style={{ color: theme.palette.blockTitle }}>{item.title}</p>
-                  {item.description ? (
-                    <p className="mt-1 text-sm leading-6" style={{ color: theme.palette.description }}>
-                      {item.description}
-                    </p>
-                  ) : null}
-                  {item.dateLabel ? (
-                    <p className="mt-2 text-xs font-medium" style={{ color: theme.palette.mutedDescription }}>
-                      {item.dateLabel}
-                    </p>
-                  ) : null}
+          {contentBlockOrder.map((type) => {
+            if (type === 'gallery') {
+              return galleryItems.length ? (
+                <div
+                  key={type}
+                  className={cn(
+                    'gap-2',
+                    theme.galleryLayout === 'carousel'
+                      ? 'flex snap-x overflow-x-auto'
+                      : 'grid grid-cols-3',
+                    theme.galleryLayout === 'editorial' && 'grid-cols-2',
+                  )}
+                >
+                  {galleryItems.map((item, index) => (
+                    <div
+                      key={`${item.imageUrl}-${index}`}
+                      className={cn(
+                        'aspect-square bg-slate-200 bg-cover bg-center',
+                        theme.radiusClass,
+                        theme.galleryLayout === 'carousel' &&
+                          'w-52 shrink-0 snap-center',
+                      )}
+                      style={{ backgroundImage: `url('${item.imageUrl}')` }}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : null}
+              ) : null;
+            }
 
-          {activities.length ? (
-            <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.palette.surface, color: theme.palette.text }}>
-              <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>Recent activities</p>
-              {activities.map((item) => (
-                <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
-                  <p className="font-semibold" style={{ color: theme.palette.blockTitle }}>{item.title}</p>
-                  {item.description || item.dateLabel ? (
-                    <p className="mt-1 text-sm" style={{ color: theme.palette.description }}>
-                      {[item.description, item.dateLabel]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </p>
-                  ) : null}
+            if (type === 'achievements') {
+              return achievements.length ? (
+                <div
+                  key={type}
+                  className={cn(theme.radiusClass, 'p-6 shadow-sm')}
+                  style={{
+                    backgroundColor: theme.palette.surface,
+                    color: theme.palette.text,
+                  }}
+                >
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: theme.palette.blockTitle }}
+                  >
+                    Achievements
+                  </p>
+                  {achievements.map((item) => (
+                    <div
+                      key={`${item.title}-${item.sortOrder}`}
+                      className="mt-4"
+                    >
+                      <p
+                        className="font-semibold"
+                        style={{ color: theme.palette.blockTitle }}
+                      >
+                        {item.title}
+                      </p>
+                      {item.description ? (
+                        <p
+                          className="mt-1 text-sm leading-6"
+                          style={{ color: theme.palette.description }}
+                        >
+                          {item.description}
+                        </p>
+                      ) : null}
+                      {item.dateLabel ? (
+                        <p
+                          className="mt-2 text-xs font-medium"
+                          style={{ color: theme.palette.mutedDescription }}
+                        >
+                          {item.dateLabel}
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
+              ) : null;
+            }
 
-        {galleryItems.length ? (
-          <div
-            className={cn(
-              'gap-2',
-              theme.galleryLayout === 'carousel' ? 'flex snap-x overflow-x-auto' : 'grid grid-cols-3',
-              theme.galleryLayout === 'editorial' && 'grid-cols-2',
-              theme.galleryLayout === 'grid' && isDesktopPreview && 'grid-cols-1',
-              theme.galleryLayout === 'grid' && !isMobilePreview && 'lg:grid-cols-1',
-            )}
-          >
-            {galleryItems.map((item, index) => (
+            return activities.length ? (
               <div
-                key={`${item.imageUrl}-${index}`}
-                className={cn('aspect-square bg-slate-200 bg-cover bg-center', theme.radiusClass, theme.galleryLayout === 'carousel' && 'w-52 shrink-0 snap-center')}
-                style={{ backgroundImage: `url('${item.imageUrl}')` }}
-              />
-            ))}
-          </div>
-        ) : null}
+                key={type}
+                className={cn(theme.radiusClass, 'p-6 shadow-sm')}
+                style={{
+                  backgroundColor: theme.palette.surface,
+                  color: theme.palette.text,
+                }}
+              >
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: theme.palette.blockTitle }}
+                >
+                  Recent activities
+                </p>
+                {activities.map((item) => (
+                  <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
+                    <p
+                      className="font-semibold"
+                      style={{ color: theme.palette.blockTitle }}
+                    >
+                      {item.title}
+                    </p>
+                    {item.description || item.dateLabel ? (
+                      <p
+                        className="mt-1 text-sm"
+                        style={{ color: theme.palette.description }}
+                      >
+                        {[item.description, item.dateLabel]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : null;
+          })}
+        </div>
       </section>
     </main>
   );

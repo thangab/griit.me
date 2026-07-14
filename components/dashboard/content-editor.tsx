@@ -1,9 +1,12 @@
 'use client';
 
 import { useActionState, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
   Activity,
+  ArrowDown,
+  ArrowUp,
   Blocks,
   CalendarDays,
   ChevronDown,
@@ -17,6 +20,7 @@ import {
   Trash2,
   Trophy,
   UserRound,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -129,11 +133,7 @@ function GoalEditor({
 }) {
   return (
     <div className="space-y-5">
-      <input
-        name={`goalStatus${number}`}
-        type="hidden"
-        value="in_progress"
-      />
+      <input name={`goalStatus${number}`} type="hidden" value="in_progress" />
 
       <label className="block space-y-2">
         <span className="flex items-center gap-2">
@@ -171,9 +171,7 @@ function GoalEditor({
           <span className="flex items-center gap-2 text-xs font-semibold">
             <CalendarDays className="text-muted-foreground h-3.5 w-3.5" />
             Target date
-            <span className="text-muted-foreground font-normal">
-              Optional
-            </span>
+            <span className="text-muted-foreground font-normal">Optional</span>
           </span>
           <input
             className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
@@ -289,21 +287,19 @@ function SocialLinkFields({
   const initialPlatform = socialPlatforms.some(
     (platform) => platform.id === link?.platform,
   )
-    ? link?.platform ?? 'instagram'
+    ? (link?.platform ?? 'instagram')
     : 'website';
   const [platform, setPlatform] = useState(initialPlatform);
-  const platformDefinition = socialPlatforms.find((item) => item.id === platform)
-    ?? socialPlatforms[0];
-  const valueLabel = platform === 'email'
-    ? 'Email address'
-    : platform === 'phone'
-      ? 'Phone number'
-      : 'Profile URL';
-  const valueType = platform === 'email'
-    ? 'email'
-    : platform === 'phone'
-      ? 'tel'
-      : 'url';
+  const platformDefinition =
+    socialPlatforms.find((item) => item.id === platform) ?? socialPlatforms[0];
+  const valueLabel =
+    platform === 'email'
+      ? 'Email address'
+      : platform === 'phone'
+        ? 'Phone number'
+        : 'Profile URL';
+  const valueType =
+    platform === 'email' ? 'email' : platform === 'phone' ? 'tel' : 'url';
 
   return (
     <div className="border-border bg-background overflow-hidden rounded-lg border">
@@ -442,279 +438,419 @@ function ContentBlocksEditor({
   );
   const [achievementSlots, setAchievementSlots] = useState(() =>
     Array.from(
-      { length: Math.max(1, Math.min(3, builder.achievements.length)) },
+      {
+        length: Math.max(
+          1,
+          subscription.isActive
+            ? builder.achievements.length
+            : Math.min(3, builder.achievements.length),
+        ),
+      },
       (_, index) => index,
     ),
   );
   const [activeBlocks, setActiveBlocks] = useState<ContentBlockType[]>(() => {
-    const blocks: ContentBlockType[] = [];
+    const blocksWithContent = new Set<ContentBlockType>();
 
-    if (builder.galleryItems.length) blocks.push('gallery');
-    if (builder.achievements.length) blocks.push('achievements');
-    if (builder.activities.length) blocks.push('activities');
+    if (builder.galleryItems.length) blocksWithContent.add('gallery');
+    if (builder.achievements.length) blocksWithContent.add('achievements');
+    if (builder.activities.length) blocksWithContent.add('activities');
 
-    return blocks;
+    const orderedBlocks = builder.blocks
+      .filter((block) =>
+        availableContentBlocks.some((item) => item.type === block.type),
+      )
+      .filter(
+        (block) =>
+          blocksWithContent.has(block.type as ContentBlockType) ||
+          block.content.builderManaged === true,
+      )
+      .map((block) => block.type as ContentBlockType);
+
+    blocksWithContent.forEach((type) => {
+      if (!orderedBlocks.includes(type)) orderedBlocks.push(type);
+    });
+
+    return orderedBlocks;
   });
   const activity = builder.activities[0];
   const galleryItems = builder.galleryItems;
   const choices = availableContentBlocks.filter(
     (block) => !activeBlocks.includes(block.type),
   );
+  const moveBlock = (index: number, direction: -1 | 1) => {
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= activeBlocks.length) return;
+
+    setActiveBlocks((current) => {
+      const next = [...current];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+    onStructureChange();
+  };
+
   return (
     <div className="space-y-3">
-      {activeBlocks.map((type) => {
-        const definition = availableContentBlocks.find(
-          (block) => block.type === type,
-        );
-        const Icon = definition?.icon ?? Blocks;
-
-        return (
-          <div
-            key={type}
-            className="border-border bg-background overflow-hidden rounded-lg border"
+      <div className="border-border bg-card overflow-hidden rounded-xl border">
+        <div className="flex items-center gap-3 p-3">
+          <span className="bg-muted text-muted-foreground flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+            <Blocks className="h-4 w-4" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold">Blocks</span>
+            <span className="text-muted-foreground block truncate text-xs">
+              Gallery, achievements and activities
+            </span>
+          </span>
+          <button
+            className="bg-primary text-primary-foreground hover:bg-primary/90 flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors disabled:cursor-default disabled:opacity-50"
+            disabled={!choices.length}
+            type="button"
+            onClick={() => setShowPicker(true)}
           >
-            <div className="border-border bg-muted/30 flex items-center gap-3 border-b px-3 py-2.5">
-              <Icon className="text-muted-foreground h-4 w-4" />
-              <span className="min-w-0 flex-1 text-sm font-semibold">
-                {definition?.label}
-              </span>
-              <button
-                aria-label={`Remove ${definition?.label}`}
-                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-                type="button"
-                onClick={() => {
-                  setActiveBlocks((current) =>
-                    current.filter((block) => block !== type),
-                  );
-                  onStructureChange();
-                }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            <Plus className="h-3.5 w-3.5" />
+            {choices.length ? 'Add' : 'Full'}
+          </button>
+        </div>
 
-            <div className="space-y-3 p-3">
-              {type === 'gallery' ? (
-                <>
-                  {imageSlots.map((slot, position) => (
-                    <div
-                      key={slot}
-                      className={
-                        position > 0
-                          ? 'border-border space-y-2 border-t pt-3'
-                          : 'space-y-2'
-                      }
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-semibold">
-                          Image {position + 1}
-                        </p>
-                        {imageSlots.length > 1 ? (
-                          <button
-                            aria-label={`Remove image ${position + 1}`}
-                            className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-                            type="button"
-                            onClick={() => {
-                              setImageSlots((current) =>
-                                current.filter((item) => item !== slot),
-                              );
-                              onStructureChange();
-                            }}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        ) : null}
-                      </div>
-                      <Field
-                        label="Image URL"
-                        name={`galleryUrl${slot + 1}`}
-                        defaultValue={galleryItems[slot]?.imageUrl ?? ''}
-                        placeholder="https://..."
-                        type="url"
-                      />
-                    </div>
-                  ))}
-                  {imageSlots.length < 3 || subscription.isActive ? (
+        {activeBlocks.length ? (
+          <div className="border-border space-y-2 border-t p-3">
+            {activeBlocks.map((type) => (
+              <input
+                key={`order-${type}`}
+                name="contentBlockOrder"
+                type="hidden"
+                value={type}
+              />
+            ))}
+
+            {activeBlocks.map((type, blockIndex) => {
+              const definition = availableContentBlocks.find(
+                (block) => block.type === type,
+              );
+              const Icon = definition?.icon ?? Blocks;
+
+              return (
+                <details
+                  key={type}
+                  className="border-border bg-background group/block overflow-hidden rounded-lg border"
+                  open={blockIndex === 0}
+                >
+                  <summary className="bg-muted/30 hover:bg-muted/50 flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
+                    <Icon className="text-muted-foreground h-4 w-4" />
+                    <span className="min-w-0 flex-1 text-sm font-semibold">
+                      {definition?.label}
+                    </span>
                     <button
-                      className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-9 w-full items-center justify-center gap-2 rounded-md border border-dashed text-xs font-semibold transition-colors"
+                      aria-label={`Move ${definition?.label} up`}
+                      className="text-muted-foreground hover:bg-background flex h-7 w-7 items-center justify-center rounded-md disabled:opacity-30"
+                      disabled={blockIndex === 0}
                       type="button"
-                      onClick={() => {
-                        const nextSlot =
-                          imageSlots.length > 0
-                            ? Math.max(...imageSlots) + 1
-                            : 0;
-                        setImageSlots((current) => [...current, nextSlot]);
+                      onClick={(event) => {
+                        event.preventDefault();
+                        moveBlock(blockIndex, -1);
+                      }}
+                    >
+                      <ArrowUp className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      aria-label={`Move ${definition?.label} down`}
+                      className="text-muted-foreground hover:bg-background flex h-7 w-7 items-center justify-center rounded-md disabled:opacity-30"
+                      disabled={blockIndex === activeBlocks.length - 1}
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        moveBlock(blockIndex, 1);
+                      }}
+                    >
+                      <ArrowDown className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      aria-label={`Remove ${definition?.label}`}
+                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        setActiveBlocks((current) =>
+                          current.filter((block) => block !== type),
+                        );
                         onStructureChange();
                       }}
                     >
-                      <Plus className="h-3.5 w-3.5" />
-                      Add image
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
-                  ) : (
-                    <Link
-                      className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
-                      href="/dashboard/settings"
-                    >
-                      <span className="flex items-center gap-2 text-xs font-semibold">
-                        <Plus className="h-3.5 w-3.5" />
-                        Add more images
-                      </span>
-                      <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
-                        <Lock className="h-3 w-3" />
-                        Pro
-                      </span>
-                    </Link>
-                  )}
-                </>
-              ) : type === 'achievements' ? (
-                <>
-                  {achievementSlots.map((slot, position) => {
-                    const achievement = builder.achievements[slot];
-                    const number = slot + 1;
+                    <ChevronDown className="text-muted-foreground h-4 w-4 transition-transform group-open/block:rotate-180" />
+                  </summary>
 
-                    return (
-                      <div
-                        key={slot}
-                        className={
-                          position > 0
-                            ? 'border-border space-y-3 border-t pt-3'
-                            : 'space-y-3'
-                        }
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="text-xs font-semibold">
-                            Achievement {position + 1}
-                          </p>
-                          {achievementSlots.length > 1 ? (
-                            <button
-                              aria-label={`Remove achievement ${position + 1}`}
-                              className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
-                              type="button"
-                              onClick={() => {
-                                setAchievementSlots((current) =>
-                                  current.filter((item) => item !== slot),
-                                );
-                                onStructureChange();
-                              }}
+                  <div className="border-border space-y-3 border-t p-3">
+                    {type === 'gallery' ? (
+                      <>
+                        {imageSlots.map((slot, position) => (
+                          <div
+                            key={slot}
+                            className={
+                              position > 0
+                                ? 'border-border space-y-2 border-t pt-3'
+                                : 'space-y-2'
+                            }
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-xs font-semibold">
+                                Image {position + 1}
+                              </p>
+                              {imageSlots.length > 1 ? (
+                                <button
+                                  aria-label={`Remove image ${position + 1}`}
+                                  className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+                                  type="button"
+                                  onClick={() => {
+                                    setImageSlots((current) =>
+                                      current.filter((item) => item !== slot),
+                                    );
+                                    onStructureChange();
+                                  }}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              ) : null}
+                            </div>
+                            <Field
+                              label="Image URL"
+                              name={`galleryUrl${slot + 1}`}
+                              defaultValue={galleryItems[slot]?.imageUrl ?? ''}
+                              placeholder="https://..."
+                              type="url"
+                            />
+                          </div>
+                        ))}
+                        {imageSlots.length < 3 || subscription.isActive ? (
+                          <button
+                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-9 w-full items-center justify-center gap-2 rounded-md border border-dashed text-xs font-semibold transition-colors"
+                            type="button"
+                            onClick={() => {
+                              const nextSlot =
+                                imageSlots.length > 0
+                                  ? Math.max(...imageSlots) + 1
+                                  : 0;
+                              setImageSlots((current) => [
+                                ...current,
+                                nextSlot,
+                              ]);
+                              onStructureChange();
+                            }}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Add image
+                          </button>
+                        ) : (
+                          <Link
+                            className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
+                            href="/dashboard/settings"
+                          >
+                            <span className="flex items-center gap-2 text-xs font-semibold">
+                              <Plus className="h-3.5 w-3.5" />
+                              Add more images
+                            </span>
+                            <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
+                              <Lock className="h-3 w-3" />
+                              Pro
+                            </span>
+                          </Link>
+                        )}
+                      </>
+                    ) : type === 'achievements' ? (
+                      <>
+                        {achievementSlots.map((slot, position) => {
+                          const achievement = builder.achievements[slot];
+                          const number = slot + 1;
+
+                          return (
+                            <div
+                              key={slot}
+                              className={
+                                position > 0
+                                  ? 'border-border space-y-3 border-t pt-3'
+                                  : 'space-y-3'
+                              }
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          ) : null}
-                        </div>
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-semibold">
+                                  Achievement {position + 1}
+                                </p>
+                                {achievementSlots.length > 1 ? (
+                                  <button
+                                    aria-label={`Remove achievement ${position + 1}`}
+                                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+                                    type="button"
+                                    onClick={() => {
+                                      setAchievementSlots((current) =>
+                                        current.filter((item) => item !== slot),
+                                      );
+                                      onStructureChange();
+                                    }}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                ) : null}
+                              </div>
+                              <Field
+                                label="Title"
+                                name={`achievementTitle${number}`}
+                                defaultValue={achievement?.title ?? ''}
+                                placeholder="Bangkok Marathon finisher"
+                              />
+                              <TextareaField
+                                label="Description"
+                                name={`achievementDescription${number}`}
+                                defaultValue={achievement?.description ?? ''}
+                                placeholder="Tell people what this milestone means to you."
+                              />
+                              <Field
+                                label="Date"
+                                name={`achievementDate${number}`}
+                                defaultValue={achievement?.date ?? ''}
+                                type="date"
+                              />
+                            </div>
+                          );
+                        })}
+                        {achievementSlots.length < 3 ||
+                        (subscription.isActive &&
+                          achievementSlots.length < 50) ? (
+                          <button
+                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-9 w-full items-center justify-center gap-2 rounded-md border border-dashed text-xs font-semibold transition-colors"
+                            type="button"
+                            onClick={() => {
+                              const nextSlot = achievementSlots.length
+                                ? Math.max(...achievementSlots) + 1
+                                : 0;
+                              setAchievementSlots((current) => [
+                                ...current,
+                                nextSlot,
+                              ]);
+                              onStructureChange();
+                            }}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Add achievement
+                          </button>
+                        ) : !subscription.isActive ? (
+                          <Link
+                            className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
+                            href="/dashboard/settings"
+                          >
+                            <span className="flex items-center gap-2 text-xs font-semibold">
+                              <Plus className="h-3.5 w-3.5" />
+                              Add more achievements
+                            </span>
+                            <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
+                              <Lock className="h-3 w-3" />
+                              Pro
+                            </span>
+                          </Link>
+                        ) : null}
+                      </>
+                    ) : (
+                      <>
                         <Field
-                          label="Title"
-                          name={`achievementTitle${number}`}
-                          defaultValue={achievement?.title ?? ''}
-                          placeholder="Bangkok Marathon finisher"
+                          label="Activity"
+                          name="activityTitle1"
+                          defaultValue={activity?.title ?? ''}
+                          placeholder="Sunday long run"
                         />
-                        <TextareaField
-                          label="Description"
-                          name={`achievementDescription${number}`}
-                          defaultValue={achievement?.description ?? ''}
-                          placeholder="Tell people what this milestone means to you."
+                        <Field
+                          label="Activity type"
+                          name="activityType1"
+                          defaultValue={activity?.description ?? ''}
+                          placeholder="Running"
                         />
                         <Field
                           label="Date"
-                          name={`achievementDate${number}`}
-                          defaultValue={achievement?.date ?? ''}
+                          name="activityDate1"
+                          defaultValue={activity?.date ?? ''}
                           type="date"
                         />
-                      </div>
+                      </>
+                    )}
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="border-border text-muted-foreground border-t px-4 py-5 text-center text-xs">
+            No blocks added yet.
+          </div>
+        )}
+      </div>
+
+      {showPicker && choices.length && typeof document !== 'undefined'
+        ? createPortal(
+            <div className="fixed inset-0 z-[70]">
+              <button
+                aria-label="Close block picker"
+                className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px]"
+                type="button"
+                onClick={() => setShowPicker(false)}
+              />
+              <aside className="border-border bg-background absolute inset-y-0 left-0 w-full max-w-sm overflow-y-auto border-r p-5 shadow-2xl">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-semibold">Add a block</p>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Choose what you want to add to your profile.
+                    </p>
+                  </div>
+                  <button
+                    aria-label="Close"
+                    className="text-muted-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-lg"
+                    type="button"
+                    onClick={() => setShowPicker(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mt-6 space-y-2">
+                  {choices.map((block) => {
+                    const Icon = block.icon;
+
+                    return (
+                      <button
+                        key={block.type}
+                        className="border-border hover:border-primary/40 hover:bg-muted/40 flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors"
+                        type="button"
+                        onClick={() => {
+                          setActiveBlocks((current) => [
+                            ...current,
+                            block.type,
+                          ]);
+                          setShowPicker(false);
+                          onStructureChange();
+                        }}
+                      >
+                        <span className="bg-muted text-muted-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-lg">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <span>
+                          <span className="block text-sm font-semibold">
+                            {block.label}
+                          </span>
+                          <span className="text-muted-foreground mt-1 block text-xs leading-5">
+                            {block.description}
+                          </span>
+                        </span>
+                      </button>
                     );
                   })}
-                  {achievementSlots.length < 3 ? (
-                    <button
-                      className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-9 w-full items-center justify-center gap-2 rounded-md border border-dashed text-xs font-semibold transition-colors"
-                      type="button"
-                      onClick={() => {
-                        const nextSlot = [0, 1, 2].find(
-                          (slot) => !achievementSlots.includes(slot),
-                        );
-
-                        if (nextSlot !== undefined) {
-                          setAchievementSlots((current) => [
-                            ...current,
-                            nextSlot,
-                          ]);
-                          onStructureChange();
-                        }
-                      }}
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      Add achievement
-                    </button>
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  <Field
-                    label="Activity"
-                    name="activityTitle1"
-                    defaultValue={activity?.title ?? ''}
-                    placeholder="Sunday long run"
-                  />
-                  <Field
-                    label="Activity type"
-                    name="activityType1"
-                    defaultValue={activity?.description ?? ''}
-                    placeholder="Running"
-                  />
-                  <Field
-                    label="Date"
-                    name="activityDate1"
-                    defaultValue={activity?.date ?? ''}
-                    type="date"
-                  />
-                </>
-              )}
-            </div>
-          </div>
-        );
-      })}
-
-      {showPicker && choices.length ? (
-        <div className="border-border bg-muted/25 space-y-1.5 rounded-lg border p-2">
-          {choices.map((block) => {
-            const Icon = block.icon;
-
-            return (
-              <button
-                key={block.type}
-                className="hover:bg-background flex w-full items-start gap-3 rounded-md p-2.5 text-left transition-colors"
-                type="button"
-                onClick={() => {
-                  setActiveBlocks((current) => [...current, block.type]);
-                  setShowPicker(false);
-                  onStructureChange();
-                }}
-              >
-                <span className="bg-background border-border flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold">
-                    {block.label}
-                  </span>
-                  <span className="text-muted-foreground mt-0.5 block text-xs leading-5">
-                    {block.description}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
-
-      {choices.length ? (
-        <button
-          className="border-primary/25 text-primary hover:bg-primary/5 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed text-sm font-semibold transition-colors"
-          type="button"
-          onClick={() => setShowPicker((current) => !current)}
-        >
-          <Plus className="h-4 w-4" />
-          Add block
-        </button>
-      ) : null}
+                </div>
+              </aside>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
@@ -817,7 +953,11 @@ export function ContentEditor({
 
       <EditorSection
         title="Goal"
-        description={goalCount > 1 ? `${goalCount} active objectives` : 'Your next objective'}
+        description={
+          goalCount > 1
+            ? `${goalCount} active objectives`
+            : 'Your next objective'
+        }
         icon={Target}
       >
         {Array.from({ length: goalCount }, (_, index) => (
@@ -834,7 +974,9 @@ export function ContentEditor({
             <button
               className="border-primary/25 text-primary hover:bg-primary/5 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed text-sm font-semibold transition-colors"
               type="button"
-              onClick={() => setGoalCount((current) => Math.min(3, current + 1))}
+              onClick={() =>
+                setGoalCount((current) => Math.min(3, current + 1))
+              }
             >
               <Plus className="h-4 w-4" />
               Add another goal
@@ -872,17 +1014,11 @@ export function ContentEditor({
         />
       </EditorSection>
 
-      <EditorSection
-        title="Blocks"
-        description="Gallery, achievements and activities"
-        icon={Blocks}
-      >
-        <ContentBlocksEditor
-          builder={builder}
-          subscription={subscription}
-          onStructureChange={schedulePreviewUpdate}
-        />
-      </EditorSection>
+      <ContentBlocksEditor
+        builder={builder}
+        subscription={subscription}
+        onStructureChange={schedulePreviewUpdate}
+      />
     </form>
   );
 }

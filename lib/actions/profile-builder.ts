@@ -53,7 +53,10 @@ const socialLinkSchema = z
   .superRefine((link, context) => {
     if (!link.url) return;
 
-    if (link.platform === 'email' && !z.string().email().safeParse(link.url).success) {
+    if (
+      link.platform === 'email' &&
+      !z.string().email().safeParse(link.url).success
+    ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['url'],
@@ -87,9 +90,10 @@ const builderSchema = z.object({
   sportSlugs: z.array(z.string().trim().max(80)).max(8),
   avatarUrl: urlSchema,
   isPublished: z.boolean(),
-  socialLinks: z
-    .array(socialLinkSchema)
-    .max(socialPlatforms.length),
+  socialLinks: z.array(socialLinkSchema).max(socialPlatforms.length),
+  contentBlockOrder: z
+    .array(z.enum(['gallery', 'achievements', 'activities']))
+    .max(3),
   galleryUrls: z.array(urlSchema).max(50),
   achievements: z
     .array(
@@ -99,7 +103,7 @@ const builderSchema = z.object({
         achievedAt: dateSchema,
       }),
     )
-    .max(3),
+    .max(50),
   activities: z
     .array(
       z.object({
@@ -141,28 +145,57 @@ const usernameSchema = z.object({
 const templateSchema = z.object({
   templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
   coverUrl: urlSchema,
-  colorPreset: z.string().refine(
-    (value) => value === 'custom' || colorPresets.some((item) => item.id === value),
-    'Invalid color preset.',
+  colorPreset: z
+    .string()
+    .refine(
+      (value) =>
+        value === 'custom' || colorPresets.some((item) => item.id === value),
+      'Invalid color preset.',
+    ),
+  fontPreset: z.enum(
+    fontPresets.map((item) => item.id) as [string, ...string[]],
   ),
-  fontPreset: z.enum(fontPresets.map((item) => item.id) as [string, ...string[]]),
   coverOverlay: z.enum(overlayPresets),
   radiusPreset: z.enum(radiusPresets),
   galleryLayout: z.enum(galleryLayouts),
-  customBackground: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid custom background color.'),
-  customSurface: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid custom block background color.'),
-  customForeground: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid custom text color.'),
-  customAccent: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid custom accent color.'),
-  customSocial: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid social link color.'),
-  customHeaderText: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid header text color.'),
-  customBlockTitle: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid block title color.'),
-  customDescription: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid description color.'),
-  customAccentText: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid accent text color.'),
-  customSocialText: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid social link text color.'),
+  customBackground: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid custom background color.'),
+  customSurface: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid custom block background color.'),
+  customForeground: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid custom text color.'),
+  customAccent: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid custom accent color.'),
+  customSocial: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid social link color.'),
+  customHeaderText: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid header text color.'),
+  customBlockTitle: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid block title color.'),
+  customDescription: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid description color.'),
+  customAccentText: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid accent text color.'),
+  customSocialText: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid social link text color.'),
   coverType: z.enum(coverTypes),
   coverColor: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid cover color.'),
-  coverGradientFrom: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient start color.'),
-  coverGradientTo: z.string().regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient end color.'),
+  coverGradientFrom: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient start color.'),
+  coverGradientTo: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient end color.'),
 });
 
 function getString(formData: FormData, key: string) {
@@ -207,11 +240,24 @@ function getGoals(formData: FormData) {
 }
 
 function getAchievements(formData: FormData) {
-  return [1, 2, 3].map((number) => ({
-    title: getString(formData, `achievementTitle${number}`),
-    description: getString(formData, `achievementDescription${number}`),
-    achievedAt: getString(formData, `achievementDate${number}`),
-  }));
+  return Array.from(formData.entries())
+    .filter(([key]) => /^achievementTitle\d+$/.test(key))
+    .map(([key, value]) => {
+      const index = Number(key.replace('achievementTitle', ''));
+
+      return {
+        index,
+        title: String(value).trim(),
+        description: getString(formData, `achievementDescription${index}`),
+        achievedAt: getString(formData, `achievementDate${index}`),
+      };
+    })
+    .sort((left, right) => left.index - right.index)
+    .map(({ title, description, achievedAt }) => ({
+      title,
+      description,
+      achievedAt,
+    }));
 }
 
 function getActivities(formData: FormData) {
@@ -229,6 +275,12 @@ function getSportSlugs(formData: FormData) {
     .getAll('sportSlugs')
     .map((value) => String(value).trim())
     .filter(Boolean);
+}
+
+function getContentBlockOrder(formData: FormData) {
+  return formData
+    .getAll('contentBlockOrder')
+    .map((value) => String(value).trim());
 }
 
 function deriveUsername(email?: string | null) {
@@ -455,7 +507,10 @@ async function replaceSports(
   }
 }
 
-async function ensureHomePageAndBlocks(profileId: number) {
+async function ensureHomePageAndBlocks(
+  profileId: number,
+  contentBlockOrder: Array<'gallery' | 'achievements' | 'activities'>,
+) {
   const serviceSupabase = createServiceSupabaseClient();
   const { data: pageData, error: pageError } = await serviceSupabase
     .from('profile_pages')
@@ -479,49 +534,55 @@ async function ensureHomePageAndBlocks(profileId: number) {
   }
 
   const homePageId = pageData.id as number;
-  const { count } = await serviceSupabase
+  const { data: existingBlocks } = await serviceSupabase
     .from('profile_blocks')
-    .select('id', { count: 'exact', head: true })
+    .select('type')
     .eq('page_id', homePageId);
+  const existingTypes = new Set(
+    ((existingBlocks ?? []) as Array<{ type: string }>).map(
+      (block) => block.type,
+    ),
+  );
+  const baseBlocks = [
+    { type: 'goals', title: 'Goals', sort_order: 0 },
+    { type: 'hero', title: 'Athlete intro', sort_order: 1 },
+  ].filter((block) => !existingTypes.has(block.type));
 
-  if (count) {
-    return;
+  if (baseBlocks.length) {
+    await serviceSupabase.from('profile_blocks').insert(
+      baseBlocks.map((block) => ({
+        page_id: homePageId,
+        ...block,
+        content: {},
+        is_enabled: true,
+      })),
+    );
   }
 
-  await serviceSupabase.from('profile_blocks').insert([
-    {
-      page_id: homePageId,
-      type: 'goals',
-      title: 'Goals',
-      content: {},
-      sort_order: 0,
-      is_enabled: true,
-    },
-    {
-      page_id: homePageId,
-      type: 'hero',
-      title: 'Athlete intro',
-      content: {},
-      sort_order: 1,
-      is_enabled: true,
-    },
-    {
-      page_id: homePageId,
-      type: 'gallery',
-      title: 'Gallery',
-      content: {},
-      sort_order: 2,
-      is_enabled: true,
-    },
-    {
-      page_id: homePageId,
-      type: 'achievements',
-      title: 'Achievements',
-      content: {},
-      sort_order: 3,
-      is_enabled: true,
-    },
-  ]);
+  await serviceSupabase
+    .from('profile_blocks')
+    .delete()
+    .eq('page_id', homePageId)
+    .in('type', ['gallery', 'achievements', 'activities']);
+
+  if (contentBlockOrder.length) {
+    const titles = {
+      gallery: 'Image gallery',
+      achievements: 'Achievements',
+      activities: 'Activities',
+    };
+
+    await serviceSupabase.from('profile_blocks').insert(
+      contentBlockOrder.map((type, index) => ({
+        page_id: homePageId,
+        type,
+        title: titles[type],
+        content: { builderManaged: true },
+        sort_order: index + 2,
+        is_enabled: true,
+      })),
+    );
+  }
 }
 
 export async function saveProfileBuilderAction(
@@ -545,6 +606,7 @@ export async function saveProfileBuilderAction(
     avatarUrl: getString(formData, 'avatarUrl'),
     isPublished: formData.get('isPublished') === 'on',
     socialLinks: getSocialLinks(formData),
+    contentBlockOrder: getContentBlockOrder(formData),
     galleryUrls: getGalleryUrls(formData),
     achievements: getAchievements(formData),
     activities: getActivities(formData),
@@ -561,8 +623,11 @@ export async function saveProfileBuilderAction(
   const input = parsed.data;
   const goalCount = input.goals.filter((goal) => goal.title).length;
   const galleryCount = input.galleryUrls.filter(Boolean).length;
+  const achievementCount = input.achievements.filter(
+    (achievement) => achievement.title,
+  ).length;
 
-  if (goalCount > 1 || galleryCount > 3) {
+  if (goalCount > 1 || galleryCount > 3 || achievementCount > 3) {
     const subscription = await getSubscriptionState();
 
     if (!subscription.isActive) {
@@ -571,7 +636,9 @@ export async function saveProfileBuilderAction(
         message:
           goalCount > 1
             ? 'Multiple goals require the Pro plan.'
-            : 'More than 3 gallery images require the Pro plan.',
+            : galleryCount > 3
+              ? 'More than 3 gallery images require the Pro plan.'
+              : 'More than 3 achievements require the Pro plan.',
       };
     }
   }
@@ -617,7 +684,7 @@ export async function saveProfileBuilderAction(
 
   try {
     await Promise.all([
-      ensureHomePageAndBlocks(profileId),
+      ensureHomePageAndBlocks(profileId, input.contentBlockOrder),
       replaceSocialLinks(profileId, input),
       replaceGalleryItems(profileId, input),
       replaceAchievements(profileId, input),
@@ -791,8 +858,12 @@ export async function updateProfileTemplateAction(
     };
   }
 
-  const selectedColor = colorPresets.find((item) => item.id === parsed.data.colorPreset);
-  const selectedFont = fontPresets.find((item) => item.id === parsed.data.fontPreset);
+  const selectedColor = colorPresets.find(
+    (item) => item.id === parsed.data.colorPreset,
+  );
+  const selectedFont = fontPresets.find(
+    (item) => item.id === parsed.data.fontPreset,
+  );
   const premiumSetting = [
     selectedColor?.proOnly ? `the ${selectedColor.name} color theme` : null,
     selectedFont?.proOnly ? `the ${selectedFont.name} typography` : null,
