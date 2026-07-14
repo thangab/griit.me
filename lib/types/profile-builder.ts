@@ -53,6 +53,15 @@ export interface BuilderGalleryItem {
   isEnabled: boolean;
 }
 
+export interface BuilderSponsor {
+  id: number | null;
+  name: string;
+  logoUrl: string;
+  websiteUrl: string;
+  sortOrder: number;
+  isEnabled: boolean;
+}
+
 export interface BuilderTimelineItem {
   id: number | null;
   title: string;
@@ -81,6 +90,7 @@ export interface ProfileBuilderState {
   blocks: BuilderBlock[];
   socialLinks: BuilderSocialLink[];
   galleryItems: BuilderGalleryItem[];
+  sponsors: BuilderSponsor[];
   achievements: BuilderTimelineItem[];
   activities: BuilderTimelineItem[];
   goals: BuilderGoalItem[];

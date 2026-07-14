@@ -181,7 +181,12 @@ function createLivePreviewState(
       sortOrder: index,
       isEnabled: true,
     }));
-  const contentBlockTypes = ['gallery', 'achievements', 'activities'];
+  const contentBlockTypes = [
+    'gallery',
+    'achievements',
+    'activities',
+    'sponsors',
+  ];
   const contentBlockOrder = data
     .getAll('contentBlockOrder')
     .map(String)
@@ -193,20 +198,34 @@ function createLivePreviewState(
     ...baseBlocks,
     ...contentBlockOrder.map((type, index) => {
       const existingBlock = builder.blocks.find((block) => block.type === type);
-
-      return (
-        existingBlock ?? {
-          id: null,
-          type,
-          title:
-            type === 'gallery'
-              ? 'Image gallery'
+      const block = existingBlock ?? {
+        id: null,
+        type,
+        title:
+          type === 'gallery'
+            ? 'Image gallery'
+            : type === 'sponsors'
+              ? 'Sponsors & partnerships'
               : type[0].toUpperCase() + type.slice(1),
-          content: { builderManaged: true },
-          sortOrder: index + 2,
-          isEnabled: true,
-        }
-      );
+        content: { builderManaged: true },
+        sortOrder: index + 2,
+        isEnabled: true,
+      };
+
+      return type === 'sponsors'
+        ? {
+            ...block,
+            content: {
+              ...block.content,
+              builderManaged: true,
+              mode: getValue('partnershipMode') || 'seeking',
+              headline:
+                getValue('partnershipHeadline') || 'Open to partnerships',
+              description: getValue('partnershipDescription'),
+              contact: getValue('partnershipContact'),
+            },
+          }
+        : block;
     }),
   ];
   const activityTitle = getValue('activityTitle1');
@@ -234,6 +253,26 @@ function createLivePreviewState(
         isEnabled: true,
       };
     });
+  const sponsors = Array.from(data.entries())
+    .filter(([key]) => /^sponsorName\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftIndex = Number(left.replace('sponsorName', ''));
+      const rightIndex = Number(right.replace('sponsorName', ''));
+      return leftIndex - rightIndex;
+    })
+    .map(([key, value], index) => {
+      const number = Number(key.replace('sponsorName', ''));
+      const sourceIndex = number - 1;
+
+      return {
+        id: builder.sponsors[sourceIndex]?.id ?? null,
+        name: String(value).trim() || 'New sponsor',
+        logoUrl: getValue(`sponsorLogoUrl${number}`),
+        websiteUrl: getValue(`sponsorWebsiteUrl${number}`),
+        sortOrder: index,
+        isEnabled: true,
+      };
+    });
 
   return {
     ...builder,
@@ -250,6 +289,7 @@ function createLivePreviewState(
     },
     goals,
     galleryItems,
+    sponsors,
     achievements,
     activities: data.has('activityTitle1')
       ? [

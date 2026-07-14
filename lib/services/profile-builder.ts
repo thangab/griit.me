@@ -7,6 +7,7 @@ import type {
   BuilderGoalItem,
   BuilderPage,
   BuilderSocialLink,
+  BuilderSponsor,
   BuilderTimelineItem,
   ProfileBuilderState,
 } from '@/lib/types/profile-builder';
@@ -84,6 +85,15 @@ interface AchievementRow {
   title: string;
   description: string | null;
   achieved_at: string | null;
+  sort_order: number;
+  is_enabled: boolean;
+}
+
+interface SponsorRow {
+  id: number;
+  name: string;
+  logo_url: string | null;
+  website_url: string | null;
   sort_order: number;
   is_enabled: boolean;
 }
@@ -217,8 +227,8 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       sortOrder: index,
       isEnabled: true,
     })),
-    achievements: [
-    ],
+    sponsors: [],
+    achievements: [],
     activities: [],
     goals: [
       {
@@ -307,6 +317,17 @@ function mapGalleryItem(row: GalleryItemRow): BuilderGalleryItem {
   };
 }
 
+function mapSponsor(row: SponsorRow): BuilderSponsor {
+  return {
+    id: row.id,
+    name: row.name,
+    logoUrl: row.logo_url ?? '',
+    websiteUrl: row.website_url ?? '',
+    sortOrder: row.sort_order,
+    isEnabled: row.is_enabled,
+  };
+}
+
 function mapAchievement(row: AchievementRow): BuilderTimelineItem {
   return {
     id: row.id,
@@ -358,6 +379,7 @@ async function mapProfileBuilderState(
     availableSportsResult,
     sportsResult,
     galleryResult,
+    sponsorsResult,
     achievementsResult,
     activitiesResult,
     goalsResult,
@@ -385,6 +407,11 @@ async function mapProfileBuilderState(
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_gallery_items')
+      .select('*')
+      .eq('profile_id', profileRow.id)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('profile_sponsors')
       .select('*')
       .eq('profile_id', profileRow.id)
       .order('sort_order', { ascending: true }),
@@ -441,6 +468,7 @@ async function mapProfileBuilderState(
     galleryItems: ((galleryResult.data ?? []) as GalleryItemRow[]).map(
       mapGalleryItem,
     ),
+    sponsors: ((sponsorsResult.data ?? []) as SponsorRow[]).map(mapSponsor),
     achievements: ((achievementsResult.data ?? []) as AchievementRow[]).map(
       mapAchievement,
     ),

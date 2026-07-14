@@ -5,6 +5,7 @@ import type { ProfileTemplateVariant } from '@/components/profile/templates/goal
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
+import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 
 type EventPosterTemplateProps = {
   builder: ProfileBuilderState;
@@ -36,7 +37,9 @@ export function EventPosterTemplate({
   const theme = getThemeRuntime(profile.theme);
   const contentBlockOrder = builder.blocks
     .filter((block) =>
-      ['gallery', 'achievements', 'activities'].includes(block.type),
+      ['gallery', 'achievements', 'activities', 'sponsors'].includes(
+        block.type,
+      ),
     )
     .map((block) => block.type);
   if (galleryItems.length && !contentBlockOrder.includes('gallery'))
@@ -285,6 +288,16 @@ export function EventPosterTemplate({
                     </div>
                   ))}
                 </div>
+              );
+            }
+
+            if (type === 'sponsors') {
+              return (
+                <SponsorsPartnershipsBlock
+                  key={type}
+                  builder={builder}
+                  presentation="poster"
+                />
               );
             }
 

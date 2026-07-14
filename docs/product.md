@@ -17,11 +17,15 @@ that they can share on Instagram, TikTok, YouTube or anywhere online.
 
 The goal is not to collect followers.
 
-The goal is to build an athlete identity around a clear objective.
+The goal is to build an athlete identity around a clear objective and turn that
+identity into real opportunities.
 
 Every profile should tell a story.
 
 Every profile should make the athlete's next goal obvious in the first screen.
+
+Every profile should be able to show existing sponsors or signal that the
+athlete is open to new partnerships.
 
 ---
 
@@ -36,7 +40,7 @@ Every athlete has achievements.
 Every athlete deserves a beautiful public profile.
 
 Griit helps athletes build their online identity around goals, activities,
-milestones, achievements, photos and personal information.
+milestones, achievements, photos, sponsors and partnership opportunities.
 
 Profiles can include current objectives such as running 10K under 40 minutes,
 finishing a marathon, preparing for a boxing fight on a specific date, or any

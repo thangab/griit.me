@@ -4,6 +4,7 @@ import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
+import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 
 export type ProfileTemplateVariant =
   'full' | 'mobile-preview' | 'desktop-preview';
@@ -39,7 +40,9 @@ export function GoalSpotlightTemplate({
   const theme = getThemeRuntime(profile.theme);
   const contentBlockOrder = builder.blocks
     .filter((block) =>
-      ['gallery', 'achievements', 'activities'].includes(block.type),
+      ['gallery', 'achievements', 'activities', 'sponsors'].includes(
+        block.type,
+      ),
     )
     .map((block) => block.type);
   if (galleryItems.length && !contentBlockOrder.includes('gallery'))
@@ -339,6 +342,10 @@ export function GoalSpotlightTemplate({
                   ))}
                 </div>
               ) : null;
+            }
+
+            if (type === 'sponsors') {
+              return <SponsorsPartnershipsBlock key={type} builder={builder} />;
             }
 
             return activities.length ? (

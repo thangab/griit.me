@@ -92,9 +92,22 @@ const builderSchema = z.object({
   isPublished: z.boolean(),
   socialLinks: z.array(socialLinkSchema).max(socialPlatforms.length),
   contentBlockOrder: z
-    .array(z.enum(['gallery', 'achievements', 'activities']))
-    .max(3),
+    .array(z.enum(['gallery', 'achievements', 'activities', 'sponsors']))
+    .max(4),
   galleryUrls: z.array(urlSchema).max(50),
+  sponsors: z
+    .array(
+      z.object({
+        name: z.string().trim().max(120),
+        logoUrl: urlSchema,
+        websiteUrl: urlSchema,
+      }),
+    )
+    .max(20),
+  partnershipMode: z.enum(['sponsors', 'seeking', 'both']),
+  partnershipHeadline: z.string().trim().max(120).optional(),
+  partnershipDescription: z.string().trim().max(500).optional(),
+  partnershipContact: z.string().trim().max(500).optional(),
   achievements: z
     .array(
       z.object({
@@ -211,6 +224,27 @@ function getGalleryUrls(formData: FormData) {
       return leftIndex - rightIndex;
     })
     .map(([, value]) => String(value).trim());
+}
+
+function getSponsors(formData: FormData) {
+  return Array.from(formData.entries())
+    .filter(([key]) => /^sponsorName\d+$/.test(key))
+    .map(([key, value]) => {
+      const index = Number(key.replace('sponsorName', ''));
+
+      return {
+        index,
+        name: String(value).trim(),
+        logoUrl: getString(formData, `sponsorLogoUrl${index}`),
+        websiteUrl: getString(formData, `sponsorWebsiteUrl${index}`),
+      };
+    })
+    .sort((left, right) => left.index - right.index)
+    .map(({ name, logoUrl, websiteUrl }) => ({
+      name,
+      logoUrl,
+      websiteUrl,
+    }));
 }
 
 function getSocialLinks(formData: FormData) {
@@ -455,6 +489,42 @@ async function replaceActivities(
   }
 }
 
+async function replaceSponsors(
+  profileId: number,
+  input: z.infer<typeof builderSchema>,
+) {
+  const serviceSupabase = createServiceSupabaseClient();
+  const { error: deleteError } = await serviceSupabase
+    .from('profile_sponsors')
+    .delete()
+    .eq('profile_id', profileId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  const rows = input.sponsors
+    .filter((sponsor) => sponsor.name)
+    .map((sponsor, index) => ({
+      profile_id: profileId,
+      name: sponsor.name,
+      logo_url: sponsor.logoUrl,
+      website_url: sponsor.websiteUrl,
+      sort_order: index,
+      is_enabled: true,
+    }));
+
+  if (rows.length) {
+    const { error: insertError } = await serviceSupabase
+      .from('profile_sponsors')
+      .insert(rows);
+
+    if (insertError) {
+      throw new Error(insertError.message);
+    }
+  }
+}
+
 async function replaceSports(
   profileId: number,
   input: z.infer<typeof builderSchema>,
@@ -509,7 +579,15 @@ async function replaceSports(
 
 async function ensureHomePageAndBlocks(
   profileId: number,
-  contentBlockOrder: Array<'gallery' | 'achievements' | 'activities'>,
+  contentBlockOrder: Array<
+    'gallery' | 'achievements' | 'activities' | 'sponsors'
+  >,
+  partnership: {
+    mode: 'sponsors' | 'seeking' | 'both';
+    headline?: string;
+    description?: string;
+    contact?: string;
+  },
 ) {
   const serviceSupabase = createServiceSupabaseClient();
   const { data: pageData, error: pageError } = await serviceSupabase
@@ -563,13 +641,14 @@ async function ensureHomePageAndBlocks(
     .from('profile_blocks')
     .delete()
     .eq('page_id', homePageId)
-    .in('type', ['gallery', 'achievements', 'activities']);
+    .in('type', ['gallery', 'achievements', 'activities', 'sponsors']);
 
   if (contentBlockOrder.length) {
     const titles = {
       gallery: 'Image gallery',
       achievements: 'Achievements',
       activities: 'Activities',
+      sponsors: 'Sponsors & partnerships',
     };
 
     await serviceSupabase.from('profile_blocks').insert(
@@ -577,7 +656,10 @@ async function ensureHomePageAndBlocks(
         page_id: homePageId,
         type,
         title: titles[type],
-        content: { builderManaged: true },
+        content:
+          type === 'sponsors'
+            ? { builderManaged: true, ...partnership }
+            : { builderManaged: true },
         sort_order: index + 2,
         is_enabled: true,
       })),
@@ -608,6 +690,11 @@ export async function saveProfileBuilderAction(
     socialLinks: getSocialLinks(formData),
     contentBlockOrder: getContentBlockOrder(formData),
     galleryUrls: getGalleryUrls(formData),
+    sponsors: getSponsors(formData),
+    partnershipMode: getString(formData, 'partnershipMode') || 'seeking',
+    partnershipHeadline: getString(formData, 'partnershipHeadline'),
+    partnershipDescription: getString(formData, 'partnershipDescription'),
+    partnershipContact: getString(formData, 'partnershipContact'),
     achievements: getAchievements(formData),
     activities: getActivities(formData),
     goals: getGoals(formData),
@@ -684,9 +771,15 @@ export async function saveProfileBuilderAction(
 
   try {
     await Promise.all([
-      ensureHomePageAndBlocks(profileId, input.contentBlockOrder),
+      ensureHomePageAndBlocks(profileId, input.contentBlockOrder, {
+        mode: input.partnershipMode,
+        headline: input.partnershipHeadline,
+        description: input.partnershipDescription,
+        contact: input.partnershipContact,
+      }),
       replaceSocialLinks(profileId, input),
       replaceGalleryItems(profileId, input),
+      replaceSponsors(profileId, input),
       replaceAchievements(profileId, input),
       replaceActivities(profileId, input),
       replaceGoals(profileId, input),

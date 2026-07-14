@@ -25,6 +25,7 @@ Features:
 - Manual activities
 - Gallery (limited)
 - Social links
+- Sponsors and "Open to partnerships" block
 - Basic analytics
 
 ---
@@ -40,6 +41,7 @@ Features:
 - Premium templates
 - Unlimited gallery
 - Unlimited blocks
+- Future advanced sponsorship tools and partnership analytics
 - Advanced analytics
 - Custom domain
 - Remove Griit branding

@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ChevronDown,
   Flag,
+  Handshake,
   ImageIcon,
   Lock,
   Plus,
@@ -273,7 +274,27 @@ function SportsField({
   );
 }
 
-type ContentBlockType = 'gallery' | 'achievements' | 'activities';
+type ContentBlockType = 'gallery' | 'achievements' | 'activities' | 'sponsors';
+
+type PartnershipMode = 'sponsors' | 'seeking' | 'both';
+
+const partnershipModes = [
+  {
+    value: 'sponsors' as const,
+    label: 'I have sponsors',
+    description: 'Show the partners already supporting you.',
+  },
+  {
+    value: 'seeking' as const,
+    label: "I'm open to partnerships",
+    description: 'Let brands know you are available.',
+  },
+  {
+    value: 'both' as const,
+    label: 'Both',
+    description: 'Show your sponsors and welcome new opportunities.',
+  },
+];
 
 function SocialLinkFields({
   link,
@@ -411,6 +432,12 @@ const availableContentBlocks = [
     description: 'Share a recent workout or sporting activity.',
     icon: Activity,
   },
+  {
+    type: 'sponsors' as const,
+    label: 'Sponsors & partnerships',
+    description: 'Show your sponsors or welcome brand opportunities.',
+    icon: Handshake,
+  },
 ];
 
 function ContentBlocksEditor({
@@ -423,6 +450,19 @@ function ContentBlocksEditor({
   onStructureChange: () => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
+  const sponsorBlock = builder.blocks.find(
+    (block) => block.type === 'sponsors',
+  );
+  const savedPartnershipMode = sponsorBlock?.content.mode;
+  const initialPartnershipMode: PartnershipMode =
+    savedPartnershipMode === 'sponsors' ||
+    savedPartnershipMode === 'seeking' ||
+    savedPartnershipMode === 'both'
+      ? savedPartnershipMode
+      : 'seeking';
+  const [partnershipMode, setPartnershipMode] = useState<PartnershipMode>(
+    initialPartnershipMode,
+  );
   const [imageSlots, setImageSlots] = useState(() =>
     Array.from(
       {
@@ -449,12 +489,19 @@ function ContentBlocksEditor({
       (_, index) => index,
     ),
   );
+  const [sponsorSlots, setSponsorSlots] = useState(() =>
+    Array.from(
+      { length: Math.max(1, builder.sponsors.length) },
+      (_, index) => index,
+    ),
+  );
   const [activeBlocks, setActiveBlocks] = useState<ContentBlockType[]>(() => {
     const blocksWithContent = new Set<ContentBlockType>();
 
     if (builder.galleryItems.length) blocksWithContent.add('gallery');
     if (builder.achievements.length) blocksWithContent.add('achievements');
     if (builder.activities.length) blocksWithContent.add('activities');
+    if (builder.sponsors.length) blocksWithContent.add('sponsors');
 
     const orderedBlocks = builder.blocks
       .filter((block) =>
@@ -501,7 +548,7 @@ function ContentBlocksEditor({
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-semibold">Blocks</span>
             <span className="text-muted-foreground block truncate text-xs">
-              Gallery, achievements and activities
+              Gallery, achievements, activities and sponsors
             </span>
           </span>
           <button
@@ -751,6 +798,194 @@ function ContentBlocksEditor({
                             </span>
                           </Link>
                         ) : null}
+                      </>
+                    ) : type === 'sponsors' ? (
+                      <>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-xs font-semibold">
+                              Partnership status
+                            </p>
+                            <p className="text-muted-foreground mt-1 text-xs leading-5">
+                              Choose what brands and visitors should see.
+                            </p>
+                          </div>
+                          <div className="grid gap-2">
+                            {partnershipModes.map((mode) => {
+                              const isSelected = partnershipMode === mode.value;
+
+                              return (
+                                <label
+                                  key={mode.value}
+                                  className={`cursor-pointer rounded-lg border p-3 transition-colors ${
+                                    isSelected
+                                      ? 'border-primary bg-primary/5'
+                                      : 'border-border hover:bg-muted/40'
+                                  }`}
+                                >
+                                  <span className="flex items-start gap-3">
+                                    <input
+                                      className="accent-primary mt-0.5 h-4 w-4"
+                                      checked={isSelected}
+                                      name="partnershipMode"
+                                      type="radio"
+                                      value={mode.value}
+                                      onChange={() =>
+                                        setPartnershipMode(mode.value)
+                                      }
+                                    />
+                                    <span>
+                                      <span className="block text-xs font-semibold">
+                                        {mode.label}
+                                      </span>
+                                      <span className="text-muted-foreground mt-1 block text-xs leading-5">
+                                        {mode.description}
+                                      </span>
+                                    </span>
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div
+                          className={`space-y-3 border-t pt-3 ${
+                            partnershipMode === 'seeking' ? 'hidden' : ''
+                          }`}
+                        >
+                          <div>
+                            <p className="text-xs font-semibold">
+                              Current sponsors
+                            </p>
+                            <p className="text-muted-foreground mt-1 text-xs leading-5">
+                              Add a logo and an optional link for each partner.
+                            </p>
+                          </div>
+                          {sponsorSlots.map((slot, position) => {
+                            const sponsor = builder.sponsors[slot];
+                            const number = slot + 1;
+
+                            return (
+                              <div
+                                key={slot}
+                                className={
+                                  position > 0
+                                    ? 'border-border space-y-3 border-t pt-3'
+                                    : 'space-y-3'
+                                }
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="text-xs font-semibold">
+                                    Sponsor {position + 1}
+                                  </p>
+                                  {sponsorSlots.length > 1 ? (
+                                    <button
+                                      aria-label={`Remove sponsor ${position + 1}`}
+                                      className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+                                      type="button"
+                                      onClick={() => {
+                                        setSponsorSlots((current) =>
+                                          current.filter(
+                                            (item) => item !== slot,
+                                          ),
+                                        );
+                                        onStructureChange();
+                                      }}
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  ) : null}
+                                </div>
+                                <Field
+                                  label="Sponsor name"
+                                  name={`sponsorName${number}`}
+                                  defaultValue={sponsor?.name ?? ''}
+                                  placeholder="Garmin"
+                                />
+                                <Field
+                                  label="Logo URL"
+                                  name={`sponsorLogoUrl${number}`}
+                                  defaultValue={sponsor?.logoUrl ?? ''}
+                                  placeholder="https://..."
+                                  type="url"
+                                />
+                                <Field
+                                  label="Website URL"
+                                  name={`sponsorWebsiteUrl${number}`}
+                                  defaultValue={sponsor?.websiteUrl ?? ''}
+                                  placeholder="https://..."
+                                  type="url"
+                                />
+                              </div>
+                            );
+                          })}
+                          {sponsorSlots.length < 20 ? (
+                            <button
+                              className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-9 w-full items-center justify-center gap-2 rounded-md border border-dashed text-xs font-semibold transition-colors"
+                              type="button"
+                              onClick={() => {
+                                const nextSlot = sponsorSlots.length
+                                  ? Math.max(...sponsorSlots) + 1
+                                  : 0;
+                                setSponsorSlots((current) => [
+                                  ...current,
+                                  nextSlot,
+                                ]);
+                                onStructureChange();
+                              }}
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              Add sponsor
+                            </button>
+                          ) : null}
+                        </div>
+
+                        <div
+                          className={`space-y-3 border-t pt-3 ${
+                            partnershipMode === 'sponsors' ? 'hidden' : ''
+                          }`}
+                        >
+                          <div>
+                            <p className="text-xs font-semibold">
+                              Partnership callout
+                            </p>
+                            <p className="text-muted-foreground mt-1 text-xs leading-5">
+                              Turn profile visitors into real opportunities.
+                            </p>
+                          </div>
+                          <Field
+                            label="Headline"
+                            name="partnershipHeadline"
+                            defaultValue={
+                              typeof sponsorBlock?.content.headline === 'string'
+                                ? sponsorBlock.content.headline
+                                : 'Open to partnerships'
+                            }
+                            placeholder="Open to partnerships"
+                          />
+                          <TextareaField
+                            label="Description"
+                            name="partnershipDescription"
+                            defaultValue={
+                              typeof sponsorBlock?.content.description ===
+                              'string'
+                                ? sponsorBlock.content.description
+                                : ''
+                            }
+                            placeholder="Available for brand collaborations, events and ambassador opportunities."
+                          />
+                          <Field
+                            label="Contact email or URL"
+                            name="partnershipContact"
+                            defaultValue={
+                              typeof sponsorBlock?.content.contact === 'string'
+                                ? sponsorBlock.content.contact
+                                : ''
+                            }
+                            placeholder="hello@example.com"
+                          />
+                        </div>
                       </>
                     ) : (
                       <>

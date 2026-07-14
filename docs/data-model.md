@@ -26,6 +26,9 @@ core model.
 - `profile_sports`: ordered join table linking public profiles to one or more
   sports. This powers future sport-based profile discovery.
 - `profile_gallery_items`: profile media gallery.
+- `profile_sponsors`: ordered sponsors with a name, logo and optional website.
+  Partnership status and CTA content live in the related `sponsors`
+  `profile_blocks.content` JSON object.
 - `profile_achievements`: manual achievements, races, milestones or titles.
 - `profile_activities`: manual activity feed, later usable by integrations.
 - `profile_goals`: active or planned athlete objectives with optional target

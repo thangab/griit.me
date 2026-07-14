@@ -248,6 +248,26 @@ export const profile_achievements = pgTable(
   }),
 );
 
+export const profile_sponsors = pgTable(
+  'profile_sponsors',
+  {
+    id: serial('id').primaryKey(),
+    profile_id: integer('profile_id')
+      .notNull()
+      .references(() => public_profiles.id),
+    name: varchar('name', { length: 120 }).notNull(),
+    logo_url: text('logo_url'),
+    website_url: text('website_url'),
+    sort_order: integer('sort_order').default(0).notNull(),
+    is_enabled: boolean('is_enabled').default(true).notNull(),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    profileIdx: index('profile_sponsors_profile_id_idx').on(table.profile_id),
+  }),
+);
+
 export const profile_activities = pgTable(
   'profile_activities',
   {
