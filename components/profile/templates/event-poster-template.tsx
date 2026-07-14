@@ -32,6 +32,11 @@ export function EventPosterTemplate({
     }) || 'More context coming soon.';
   const sports = profile.sports;
   const theme = getThemeRuntime(profile.theme);
+  const coverBackgroundImage = theme.coverType === 'image'
+    ? `linear-gradient(rgba(0,0,0,${theme.overlayOpacity}), rgba(0,0,0,${theme.overlayOpacity})), url('${profile.coverUrl}')`
+    : theme.coverType === 'gradient'
+      ? `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`
+      : undefined;
 
   return (
     <main
@@ -39,7 +44,7 @@ export function EventPosterTemplate({
         '',
         isPreview ? 'h-full overflow-y-auto overscroll-contain' : 'min-h-dvh',
       )}
-      style={{ backgroundColor: theme.color.colors[0], color: theme.color.colors[1], fontFamily: theme.fontFamilies.body }}
+      style={{ backgroundColor: theme.palette.background, color: theme.palette.text, fontFamily: theme.fontFamilies.body }}
     >
       <section
         className={cn(
@@ -48,10 +53,13 @@ export function EventPosterTemplate({
           isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-[1.1fr_0.9fr]',
         )}
       >
-        <div className={cn('flex flex-col justify-between gap-10 border border-white/10 p-6', theme.radiusClass)} style={{ backgroundColor: theme.color.colors[1], color: theme.color.colors[0] }}>
+        <div
+          className={cn('flex flex-col justify-between gap-10 border p-6', theme.radiusClass)}
+          style={{ backgroundColor: theme.palette.surface, borderColor: theme.palette.border, color: theme.palette.text }}
+        >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold">{profile.displayName}</p>
+              <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>{profile.displayName}</p>
             </div>
             <div
               className="h-12 w-12 rounded-full bg-zinc-200 bg-cover bg-center"
@@ -63,17 +71,17 @@ export function EventPosterTemplate({
             <p className="text-xs font-bold tracking-[0.3em] uppercase">
               Target
             </p>
-            <h1 className="mt-4 text-5xl leading-none font-black tracking-tight sm:text-6xl" style={{ fontFamily: theme.fontFamilies.heading }}>
+            <h1 className="mt-4 text-5xl leading-none font-black tracking-tight sm:text-6xl" style={{ color: theme.palette.blockTitle, fontFamily: theme.fontFamilies.heading }}>
               {goalTitle}
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-zinc-600">
+            <p className="mt-6 max-w-xl text-base leading-7" style={{ color: theme.palette.mutedText }}>
               {goalDescription}
             </p>
           </div>
 
           <div>
-            <div className="rounded-2xl bg-zinc-950 p-4 text-white">
-              <p className="text-xs text-white/50 uppercase">Date</p>
+            <div className="rounded-2xl p-4" style={{ backgroundColor: theme.palette.accent, color: theme.palette.accentText }}>
+              <p className="text-xs uppercase opacity-65" style={{ color: theme.palette.accentText }}>Date</p>
               <p className="mt-2 font-semibold">{goalTarget}</p>
             </div>
           </div>
@@ -83,12 +91,13 @@ export function EventPosterTemplate({
           <div
             className={cn('min-h-[320px] bg-zinc-800 bg-cover bg-center', theme.radiusClass)}
             style={{
-              backgroundImage: `linear-gradient(rgba(0,0,0,${theme.overlayOpacity}), rgba(0,0,0,${theme.overlayOpacity})), url('${profile.coverUrl}')`,
+              backgroundColor: theme.coverType === 'color' ? theme.coverColor : undefined,
+              backgroundImage: coverBackgroundImage,
             }}
           />
-          <div className="rounded-[2rem] border border-white/10 bg-white/10 p-5">
-            <p className="text-sm font-semibold">Athlete context</p>
-            <p className="mt-3 text-sm leading-6 text-white/65">
+          <div className={cn(theme.radiusClass, 'border p-5')} style={{ backgroundColor: theme.palette.surface, borderColor: theme.palette.border, color: theme.palette.text }}>
+            <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>Athlete context</p>
+            <p className="mt-3 text-sm leading-6" style={{ color: theme.palette.mutedText }}>
               {profileSummary}
             </p>
             {sports.length ? (
@@ -96,7 +105,8 @@ export function EventPosterTemplate({
                 {sports.map((sport) => (
                   <span
                     key={sport}
-                    className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-zinc-950"
+                    className="rounded-full px-3 py-1.5 text-xs font-semibold"
+                    style={{ backgroundColor: theme.palette.accent, color: theme.palette.accentText }}
                   >
                     {sport}
                   </span>
@@ -107,7 +117,8 @@ export function EventPosterTemplate({
               {socialLinks.map((link) => (
                 <a
                   key={`${link.platform}-${link.url}`}
-                  className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium"
+                  className="rounded-full px-3 py-1.5 text-xs font-medium"
+                  style={{ backgroundColor: theme.palette.social, color: theme.palette.socialText }}
                   href={link.url}
                   rel="noreferrer"
                   target="_blank"
@@ -131,30 +142,32 @@ export function EventPosterTemplate({
           {achievements.map((item) => (
             <div
               key={`${item.title}-${item.sortOrder}`}
-              className="rounded-[2rem] border border-white/10 bg-white/10 p-5"
+              className={cn(theme.radiusClass, 'border p-5')}
+              style={{ backgroundColor: theme.palette.surface, borderColor: theme.palette.border, color: theme.palette.text }}
             >
-              <p className="text-xs font-semibold tracking-[0.2em] text-white/50 uppercase">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase" style={{ color: theme.palette.description }}>
                 Achievement
               </p>
-              <p className="mt-3 font-semibold">{item.title}</p>
+              <p className="mt-3 font-semibold" style={{ color: theme.palette.blockTitle }}>{item.title}</p>
               {item.description ? (
-                <p className="mt-2 text-sm leading-6 text-white/65">
+                <p className="mt-2 text-sm leading-6" style={{ color: theme.palette.description }}>
                   {item.description}
                 </p>
               ) : null}
-              <p className="mt-3 text-xs text-white/50">{item.dateLabel}</p>
+              <p className="mt-3 text-xs" style={{ color: theme.palette.mutedDescription }}>{item.dateLabel}</p>
             </div>
           ))}
           {activities.map((item) => (
             <div
               key={`${item.title}-${item.sortOrder}`}
-              className="rounded-[2rem] border border-white/10 bg-white/10 p-5"
+              className={cn(theme.radiusClass, 'border p-5')}
+              style={{ backgroundColor: theme.palette.surface, borderColor: theme.palette.border, color: theme.palette.text }}
             >
-              <p className="text-xs font-semibold tracking-[0.2em] text-white/50 uppercase">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase" style={{ color: theme.palette.description }}>
                 Recent activity
               </p>
-              <p className="mt-3 font-semibold">{item.title}</p>
-              <p className="mt-2 text-sm text-white/65">
+              <p className="mt-3 font-semibold" style={{ color: theme.palette.blockTitle }}>{item.title}</p>
+              <p className="mt-2 text-sm" style={{ color: theme.palette.description }}>
                 {[item.description, item.dateLabel].filter(Boolean).join(' · ')}
               </p>
             </div>

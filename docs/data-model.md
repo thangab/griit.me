@@ -13,7 +13,11 @@ core model.
   `theme.templateId` selects the public profile template and
   `theme.coverImageUrl` stores its cover visual. Future visual settings such as
   colors and typography also live in this JSON object through `colorPreset`,
-  `fontPreset`, `coverOverlay`, `radiusPreset` and `galleryLayout`.
+  `customColors` (page and block backgrounds, page text, block titles,
+  descriptions, accent background/text, social background/text and header
+  text),
+  `fontPreset`, `coverType`, `coverColor`, `coverGradientFrom`,
+  `coverGradientTo`, `coverOverlay`, `radiusPreset` and `galleryLayout`.
 - `profile_pages`: pages under a public profile. MVP uses `home`; future plans
   can add more pages.
 - `profile_blocks`: ordered content blocks on a page.
