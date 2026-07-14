@@ -129,7 +129,7 @@ export function GoalSpotlightTemplate({
         <div className="space-y-6">
           <div className={cn(theme.radiusClass, 'p-6 shadow-sm')} style={{ backgroundColor: theme.palette.surface, color: theme.palette.text }}>
             <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>Athlete context</p>
-            <p className="mt-3 leading-7" style={{ color: theme.palette.mutedText }}>{profileSummary}</p>
+            <p className="mt-3 whitespace-pre-line leading-7" style={{ color: theme.palette.mutedText }}>{profileSummary}</p>
             {sports.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {sports.map((sport) => (
@@ -195,9 +195,11 @@ export function GoalSpotlightTemplate({
                       {item.description}
                     </p>
                   ) : null}
-                  <p className="mt-2 text-xs font-medium" style={{ color: theme.palette.mutedDescription }}>
-                    {item.dateLabel}
-                  </p>
+                  {item.dateLabel ? (
+                    <p className="mt-2 text-xs font-medium" style={{ color: theme.palette.mutedDescription }}>
+                      {item.dateLabel}
+                    </p>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -209,11 +211,13 @@ export function GoalSpotlightTemplate({
               {activities.map((item) => (
                 <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
                   <p className="font-semibold" style={{ color: theme.palette.blockTitle }}>{item.title}</p>
-                  <p className="mt-1 text-sm" style={{ color: theme.palette.description }}>
-                    {[item.description, item.dateLabel]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </p>
+                  {item.description || item.dateLabel ? (
+                    <p className="mt-1 text-sm" style={{ color: theme.palette.description }}>
+                      {[item.description, item.dateLabel]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                  ) : null}
                 </div>
               ))}
             </div>

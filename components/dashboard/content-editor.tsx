@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   Activity,
@@ -299,9 +299,11 @@ const availableContentBlocks = [
 function ContentBlocksEditor({
   builder,
   subscription,
+  onStructureChange,
 }: {
   builder: ProfileBuilderState;
   subscription: SubscriptionState;
+  onStructureChange: () => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
   const [imageSlots, setImageSlots] = useState(() =>
@@ -337,14 +339,6 @@ function ContentBlocksEditor({
   const choices = availableContentBlocks.filter(
     (block) => !activeBlocks.includes(block.type),
   );
-  const notifyFormChange = (button: HTMLButtonElement) => {
-    const form = button.form;
-
-    window.setTimeout(() => {
-      form?.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-  };
-
   return (
     <div className="space-y-3">
       {activeBlocks.map((type) => {
@@ -367,11 +361,11 @@ function ContentBlocksEditor({
                 aria-label={`Remove ${definition?.label}`}
                 className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
                 type="button"
-                onClick={(event) => {
+                onClick={() => {
                   setActiveBlocks((current) =>
                     current.filter((block) => block !== type),
                   );
-                  notifyFormChange(event.currentTarget);
+                  onStructureChange();
                 }}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -399,11 +393,11 @@ function ContentBlocksEditor({
                             aria-label={`Remove image ${position + 1}`}
                             className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
                             type="button"
-                            onClick={(event) => {
+                            onClick={() => {
                               setImageSlots((current) =>
                                 current.filter((item) => item !== slot),
                               );
-                              notifyFormChange(event.currentTarget);
+                              onStructureChange();
                             }}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -429,6 +423,7 @@ function ContentBlocksEditor({
                             ? Math.max(...imageSlots) + 1
                             : 0;
                         setImageSlots((current) => [...current, nextSlot]);
+                        onStructureChange();
                       }}
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -474,11 +469,11 @@ function ContentBlocksEditor({
                               aria-label={`Remove achievement ${position + 1}`}
                               className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
                               type="button"
-                              onClick={(event) => {
+                              onClick={() => {
                                 setAchievementSlots((current) =>
                                   current.filter((item) => item !== slot),
                                 );
-                                notifyFormChange(event.currentTarget);
+                                onStructureChange();
                               }}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -520,6 +515,7 @@ function ContentBlocksEditor({
                             ...current,
                             nextSlot,
                           ]);
+                          onStructureChange();
                         }
                       }}
                     >
@@ -565,10 +561,10 @@ function ContentBlocksEditor({
                 key={block.type}
                 className="hover:bg-background flex w-full items-start gap-3 rounded-md p-2.5 text-left transition-colors"
                 type="button"
-                onClick={(event) => {
+                onClick={() => {
                   setActiveBlocks((current) => [...current, block.type]);
                   setShowPicker(false);
-                  notifyFormChange(event.currentTarget);
+                  onStructureChange();
                 }}
               >
                 <span className="bg-background border-border flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
@@ -621,12 +617,21 @@ export function ContentEditor({
   const [goalCount, setGoalCount] = useState(() =>
     subscription.isActive ? Math.max(1, goals.length) : 1,
   );
+  const formRef = useRef<HTMLFormElement>(null);
+  const schedulePreviewUpdate = () => {
+    window.requestAnimationFrame(() => {
+      if (formRef.current) {
+        onPreviewChange?.(formRef.current);
+      }
+    });
+  };
 
   return (
     <form
       action={formAction}
       className="space-y-4"
       onChange={(event) => onPreviewChange?.(event.currentTarget)}
+      ref={formRef}
     >
       <input
         name="isPublished"
@@ -770,6 +775,7 @@ export function ContentEditor({
         <ContentBlocksEditor
           builder={builder}
           subscription={subscription}
+          onStructureChange={schedulePreviewUpdate}
         />
       </EditorSection>
     </form>

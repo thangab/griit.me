@@ -118,7 +118,7 @@ function deriveUsername(email?: string | null) {
 
 function formatDateLabel(value: string | null) {
   if (!value) {
-    return 'Manual';
+    return '';
   }
 
   return new Intl.DateTimeFormat('en', {

@@ -97,7 +97,7 @@ export function EventPosterTemplate({
           />
           <div className={cn(theme.radiusClass, 'border p-5')} style={{ backgroundColor: theme.palette.surface, borderColor: theme.palette.border, color: theme.palette.text }}>
             <p className="text-sm font-semibold" style={{ color: theme.palette.blockTitle }}>Athlete context</p>
-            <p className="mt-3 text-sm leading-6" style={{ color: theme.palette.mutedText }}>
+            <p className="mt-3 whitespace-pre-line text-sm leading-6" style={{ color: theme.palette.mutedText }}>
               {profileSummary}
             </p>
             {sports.length ? (
@@ -154,7 +154,9 @@ export function EventPosterTemplate({
                   {item.description}
                 </p>
               ) : null}
-              <p className="mt-3 text-xs" style={{ color: theme.palette.mutedDescription }}>{item.dateLabel}</p>
+              {item.dateLabel ? (
+                <p className="mt-3 text-xs" style={{ color: theme.palette.mutedDescription }}>{item.dateLabel}</p>
+              ) : null}
             </div>
           ))}
           {activities.map((item) => (
@@ -167,9 +169,11 @@ export function EventPosterTemplate({
                 Recent activity
               </p>
               <p className="mt-3 font-semibold" style={{ color: theme.palette.blockTitle }}>{item.title}</p>
-              <p className="mt-2 text-sm" style={{ color: theme.palette.description }}>
-                {[item.description, item.dateLabel].filter(Boolean).join(' · ')}
-              </p>
+              {item.description || item.dateLabel ? (
+                <p className="mt-2 text-sm" style={{ color: theme.palette.description }}>
+                  {[item.description, item.dateLabel].filter(Boolean).join(' · ')}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>

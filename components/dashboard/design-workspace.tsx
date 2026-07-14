@@ -151,10 +151,6 @@ function createLivePreviewState(
       const imageUrl = String(value).trim();
       const sourceIndex = Number(key.replace('galleryUrl', '')) - 1;
 
-      if (!imageUrl) {
-        return null;
-      }
-
       return {
         id: builder.galleryItems[sourceIndex]?.id ?? null,
         imageUrl,
@@ -163,8 +159,7 @@ function createLivePreviewState(
         sortOrder: index,
         isEnabled: true,
       };
-    })
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    });
   const socialUrl = getValue('socialUrl');
   const activityTitle = getValue('activityTitle1');
   const activityDate = getValue('activityDate1');
@@ -173,16 +168,16 @@ function createLivePreviewState(
       const title = getValue(`achievementTitle${number}`);
       const date = getValue(`achievementDate${number}`);
 
-      if (!title) {
+      if (!data.has(`achievementTitle${number}`)) {
         return null;
       }
 
       return {
         id: builder.achievements[index]?.id ?? null,
-        title,
+        title: title || 'New achievement',
         description: getValue(`achievementDescription${number}`),
         date,
-        dateLabel: date ? formatPreviewDate(date) : 'Manual',
+        dateLabel: date ? formatPreviewDate(date) : '',
         sortOrder: index,
         isEnabled: true,
       };
@@ -204,14 +199,14 @@ function createLivePreviewState(
     goals,
     galleryItems,
     achievements,
-    activities: activityTitle
+    activities: data.has('activityTitle1')
       ? [
           {
             id: builder.activities[0]?.id ?? null,
-            title: activityTitle,
+            title: activityTitle || 'New activity',
             description: getValue('activityType1'),
             date: activityDate,
-            dateLabel: activityDate ? formatPreviewDate(activityDate) : 'Manual',
+            dateLabel: activityDate ? formatPreviewDate(activityDate) : '',
             sortOrder: 0,
             isEnabled: true,
           },
