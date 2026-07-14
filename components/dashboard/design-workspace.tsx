@@ -160,7 +160,27 @@ function createLivePreviewState(
         isEnabled: true,
       };
     });
-  const socialUrl = getValue('socialUrl');
+  const socialLinks = Array.from(data.entries())
+    .filter(([key]) => /^socialPlatform\d+$/.test(key))
+    .map(([key, value]) => {
+      const slot = Number(key.replace('socialPlatform', ''));
+
+      return {
+        slot,
+        platform: String(value).trim() || 'website',
+        label: getValue(`socialLabel${slot}`),
+        url: getValue(`socialUrl${slot}`) || '#',
+      };
+    })
+    .sort((left, right) => left.slot - right.slot)
+    .map((link, index) => ({
+      id: builder.socialLinks[index]?.id ?? null,
+      platform: link.platform,
+      label: link.label,
+      url: link.url,
+      sortOrder: index,
+      isEnabled: true,
+    }));
   const activityTitle = getValue('activityTitle1');
   const activityDate = getValue('activityDate1');
   const achievements = [1, 2, 3]
@@ -212,21 +232,7 @@ function createLivePreviewState(
           },
         ]
       : [],
-    socialLinks: socialUrl
-      ? [
-          {
-            id: builder.socialLinks[0]?.id ?? null,
-            platform: getValue('socialPlatform') || 'website',
-            label:
-              getValue('socialLabel') ||
-              getValue('socialPlatform') ||
-              'Website',
-            url: socialUrl,
-            sortOrder: 0,
-            isEnabled: true,
-          },
-        ]
-      : [],
+    socialLinks,
   };
 }
 

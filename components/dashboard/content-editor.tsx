@@ -24,6 +24,8 @@ import {
   type ProfileBuilderActionState,
 } from '@/lib/actions/profile-builder';
 import { Button } from '@/components/ui/button';
+import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
+import { socialPlatforms } from '@/lib/constants/social-platforms';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import type { SubscriptionState } from '@/lib/types/billing';
 
@@ -274,6 +276,125 @@ function SportsField({
 }
 
 type ContentBlockType = 'gallery' | 'achievements' | 'activities';
+
+function SocialLinkFields({
+  link,
+  number,
+  onRemove,
+}: {
+  link: ProfileBuilderState['socialLinks'][number] | undefined;
+  number: number;
+  onRemove: () => void;
+}) {
+  const initialPlatform = socialPlatforms.some(
+    (platform) => platform.id === link?.platform,
+  )
+    ? link?.platform ?? 'instagram'
+    : 'website';
+  const [platform, setPlatform] = useState(initialPlatform);
+  const platformDefinition = socialPlatforms.find((item) => item.id === platform)
+    ?? socialPlatforms[0];
+  const valueLabel = platform === 'email'
+    ? 'Email address'
+    : platform === 'phone'
+      ? 'Phone number'
+      : 'Profile URL';
+  const valueType = platform === 'email'
+    ? 'email'
+    : platform === 'phone'
+      ? 'tel'
+      : 'url';
+
+  return (
+    <div className="border-border bg-background overflow-hidden rounded-lg border">
+      <div className="border-border bg-muted/30 flex items-center gap-3 border-b px-3 py-2.5">
+        <SocialPlatformIcon platform={platform} />
+        <span className="min-w-0 flex-1 text-sm font-semibold">
+          {platformDefinition.label}
+        </span>
+        <button
+          aria-label={`Remove ${platformDefinition.label}`}
+          className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+          type="button"
+          onClick={onRemove}
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="space-y-3 p-3">
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium">Network</span>
+          <select
+            className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+            name={`socialPlatform${number}`}
+            value={platform}
+            onChange={(event) => setPlatform(event.target.value)}
+          >
+            {socialPlatforms.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <Field
+          label={valueLabel}
+          name={`socialUrl${number}`}
+          defaultValue={link?.url ?? ''}
+          placeholder={platformDefinition.placeholder}
+          type={valueType}
+        />
+        <Field
+          label="Label (optional)"
+          name={`socialLabel${number}`}
+          defaultValue={link?.label ?? ''}
+          placeholder="@username"
+        />
+      </div>
+    </div>
+  );
+}
+
+function SocialLinksEditor({
+  links,
+  onStructureChange,
+}: {
+  links: ProfileBuilderState['socialLinks'];
+  onStructureChange: () => void;
+}) {
+  const [slots, setSlots] = useState(() => links.map((_, index) => index));
+
+  return (
+    <div className="space-y-3">
+      {slots.map((slot) => (
+        <SocialLinkFields
+          key={slot}
+          link={links[slot]}
+          number={slot + 1}
+          onRemove={() => {
+            setSlots((current) => current.filter((item) => item !== slot));
+            onStructureChange();
+          }}
+        />
+      ))}
+
+      {slots.length < socialPlatforms.length ? (
+        <button
+          className="border-primary/25 text-primary hover:bg-primary/5 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed text-sm font-semibold transition-colors"
+          type="button"
+          onClick={() => {
+            const nextSlot = slots.length ? Math.max(...slots) + 1 : 0;
+            setSlots((current) => [...current, nextSlot]);
+            onStructureChange();
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add social link
+        </button>
+      ) : null}
+    </div>
+  );
+}
 
 const availableContentBlocks = [
   {
@@ -612,7 +733,6 @@ export function ContentEditor({
     initialState,
   );
   const profile = builder.profile;
-  const primarySocial = builder.socialLinks[0];
   const goals = builder.goals.slice(0, 3);
   const [goalCount, setGoalCount] = useState(() =>
     subscription.isActive ? Math.max(1, goals.length) : 1,
@@ -742,28 +862,13 @@ export function ContentEditor({
       </EditorSection>
 
       <EditorSection
-        title="Social link"
-        description="Connect your main account"
+        title="Social links"
+        description="Connect your main social profiles"
         icon={Share2}
       >
-        <Field
-          label="Platform"
-          name="socialPlatform"
-          defaultValue={primarySocial?.platform ?? 'instagram'}
-          placeholder="instagram"
-        />
-        <Field
-          label="Label"
-          name="socialLabel"
-          defaultValue={primarySocial?.label ?? ''}
-          placeholder="@gumhy"
-        />
-        <Field
-          label="URL"
-          name="socialUrl"
-          defaultValue={primarySocial?.url ?? ''}
-          placeholder="https://instagram.com/gumhy"
-          type="url"
+        <SocialLinksEditor
+          links={builder.socialLinks}
+          onStructureChange={schedulePreviewUpdate}
         />
       </EditorSection>
 

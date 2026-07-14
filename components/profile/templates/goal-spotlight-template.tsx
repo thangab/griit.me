@@ -2,6 +2,8 @@ import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
+import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
+import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 
 export type ProfileTemplateVariant =
   'full' | 'mobile-preview' | 'desktop-preview';
@@ -148,13 +150,15 @@ export function GoalSpotlightTemplate({
                 {socialLinks.map((link) => (
                   <a
                     key={`${link.platform}-${link.url}`}
-                    className="rounded-full px-4 py-2 text-sm font-medium transition"
+                    aria-label={link.label || link.platform}
+                    className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition"
                     style={{ backgroundColor: theme.palette.social, color: theme.palette.socialText }}
-                    href={link.url}
-                    rel="noreferrer"
-                    target="_blank"
+                    href={getSocialLinkHref(link.platform, link.url)}
+                    rel={link.platform === 'email' || link.platform === 'phone' ? undefined : 'noreferrer'}
+                    target={link.platform === 'email' || link.platform === 'phone' ? undefined : '_blank'}
                   >
-                    {link.label || link.platform}
+                    <SocialPlatformIcon platform={link.platform} />
+                    {link.label ? <span>{link.label}</span> : null}
                   </a>
                 ))}
               </div>

@@ -289,7 +289,7 @@ function mapSocialLink(row: SocialLinkRow): BuilderSocialLink {
   return {
     id: row.id,
     platform: row.platform,
-    label: row.label ?? row.platform,
+    label: row.label ?? '',
     url: row.url,
     sortOrder: row.sort_order,
     isEnabled: row.is_enabled,

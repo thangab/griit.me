@@ -20,6 +20,10 @@ import {
   overlayPresets,
   radiusPresets,
 } from '@/lib/constants/profile-theme';
+import {
+  isSocialPlatformId,
+  socialPlatforms,
+} from '@/lib/constants/social-platforms';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -40,15 +44,52 @@ const dateSchema = z
   .or(z.literal(''))
   .transform((value) => value || null);
 
+const socialLinkSchema = z
+  .object({
+    platform: z.string().refine(isSocialPlatformId, 'Invalid social platform.'),
+    label: z.string().trim().max(80).optional(),
+    url: z.string().trim().max(500),
+  })
+  .superRefine((link, context) => {
+    if (!link.url) return;
+
+    if (link.platform === 'email' && !z.string().email().safeParse(link.url).success) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['url'],
+        message: 'Email address is invalid.',
+      });
+    } else if (
+      link.platform === 'phone' &&
+      !/^\+?[\d\s().-]{6,30}$/.test(link.url)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['url'],
+        message: 'Phone number is invalid.',
+      });
+    } else if (
+      link.platform !== 'email' &&
+      link.platform !== 'phone' &&
+      !z.string().url().safeParse(link.url).success
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['url'],
+        message: 'Social profile URL is invalid.',
+      });
+    }
+  });
+
 const builderSchema = z.object({
   displayName: z.string().trim().min(1, 'Display name is required.').max(120),
   bio: z.string().trim().max(300).optional(),
   sportSlugs: z.array(z.string().trim().max(80)).max(8),
   avatarUrl: urlSchema,
   isPublished: z.boolean(),
-  socialPlatform: z.string().trim().max(48).optional(),
-  socialLabel: z.string().trim().max(80).optional(),
-  socialUrl: urlSchema,
+  socialLinks: z
+    .array(socialLinkSchema)
+    .max(socialPlatforms.length),
   galleryUrls: z.array(urlSchema).max(50),
   achievements: z
     .array(
@@ -139,6 +180,23 @@ function getGalleryUrls(formData: FormData) {
     .map(([, value]) => String(value).trim());
 }
 
+function getSocialLinks(formData: FormData) {
+  return Array.from(formData.entries())
+    .filter(([key]) => /^socialPlatform\d+$/.test(key))
+    .map(([key, value]) => {
+      const index = Number(key.replace('socialPlatform', ''));
+
+      return {
+        index,
+        platform: String(value).trim().toLowerCase(),
+        label: getString(formData, `socialLabel${index}`),
+        url: getString(formData, `socialUrl${index}`),
+      };
+    })
+    .sort((left, right) => left.index - right.index)
+    .map(({ platform, label, url }) => ({ platform, label, url }));
+}
+
 function getGoals(formData: FormData) {
   return [1, 2, 3].map((index) => ({
     title: getString(formData, `goalTitle${index}`),
@@ -221,18 +279,22 @@ async function replaceSocialLinks(
     .delete()
     .eq('profile_id', profileId);
 
-  if (!input.socialUrl) {
+  const socialRows = input.socialLinks
+    .filter((link): link is typeof link & { url: string } => Boolean(link.url))
+    .map((link, index) => ({
+      profile_id: profileId,
+      platform: link.platform,
+      label: link.label || null,
+      url: link.url,
+      sort_order: index,
+      is_enabled: true,
+    }));
+
+  if (!socialRows.length) {
     return;
   }
 
-  await serviceSupabase.from('profile_social_links').insert({
-    profile_id: profileId,
-    platform: input.socialPlatform || 'website',
-    label: input.socialLabel || input.socialPlatform || 'Website',
-    url: input.socialUrl,
-    sort_order: 0,
-    is_enabled: true,
-  });
+  await serviceSupabase.from('profile_social_links').insert(socialRows);
 }
 
 async function replaceGalleryItems(
@@ -482,9 +544,7 @@ export async function saveProfileBuilderAction(
     sportSlugs: getSportSlugs(formData),
     avatarUrl: getString(formData, 'avatarUrl'),
     isPublished: formData.get('isPublished') === 'on',
-    socialPlatform: getString(formData, 'socialPlatform').toLowerCase(),
-    socialLabel: getString(formData, 'socialLabel'),
-    socialUrl: getString(formData, 'socialUrl'),
+    socialLinks: getSocialLinks(formData),
     galleryUrls: getGalleryUrls(formData),
     achievements: getAchievements(formData),
     activities: getActivities(formData),
