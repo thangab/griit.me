@@ -992,7 +992,7 @@ function MobilePanelBar({
   onSelect: (panel: MobilePanel) => void;
 }) {
   return (
-    <div className="border-border bg-background/95 sticky top-16 z-30 -mx-4 mb-4 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 xl:hidden">
+    <div className="border-border bg-background/95 sticky top-0 z-30 -mx-4 mb-4 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 xl:hidden">
       <div className="bg-muted grid grid-cols-3 gap-1 rounded-xl p-1">
         {mobilePanels.map((panel) => {
           const Icon = panel.icon;
