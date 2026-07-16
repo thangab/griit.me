@@ -107,7 +107,7 @@ export function ResetPasswordForm() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => router.push('/auth/forgot-password')}
+              onClick={() => router.push('/forgot-password')}
             >
               Request a new reset link
             </Button>

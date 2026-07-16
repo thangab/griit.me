@@ -67,7 +67,7 @@ export default function AuthCallbackPage() {
         <p className="text-muted-foreground text-sm">{message}</p>
         {message.includes('Unable') ? (
           <div className="mt-6">
-            <Button onClick={() => router.push('/auth/sign-in')}>
+            <Button onClick={() => router.push('/sign-in')}>
               Return to sign in
             </Button>
           </div>

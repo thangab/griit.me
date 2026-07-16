@@ -97,7 +97,7 @@ export async function signUpAction(
 export async function signOutAction() {
   const supabase = await getServerSupabaseClient();
   await supabase.auth.signOut();
-  redirect('/auth/sign-in');
+  redirect('/sign-in');
 }
 
 export async function getSession() {

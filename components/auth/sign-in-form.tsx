@@ -58,7 +58,7 @@ export function SignInForm() {
         <GoogleSignInButton />
       </div>
       <p className="text-muted-foreground text-sm">
-        <Link href="/auth/forgot-password" className="text-primary font-medium">
+        <Link href="/forgot-password" className="text-primary font-medium">
           Forgot your password?
         </Link>
       </p>
