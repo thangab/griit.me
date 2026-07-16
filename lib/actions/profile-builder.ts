@@ -24,6 +24,7 @@ import {
   isSocialPlatformId,
   socialPlatforms,
 } from '@/lib/constants/social-platforms';
+import { parseMediaUrl } from '@/lib/utils/media-embed';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -92,8 +93,32 @@ const builderSchema = z.object({
   isPublished: z.boolean(),
   socialLinks: z.array(socialLinkSchema).max(socialPlatforms.length),
   contentBlockOrder: z
-    .array(z.enum(['gallery', 'achievements', 'activities', 'sponsors']))
-    .max(4),
+    .array(
+      z
+        .string()
+        .regex(
+          /^(gallery|achievements|activities|sponsors|media-\d+)$/,
+          'Invalid content block.',
+        ),
+    )
+    .max(54),
+  mediaBlocks: z
+    .array(
+      z.object({
+        slot: z.number().int().positive(),
+        sourceUrl: z
+          .string()
+          .trim()
+          .url('Media URL is invalid.')
+          .max(500)
+          .refine(
+            (value) => Boolean(parseMediaUrl(value)),
+            'Use a valid YouTube, Vimeo, or TikTok video URL.',
+          ),
+        caption: z.string().trim().max(500).optional(),
+      }),
+    )
+    .max(50),
   galleryUrls: z.array(urlSchema).max(50),
   sponsors: z
     .array(
@@ -315,6 +340,25 @@ function getContentBlockOrder(formData: FormData) {
   return formData
     .getAll('contentBlockOrder')
     .map((value) => String(value).trim());
+}
+
+function getMediaBlocks(formData: FormData) {
+  return Array.from(formData.entries())
+    .filter(([key]) => /^mediaUrl\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftSlot = Number(left.replace('mediaUrl', ''));
+      const rightSlot = Number(right.replace('mediaUrl', ''));
+      return leftSlot - rightSlot;
+    })
+    .map(([key, value]) => {
+      const slot = Number(key.replace('mediaUrl', ''));
+
+      return {
+        slot,
+        sourceUrl: String(value).trim(),
+        caption: getString(formData, `mediaCaption${slot}`),
+      };
+    });
 }
 
 function deriveUsername(email?: string | null) {
@@ -579,9 +623,12 @@ async function replaceSports(
 
 async function ensureHomePageAndBlocks(
   profileId: number,
-  contentBlockOrder: Array<
-    'gallery' | 'achievements' | 'activities' | 'sponsors'
-  >,
+  contentBlockOrder: string[],
+  mediaBlocks: Array<{
+    slot: number;
+    sourceUrl: string;
+    caption?: string;
+  }>,
   partnership: {
     mode: 'sponsors' | 'seeking' | 'both';
     headline?: string;
@@ -641,7 +688,7 @@ async function ensureHomePageAndBlocks(
     .from('profile_blocks')
     .delete()
     .eq('page_id', homePageId)
-    .in('type', ['gallery', 'achievements', 'activities', 'sponsors']);
+    .in('type', ['gallery', 'achievements', 'activities', 'sponsors', 'media']);
 
   if (contentBlockOrder.length) {
     const titles = {
@@ -650,19 +697,50 @@ async function ensureHomePageAndBlocks(
       activities: 'Activities',
       sponsors: 'Sponsors & partnerships',
     };
+    const mediaBySlot = new Map(
+      mediaBlocks.map((media) => [media.slot, media]),
+    );
 
     await serviceSupabase.from('profile_blocks').insert(
-      contentBlockOrder.map((type, index) => ({
-        page_id: homePageId,
-        type,
-        title: titles[type],
-        content:
-          type === 'sponsors'
-            ? { builderManaged: true, ...partnership }
-            : { builderManaged: true },
-        sort_order: index + 2,
-        is_enabled: true,
-      })),
+      contentBlockOrder.map((blockKey, index) => {
+        if (blockKey.startsWith('media-')) {
+          const media = mediaBySlot.get(Number(blockKey.replace('media-', '')));
+          const parsedMedia = media ? parseMediaUrl(media.sourceUrl) : null;
+
+          if (!media || !parsedMedia) {
+            throw new Error('Unable to save an invalid media block.');
+          }
+
+          return {
+            page_id: homePageId,
+            type: 'media',
+            title: 'Media',
+            content: {
+              builderManaged: true,
+              sourceUrl: media.sourceUrl,
+              caption: media.caption,
+              provider: parsedMedia.provider,
+              mediaId: parsedMedia.mediaId,
+            },
+            sort_order: index + 2,
+            is_enabled: true,
+          };
+        }
+
+        const type = blockKey as keyof typeof titles;
+
+        return {
+          page_id: homePageId,
+          type,
+          title: titles[type],
+          content:
+            type === 'sponsors'
+              ? { builderManaged: true, ...partnership }
+              : { builderManaged: true },
+          sort_order: index + 2,
+          is_enabled: true,
+        };
+      }),
     );
   }
 }
@@ -689,6 +767,7 @@ export async function saveProfileBuilderAction(
     isPublished: formData.get('isPublished') === 'on',
     socialLinks: getSocialLinks(formData),
     contentBlockOrder: getContentBlockOrder(formData),
+    mediaBlocks: getMediaBlocks(formData),
     galleryUrls: getGalleryUrls(formData),
     sponsors: getSponsors(formData),
     partnershipMode: getString(formData, 'partnershipMode') || 'seeking',
@@ -771,12 +850,17 @@ export async function saveProfileBuilderAction(
 
   try {
     await Promise.all([
-      ensureHomePageAndBlocks(profileId, input.contentBlockOrder, {
-        mode: input.partnershipMode,
-        headline: input.partnershipHeadline,
-        description: input.partnershipDescription,
-        contact: input.partnershipContact,
-      }),
+      ensureHomePageAndBlocks(
+        profileId,
+        input.contentBlockOrder,
+        input.mediaBlocks,
+        {
+          mode: input.partnershipMode,
+          headline: input.partnershipHeadline,
+          description: input.partnershipDescription,
+          contact: input.partnershipContact,
+        },
+      ),
       replaceSocialLinks(profileId, input),
       replaceGalleryItems(profileId, input),
       replaceSponsors(profileId, input),

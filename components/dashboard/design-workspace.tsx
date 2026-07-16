@@ -186,17 +186,42 @@ function createLivePreviewState(
     'achievements',
     'activities',
     'sponsors',
+    'media',
   ];
   const contentBlockOrder = data
     .getAll('contentBlockOrder')
     .map(String)
-    .filter((type) => contentBlockTypes.includes(type));
+    .filter(
+      (key) => contentBlockTypes.includes(key) || /^media-\d+$/.test(key),
+    );
   const baseBlocks = builder.blocks.filter(
     (block) => !contentBlockTypes.includes(block.type),
   );
+  const existingMediaBlocks = builder.blocks.filter(
+    (block) => block.type === 'media',
+  );
   const blocks = [
     ...baseBlocks,
-    ...contentBlockOrder.map((type, index) => {
+    ...contentBlockOrder.map((blockKey, index) => {
+      if (blockKey.startsWith('media-')) {
+        const slot = Number(blockKey.replace('media-', ''));
+        const existingBlock = existingMediaBlocks[slot - 1];
+
+        return {
+          id: existingBlock?.id ?? null,
+          type: 'media',
+          title: 'Media',
+          content: {
+            builderManaged: true,
+            sourceUrl: getValue(`mediaUrl${slot}`),
+            caption: getValue(`mediaCaption${slot}`),
+          },
+          sortOrder: index + 2,
+          isEnabled: true,
+        };
+      }
+
+      const type = blockKey;
       const existingBlock = builder.blocks.find((block) => block.type === type);
       const block = existingBlock ?? {
         id: null,
@@ -225,7 +250,7 @@ function createLivePreviewState(
               contact: getValue('partnershipContact'),
             },
           }
-        : block;
+        : { ...block, sortOrder: index + 2 };
     }),
   ];
   const activityTitle = getValue('activityTitle1');

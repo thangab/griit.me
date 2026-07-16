@@ -5,6 +5,7 @@ import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
+import { MediaBlock } from '@/components/profile/media-block';
 
 export type ProfileTemplateVariant =
   'full' | 'mobile-preview' | 'desktop-preview';
@@ -38,19 +39,28 @@ export function GoalSpotlightTemplate({
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
   const theme = getThemeRuntime(profile.theme);
-  const contentBlockOrder = builder.blocks
+  const contentBlocks = builder.blocks
     .filter((block) =>
-      ['gallery', 'achievements', 'activities', 'sponsors'].includes(
+      ['gallery', 'achievements', 'activities', 'sponsors', 'media'].includes(
         block.type,
       ),
     )
-    .map((block) => block.type);
-  if (galleryItems.length && !contentBlockOrder.includes('gallery'))
-    contentBlockOrder.push('gallery');
-  if (achievements.length && !contentBlockOrder.includes('achievements'))
-    contentBlockOrder.push('achievements');
-  if (activities.length && !contentBlockOrder.includes('activities'))
-    contentBlockOrder.push('activities');
+    .filter((block) => block.isEnabled);
+  const ensureContentBlock = (type: string, title: string) => {
+    if (!contentBlocks.some((block) => block.type === type)) {
+      contentBlocks.push({
+        id: null,
+        type,
+        title,
+        content: {},
+        sortOrder: contentBlocks.length + 2,
+        isEnabled: true,
+      });
+    }
+  };
+  if (galleryItems.length) ensureContentBlock('gallery', 'Image gallery');
+  if (achievements.length) ensureContentBlock('achievements', 'Achievements');
+  if (activities.length) ensureContentBlock('activities', 'Activities');
   const coverStyle =
     theme.coverType === 'image'
       ? { backgroundImage: `url('${profile.coverUrl}')` }
@@ -266,11 +276,15 @@ export function GoalSpotlightTemplate({
             </div>
           ) : null}
 
-          {contentBlockOrder.map((type) => {
+          {contentBlocks.map((block, blockIndex) => {
+            const { type } = block;
+            const blockKey =
+              block.id ?? `${type}-${block.sortOrder}-${blockIndex}`;
+
             if (type === 'gallery') {
               return galleryItems.length ? (
                 <div
-                  key={type}
+                  key={blockKey}
                   className={cn(
                     'gap-2',
                     theme.galleryLayout === 'carousel'
@@ -298,7 +312,7 @@ export function GoalSpotlightTemplate({
             if (type === 'achievements') {
               return achievements.length ? (
                 <div
-                  key={type}
+                  key={blockKey}
                   className={cn(theme.radiusClass, 'p-6 shadow-sm')}
                   style={{
                     backgroundColor: theme.palette.surface,
@@ -345,12 +359,20 @@ export function GoalSpotlightTemplate({
             }
 
             if (type === 'sponsors') {
-              return <SponsorsPartnershipsBlock key={type} builder={builder} />;
+              return (
+                <SponsorsPartnershipsBlock key={blockKey} builder={builder} />
+              );
+            }
+
+            if (type === 'media') {
+              return (
+                <MediaBlock key={blockKey} block={block} builder={builder} />
+              );
             }
 
             return activities.length ? (
               <div
-                key={type}
+                key={blockKey}
                 className={cn(theme.radiusClass, 'p-6 shadow-sm')}
                 style={{
                   backgroundColor: theme.palette.surface,

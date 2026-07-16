@@ -21,6 +21,7 @@ import {
   Trash2,
   Trophy,
   UserRound,
+  Video,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -274,7 +275,13 @@ function SportsField({
   );
 }
 
-type ContentBlockType = 'gallery' | 'achievements' | 'activities' | 'sponsors';
+type ContentBlockType =
+  'gallery' | 'achievements' | 'activities' | 'sponsors' | 'media';
+
+type ActiveContentBlock = {
+  key: string;
+  type: ContentBlockType;
+};
 
 type PartnershipMode = 'sponsors' | 'seeking' | 'both';
 
@@ -415,6 +422,12 @@ function SocialLinksEditor({
 
 const availableContentBlocks = [
   {
+    type: 'media' as const,
+    label: 'Media',
+    description: 'Embed a YouTube, Vimeo, or TikTok video.',
+    icon: Video,
+  },
+  {
     type: 'gallery' as const,
     label: 'Image gallery',
     description: 'Show your best training and competition moments.',
@@ -495,7 +508,11 @@ function ContentBlocksEditor({
       (_, index) => index,
     ),
   );
-  const [activeBlocks, setActiveBlocks] = useState<ContentBlockType[]>(() => {
+  const mediaBlocks = builder.blocks.filter((block) => block.type === 'media');
+  const [nextMediaSlot, setNextMediaSlot] = useState(
+    Math.max(1, mediaBlocks.length + 1),
+  );
+  const [activeBlocks, setActiveBlocks] = useState<ActiveContentBlock[]>(() => {
     const blocksWithContent = new Set<ContentBlockType>();
 
     if (builder.galleryItems.length) blocksWithContent.add('gallery');
@@ -503,7 +520,8 @@ function ContentBlocksEditor({
     if (builder.activities.length) blocksWithContent.add('activities');
     if (builder.sponsors.length) blocksWithContent.add('sponsors');
 
-    const orderedBlocks = builder.blocks
+    let mediaIndex = 0;
+    const orderedBlocks: ActiveContentBlock[] = builder.blocks
       .filter((block) =>
         availableContentBlocks.some((item) => item.type === block.type),
       )
@@ -512,10 +530,21 @@ function ContentBlocksEditor({
           blocksWithContent.has(block.type as ContentBlockType) ||
           block.content.builderManaged === true,
       )
-      .map((block) => block.type as ContentBlockType);
+      .map((block) => {
+        const type = block.type as ContentBlockType;
+
+        if (type === 'media') {
+          mediaIndex += 1;
+          return { key: `media-${mediaIndex}`, type };
+        }
+
+        return { key: type, type };
+      });
 
     blocksWithContent.forEach((type) => {
-      if (!orderedBlocks.includes(type)) orderedBlocks.push(type);
+      if (!orderedBlocks.some((block) => block.type === type)) {
+        orderedBlocks.push({ key: type, type });
+      }
     });
 
     return orderedBlocks;
@@ -523,7 +552,9 @@ function ContentBlocksEditor({
   const activity = builder.activities[0];
   const galleryItems = builder.galleryItems;
   const choices = availableContentBlocks.filter(
-    (block) => !activeBlocks.includes(block.type),
+    (block) =>
+      block.type === 'media' ||
+      !activeBlocks.some((active) => active.type === block.type),
   );
   const moveBlock = (index: number, direction: -1 | 1) => {
     const targetIndex = index + direction;
@@ -564,16 +595,17 @@ function ContentBlocksEditor({
 
         {activeBlocks.length ? (
           <div className="border-border space-y-2 border-t p-3">
-            {activeBlocks.map((type) => (
+            {activeBlocks.map((block) => (
               <input
-                key={`order-${type}`}
+                key={`order-${block.key}`}
                 name="contentBlockOrder"
                 type="hidden"
-                value={type}
+                value={block.key}
               />
             ))}
 
-            {activeBlocks.map((type, blockIndex) => {
+            {activeBlocks.map((activeBlock, blockIndex) => {
+              const { key, type } = activeBlock;
               const definition = availableContentBlocks.find(
                 (block) => block.type === type,
               );
@@ -581,7 +613,7 @@ function ContentBlocksEditor({
 
               return (
                 <details
-                  key={type}
+                  key={key}
                   className="border-border bg-background group/block overflow-hidden rounded-lg border"
                   open={blockIndex === 0}
                 >
@@ -621,7 +653,7 @@ function ContentBlocksEditor({
                       onClick={(event) => {
                         event.preventDefault();
                         setActiveBlocks((current) =>
-                          current.filter((block) => block !== type),
+                          current.filter((block) => block.key !== key),
                         );
                         onStructureChange();
                       }}
@@ -987,6 +1019,41 @@ function ContentBlocksEditor({
                           />
                         </div>
                       </>
+                    ) : type === 'media' ? (
+                      <>
+                        <Field
+                          label="Video URL"
+                          name={`mediaUrl${key.replace('media-', '')}`}
+                          defaultValue={
+                            typeof mediaBlocks[
+                              Number(key.replace('media-', '')) - 1
+                            ]?.content.sourceUrl === 'string'
+                              ? (mediaBlocks[
+                                  Number(key.replace('media-', '')) - 1
+                                ].content.sourceUrl as string)
+                              : ''
+                          }
+                          placeholder="https://youtube.com/watch?v=..."
+                          type="url"
+                        />
+                        <TextareaField
+                          label="Caption (optional)"
+                          name={`mediaCaption${key.replace('media-', '')}`}
+                          defaultValue={
+                            typeof mediaBlocks[
+                              Number(key.replace('media-', '')) - 1
+                            ]?.content.caption === 'string'
+                              ? (mediaBlocks[
+                                  Number(key.replace('media-', '')) - 1
+                                ].content.caption as string)
+                              : ''
+                          }
+                          placeholder="Add context about this video."
+                        />
+                        <p className="text-muted-foreground text-xs leading-5">
+                          Supports YouTube, Vimeo, and TikTok video links.
+                        </p>
+                      </>
                     ) : (
                       <>
                         <Field
@@ -1058,10 +1125,19 @@ function ContentBlocksEditor({
                         className="border-border hover:border-primary/40 hover:bg-muted/40 flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors"
                         type="button"
                         onClick={() => {
-                          setActiveBlocks((current) => [
-                            ...current,
-                            block.type,
-                          ]);
+                          if (block.type === 'media') {
+                            const slot = nextMediaSlot;
+                            setActiveBlocks((current) => [
+                              ...current,
+                              { key: `media-${slot}`, type: 'media' },
+                            ]);
+                            setNextMediaSlot(slot + 1);
+                          } else {
+                            setActiveBlocks((current) => [
+                              ...current,
+                              { key: block.type, type: block.type },
+                            ]);
+                          }
                           setShowPicker(false);
                           onStructureChange();
                         }}
