@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { MediaBlock } from '@/components/profile/media-block';
+import { OfferBlock } from '@/components/profile/offer-block';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import type { ProfileTemplateVariant } from '@/components/profile/templates/goal-spotlight-template';
@@ -134,9 +135,14 @@ function getContentBlocks(builder: ProfileBuilderState) {
     .filter(
       (block) =>
         block.isEnabled &&
-        ['gallery', 'achievements', 'activities', 'sponsors', 'media'].includes(
-          block.type,
-        ),
+        [
+          'gallery',
+          'achievements',
+          'activities',
+          'sponsors',
+          'media',
+          'offer',
+        ].includes(block.type),
     )
     .map((block) => ({ ...block }));
 
@@ -208,6 +214,10 @@ function SportContentBlock({
 
   if (block.type === 'sponsors') {
     return <SponsorsPartnershipsBlock key={blockKey} builder={builder} />;
+  }
+
+  if (block.type === 'offer') {
+    return <OfferBlock key={blockKey} block={block} builder={builder} />;
   }
 
   if (block.type === 'gallery') {

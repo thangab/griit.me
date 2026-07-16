@@ -7,6 +7,7 @@ import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import { MediaBlock } from '@/components/profile/media-block';
+import { OfferBlock } from '@/components/profile/offer-block';
 import { resolveTemplateWording } from '@/lib/constants/template-wording';
 
 type EventPosterTemplateProps = {
@@ -44,9 +45,14 @@ export function EventPosterTemplate({
   );
   const contentBlocks = builder.blocks
     .filter((block) =>
-      ['gallery', 'achievements', 'activities', 'sponsors', 'media'].includes(
-        block.type,
-      ),
+      [
+        'gallery',
+        'achievements',
+        'activities',
+        'sponsors',
+        'media',
+        'offer',
+      ].includes(block.type),
     )
     .filter((block) => block.isEnabled);
   const ensureContentBlock = (type: string, title: string) => {
@@ -404,6 +410,17 @@ export function EventPosterTemplate({
             if (type === 'media') {
               return (
                 <MediaBlock
+                  key={blockKey}
+                  block={block}
+                  builder={builder}
+                  presentation="poster"
+                />
+              );
+            }
+
+            if (type === 'offer') {
+              return (
+                <OfferBlock
                   key={blockKey}
                   block={block}
                   builder={builder}

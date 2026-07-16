@@ -97,7 +97,7 @@ const builderSchema = z.object({
       z
         .string()
         .regex(
-          /^(gallery|achievements|activities|sponsors|media-\d+)$/,
+          /^(gallery|achievements|activities|sponsors|media-\d+|offer-\d+)$/,
           'Invalid content block.',
         ),
     )
@@ -116,6 +116,23 @@ const builderSchema = z.object({
             'Use a valid YouTube, Vimeo, or TikTok video URL.',
           ),
         caption: z.string().trim().max(500).optional(),
+      }),
+    )
+    .max(50),
+  offerBlocks: z
+    .array(
+      z.object({
+        slot: z.number().int().positive(),
+        url: z.string().trim().url('Offer URL is invalid.').max(1000),
+        title: z.string().trim().max(160),
+        description: z.string().trim().max(500),
+        imageUrl: urlSchema,
+        siteName: z.string().trim().max(100),
+        promoCode: z.string().trim().max(40),
+        promoText: z.string().trim().max(160),
+        ctaLabel: z.string().trim().max(60),
+        displaySize: z.enum(['small', 'medium', 'large']),
+        isAffiliate: z.boolean(),
       }),
     )
     .max(50),
@@ -370,6 +387,33 @@ function getMediaBlocks(formData: FormData) {
         slot,
         sourceUrl: String(value).trim(),
         caption: getString(formData, `mediaCaption${slot}`),
+      };
+    });
+}
+
+function getOfferBlocks(formData: FormData) {
+  return Array.from(formData.entries())
+    .filter(([key]) => /^offerUrl\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftSlot = Number(left.replace('offerUrl', ''));
+      const rightSlot = Number(right.replace('offerUrl', ''));
+      return leftSlot - rightSlot;
+    })
+    .map(([key, value]) => {
+      const slot = Number(key.replace('offerUrl', ''));
+
+      return {
+        slot,
+        url: String(value).trim(),
+        title: getString(formData, `offerTitle${slot}`),
+        description: getString(formData, `offerDescription${slot}`),
+        imageUrl: getString(formData, `offerImageUrl${slot}`),
+        siteName: getString(formData, `offerSiteName${slot}`),
+        promoCode: getString(formData, `offerPromoCode${slot}`),
+        promoText: getString(formData, `offerPromoText${slot}`),
+        ctaLabel: getString(formData, `offerCtaLabel${slot}`),
+        displaySize: getString(formData, `offerDisplaySize${slot}`) || 'medium',
+        isAffiliate: formData.get(`offerIsAffiliate${slot}`) === 'on',
       };
     });
 }
@@ -642,6 +686,19 @@ async function ensureHomePageAndBlocks(
     sourceUrl: string;
     caption?: string;
   }>,
+  offerBlocks: Array<{
+    slot: number;
+    url: string;
+    title: string;
+    description: string;
+    imageUrl: string | null;
+    siteName: string;
+    promoCode: string;
+    promoText: string;
+    ctaLabel: string;
+    displaySize: 'small' | 'medium' | 'large';
+    isAffiliate: boolean;
+  }>,
   partnership: {
     mode: 'sponsors' | 'seeking' | 'both';
     headline?: string;
@@ -702,7 +759,14 @@ async function ensureHomePageAndBlocks(
     .from('profile_blocks')
     .delete()
     .eq('page_id', homePageId)
-    .in('type', ['gallery', 'achievements', 'activities', 'sponsors', 'media']);
+    .in('type', [
+      'gallery',
+      'achievements',
+      'activities',
+      'sponsors',
+      'media',
+      'offer',
+    ]);
 
   if (contentBlockOrder.length) {
     const titles = {
@@ -713,6 +777,9 @@ async function ensureHomePageAndBlocks(
     };
     const mediaBySlot = new Map(
       mediaBlocks.map((media) => [media.slot, media]),
+    );
+    const offerBySlot = new Map(
+      offerBlocks.map((offer) => [offer.slot, offer]),
     );
 
     await serviceSupabase.from('profile_blocks').insert(
@@ -735,6 +802,24 @@ async function ensureHomePageAndBlocks(
               caption: media.caption,
               provider: parsedMedia.provider,
               mediaId: parsedMedia.mediaId,
+            },
+            sort_order: index + 2,
+            is_enabled: true,
+          };
+        }
+
+        if (blockKey.startsWith('offer-')) {
+          const offer = offerBySlot.get(Number(blockKey.replace('offer-', '')));
+          if (!offer) throw new Error('Unable to save an invalid offer block.');
+
+          return {
+            page_id: homePageId,
+            type: 'offer',
+            title: offer.title || 'Offer',
+            content: {
+              builderManaged: true,
+              ...offer,
+              ctaLabel: offer.ctaLabel || 'View offer',
             },
             sort_order: index + 2,
             is_enabled: true,
@@ -782,6 +867,7 @@ export async function saveProfileBuilderAction(
     socialLinks: getSocialLinks(formData),
     contentBlockOrder: getContentBlockOrder(formData),
     mediaBlocks: getMediaBlocks(formData),
+    offerBlocks: getOfferBlocks(formData),
     galleryUrls: getGalleryUrls(formData),
     sponsors: getSponsors(formData),
     partnershipMode: getString(formData, 'partnershipMode') || 'seeking',
@@ -869,6 +955,7 @@ export async function saveProfileBuilderAction(
         profileId,
         input.contentBlockOrder,
         input.mediaBlocks,
+        input.offerBlocks,
         {
           mode: input.partnershipMode,
           headline: input.partnershipHeadline,

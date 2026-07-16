@@ -13,10 +13,12 @@ import {
   Flag,
   Handshake,
   ImageIcon,
+  Loader2,
   Lock,
   Plus,
   Save,
   Share2,
+  ShoppingBag,
   Target,
   Trash2,
   Trophy,
@@ -35,6 +37,7 @@ import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { socialPlatforms } from '@/lib/constants/social-platforms';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import type { SubscriptionState } from '@/lib/types/billing';
+import { cn } from '@/lib/utils/cn';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -82,12 +85,16 @@ function Field({
   defaultValue,
   placeholder,
   type = 'text',
+  value,
+  onChange,
 }: {
   label: string;
   name: string;
   defaultValue?: string;
   placeholder?: string;
   type?: string;
+  value?: string;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }) {
   return (
     <label className="space-y-1.5">
@@ -98,6 +105,8 @@ function Field({
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
       />
     </label>
   );
@@ -108,11 +117,15 @@ function TextareaField({
   name,
   defaultValue,
   placeholder,
+  value,
+  onChange,
 }: {
   label: string;
   name: string;
   defaultValue?: string;
   placeholder?: string;
+  value?: string;
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }) {
   return (
     <label className="space-y-1.5">
@@ -122,6 +135,8 @@ function TextareaField({
         name={name}
         defaultValue={defaultValue}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
       />
     </label>
   );
@@ -277,7 +292,7 @@ function SportsField({
 }
 
 type ContentBlockType =
-  'gallery' | 'achievements' | 'activities' | 'sponsors' | 'media';
+  'gallery' | 'achievements' | 'activities' | 'sponsors' | 'media' | 'offer';
 
 type ActiveContentBlock = {
   key: string;
@@ -423,6 +438,12 @@ function SocialLinksEditor({
 
 const availableContentBlocks = [
   {
+    type: 'offer' as const,
+    label: 'Offer / product',
+    description: 'Share a product, promo code, or affiliate offer.',
+    icon: ShoppingBag,
+  },
+  {
     type: 'media' as const,
     label: 'Media',
     description: 'Embed a YouTube, Vimeo, or TikTok video.',
@@ -453,6 +474,262 @@ const availableContentBlocks = [
     icon: Handshake,
   },
 ];
+
+function OfferEditorFields({
+  block,
+  slot,
+  onStructureChange,
+}: {
+  block: ProfileBuilderState['blocks'][number] | undefined;
+  slot: number;
+  onStructureChange: () => void;
+}) {
+  const getInitialValue = (key: string, fallback = '') =>
+    typeof block?.content[key] === 'string'
+      ? (block.content[key] as string)
+      : fallback;
+  const [url, setUrl] = useState(() => getInitialValue('url'));
+  const [title, setTitle] = useState(() => getInitialValue('title'));
+  const [description, setDescription] = useState(() =>
+    getInitialValue('description'),
+  );
+  const [imageUrl, setImageUrl] = useState(() => getInitialValue('imageUrl'));
+  const [siteName, setSiteName] = useState(() => getInitialValue('siteName'));
+  const [promoCode, setPromoCode] = useState(() =>
+    getInitialValue('promoCode'),
+  );
+  const [promoText, setPromoText] = useState(() =>
+    getInitialValue('promoText'),
+  );
+  const [ctaLabel, setCtaLabel] = useState(() =>
+    getInitialValue('ctaLabel', 'View offer'),
+  );
+  const [displaySize, setDisplaySize] = useState<'small' | 'medium' | 'large'>(
+    () => {
+      const saved = getInitialValue('displaySize');
+      return saved === 'small' || saved === 'large' ? saved : 'medium';
+    },
+  );
+  const [isAffiliate, setIsAffiliate] = useState(
+    block?.content.isAffiliate === true,
+  );
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const updatePreview = () => {
+    window.requestAnimationFrame(onStructureChange);
+  };
+
+  const loadPreview = async () => {
+    if (!url.trim()) {
+      setStatus('error');
+      setMessage('Add a product URL first.');
+      return;
+    }
+
+    setStatus('loading');
+    setMessage('');
+    try {
+      const response = await fetch('/api/link-preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      const result = (await response.json()) as {
+        title?: string;
+        description?: string;
+        imageUrl?: string;
+        siteName?: string;
+        error?: string;
+      };
+      if (!response.ok)
+        throw new Error(result.error || 'Unable to preview this link.');
+
+      setTitle(result.title || title);
+      setDescription(result.description || description);
+      setImageUrl(result.imageUrl || imageUrl);
+      setSiteName(result.siteName || siteName);
+      setStatus('idle');
+      setMessage('Preview loaded. You can edit every field below.');
+      updatePreview();
+    } catch (error) {
+      setStatus('error');
+      setMessage(
+        error instanceof Error ? error.message : 'Unable to preview this link.',
+      );
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <label className="block space-y-1.5">
+        <span className="text-xs font-medium">Product or affiliate URL</span>
+        <div className="flex gap-2">
+          <input
+            className="border-border bg-background focus:border-primary h-10 min-w-0 flex-1 rounded-md border px-3 text-sm outline-none"
+            name={`offerUrl${slot}`}
+            placeholder="https://brand.com/product"
+            type="url"
+            value={url}
+            onChange={(event) => setUrl(event.target.value)}
+          />
+          <button
+            className="border-border hover:bg-muted flex h-10 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold disabled:opacity-60"
+            disabled={status === 'loading'}
+            type="button"
+            onClick={() => void loadPreview()}
+          >
+            {status === 'loading' ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <ShoppingBag className="h-3.5 w-3.5" />
+            )}
+            Preview
+          </button>
+        </div>
+      </label>
+
+      {message ? (
+        <p
+          className={cn(
+            'text-xs leading-5',
+            status === 'error' ? 'text-destructive' : 'text-muted-foreground',
+          )}
+        >
+          {message}
+        </p>
+      ) : null}
+
+      <div className="border-border overflow-hidden rounded-lg border">
+        <div
+          className="bg-muted aspect-[16/8] bg-cover bg-center"
+          style={
+            imageUrl
+              ? { backgroundImage: `url(${JSON.stringify(imageUrl)})` }
+              : undefined
+          }
+        >
+          {!imageUrl ? (
+            <span className="text-muted-foreground flex h-full items-center justify-center">
+              <ShoppingBag className="h-6 w-6" />
+            </span>
+          ) : null}
+        </div>
+        <div className="space-y-1.5 p-3">
+          {siteName ? (
+            <p className="text-muted-foreground text-[11px] font-semibold uppercase">
+              {siteName}
+            </p>
+          ) : null}
+          <p className="text-sm font-semibold">{title || 'Product preview'}</p>
+          {description ? (
+            <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
+              {description}
+            </p>
+          ) : null}
+          {promoCode ? (
+            <span className="bg-primary/10 text-primary inline-flex rounded-md px-2 py-1 font-mono text-xs font-semibold">
+              {promoCode}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      <ImageUploadField
+        key={imageUrl}
+        folder="offers"
+        helpText="The preview image is copied to your Supabase storage. You can replace it here."
+        label="Product image"
+        name={`offerImageUrl${slot}`}
+        previewShape="wide"
+        value={imageUrl}
+        onValueChange={(value) => {
+          setImageUrl(value);
+          updatePreview();
+        }}
+      />
+      <div>
+        <p className="text-xs font-medium">Display size</p>
+        <div className="bg-muted mt-1.5 grid grid-cols-3 gap-1 rounded-lg p-1">
+          {(['small', 'medium', 'large'] as const).map((size) => (
+            <button
+              key={size}
+              className={cn(
+                'h-9 rounded-md text-xs font-semibold capitalize transition',
+                displaySize === size
+                  ? 'bg-background shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+              type="button"
+              onClick={() => {
+                setDisplaySize(size);
+                updatePreview();
+              }}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+        <input
+          name={`offerDisplaySize${slot}`}
+          type="hidden"
+          value={displaySize}
+        />
+      </div>
+      <Field
+        label="Title"
+        name={`offerTitle${slot}`}
+        value={title}
+        onChange={(event) => setTitle(event.target.value)}
+      />
+      <TextareaField
+        label="Description (optional)"
+        name={`offerDescription${slot}`}
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+      />
+      <input name={`offerSiteName${slot}`} type="hidden" value={siteName} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field
+          label="Promo code (optional)"
+          name={`offerPromoCode${slot}`}
+          placeholder="GRIIT10"
+          value={promoCode}
+          onChange={(event) => setPromoCode(event.target.value)}
+        />
+        <Field
+          label="Button label"
+          name={`offerCtaLabel${slot}`}
+          placeholder="View offer"
+          value={ctaLabel}
+          onChange={(event) => setCtaLabel(event.target.value)}
+        />
+      </div>
+      <Field
+        label="Promo text (optional)"
+        name={`offerPromoText${slot}`}
+        placeholder="Get 10% off with my code"
+        value={promoText}
+        onChange={(event) => setPromoText(event.target.value)}
+      />
+      <label className="border-border bg-muted/30 flex cursor-pointer items-start gap-3 rounded-lg border p-3">
+        <input
+          checked={isAffiliate}
+          className="mt-0.5 h-4 w-4"
+          name={`offerIsAffiliate${slot}`}
+          type="checkbox"
+          onChange={(event) => setIsAffiliate(event.target.checked)}
+        />
+        <span>
+          <span className="block text-xs font-semibold">Affiliate link</span>
+          <span className="text-muted-foreground mt-0.5 block text-[11px] leading-4">
+            Displays a transparent affiliate disclosure on the card.
+          </span>
+        </span>
+      </label>
+    </div>
+  );
+}
 
 function ContentBlocksEditor({
   builder,
@@ -512,8 +789,12 @@ function ContentBlocksEditor({
     ),
   );
   const mediaBlocks = builder.blocks.filter((block) => block.type === 'media');
+  const offerBlocks = builder.blocks.filter((block) => block.type === 'offer');
   const [nextMediaSlot, setNextMediaSlot] = useState(
     Math.max(1, mediaBlocks.length + 1),
+  );
+  const [nextOfferSlot, setNextOfferSlot] = useState(
+    Math.max(1, offerBlocks.length + 1),
   );
   const [activeBlocks, setActiveBlocks] = useState<ActiveContentBlock[]>(() => {
     const blocksWithContent = new Set<ContentBlockType>();
@@ -524,6 +805,7 @@ function ContentBlocksEditor({
     if (builder.sponsors.length) blocksWithContent.add('sponsors');
 
     let mediaIndex = 0;
+    let offerIndex = 0;
     const orderedBlocks: ActiveContentBlock[] = builder.blocks
       .filter((block) =>
         availableContentBlocks.some((item) => item.type === block.type),
@@ -539,6 +821,11 @@ function ContentBlocksEditor({
         if (type === 'media') {
           mediaIndex += 1;
           return { key: `media-${mediaIndex}`, type };
+        }
+
+        if (type === 'offer') {
+          offerIndex += 1;
+          return { key: `offer-${offerIndex}`, type };
         }
 
         return { key: type, type };
@@ -557,6 +844,7 @@ function ContentBlocksEditor({
   const choices = availableContentBlocks.filter(
     (block) =>
       block.type === 'media' ||
+      block.type === 'offer' ||
       !activeBlocks.some((active) => active.type === block.type),
   );
 
@@ -1063,6 +1351,14 @@ function ContentBlocksEditor({
                           />
                         </div>
                       </>
+                    ) : type === 'offer' ? (
+                      <OfferEditorFields
+                        block={
+                          offerBlocks[Number(key.replace('offer-', '')) - 1]
+                        }
+                        slot={Number(key.replace('offer-', ''))}
+                        onStructureChange={onStructureChange}
+                      />
                     ) : type === 'media' ? (
                       <>
                         <Field
@@ -1177,6 +1473,15 @@ function ContentBlocksEditor({
                               { key, type: 'media' },
                             ]);
                             setNextMediaSlot(slot + 1);
+                            setPendingFocusKey(key);
+                          } else if (block.type === 'offer') {
+                            const slot = nextOfferSlot;
+                            const key = `offer-${slot}`;
+                            setActiveBlocks((current) => [
+                              ...current,
+                              { key, type: 'offer' },
+                            ]);
+                            setNextOfferSlot(slot + 1);
                             setPendingFocusKey(key);
                           } else {
                             setActiveBlocks((current) => [

@@ -245,18 +245,25 @@ function createLivePreviewState(
     'activities',
     'sponsors',
     'media',
+    'offer',
   ];
   const contentBlockOrder = data
     .getAll('contentBlockOrder')
     .map(String)
     .filter(
-      (key) => contentBlockTypes.includes(key) || /^media-\d+$/.test(key),
+      (key) =>
+        contentBlockTypes.includes(key) ||
+        /^media-\d+$/.test(key) ||
+        /^offer-\d+$/.test(key),
     );
   const baseBlocks = builder.blocks.filter(
     (block) => !contentBlockTypes.includes(block.type),
   );
   const existingMediaBlocks = builder.blocks.filter(
     (block) => block.type === 'media',
+  );
+  const existingOfferBlocks = builder.blocks.filter(
+    (block) => block.type === 'offer',
   );
   const blocks = [
     ...baseBlocks,
@@ -273,6 +280,32 @@ function createLivePreviewState(
             builderManaged: true,
             sourceUrl: getValue(`mediaUrl${slot}`),
             caption: getValue(`mediaCaption${slot}`),
+          },
+          sortOrder: index + 2,
+          isEnabled: true,
+        };
+      }
+
+      if (blockKey.startsWith('offer-')) {
+        const slot = Number(blockKey.replace('offer-', ''));
+        const existingBlock = existingOfferBlocks[slot - 1];
+
+        return {
+          id: existingBlock?.id ?? null,
+          type: 'offer',
+          title: getValue(`offerTitle${slot}`) || 'Offer',
+          content: {
+            builderManaged: true,
+            url: getValue(`offerUrl${slot}`),
+            title: getValue(`offerTitle${slot}`),
+            description: getValue(`offerDescription${slot}`),
+            imageUrl: getValue(`offerImageUrl${slot}`),
+            siteName: getValue(`offerSiteName${slot}`),
+            promoCode: getValue(`offerPromoCode${slot}`),
+            promoText: getValue(`offerPromoText${slot}`),
+            ctaLabel: getValue(`offerCtaLabel${slot}`) || 'View offer',
+            displaySize: getValue(`offerDisplaySize${slot}`) || 'medium',
+            isAffiliate: data.get(`offerIsAffiliate${slot}`) === 'on',
           },
           sortOrder: index + 2,
           isEnabled: true,

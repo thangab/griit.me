@@ -19,7 +19,7 @@ type ImageUploadFieldProps = {
   name: string;
   label: string;
   value: string;
-  folder: 'avatars' | 'covers' | 'gallery' | 'sponsors';
+  folder: 'avatars' | 'covers' | 'gallery' | 'sponsors' | 'offers';
   helpText?: string;
   previewShape?: 'square' | 'wide' | 'logo';
   onValueChange?: (url: string) => void;
