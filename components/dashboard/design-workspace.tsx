@@ -248,6 +248,8 @@ function createLivePreviewState(
                 getValue('partnershipHeadline') || 'Open to partnerships',
               description: getValue('partnershipDescription'),
               contact: getValue('partnershipContact'),
+              ctaLabel:
+                getValue('partnershipCtaLabel') || "Let's work together",
             },
           }
         : { ...block, sortOrder: index + 2 };

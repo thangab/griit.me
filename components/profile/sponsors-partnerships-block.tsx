@@ -112,6 +112,10 @@ export function SponsorsPartnershipsBlock({
       : '';
   const contact =
     typeof block.content.contact === 'string' ? block.content.contact : '';
+  const ctaLabel =
+    typeof block.content.ctaLabel === 'string' && block.content.ctaLabel
+      ? block.content.ctaLabel
+      : "Let's work together";
   const contactHref = getContactHref(contact);
 
   if (!sponsors.length && !showCallout) return null;
@@ -176,7 +180,7 @@ export function SponsorsPartnershipsBlock({
               rel={contactHref.startsWith('mailto:') ? undefined : 'noreferrer'}
               target={contactHref.startsWith('mailto:') ? undefined : '_blank'}
             >
-              Let&apos;s work together
+              {ctaLabel}
               <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
           ) : null}

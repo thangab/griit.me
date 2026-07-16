@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
@@ -463,6 +463,8 @@ function ContentBlocksEditor({
   onStructureChange: () => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
+  const [pendingFocusKey, setPendingFocusKey] = useState<string | null>(null);
+  const blockRefs = useRef(new Map<string, HTMLDetailsElement>());
   const sponsorBlock = builder.blocks.find(
     (block) => block.type === 'sponsors',
   );
@@ -556,6 +558,24 @@ function ContentBlocksEditor({
       block.type === 'media' ||
       !activeBlocks.some((active) => active.type === block.type),
   );
+
+  useEffect(() => {
+    if (!pendingFocusKey) return;
+
+    const block = blockRefs.current.get(pendingFocusKey);
+    if (!block) return;
+
+    block.open = true;
+    block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    const frame = window.requestAnimationFrame(() => {
+      block.querySelector<HTMLElement>('input, textarea, select')?.focus();
+      setPendingFocusKey(null);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeBlocks, pendingFocusKey]);
+
   const moveBlock = (index: number, direction: -1 | 1) => {
     const targetIndex = index + direction;
 
@@ -614,6 +634,13 @@ function ContentBlocksEditor({
               return (
                 <details
                   key={key}
+                  ref={(element) => {
+                    if (element) {
+                      blockRefs.current.set(key, element);
+                    } else {
+                      blockRefs.current.delete(key);
+                    }
+                  }}
                   className="border-border bg-background group/block overflow-hidden rounded-lg border"
                   open={blockIndex === 0}
                 >
@@ -1017,6 +1044,16 @@ function ContentBlocksEditor({
                             }
                             placeholder="hello@example.com"
                           />
+                          <Field
+                            label="Button label"
+                            name="partnershipCtaLabel"
+                            defaultValue={
+                              typeof sponsorBlock?.content.ctaLabel === 'string'
+                                ? sponsorBlock.content.ctaLabel
+                                : "Let's work together"
+                            }
+                            placeholder="Let's work together"
+                          />
                         </div>
                       </>
                     ) : type === 'media' ? (
@@ -1127,16 +1164,19 @@ function ContentBlocksEditor({
                         onClick={() => {
                           if (block.type === 'media') {
                             const slot = nextMediaSlot;
+                            const key = `media-${slot}`;
                             setActiveBlocks((current) => [
                               ...current,
-                              { key: `media-${slot}`, type: 'media' },
+                              { key, type: 'media' },
                             ]);
                             setNextMediaSlot(slot + 1);
+                            setPendingFocusKey(key);
                           } else {
                             setActiveBlocks((current) => [
                               ...current,
                               { key: block.type, type: block.type },
                             ]);
+                            setPendingFocusKey(block.type);
                           }
                           setShowPicker(false);
                           onStructureChange();

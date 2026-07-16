@@ -133,6 +133,7 @@ const builderSchema = z.object({
   partnershipHeadline: z.string().trim().max(120).optional(),
   partnershipDescription: z.string().trim().max(500).optional(),
   partnershipContact: z.string().trim().max(500).optional(),
+  partnershipCtaLabel: z.string().trim().max(80).optional(),
   achievements: z
     .array(
       z.object({
@@ -634,6 +635,7 @@ async function ensureHomePageAndBlocks(
     headline?: string;
     description?: string;
     contact?: string;
+    ctaLabel?: string;
   },
 ) {
   const serviceSupabase = createServiceSupabaseClient();
@@ -774,6 +776,7 @@ export async function saveProfileBuilderAction(
     partnershipHeadline: getString(formData, 'partnershipHeadline'),
     partnershipDescription: getString(formData, 'partnershipDescription'),
     partnershipContact: getString(formData, 'partnershipContact'),
+    partnershipCtaLabel: getString(formData, 'partnershipCtaLabel'),
     achievements: getAchievements(formData),
     activities: getActivities(formData),
     goals: getGoals(formData),
@@ -859,6 +862,7 @@ export async function saveProfileBuilderAction(
           headline: input.partnershipHeadline,
           description: input.partnershipDescription,
           contact: input.partnershipContact,
+          ctaLabel: input.partnershipCtaLabel || "Let's work together",
         },
       ),
       replaceSocialLinks(profileId, input),
