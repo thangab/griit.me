@@ -30,6 +30,7 @@ import {
   type ProfileBuilderActionState,
 } from '@/lib/actions/profile-builder';
 import { Button } from '@/components/ui/button';
+import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { socialPlatforms } from '@/lib/constants/social-platforms';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
@@ -569,7 +570,11 @@ function ContentBlocksEditor({
     block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     const frame = window.requestAnimationFrame(() => {
-      block.querySelector<HTMLElement>('input, textarea, select')?.focus();
+      block
+        .querySelector<HTMLElement>(
+          'input:not([type="hidden"]):not([type="file"]), textarea, select, [data-autofocus-field]',
+        )
+        ?.focus();
       setPendingFocusKey(null);
     });
 
@@ -722,12 +727,13 @@ function ContentBlocksEditor({
                                 </button>
                               ) : null}
                             </div>
-                            <Field
-                              label="Image URL"
+                            <ImageUploadField
+                              folder="gallery"
+                              label="Image"
                               name={`galleryUrl${slot + 1}`}
-                              defaultValue={galleryItems[slot]?.imageUrl ?? ''}
-                              placeholder="https://..."
-                              type="url"
+                              previewShape="wide"
+                              value={galleryItems[slot]?.imageUrl ?? ''}
+                              onValueChange={onStructureChange}
                             />
                           </div>
                         ))}
@@ -962,12 +968,13 @@ function ContentBlocksEditor({
                                   defaultValue={sponsor?.name ?? ''}
                                   placeholder="Garmin"
                                 />
-                                <Field
-                                  label="Logo URL"
+                                <ImageUploadField
+                                  folder="sponsors"
+                                  label="Sponsor logo"
                                   name={`sponsorLogoUrl${number}`}
-                                  defaultValue={sponsor?.logoUrl ?? ''}
-                                  placeholder="https://..."
-                                  type="url"
+                                  previewShape="logo"
+                                  value={sponsor?.logoUrl ?? ''}
+                                  onValueChange={onStructureChange}
                                 />
                                 <Field
                                   label="Website URL"
@@ -1277,12 +1284,13 @@ export function ContentEditor({
         icon={UserRound}
         defaultOpen
       >
-        <Field
-          label="Profile picture URL"
+        <ImageUploadField
+          folder="avatars"
+          label="Profile picture"
           name="avatarUrl"
-          defaultValue={profile.avatarUrl}
-          placeholder="https://..."
-          type="url"
+          previewShape="square"
+          value={profile.avatarUrl}
+          onValueChange={schedulePreviewUpdate}
         />
         <Field
           label="Display name"

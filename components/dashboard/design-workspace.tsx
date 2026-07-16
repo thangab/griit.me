@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { ContentEditor } from '@/components/dashboard/content-editor';
 import { DesignPreview } from '@/components/dashboard/design-preview';
+import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import { Button } from '@/components/ui/button';
 import {
   setProfilePublishedAction,
@@ -643,20 +644,15 @@ function TemplateSelector({
           ) : null}
 
           {themeSettings.coverType === 'image' ? (
-            <label className="block space-y-1.5">
-              <span className="text-xs font-medium">Cover image URL</span>
-              <input
-                className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
-                name="coverUrl"
-                onChange={(event) => handleCoverChange(event.target.value)}
-                placeholder="https://..."
-                type="url"
-                value={coverUrl}
-              />
-              <span className="text-muted-foreground block text-xs leading-5">
-                Used as the main visual background of your profile.
-              </span>
-            </label>
+            <ImageUploadField
+              folder="covers"
+              helpText="Used as the main visual background of your profile."
+              label="Cover image"
+              name="coverUrl"
+              previewShape="wide"
+              value={coverUrl}
+              onValueChange={handleCoverChange}
+            />
           ) : null}
 
           {themeSettings.coverType === 'image' ? (

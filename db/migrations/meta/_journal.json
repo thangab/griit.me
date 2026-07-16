@@ -64,6 +64,13 @@
       "when": 1783680000000,
       "tag": "0008_add_profile_sponsors",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784160000000,
+      "tag": "0009_add_profile_media_storage",
+      "breakpoints": true
     }
   ]
 }

@@ -12,13 +12,6 @@ import type {
   ProfileBuilderState,
 } from '@/lib/types/profile-builder';
 
-const defaultAvatarUrl =
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=60';
-const defaultCoverUrl =
-  'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=60';
-const defaultGalleryUrl =
-  'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=60';
-
 interface PublicProfileRow {
   id: number;
   username: string;
@@ -158,8 +151,8 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       sports: ['Running'],
       sportSlugs: ['running'],
       location: 'Bangkok',
-      avatarUrl: defaultAvatarUrl,
-      coverUrl: defaultCoverUrl,
+      avatarUrl: '',
+      coverUrl: '',
       isPublished: false,
       theme: {
         templateId: defaultProfileTemplateId,
@@ -219,14 +212,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         isEnabled: true,
       },
     ],
-    galleryItems: Array.from({ length: 1 }, (_, index) => ({
-      id: null,
-      imageUrl: defaultGalleryUrl,
-      caption: `Training moment ${index + 1}`,
-      altText: 'Athlete training moment',
-      sortOrder: index,
-      isEnabled: true,
-    })),
+    galleryItems: [],
     sponsors: [],
     achievements: [],
     activities: [],
@@ -264,10 +250,8 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     sports: [],
     sportSlugs: [],
     location: row.location ?? '',
-    avatarUrl: row.avatar_url ?? defaultAvatarUrl,
-    coverUrl: hasThemeCoverUrl
-      ? themeCoverUrl || defaultCoverUrl
-      : row.cover_url || defaultCoverUrl,
+    avatarUrl: row.avatar_url ?? '',
+    coverUrl: hasThemeCoverUrl ? themeCoverUrl || '' : row.cover_url || '',
     isPublished: row.is_published,
     theme,
   };
