@@ -41,6 +41,11 @@ import {
   resolveThemeSettings,
   type ProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
+import {
+  getDefaultTemplateWording,
+  resolveTemplateWording,
+  type TemplateWording,
+} from '@/lib/constants/template-wording';
 
 const mobilePanels = [
   { id: 'content', label: 'Content', icon: FileText },
@@ -49,6 +54,63 @@ const mobilePanels = [
 ] as const;
 
 type MobilePanel = (typeof mobilePanels)[number]['id'];
+
+const templateWordingFields = [
+  {
+    key: 'discipline',
+    name: 'templateWordingDiscipline',
+    label: 'Discipline',
+    maxLength: 60,
+  },
+  {
+    key: 'badge',
+    name: 'templateWordingBadge',
+    label: 'Short badge',
+    maxLength: 12,
+  },
+  {
+    key: 'eyebrow',
+    name: 'templateWordingEyebrow',
+    label: 'Hero tagline',
+    maxLength: 120,
+  },
+  {
+    key: 'profileLabel',
+    name: 'templateWordingProfileLabel',
+    label: 'Profile section',
+    maxLength: 80,
+  },
+  {
+    key: 'targetLabel',
+    name: 'templateWordingTargetLabel',
+    label: 'Target section',
+    maxLength: 80,
+  },
+  {
+    key: 'galleryLabel',
+    name: 'templateWordingGalleryLabel',
+    label: 'Gallery section',
+    maxLength: 80,
+  },
+  {
+    key: 'achievementsLabel',
+    name: 'templateWordingAchievementsLabel',
+    label: 'Achievements section',
+    maxLength: 80,
+  },
+  {
+    key: 'activityLabel',
+    name: 'templateWordingActivityLabel',
+    label: 'Activity section',
+    maxLength: 80,
+  },
+  {
+    key: 'secondaryGoalLabel',
+    name: 'templateWordingSecondaryGoalLabel',
+    label: 'Secondary goals',
+    maxLength: 80,
+  },
+] as const;
 
 const colorGroups = [
   {
@@ -70,7 +132,7 @@ const colorGroups = [
   },
   {
     title: 'Accent',
-    description: 'Sport tags and highlighted actions',
+    description: 'Tags and highlighted actions',
     colors: [
       { key: 'accent', label: 'Background' },
       { key: 'accentText', label: 'Text' },
@@ -83,11 +145,6 @@ const colorGroups = [
       { key: 'social', label: 'Background' },
       { key: 'socialText', label: 'Text' },
     ],
-  },
-  {
-    title: 'Header',
-    description: 'Text displayed over the cover',
-    colors: [{ key: 'headerText', label: 'Text' }],
   },
 ] as const;
 
@@ -421,17 +478,21 @@ function TemplateSelector({
   selectedTemplateId,
   coverUrl,
   themeSettings,
+  templateWording,
   onTemplateSelect,
   onCoverChange,
   onThemeChange,
+  onTemplateWordingChange,
 }: {
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
   coverUrl: string;
   themeSettings: ProfileThemeSettings;
+  templateWording: TemplateWording;
   onTemplateSelect: (templateId: ProfileTemplateId) => void;
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
+  onTemplateWordingChange: (text: TemplateWording) => void;
 }) {
   const [state, formAction, pending] = useActionState(
     updateProfileTemplateAction,
@@ -441,6 +502,7 @@ function TemplateSelector({
 
   const handleTemplateSelect = (templateId: ProfileTemplateId) => {
     setFeedbackDismissed(true);
+    onTemplateWordingChange(getDefaultTemplateWording(templateId));
     onTemplateSelect(templateId);
   };
   const handleCoverChange = (coverUrl: string) => {
@@ -450,6 +512,10 @@ function TemplateSelector({
   const handleThemeChange = (settings: ProfileThemeSettings) => {
     setFeedbackDismissed(true);
     onThemeChange(settings);
+  };
+  const handleTemplateWordingChange = (text: TemplateWording) => {
+    setFeedbackDismissed(true);
+    onTemplateWordingChange(text);
   };
 
   return (
@@ -536,6 +602,11 @@ function TemplateSelector({
         value={themeSettings.customColors.headerText}
       />
       <input
+        name="customHeaderMutedText"
+        type="hidden"
+        value={themeSettings.customColors.headerMutedText}
+      />
+      <input
         name="customBlockTitle"
         type="hidden"
         value={themeSettings.customColors.blockTitle}
@@ -577,39 +648,71 @@ function TemplateSelector({
         >
           {profileTemplates.map((template) => {
             const isLocked = template.proOnly && !subscription.isActive;
+            const isSelected = selectedTemplateId === template.id;
 
             return (
-              <label
-                key={template.id}
-                className={cn(
-                  'border-border flex cursor-pointer gap-3 rounded-lg border p-3 transition',
-                  selectedTemplateId === template.id && 'border-primary/50',
-                )}
-              >
-                <input
-                  className="mt-1 h-4 w-4"
-                  checked={selectedTemplateId === template.id}
-                  name="templateId"
-                  onChange={() => handleTemplateSelect(template.id)}
-                  type="radio"
-                  value={template.id}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2 text-sm font-semibold">
-                    {template.name}
-                    {template.proOnly ? (
-                      <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px] font-semibold">
-                        Pro
-                      </span>
-                    ) : null}
-                    {isLocked ? <Lock className="h-3.5 w-3.5" /> : null}
+              <div key={template.id} className="space-y-2">
+                <label
+                  className={cn(
+                    'border-border flex cursor-pointer gap-3 rounded-lg border p-3 transition',
+                    isSelected && 'border-primary/50',
+                  )}
+                >
+                  <input
+                    className="mt-1 h-4 w-4"
+                    checked={isSelected}
+                    name="templateId"
+                    onChange={() => handleTemplateSelect(template.id)}
+                    type="radio"
+                    value={template.id}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-semibold">
+                      {template.name}
+                      {template.proOnly ? (
+                        <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px] font-semibold">
+                          Pro
+                        </span>
+                      ) : null}
+                      {isLocked ? <Lock className="h-3.5 w-3.5" /> : null}
+                    </span>
+                    <span className="text-muted-foreground mt-1 block text-xs">
+                      {template.description}
+                      {isLocked ? ' Preview only on Free.' : ''}
+                    </span>
                   </span>
-                  <span className="text-muted-foreground mt-1 block text-xs">
-                    {template.description}
-                    {isLocked ? ' Preview only on Free.' : ''}
-                  </span>
-                </span>
-              </label>
+                </label>
+
+                {isSelected ? (
+                  <div className="border-primary/20 bg-muted/30 space-y-3 rounded-lg border p-3">
+                    <div>
+                      <p className="text-xs font-semibold">Template wording</p>
+                      <p className="text-muted-foreground mt-0.5 text-[11px]">
+                        Customize every visible label
+                      </p>
+                    </div>
+                    {templateWordingFields.map((field) => (
+                      <label key={field.key} className="block space-y-1.5">
+                        <span className="text-xs font-medium">
+                          {field.label}
+                        </span>
+                        <input
+                          className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+                          maxLength={field.maxLength}
+                          name={field.name}
+                          value={templateWording[field.key]}
+                          onChange={(event) =>
+                            handleTemplateWordingChange({
+                              ...templateWording,
+                              [field.key]: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             );
           })}
         </StyleSection>
@@ -751,7 +854,7 @@ function TemplateSelector({
           description="Organized by profile element"
           icon={Palette}
         >
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             {colorGroups.map((group) => (
               <div
                 key={group.title}
@@ -796,6 +899,112 @@ function TemplateSelector({
                 </div>
               </div>
             ))}
+
+            <div className="border-border order-first rounded-lg border p-3">
+              <div className="mb-2.5">
+                <p className="text-xs font-semibold">Header</p>
+                <p className="text-muted-foreground mt-0.5 text-[11px]">
+                  Cover background and text
+                </p>
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  {
+                    key: 'coverColor' as const,
+                    label: 'Background',
+                    value: themeSettings.coverColor,
+                  },
+                  {
+                    key: 'coverGradientFrom' as const,
+                    label: 'Gradient start',
+                    value: themeSettings.coverGradientFrom,
+                  },
+                  {
+                    key: 'coverGradientTo' as const,
+                    label: 'Gradient end',
+                    value: themeSettings.coverGradientTo,
+                  },
+                ].map((color) => (
+                  <label
+                    key={color.key}
+                    className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2"
+                  >
+                    <span className="text-xs font-medium">{color.label}</span>
+                    <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
+                      <input
+                        aria-label={`Header ${color.label} color`}
+                        className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                        type="color"
+                        value={color.value}
+                        onChange={(event) =>
+                          handleThemeChange({
+                            ...themeSettings,
+                            [color.key]: event.target.value,
+                          })
+                        }
+                      />
+                      <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                        {color.value}
+                      </span>
+                    </span>
+                  </label>
+                ))}
+                <label className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2">
+                  <span className="text-xs font-medium">Text</span>
+                  <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
+                    <input
+                      aria-label="Header text color"
+                      className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                      type="color"
+                      value={themeSettings.customColors.headerText}
+                      onChange={(event) =>
+                        handleThemeChange({
+                          ...themeSettings,
+                          colorPreset: 'custom',
+                          customColors: {
+                            ...themeSettings.customColors,
+                            headerText: event.target.value,
+                          },
+                        })
+                      }
+                    />
+                    <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                      {themeSettings.customColors.headerText}
+                    </span>
+                  </span>
+                </label>
+                <label className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2">
+                  <span className="text-xs font-medium">Secondary text</span>
+                  <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
+                    <input
+                      aria-label="Header secondary text color"
+                      className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                      type="color"
+                      value={themeSettings.customColors.headerMutedText}
+                      onChange={(event) =>
+                        handleThemeChange({
+                          ...themeSettings,
+                          colorPreset: 'custom',
+                          customColors: {
+                            ...themeSettings.customColors,
+                            headerMutedText: event.target.value,
+                          },
+                        })
+                      }
+                    />
+                    <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                      {themeSettings.customColors.headerMutedText}
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <div
+                className="mt-2.5 h-12 rounded-md"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, ${themeSettings.coverGradientFrom}, ${themeSettings.coverGradientTo})`,
+                }}
+              />
+            </div>
           </div>
 
           <details className="border-border group/presets overflow-hidden rounded-lg border">
@@ -828,6 +1037,7 @@ function TemplateSelector({
                         accent: preset.colors[3],
                         social: preset.colors[4],
                         headerText: preset.colors[5],
+                        headerMutedText: preset.colors[7],
                         blockTitle: preset.colors[6],
                         description: preset.colors[7],
                         accentText: preset.colors[8],
@@ -946,17 +1156,21 @@ function StylesPanel({
   selectedTemplateId,
   coverUrl,
   themeSettings,
+  templateWording,
   onTemplateSelect,
   onCoverChange,
   onThemeChange,
+  onTemplateWordingChange,
 }: {
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
   coverUrl: string;
   themeSettings: ProfileThemeSettings;
+  templateWording: TemplateWording;
   onTemplateSelect: (templateId: ProfileTemplateId) => void;
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
+  onTemplateWordingChange: (text: TemplateWording) => void;
 }) {
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:[contain:size]">
@@ -965,9 +1179,11 @@ function StylesPanel({
         selectedTemplateId={selectedTemplateId}
         coverUrl={coverUrl}
         themeSettings={themeSettings}
+        templateWording={templateWording}
         onTemplateSelect={onTemplateSelect}
         onCoverChange={onCoverChange}
         onThemeChange={onThemeChange}
+        onTemplateWordingChange={onTemplateWordingChange}
       />
 
       <div className="border-border bg-card rounded-xl border p-4">
@@ -1035,6 +1251,13 @@ export function DesignWorkspace({
   const [themeSettings, setThemeSettings] = useState<ProfileThemeSettings>(() =>
     resolveThemeSettings(builder.profile.theme),
   );
+  const [templateWording, setTemplateWording] = useState<TemplateWording>(() =>
+    resolveTemplateWording(
+      builder.profile.theme,
+      builder.profile.sports[0],
+      resolveProfileTemplateId(builder.profile.theme),
+    ),
+  );
   const previewBuilder: ProfileBuilderState = {
     ...draftBuilder,
     profile: {
@@ -1043,6 +1266,7 @@ export function DesignWorkspace({
         ...draftBuilder.profile.theme,
         templateId: selectedTemplateId,
         ...themeSettings,
+        templateWording,
       },
     },
   };
@@ -1112,9 +1336,11 @@ export function DesignWorkspace({
             selectedTemplateId={selectedTemplateId}
             coverUrl={draftBuilder.profile.coverUrl}
             themeSettings={themeSettings}
+            templateWording={templateWording}
             onTemplateSelect={setSelectedTemplateId}
             onCoverChange={handleCoverChange}
             onThemeChange={setThemeSettings}
+            onTemplateWordingChange={setTemplateWording}
           />
         ) : null}
       </div>
@@ -1136,9 +1362,11 @@ export function DesignWorkspace({
           selectedTemplateId={selectedTemplateId}
           coverUrl={draftBuilder.profile.coverUrl}
           themeSettings={themeSettings}
+          templateWording={templateWording}
           onTemplateSelect={setSelectedTemplateId}
           onCoverChange={handleCoverChange}
           onThemeChange={setThemeSettings}
+          onTemplateWordingChange={setTemplateWording}
         />
       </div>
     </div>

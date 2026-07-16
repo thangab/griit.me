@@ -7,6 +7,7 @@ import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import { MediaBlock } from '@/components/profile/media-block';
+import { resolveTemplateWording } from '@/lib/constants/template-wording';
 
 type EventPosterTemplateProps = {
   builder: ProfileBuilderState;
@@ -20,12 +21,12 @@ export function EventPosterTemplate({
   const { profile } = builder;
   const goals = builder.goals.filter((goal) => goal.isEnabled);
   const primaryGoal = goals[0];
+  const secondaryGoals = goals.slice(1);
   const galleryItems = builder.galleryItems.filter((item) => item.isEnabled);
   const socialLinks = builder.socialLinks.filter((link) => link.isEnabled);
   const achievements = builder.achievements.filter((item) => item.isEnabled);
   const activities = builder.activities.filter((item) => item.isEnabled);
   const isPreview = variant !== 'full';
-  const isMobilePreview = variant === 'mobile-preview';
   const goalTitle = primaryGoal?.title ?? 'Next event coming soon';
   const goalDescription =
     primaryGoal?.description ?? 'This athlete is preparing the next objective.';
@@ -36,6 +37,11 @@ export function EventPosterTemplate({
     }) || 'More context coming soon.';
   const sports = profile.sports;
   const theme = getThemeRuntime(profile.theme);
+  const wording = resolveTemplateWording(
+    profile.theme,
+    profile.sports[0],
+    'event_poster',
+  );
   const contentBlocks = builder.blocks
     .filter((block) =>
       ['gallery', 'achievements', 'activities', 'sponsors', 'media'].includes(
@@ -60,7 +66,7 @@ export function EventPosterTemplate({
   if (activities.length) ensureContentBlock('activities', 'Activities');
   const coverBackgroundImage =
     theme.coverType === 'image'
-      ? `linear-gradient(rgba(0,0,0,${theme.overlayOpacity}), rgba(0,0,0,${theme.overlayOpacity})), url('${profile.coverUrl}')`
+      ? `linear-gradient(color-mix(in srgb, ${theme.coverColor} ${theme.overlayOpacity * 100}%, transparent), color-mix(in srgb, ${theme.coverColor} ${theme.overlayOpacity * 100}%, transparent)), url('${profile.coverUrl}')`
       : theme.coverType === 'gradient'
         ? `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`
         : undefined;
@@ -81,7 +87,7 @@ export function EventPosterTemplate({
         className={cn(
           'mx-auto grid w-full max-w-6xl gap-6 px-5 py-6',
           isPreview ? 'min-h-full' : 'min-h-dvh sm:px-8 lg:px-12',
-          isMobilePreview ? 'grid-cols-1' : 'lg:grid-cols-[1.1fr_0.9fr]',
+          'grid-cols-1',
         )}
       >
         <div
@@ -103,19 +109,39 @@ export function EventPosterTemplate({
               >
                 {profile.displayName}
               </p>
+              {wording.discipline ? (
+                <p
+                  className="mt-1 text-xs"
+                  style={{ color: theme.palette.description }}
+                >
+                  {wording.discipline}
+                </p>
+              ) : null}
             </div>
-            <div
-              className="h-12 w-12 rounded-full bg-zinc-200 bg-cover bg-center"
-              style={{ backgroundImage: `url('${profile.avatarUrl}')` }}
-            />
+            <div className="flex items-center gap-3">
+              {wording.badge ? (
+                <span className="text-xs font-bold tracking-[0.18em] uppercase">
+                  {wording.badge}
+                </span>
+              ) : null}
+              <div
+                className="h-12 w-12 rounded-full bg-zinc-200 bg-cover bg-center"
+                style={{ backgroundImage: `url('${profile.avatarUrl}')` }}
+              />
+            </div>
           </div>
 
           <div>
-            <p className="text-xs font-bold tracking-[0.3em] uppercase">
-              Target
-            </p>
+            {wording.eyebrow ? (
+              <p className="text-xs font-bold tracking-[0.3em] uppercase">
+                {wording.eyebrow}
+              </p>
+            ) : null}
             <h1
-              className="mt-4 text-5xl leading-none font-black tracking-tight sm:text-6xl"
+              className={cn(
+                'text-5xl leading-none font-black tracking-tight sm:text-6xl',
+                wording.eyebrow && 'mt-4',
+              )}
               style={{
                 color: theme.palette.blockTitle,
                 fontFamily: theme.fontFamilies.heading,
@@ -139,13 +165,17 @@ export function EventPosterTemplate({
                 color: theme.palette.accentText,
               }}
             >
-              <p
-                className="text-xs uppercase opacity-65"
-                style={{ color: theme.palette.accentText }}
-              >
-                Date
+              {wording.targetLabel ? (
+                <p
+                  className="text-xs uppercase opacity-65"
+                  style={{ color: theme.palette.accentText }}
+                >
+                  {wording.targetLabel}
+                </p>
+              ) : null}
+              <p className={cn('font-semibold', wording.targetLabel && 'mt-2')}>
+                {goalTarget}
               </p>
-              <p className="mt-2 font-semibold">{goalTarget}</p>
             </div>
           </div>
         </div>
@@ -170,14 +200,19 @@ export function EventPosterTemplate({
               color: theme.palette.text,
             }}
           >
+            {wording.profileLabel ? (
+              <p
+                className="text-sm font-semibold"
+                style={{ color: theme.palette.blockTitle }}
+              >
+                {wording.profileLabel}
+              </p>
+            ) : null}
             <p
-              className="text-sm font-semibold"
-              style={{ color: theme.palette.blockTitle }}
-            >
-              About
-            </p>
-            <p
-              className="mt-3 text-sm leading-6 whitespace-pre-line"
+              className={cn(
+                'text-sm leading-6 whitespace-pre-line',
+                wording.profileLabel && 'mt-3',
+              )}
               style={{ color: theme.palette.mutedText }}
             >
               {profileSummary}
@@ -226,6 +261,43 @@ export function EventPosterTemplate({
               ))}
             </div>
           </div>
+          {secondaryGoals.map((goal) => (
+            <div
+              key={`${goal.title}-${goal.sortOrder}`}
+              className={cn(theme.radiusClass, 'border p-5')}
+              style={{
+                backgroundColor: theme.palette.surface,
+                borderColor: theme.palette.border,
+                color: theme.palette.text,
+              }}
+            >
+              {wording.secondaryGoalLabel ? (
+                <p
+                  className="text-xs font-semibold tracking-[0.2em] uppercase"
+                  style={{ color: theme.palette.description }}
+                >
+                  {wording.secondaryGoalLabel}
+                </p>
+              ) : null}
+              <p
+                className={cn(
+                  'font-semibold',
+                  wording.secondaryGoalLabel && 'mt-3',
+                )}
+                style={{ color: theme.palette.blockTitle }}
+              >
+                {goal.title}
+              </p>
+              {goal.description ? (
+                <p
+                  className="mt-2 text-sm leading-6"
+                  style={{ color: theme.palette.description }}
+                >
+                  {goal.description}
+                </p>
+              ) : null}
+            </div>
+          ))}
           {contentBlocks.map((block, blockIndex) => {
             const { type } = block;
             const blockKey =
@@ -233,28 +305,37 @@ export function EventPosterTemplate({
 
             if (type === 'gallery') {
               return galleryItems.length ? (
-                <div
-                  key={blockKey}
-                  className={cn(
-                    'gap-2',
-                    theme.galleryLayout === 'carousel'
-                      ? 'flex overflow-x-auto'
-                      : 'grid grid-cols-3',
-                    theme.galleryLayout === 'editorial' && 'grid-cols-2',
-                  )}
-                >
-                  {galleryItems.map((item, index) => (
-                    <div
-                      key={`${item.imageUrl}-${index}`}
-                      className={cn(
-                        'aspect-square bg-zinc-800 bg-cover bg-center',
-                        theme.radiusClass,
-                        theme.galleryLayout === 'carousel' && 'w-52 shrink-0',
-                      )}
-                      style={{ backgroundImage: `url('${item.imageUrl}')` }}
-                    />
-                  ))}
-                </div>
+                <section key={blockKey}>
+                  {wording.galleryLabel ? (
+                    <p
+                      className="mb-3 text-xs font-semibold tracking-[0.2em] uppercase"
+                      style={{ color: theme.palette.description }}
+                    >
+                      {wording.galleryLabel}
+                    </p>
+                  ) : null}
+                  <div
+                    className={cn(
+                      'gap-2',
+                      theme.galleryLayout === 'carousel'
+                        ? 'flex overflow-x-auto'
+                        : 'grid grid-cols-3',
+                      theme.galleryLayout === 'editorial' && 'grid-cols-2',
+                    )}
+                  >
+                    {galleryItems.map((item, index) => (
+                      <div
+                        key={`${item.imageUrl}-${index}`}
+                        className={cn(
+                          'aspect-square bg-zinc-800 bg-cover bg-center',
+                          theme.radiusClass,
+                          theme.galleryLayout === 'carousel' && 'w-52 shrink-0',
+                        )}
+                        style={{ backgroundImage: `url('${item.imageUrl}')` }}
+                      />
+                    ))}
+                  </div>
+                </section>
               ) : null;
             }
 
@@ -271,14 +352,19 @@ export function EventPosterTemplate({
                         color: theme.palette.text,
                       }}
                     >
+                      {wording.achievementsLabel ? (
+                        <p
+                          className="text-xs font-semibold tracking-[0.2em] uppercase"
+                          style={{ color: theme.palette.description }}
+                        >
+                          {wording.achievementsLabel}
+                        </p>
+                      ) : null}
                       <p
-                        className="text-xs font-semibold tracking-[0.2em] uppercase"
-                        style={{ color: theme.palette.description }}
-                      >
-                        Achievement
-                      </p>
-                      <p
-                        className="mt-3 font-semibold"
+                        className={cn(
+                          'font-semibold',
+                          wording.achievementsLabel && 'mt-3',
+                        )}
                         style={{ color: theme.palette.blockTitle }}
                       >
                         {item.title}
@@ -338,14 +424,19 @@ export function EventPosterTemplate({
                       color: theme.palette.text,
                     }}
                   >
+                    {wording.activityLabel ? (
+                      <p
+                        className="text-xs font-semibold tracking-[0.2em] uppercase"
+                        style={{ color: theme.palette.description }}
+                      >
+                        {wording.activityLabel}
+                      </p>
+                    ) : null}
                     <p
-                      className="text-xs font-semibold tracking-[0.2em] uppercase"
-                      style={{ color: theme.palette.description }}
-                    >
-                      Recent activity
-                    </p>
-                    <p
-                      className="mt-3 font-semibold"
+                      className={cn(
+                        'font-semibold',
+                        wording.activityLabel && 'mt-3',
+                      )}
                       style={{ color: theme.palette.blockTitle }}
                     >
                       {item.title}

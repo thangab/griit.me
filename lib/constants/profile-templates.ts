@@ -13,6 +13,48 @@ export const profileTemplates = [
     description: 'A more editorial layout for dated goals and events.',
     proOnly: true,
   },
+  {
+    id: 'sport_running',
+    name: 'Running',
+    description: 'Pace, movement and race-day energy.',
+    proOnly: false,
+  },
+  {
+    id: 'sport_boxing',
+    name: 'Boxing',
+    description: 'A bold fight-card identity built for the ring.',
+    proOnly: false,
+  },
+  {
+    id: 'sport_mma',
+    name: 'MMA',
+    description: 'Dark, technical and inspired by the cage.',
+    proOnly: false,
+  },
+  {
+    id: 'sport_strength',
+    name: 'Strength',
+    description: 'A powerful layout for lifting and bodybuilding.',
+    proOnly: false,
+  },
+  {
+    id: 'sport_hyrox',
+    name: 'Hyrox',
+    description: 'Competition lanes, stations and hybrid intensity.',
+    proOnly: false,
+  },
+  {
+    id: 'sport_football',
+    name: 'Football',
+    description: 'A team-focused profile inspired by the pitch.',
+    proOnly: false,
+  },
+  {
+    id: 'sport_cycling',
+    name: 'Cycling',
+    description: 'Speed, elevation and open-road precision.',
+    proOnly: false,
+  },
 ] as const;
 
 export type ProfileTemplateId = (typeof profileTemplates)[number]['id'];

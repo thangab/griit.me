@@ -6,6 +6,7 @@ import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import { MediaBlock } from '@/components/profile/media-block';
+import { resolveTemplateWording } from '@/lib/constants/template-wording';
 
 export type ProfileTemplateVariant =
   'full' | 'mobile-preview' | 'desktop-preview';
@@ -39,6 +40,11 @@ export function GoalSpotlightTemplate({
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
   const theme = getThemeRuntime(profile.theme);
+  const wording = resolveTemplateWording(
+    profile.theme,
+    profile.sports[0],
+    'goal_spotlight',
+  );
   const contentBlocks = builder.blocks
     .filter((block) =>
       ['gallery', 'achievements', 'activities', 'sponsors', 'media'].includes(
@@ -94,8 +100,11 @@ export function GoalSpotlightTemplate({
       >
         {theme.coverType === 'image' ? (
           <div
-            className="absolute inset-0 bg-slate-950"
-            style={{ opacity: theme.overlayOpacity }}
+            className="absolute inset-0"
+            style={{
+              backgroundColor: theme.coverColor,
+              opacity: theme.overlayOpacity,
+            }}
           />
         ) : null}
         <div
@@ -104,29 +113,47 @@ export function GoalSpotlightTemplate({
             isPreview ? 'max-w-4xl gap-7' : 'max-w-6xl gap-10',
           )}
         >
-          <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                'shrink-0 rounded-full border-2 border-white/80 bg-slate-200 bg-cover bg-center',
-                isMobilePreview ? 'h-12 w-12' : 'h-14 w-14',
-              )}
-              style={{ backgroundImage: `url('${profile.avatarUrl}')` }}
-            />
-            <div>
-              <p className="font-semibold">{profile.displayName}</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  'shrink-0 rounded-full border-2 border-white/80 bg-slate-200 bg-cover bg-center',
+                  isMobilePreview ? 'h-12 w-12' : 'h-14 w-14',
+                )}
+                style={{ backgroundImage: `url('${profile.avatarUrl}')` }}
+              />
+              <div>
+                <p className="font-semibold">{profile.displayName}</p>
+                {wording.discipline ? (
+                  <p
+                    className="mt-0.5 text-xs"
+                    style={{ color: theme.palette.mutedHeaderText }}
+                  >
+                    {wording.discipline}
+                  </p>
+                ) : null}
+              </div>
             </div>
+            {wording.badge ? (
+              <span className="text-xs font-semibold tracking-[0.18em] uppercase">
+                {wording.badge}
+              </span>
+            ) : null}
           </div>
 
           <div className="max-w-4xl">
-            <p
-              className="text-xs font-semibold tracking-[0.28em] uppercase"
-              style={{ color: theme.palette.mutedHeaderText }}
-            >
-              Next goal
-            </p>
+            {wording.eyebrow ? (
+              <p
+                className="text-xs font-semibold tracking-[0.28em] uppercase"
+                style={{ color: theme.palette.mutedHeaderText }}
+              >
+                {wording.eyebrow}
+              </p>
+            ) : null}
             <h1
               className={cn(
-                'mt-4 max-w-4xl leading-[1.02] font-semibold',
+                'max-w-4xl leading-[1.02] font-semibold',
+                wording.eyebrow && 'mt-4',
                 isMobilePreview
                   ? 'text-4xl'
                   : isPreview
@@ -154,6 +181,7 @@ export function GoalSpotlightTemplate({
                   color: theme.palette.accentText,
                 }}
               >
+                {wording.targetLabel ? `${wording.targetLabel}: ` : ''}
                 {goalTarget}
               </span>
             </div>
@@ -177,14 +205,19 @@ export function GoalSpotlightTemplate({
               color: theme.palette.text,
             }}
           >
+            {wording.profileLabel ? (
+              <p
+                className="text-sm font-semibold"
+                style={{ color: theme.palette.blockTitle }}
+              >
+                {wording.profileLabel}
+              </p>
+            ) : null}
             <p
-              className="text-sm font-semibold"
-              style={{ color: theme.palette.blockTitle }}
-            >
-              About
-            </p>
-            <p
-              className="mt-3 leading-7 whitespace-pre-line"
+              className={cn(
+                'leading-7 whitespace-pre-line',
+                wording.profileLabel && 'mt-3',
+              )}
               style={{ color: theme.palette.mutedText }}
             >
               {profileSummary}
@@ -237,7 +270,7 @@ export function GoalSpotlightTemplate({
           </div>
 
           {secondaryGoals.length ? (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4">
               {secondaryGoals.map((goal) => (
                 <div
                   key={`${goal.title}-${goal.sortOrder}`}
@@ -247,14 +280,19 @@ export function GoalSpotlightTemplate({
                     color: theme.palette.text,
                   }}
                 >
+                  {wording.secondaryGoalLabel ? (
+                    <p
+                      className="text-xs font-semibold tracking-[0.2em] uppercase"
+                      style={{ color: theme.palette.description }}
+                    >
+                      {wording.secondaryGoalLabel}
+                    </p>
+                  ) : null}
                   <p
-                    className="text-xs font-semibold tracking-[0.2em] uppercase"
-                    style={{ color: theme.palette.description }}
-                  >
-                    Also chasing
-                  </p>
-                  <p
-                    className="mt-3 text-lg font-semibold"
+                    className={cn(
+                      'text-lg font-semibold',
+                      wording.secondaryGoalLabel && 'mt-3',
+                    )}
                     style={{ color: theme.palette.blockTitle }}
                   >
                     {goal.title}
@@ -283,29 +321,38 @@ export function GoalSpotlightTemplate({
 
             if (type === 'gallery') {
               return galleryItems.length ? (
-                <div
-                  key={blockKey}
-                  className={cn(
-                    'gap-2',
-                    theme.galleryLayout === 'carousel'
-                      ? 'flex snap-x overflow-x-auto'
-                      : 'grid grid-cols-3',
-                    theme.galleryLayout === 'editorial' && 'grid-cols-2',
-                  )}
-                >
-                  {galleryItems.map((item, index) => (
-                    <div
-                      key={`${item.imageUrl}-${index}`}
-                      className={cn(
-                        'aspect-square bg-slate-200 bg-cover bg-center',
-                        theme.radiusClass,
-                        theme.galleryLayout === 'carousel' &&
-                          'w-52 shrink-0 snap-center',
-                      )}
-                      style={{ backgroundImage: `url('${item.imageUrl}')` }}
-                    />
-                  ))}
-                </div>
+                <section key={blockKey}>
+                  {wording.galleryLabel ? (
+                    <p
+                      className="mb-3 text-sm font-semibold"
+                      style={{ color: theme.palette.blockTitle }}
+                    >
+                      {wording.galleryLabel}
+                    </p>
+                  ) : null}
+                  <div
+                    className={cn(
+                      'gap-2',
+                      theme.galleryLayout === 'carousel'
+                        ? 'flex snap-x overflow-x-auto'
+                        : 'grid grid-cols-3',
+                      theme.galleryLayout === 'editorial' && 'grid-cols-2',
+                    )}
+                  >
+                    {galleryItems.map((item, index) => (
+                      <div
+                        key={`${item.imageUrl}-${index}`}
+                        className={cn(
+                          'aspect-square bg-slate-200 bg-cover bg-center',
+                          theme.radiusClass,
+                          theme.galleryLayout === 'carousel' &&
+                            'w-52 shrink-0 snap-center',
+                        )}
+                        style={{ backgroundImage: `url('${item.imageUrl}')` }}
+                      />
+                    ))}
+                  </div>
+                </section>
               ) : null;
             }
 
@@ -319,16 +366,18 @@ export function GoalSpotlightTemplate({
                     color: theme.palette.text,
                   }}
                 >
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: theme.palette.blockTitle }}
-                  >
-                    Achievements
-                  </p>
+                  {wording.achievementsLabel ? (
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: theme.palette.blockTitle }}
+                    >
+                      {wording.achievementsLabel}
+                    </p>
+                  ) : null}
                   {achievements.map((item) => (
                     <div
                       key={`${item.title}-${item.sortOrder}`}
-                      className="mt-4"
+                      className={wording.achievementsLabel ? 'mt-4' : undefined}
                     >
                       <p
                         className="font-semibold"
@@ -379,14 +428,19 @@ export function GoalSpotlightTemplate({
                   color: theme.palette.text,
                 }}
               >
-                <p
-                  className="text-sm font-semibold"
-                  style={{ color: theme.palette.blockTitle }}
-                >
-                  Recent activities
-                </p>
+                {wording.activityLabel ? (
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: theme.palette.blockTitle }}
+                  >
+                    {wording.activityLabel}
+                  </p>
+                ) : null}
                 {activities.map((item) => (
-                  <div key={`${item.title}-${item.sortOrder}`} className="mt-4">
+                  <div
+                    key={`${item.title}-${item.sortOrder}`}
+                    className={wording.activityLabel ? 'mt-4' : undefined}
+                  >
                     <p
                       className="font-semibold"
                       style={{ color: theme.palette.blockTitle }}

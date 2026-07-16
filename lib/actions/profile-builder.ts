@@ -215,6 +215,9 @@ const templateSchema = z.object({
   customHeaderText: z
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid header text color.'),
+  customHeaderMutedText: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid secondary header text color.'),
   customBlockTitle: z
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid block title color.'),
@@ -235,6 +238,15 @@ const templateSchema = z.object({
   coverGradientTo: z
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient end color.'),
+  templateWordingDiscipline: z.string().trim().max(60),
+  templateWordingBadge: z.string().trim().max(12),
+  templateWordingEyebrow: z.string().trim().max(120),
+  templateWordingProfileLabel: z.string().trim().max(80),
+  templateWordingTargetLabel: z.string().trim().max(80),
+  templateWordingGalleryLabel: z.string().trim().max(80),
+  templateWordingAchievementsLabel: z.string().trim().max(80),
+  templateWordingActivityLabel: z.string().trim().max(80),
+  templateWordingSecondaryGoalLabel: z.string().trim().max(80),
 });
 
 function getString(formData: FormData, key: string) {
@@ -1012,6 +1024,7 @@ export async function updateProfileTemplateAction(
     customAccent: getString(formData, 'customAccent'),
     customSocial: getString(formData, 'customSocial'),
     customHeaderText: getString(formData, 'customHeaderText'),
+    customHeaderMutedText: getString(formData, 'customHeaderMutedText'),
     customBlockTitle: getString(formData, 'customBlockTitle'),
     customDescription: getString(formData, 'customDescription'),
     customAccentText: getString(formData, 'customAccentText'),
@@ -1020,6 +1033,33 @@ export async function updateProfileTemplateAction(
     coverColor: getString(formData, 'coverColor'),
     coverGradientFrom: getString(formData, 'coverGradientFrom'),
     coverGradientTo: getString(formData, 'coverGradientTo'),
+    templateWordingDiscipline: getString(formData, 'templateWordingDiscipline'),
+    templateWordingBadge: getString(formData, 'templateWordingBadge'),
+    templateWordingEyebrow: getString(formData, 'templateWordingEyebrow'),
+    templateWordingProfileLabel: getString(
+      formData,
+      'templateWordingProfileLabel',
+    ),
+    templateWordingTargetLabel: getString(
+      formData,
+      'templateWordingTargetLabel',
+    ),
+    templateWordingGalleryLabel: getString(
+      formData,
+      'templateWordingGalleryLabel',
+    ),
+    templateWordingAchievementsLabel: getString(
+      formData,
+      'templateWordingAchievementsLabel',
+    ),
+    templateWordingActivityLabel: getString(
+      formData,
+      'templateWordingActivityLabel',
+    ),
+    templateWordingSecondaryGoalLabel: getString(
+      formData,
+      'templateWordingSecondaryGoalLabel',
+    ),
   });
 
   if (!parsed.success) {
@@ -1097,6 +1137,7 @@ export async function updateProfileTemplateAction(
           accent: parsed.data.customAccent,
           social: parsed.data.customSocial,
           headerText: parsed.data.customHeaderText,
+          headerMutedText: parsed.data.customHeaderMutedText,
           blockTitle: parsed.data.customBlockTitle,
           description: parsed.data.customDescription,
           accentText: parsed.data.customAccentText,
@@ -1110,6 +1151,17 @@ export async function updateProfileTemplateAction(
         coverColor: parsed.data.coverColor,
         coverGradientFrom: parsed.data.coverGradientFrom,
         coverGradientTo: parsed.data.coverGradientTo,
+        templateWording: {
+          discipline: parsed.data.templateWordingDiscipline,
+          badge: parsed.data.templateWordingBadge,
+          eyebrow: parsed.data.templateWordingEyebrow,
+          profileLabel: parsed.data.templateWordingProfileLabel,
+          targetLabel: parsed.data.templateWordingTargetLabel,
+          galleryLabel: parsed.data.templateWordingGalleryLabel,
+          achievementsLabel: parsed.data.templateWordingAchievementsLabel,
+          activityLabel: parsed.data.templateWordingActivityLabel,
+          secondaryGoalLabel: parsed.data.templateWordingSecondaryGoalLabel,
+        },
       },
       updated_at: new Date().toISOString(),
     })
