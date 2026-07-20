@@ -11,6 +11,11 @@ import type {
   BuilderTimelineItem,
   ProfileBuilderState,
 } from '@/lib/types/profile-builder';
+import {
+  formatGoalDate,
+  goalDateDisplays,
+  type GoalDateDisplay,
+} from '@/lib/utils/goal-date';
 
 interface PublicProfileRow {
   id: number;
@@ -106,6 +111,7 @@ interface GoalRow {
   description: string | null;
   url: string | null;
   target_at: string | null;
+  date_display: string;
   status: string;
   sort_order: number;
   is_enabled: boolean;
@@ -133,10 +139,6 @@ function formatDateLabel(value: string | null) {
 
 function formatDateInput(value: string | null) {
   return value ? value.slice(0, 10) : '';
-}
-
-function formatGoalTargetLabel(value: string | null) {
-  return value ? formatDateLabel(value) : 'No target date';
 }
 
 function createInitialBuilderState(email?: string | null): ProfileBuilderState {
@@ -226,6 +228,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         url: '',
         targetDate: '',
         targetLabel: 'No target date',
+        dateDisplay: 'date',
         status: 'planned',
         sortOrder: 0,
         isEnabled: true,
@@ -339,13 +342,20 @@ function mapActivity(row: ActivityRow): BuilderTimelineItem {
 }
 
 function mapGoal(row: GoalRow): BuilderGoalItem {
+  const dateDisplay = goalDateDisplays.includes(
+    row.date_display as GoalDateDisplay,
+  )
+    ? (row.date_display as GoalDateDisplay)
+    : 'date';
+
   return {
     id: row.id,
     title: row.title,
     description: row.description ?? '',
     url: row.url ?? '',
     targetDate: formatDateInput(row.target_at),
-    targetLabel: formatGoalTargetLabel(row.target_at),
+    targetLabel: formatGoalDate(row.target_at, dateDisplay),
+    dateDisplay,
     status: row.status,
     sortOrder: row.sort_order,
     isEnabled: row.is_enabled,

@@ -10,6 +10,7 @@ import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
 import { ProfileHeader } from '@/components/profile/profile-header';
+import { GoalDateBadge } from '@/components/profile/goal-date-badge';
 import { resolveTemplateWording } from '@/lib/constants/template-wording';
 
 export type ProfileTemplateVariant =
@@ -93,6 +94,7 @@ export function GoalSpotlightTemplate({
         builder={builder}
         description={goalDescription}
         target={goalTarget}
+        targetDisplay={primaryGoal?.dateDisplay}
         title={goalTitle}
         url={primaryGoal?.url}
         variant={variant}
@@ -233,12 +235,12 @@ export function GoalSpotlightTemplate({
                     >
                       {goal.description}
                     </p>
-                    <p
-                      className="mt-4 text-sm font-medium"
-                      style={{ color: theme.palette.mutedDescription }}
-                    >
-                      {goal.targetLabel}
-                    </p>
+                    <GoalDateBadge
+                      builder={builder}
+                      className="mt-4"
+                      display={goal.dateDisplay}
+                      label={goal.targetLabel}
+                    />
                   </GoalCard>
                 );
               })}

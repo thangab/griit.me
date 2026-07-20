@@ -79,6 +79,7 @@ export interface BuilderGoalItem {
   url: string;
   targetDate: string;
   targetLabel: string;
+  dateDisplay: import('@/lib/utils/goal-date').GoalDateDisplay;
   status: string;
   sortOrder: number;
   isEnabled: boolean;

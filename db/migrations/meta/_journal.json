@@ -78,6 +78,13 @@
       "when": 1784541847000,
       "tag": "0010_add_profile_goal_url",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1784544408000,
+      "tag": "0011_add_goal_date_display",
+      "breakpoints": true
     }
   ]
 }

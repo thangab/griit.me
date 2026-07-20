@@ -1,24 +1,30 @@
 import {
   Activity,
   ArrowUpRight,
-  Bike,
-  Dumbbell,
   Flag,
-  Gauge,
   MapPin,
   Medal,
-  Shield,
   Target,
+} from 'lucide-react';
+import {
+  Barbell,
+  Bicycle,
+  Gauge,
+  Lightning,
+  Shield,
   Timer,
   Trophy,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react';
+  type Icon as PhosphorIcon,
+} from '@phosphor-icons/react';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
 import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileHeader } from '@/components/profile/profile-header';
+import {
+  GoalDateBadge,
+  GoalDateIcon,
+} from '@/components/profile/goal-date-badge';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import type { ProfileTemplateVariant } from '@/components/profile/templates/goal-spotlight-template';
@@ -45,7 +51,7 @@ export type SportProfileTemplateId =
   | 'sport_cycling';
 
 type SportTemplateConfig = {
-  icon: LucideIcon;
+  icon: PhosphorIcon;
 };
 
 type SportVisual = {
@@ -71,10 +77,10 @@ const sportTemplateConfigs: Record<
     icon: Shield,
   },
   sport_mma: {
-    icon: Zap,
+    icon: Lightning,
   },
   sport_strength: {
-    icon: Dumbbell,
+    icon: Barbell,
   },
   sport_hyrox: {
     icon: Timer,
@@ -83,7 +89,7 @@ const sportTemplateConfigs: Record<
     icon: Trophy,
   },
   sport_cycling: {
-    icon: Bike,
+    icon: Bicycle,
   },
 };
 
@@ -366,6 +372,7 @@ export function SportProfileTemplate({
         builder={builder}
         description={goalDescription}
         target={goalTarget}
+        targetDisplay={primaryGoal?.dateDisplay}
         title={goalTitle}
         url={primaryGoal?.url}
         variant={variant}
@@ -497,7 +504,10 @@ export function SportProfileTemplate({
               ) : null}
             </p>
             <p className="relative mt-5 flex items-center gap-2 text-sm font-bold">
-              <Timer className="h-4 w-4" />
+              <GoalDateIcon
+                className="h-4 w-4"
+                display={primaryGoal?.dateDisplay ?? 'date'}
+              />
               {goalTarget}
             </p>
           </PrimaryGoalCard>
@@ -548,6 +558,12 @@ export function SportProfileTemplate({
                       {goal.description}
                     </p>
                   ) : null}
+                  <GoalDateBadge
+                    builder={builder}
+                    className="mt-4"
+                    display={goal.dateDisplay}
+                    label={goal.targetLabel}
+                  />
                 </GoalCard>
               );
             })}

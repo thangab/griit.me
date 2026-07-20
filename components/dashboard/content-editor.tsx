@@ -43,6 +43,11 @@ const initialState: ProfileBuilderActionState = {
   message: '',
 };
 
+const goalDateDisplayOptions = [
+  { value: 'date', label: 'Date' },
+  { value: 'countdown', label: 'Countdown' },
+] as const;
+
 export type AutosaveStatus = 'idle' | 'waiting' | 'saving' | 'saved' | 'error';
 
 function getFormFingerprint(form: HTMLFormElement) {
@@ -225,8 +230,8 @@ function GoalEditor({
         </span>
       </label>
 
-      <div className="border-border bg-muted/25 rounded-lg border p-3">
-        <label className="block space-y-2">
+      <div className="border-border bg-muted/25 space-y-3 rounded-lg border p-3">
+        <label className="block min-w-0 space-y-2">
           <span className="flex items-center gap-2 text-xs font-semibold">
             <CalendarDays className="text-muted-foreground h-3.5 w-3.5" />
             Target date
@@ -239,6 +244,27 @@ function GoalEditor({
             type="date"
           />
         </label>
+        <fieldset>
+          <legend className="sr-only">Date display</legend>
+          <div className="bg-muted grid grid-cols-2 gap-1 rounded-lg p-1">
+            {goalDateDisplayOptions.map((option) => (
+              <label key={option.value} className="relative cursor-pointer">
+                <input
+                  className="peer absolute inset-0 h-full w-full cursor-pointer appearance-none rounded-md outline-none"
+                  defaultChecked={
+                    (goal?.dateDisplay ?? 'date') === option.value
+                  }
+                  name={`goalDateDisplay${number}`}
+                  type="radio"
+                  value={option.value}
+                />
+                <span className="text-muted-foreground peer-checked:bg-background peer-checked:text-foreground peer-focus-visible:ring-ring flex h-9 items-center justify-center rounded-md px-3 text-xs font-semibold transition peer-checked:shadow-sm peer-focus-visible:ring-2">
+                  {option.label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </div>
     </div>
   );

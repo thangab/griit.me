@@ -28,6 +28,7 @@ import {
   socialPlatforms,
 } from '@/lib/constants/social-platforms';
 import { parseMediaUrl } from '@/lib/utils/media-embed';
+import { goalDateDisplays } from '@/lib/utils/goal-date';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -190,6 +191,7 @@ const builderSchema = z.object({
         description: z.string().trim().max(500).optional(),
         url: urlSchema,
         targetAt: dateSchema,
+        dateDisplay: z.enum(goalDateDisplays),
         status: z
           .string()
           .trim()
@@ -356,6 +358,7 @@ function getGoals(formData: FormData) {
     description: getString(formData, `goalDescription${index}`),
     url: getString(formData, `goalUrl${index}`),
     targetAt: getString(formData, `goalTargetAt${index}`),
+    dateDisplay: getString(formData, `goalDateDisplay${index}`) || 'date',
     status: getString(formData, `goalStatus${index}`) || 'planned',
   }));
 }
@@ -580,6 +583,7 @@ async function replaceGoals(
       description: goal.description || null,
       url: goal.url,
       target_at: goal.targetAt,
+      date_display: goal.dateDisplay,
       status: goal.status || 'planned',
       sort_order: index,
       is_enabled: true,

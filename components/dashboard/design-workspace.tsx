@@ -8,6 +8,7 @@ import {
   useState,
   useTransition,
 } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Check,
   ChevronDown,
@@ -20,13 +21,17 @@ import {
   Palette,
   SlidersHorizontal,
   Type as TypeIcon,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import {
   ContentEditor,
   type AutosaveStatus,
 } from '@/components/dashboard/content-editor';
-import { decorativeIconOptions } from '@/components/profile/decorative-icon';
+import {
+  decorativeIconOptions,
+  templateDecorativeIcons,
+} from '@/components/profile/decorative-icon';
 import { DesignPreview } from '@/components/dashboard/design-preview';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import {
@@ -49,6 +54,7 @@ import {
   fontPresets,
   galleryLayouts,
   getTemplateThemePreset,
+  getThemeRuntime,
   headerLayouts,
   overlayPresets,
   resolveThemeSettings,
@@ -59,6 +65,11 @@ import {
   resolveTemplateWording,
   type TemplateWording,
 } from '@/lib/constants/template-wording';
+import {
+  formatGoalDate,
+  goalDateDisplays,
+  type GoalDateDisplay,
+} from '@/lib/utils/goal-date';
 
 const mobilePanels = [
   { id: 'content', label: 'Content', icon: FileText },
@@ -71,10 +82,10 @@ type AutosaveSource = 'content' | 'styles';
 type AutosaveState = { status: AutosaveStatus; message?: string };
 
 const headerLayoutLabels = {
-  centered: 'Centered',
-  split: 'Split sheet',
-  left: 'Left aligned',
-  immersive: 'Immersive',
+  centered: 'Arena',
+  split: 'Athlete pass',
+  left: 'Scoreboard',
+  immersive: 'Race poster',
 } as const;
 
 const templateWordingFields = [
@@ -225,6 +236,12 @@ function createLivePreviewState(
     .map((number, index) => {
       const title = getValue(`goalTitle${number}`);
       const targetDate = getValue(`goalTargetAt${number}`);
+      const savedDateDisplay = getValue(`goalDateDisplay${number}`);
+      const dateDisplay = goalDateDisplays.includes(
+        savedDateDisplay as GoalDateDisplay,
+      )
+        ? (savedDateDisplay as GoalDateDisplay)
+        : 'date';
 
       if (!title) {
         return null;
@@ -236,7 +253,8 @@ function createLivePreviewState(
         description: getValue(`goalDescription${number}`),
         url: getValue(`goalUrl${number}`),
         targetDate,
-        targetLabel: formatPreviewDate(targetDate),
+        targetLabel: formatGoalDate(targetDate, dateDisplay),
+        dateDisplay,
         status: getValue(`goalStatus${number}`) || 'planned',
         sortOrder: index,
         isEnabled: true,
@@ -508,7 +526,7 @@ function ContentPanel({
   onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
 }) {
   return (
-    <aside className="border-border bg-background/80 min-h-0 min-w-0 rounded-xl border xl:h-full xl:overflow-y-auto xl:[contain:size]">
+    <aside className="border-border bg-background/80 min-h-0 min-w-0 rounded-xl border xl:h-full xl:overflow-y-auto xl:overscroll-contain xl:[contain:size]">
       <div className="p-4 sm:p-5">
         <ContentEditor
           builder={builder}
@@ -586,21 +604,24 @@ function StyleSection({
 
 function DecorativeIconPicker({
   value,
+  templateId,
   onValueChange,
 }: {
   value: ProfileThemeSettings['decorativeIcon'];
+  templateId: ProfileTemplateId;
   onValueChange: (value: ProfileThemeSettings['decorativeIcon']) => void;
 }) {
   const selectedOption =
     decorativeIconOptions.find((option) => option.id === value) ??
     decorativeIconOptions[0];
-  const SelectedIcon = selectedOption.icon;
+  const TemplateIcon = templateDecorativeIcons[templateId];
+  const SelectedIcon = value === 'auto' ? TemplateIcon : selectedOption.icon;
 
   return (
     <details className="border-border bg-muted/30 group/icon overflow-hidden rounded-lg border">
       <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
         <span className="bg-background border-border flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
-          <SelectedIcon className="h-4 w-4" />
+          <SelectedIcon className="h-4 w-4" weight="light" />
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-xs font-medium">Header icon</span>
@@ -610,27 +631,36 @@ function DecorativeIconPicker({
         </span>
         <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/icon:rotate-180" />
       </summary>
-      <div className="border-border grid grid-cols-6 gap-1.5 border-t p-2">
-        {decorativeIconOptions.map((option) => {
-          const Icon = option.icon;
-          const isActive = value === option.id;
+      <div className="border-border border-t p-2">
+        <div className="max-h-44 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] overflow-y-auto overscroll-contain pr-1">
+          <div className="grid grid-cols-5 gap-1.5">
+            {decorativeIconOptions.map((option) => {
+              const Icon = option.id === 'auto' ? TemplateIcon : option.icon;
+              const isActive = value === option.id;
 
-          return (
-            <button
-              key={option.id}
-              aria-label={option.label}
-              className={cn(
-                'border-border bg-background hover:border-primary/40 flex h-9 items-center justify-center rounded-md border transition',
-                isActive && 'border-primary bg-primary/10 text-primary',
-              )}
-              title={option.label}
-              type="button"
-              onClick={() => onValueChange(option.id)}
-            >
-              <Icon className="h-3.5 w-3.5" />
-            </button>
-          );
-        })}
+              return (
+                <button
+                  key={option.id}
+                  aria-label={option.label}
+                  aria-pressed={isActive}
+                  className={cn(
+                    'border-border bg-background hover:border-primary/40 flex h-10 items-center justify-center rounded-md border transition',
+                    isActive &&
+                      'border-primary bg-primary/10 text-primary ring-primary/15 ring-2',
+                  )}
+                  title={option.label}
+                  type="button"
+                  onClick={() => onValueChange(option.id)}
+                >
+                  <Icon className="h-4 w-4" weight="light" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <p className="text-muted-foreground mt-2 px-1 text-[10px]">
+          Scroll to explore {decorativeIconOptions.length} icons
+        </p>
       </div>
     </details>
   );
@@ -665,6 +695,45 @@ function AppearanceRange({
         {Math.round(value)}%
       </span>
     </label>
+  );
+}
+
+function TemplateThumbnail({ templateId }: { templateId: ProfileTemplateId }) {
+  const preset = getTemplateThemePreset(templateId);
+  const runtime = getThemeRuntime(preset);
+
+  return (
+    <span
+      className="relative block h-24 overflow-hidden rounded-lg border"
+      style={{
+        backgroundColor: runtime.palette.background,
+        borderColor: runtime.palette.border,
+      }}
+    >
+      <span
+        className="absolute inset-x-0 top-0 h-11"
+        style={{ backgroundColor: preset.coverColor }}
+      />
+      <span
+        className="absolute top-6 left-1/2 h-7 w-7 -translate-x-1/2 rounded-full border-2"
+        style={{
+          backgroundColor: runtime.palette.surface,
+          borderColor: runtime.palette.accent,
+        }}
+      />
+      <span
+        className="absolute top-[58px] left-1/2 h-1.5 w-14 -translate-x-1/2 rounded-full"
+        style={{ backgroundColor: runtime.palette.text }}
+      />
+      <span
+        className="absolute top-[70px] left-1/2 h-1 w-20 -translate-x-1/2 rounded-full opacity-50"
+        style={{ backgroundColor: runtime.palette.description }}
+      />
+      <span
+        className="absolute right-3 bottom-2 left-3 h-2 rounded-full"
+        style={{ backgroundColor: runtime.palette.accent }}
+      />
+    </span>
   );
 }
 
@@ -703,6 +772,10 @@ function TemplateSelector({
   const dirtyRef = useRef(false);
   const lastSavedFingerprintRef = useRef('');
   const inFlightFingerprintRef = useRef<string | null>(null);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const selectedTemplate =
+    profileTemplates.find((template) => template.id === selectedTemplateId) ??
+    profileTemplates[0];
 
   const submitWhenReady = () => {
     if (pendingRef.current) {
@@ -779,6 +852,7 @@ function TemplateSelector({
     onThemeChange(getTemplateThemePreset(templateId));
     onTemplateSelect(templateId);
     scheduleAutosave(120);
+    setShowTemplatePicker(false);
   };
   const handleCoverChange = (coverUrl: string) => {
     onCoverChange(coverUrl);
@@ -815,6 +889,7 @@ function TemplateSelector({
         </div>
       </div>
 
+      <input name="templateId" type="hidden" value={selectedTemplateId} />
       <input
         name="colorPreset"
         type="hidden"
@@ -975,83 +1050,133 @@ function TemplateSelector({
             Selecting a template replaces the current visual settings. Your
             content and customized wording stay in place.
           </p>
-          {profileTemplates.map((template) => {
-            const isLocked = template.proOnly && !subscription.isActive;
-            const isSelected = selectedTemplateId === template.id;
+          <button
+            className="border-primary/30 bg-muted/20 hover:border-primary/60 grid w-full grid-cols-[92px_minmax(0,1fr)] items-center gap-3 rounded-xl border p-2 text-left transition-colors"
+            type="button"
+            onClick={() => setShowTemplatePicker(true)}
+          >
+            <TemplateThumbnail templateId={selectedTemplateId} />
+            <span className="min-w-0 py-1">
+              <span className="flex items-center gap-2 text-sm font-semibold">
+                <span className="truncate">{selectedTemplate.name}</span>
+                <Check className="text-primary h-3.5 w-3.5 shrink-0" />
+              </span>
+              <span className="text-muted-foreground mt-1 line-clamp-2 text-xs leading-5">
+                {selectedTemplate.description}
+              </span>
+              <span className="text-primary mt-2 block text-xs font-semibold">
+                Change template
+              </span>
+            </span>
+          </button>
 
-            return (
-              <div key={template.id} className="space-y-2">
-                <label
-                  className={cn(
-                    'border-border flex cursor-pointer gap-3 rounded-lg border p-3 transition',
-                    isSelected && 'border-primary/50',
-                  )}
-                >
+          <details className="border-primary/20 bg-muted/30 group overflow-hidden rounded-lg border">
+            <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-semibold">
+                  Template wording
+                </span>
+                <span className="text-muted-foreground mt-0.5 block text-[11px]">
+                  Customize every visible label
+                </span>
+              </span>
+              <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="border-primary/20 space-y-3 border-t p-3">
+              {templateWordingFields.map((field) => (
+                <label key={field.key} className="block space-y-1.5">
+                  <span className="text-xs font-medium">{field.label}</span>
                   <input
-                    className="mt-1 h-4 w-4"
-                    checked={isSelected}
-                    name="templateId"
-                    onChange={() => handleTemplateSelect(template.id)}
-                    type="radio"
-                    value={template.id}
+                    className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+                    maxLength={field.maxLength}
+                    name={field.name}
+                    value={templateWording[field.key]}
+                    onChange={(event) =>
+                      handleTemplateWordingChange(field.key, event.target.value)
+                    }
                   />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2 text-sm font-semibold">
-                      {template.name}
-                      {template.proOnly ? (
-                        <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[11px] font-semibold">
-                          Pro
-                        </span>
-                      ) : null}
-                      {isLocked ? <Lock className="h-3.5 w-3.5" /> : null}
-                    </span>
-                    <span className="text-muted-foreground mt-1 block text-xs">
-                      {template.description}
-                      {isLocked ? ' Preview only on Free.' : ''}
-                    </span>
-                  </span>
                 </label>
-
-                {isSelected ? (
-                  <details className="border-primary/20 bg-muted/30 group overflow-hidden rounded-lg border">
-                    <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-xs font-semibold">
-                          Template wording
-                        </span>
-                        <span className="text-muted-foreground mt-0.5 block text-[11px]">
-                          Customize every visible label
-                        </span>
-                      </span>
-                      <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="border-primary/20 space-y-3 border-t p-3">
-                      {templateWordingFields.map((field) => (
-                        <label key={field.key} className="block space-y-1.5">
-                          <span className="text-xs font-medium">
-                            {field.label}
-                          </span>
-                          <input
-                            className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
-                            maxLength={field.maxLength}
-                            name={field.name}
-                            value={templateWording[field.key]}
-                            onChange={(event) =>
-                              handleTemplateWordingChange(
-                                field.key,
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </details>
-                ) : null}
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          </details>
         </StyleSection>
+
+        {showTemplatePicker && typeof document !== 'undefined'
+          ? createPortal(
+              <div className="fixed inset-0 z-[70]">
+                <button
+                  aria-label="Close template gallery"
+                  className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]"
+                  type="button"
+                  onClick={() => setShowTemplatePicker(false)}
+                />
+                <aside className="border-border bg-background absolute inset-y-0 right-0 w-full max-w-2xl overflow-y-auto border-l shadow-2xl">
+                  <div className="bg-background/95 sticky top-0 z-10 flex items-start justify-between gap-4 border-b p-5 backdrop-blur">
+                    <div>
+                      <p className="text-lg font-semibold">Choose a template</p>
+                      <p className="text-muted-foreground mt-1 text-sm">
+                        Your content and customized wording stay in place.
+                      </p>
+                    </div>
+                    <button
+                      aria-label="Close"
+                      className="text-muted-foreground hover:bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                      type="button"
+                      onClick={() => setShowTemplatePicker(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 p-4 sm:p-5">
+                    {profileTemplates.map((template) => {
+                      const isLocked =
+                        template.proOnly && !subscription.isActive;
+                      const isSelected = selectedTemplateId === template.id;
+
+                      return (
+                        <button
+                          key={template.id}
+                          aria-pressed={isSelected}
+                          className={cn(
+                            'border-border bg-card hover:border-primary/50 relative min-w-0 rounded-xl border p-2 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
+                            isSelected &&
+                              'border-primary ring-primary/15 ring-2',
+                          )}
+                          type="button"
+                          onClick={() => handleTemplateSelect(template.id)}
+                        >
+                          <TemplateThumbnail templateId={template.id} />
+                          {isSelected ? (
+                            <span className="bg-primary text-primary-foreground absolute top-4 right-4 flex h-6 w-6 items-center justify-center rounded-full shadow-sm">
+                              <Check className="h-3.5 w-3.5" />
+                            </span>
+                          ) : null}
+                          <span className="mt-2 flex min-w-0 items-center gap-2 px-1">
+                            <span className="truncate text-xs font-semibold sm:text-sm">
+                              {template.name}
+                            </span>
+                            {template.proOnly ? (
+                              <span className="bg-primary/10 text-primary rounded-full px-1.5 py-0.5 text-[9px] font-bold">
+                                Pro
+                              </span>
+                            ) : null}
+                            {isLocked ? (
+                              <Lock className="h-3 w-3 shrink-0" />
+                            ) : null}
+                          </span>
+                          <span className="text-muted-foreground mt-1 line-clamp-2 px-1 text-[10px] leading-4 sm:text-xs">
+                            {template.description}
+                            {isLocked ? ' Preview only on Free.' : ''}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </aside>
+              </div>,
+              document.body,
+            )
+          : null}
 
         <StyleSection
           title="Header"
@@ -1060,15 +1185,15 @@ function TemplateSelector({
           className="order-first"
           defaultOpen
         >
-          <div className="border-border grid grid-cols-4 overflow-hidden rounded-lg border">
+          <div className="grid grid-cols-2 gap-2">
             {headerLayouts.map((layout) => (
               <button
                 key={layout}
-                aria-label={`${layout} header layout`}
+                aria-label={`${headerLayoutLabels[layout]} header layout`}
                 className={cn(
-                  'border-border flex h-16 items-center justify-center border-r last:border-r-0',
+                  'border-border flex h-20 items-center gap-3 rounded-lg border px-3 text-left transition-colors',
                   themeSettings.headerLayout === layout
-                    ? 'bg-primary/10 text-primary'
+                    ? 'border-primary/50 bg-primary/10 text-primary'
                     : 'bg-background text-muted-foreground hover:bg-muted/40',
                 )}
                 type="button"
@@ -1076,34 +1201,40 @@ function TemplateSelector({
                   handleThemeChange({ ...themeSettings, headerLayout: layout })
                 }
               >
-                <span className="relative block h-9 w-7 rounded border-2 border-current">
-                  <span
-                    className={cn(
-                      'absolute h-2 w-2 rounded-full border border-current',
-                      layout === 'centered' &&
-                        'top-1 left-1/2 -translate-x-1/2',
-                      layout === 'split' && 'top-3 left-1/2 -translate-x-1/2',
-                      layout === 'left' && 'top-1 left-1',
-                      layout === 'immersive' &&
-                        'bottom-1 left-1/2 -translate-x-1/2',
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'absolute h-px bg-current',
-                      layout === 'centered' && 'right-1 bottom-2 left-1',
-                      layout === 'split' && 'top-3 right-0 left-0',
-                      layout === 'left' && 'right-1 bottom-2 left-1',
-                      layout === 'immersive' && 'right-0 bottom-3 left-0',
-                    )}
-                  />
+                <span className="relative block h-11 w-9 shrink-0 overflow-hidden rounded border-2 border-current">
+                  {layout === 'centered' ? (
+                    <>
+                      <span className="absolute -top-1 -left-2 h-5 w-6 rotate-12 bg-current opacity-35" />
+                      <span className="absolute top-2.5 left-1/2 h-1 w-5 -translate-x-1/2 rounded bg-current" />
+                      <span className="absolute bottom-2 left-1/2 h-px w-6 -translate-x-1/2 bg-current" />
+                    </>
+                  ) : layout === 'split' ? (
+                    <>
+                      <span className="absolute top-1 right-1 left-1 h-2 rounded-sm border border-current" />
+                      <span className="absolute inset-x-0 top-4 border-t border-dashed border-current" />
+                      <span className="absolute top-5 left-1 h-2 w-2 rounded-full border border-current" />
+                      <span className="absolute right-1 bottom-2 left-1 h-px bg-current" />
+                    </>
+                  ) : layout === 'left' ? (
+                    <>
+                      <span className="absolute inset-y-1 left-1 w-0.5 bg-current" />
+                      <span className="absolute top-2 right-1 h-1 w-5 bg-current" />
+                      <span className="absolute top-5 right-1 h-px w-4 bg-current" />
+                      <span className="absolute right-1 bottom-2 h-px w-5 bg-current" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="absolute inset-0 bg-current opacity-10" />
+                      <span className="absolute -top-1 -right-2 h-7 w-7 -rotate-12 bg-current opacity-40" />
+                      <span className="absolute bottom-3 left-1 h-1 w-6 bg-current" />
+                      <span className="absolute right-1 bottom-1.5 left-1 h-px bg-current" />
+                    </>
+                  )}
+                </span>
+                <span className="min-w-0 text-xs leading-4 font-semibold">
+                  {headerLayoutLabels[layout]}
                 </span>
               </button>
-            ))}
-          </div>
-          <div className="text-muted-foreground grid grid-cols-4 gap-1 text-center text-[10px] capitalize">
-            {headerLayouts.map((layout) => (
-              <span key={layout}>{headerLayoutLabels[layout]}</span>
             ))}
           </div>
 
@@ -1137,6 +1268,7 @@ function TemplateSelector({
           </label>
 
           <DecorativeIconPicker
+            templateId={selectedTemplateId}
             value={themeSettings.decorativeIcon}
             onValueChange={(decorativeIcon) =>
               handleThemeChange({ ...themeSettings, decorativeIcon })
@@ -1702,7 +1834,7 @@ function StylesPanel({
   onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
 }) {
   return (
-    <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:[contain:size]">
+    <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:overscroll-contain xl:[contain:size]">
       <TemplateSelector
         subscription={subscription}
         selectedTemplateId={selectedTemplateId}
@@ -1934,7 +2066,7 @@ export function DesignWorkspace({
   );
 
   return (
-    <div className="min-h-full xl:h-full xl:min-h-0 xl:flex-1 xl:overflow-hidden">
+    <div className="min-h-full xl:h-[calc(100dvh-3rem)] xl:min-h-0 xl:flex-none xl:overflow-hidden">
       <AutosaveIndicator states={autosaveStates} />
       <MobilePanelBar activePanel={activePanel} onSelect={setActivePanel} />
 
