@@ -1,4 +1,3 @@
-import { EventPosterTemplate } from '@/components/profile/templates/event-poster-template';
 import {
   GoalSpotlightTemplate,
   type ProfileTemplateVariant,
@@ -20,10 +19,6 @@ export function PublicProfileView({
   variant = 'full',
 }: PublicProfileViewProps) {
   const templateId = resolveProfileTemplateId(builder.profile.theme);
-
-  if (templateId === 'event_poster') {
-    return <EventPosterTemplate builder={builder} variant={variant} />;
-  }
 
   if (isSportProfileTemplateId(templateId)) {
     return (

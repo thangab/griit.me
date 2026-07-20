@@ -7,6 +7,7 @@ import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
+import { ProfileHeader } from '@/components/profile/profile-header';
 import { resolveTemplateWording } from '@/lib/constants/template-wording';
 
 export type ProfileTemplateVariant =
@@ -39,7 +40,6 @@ export function GoalSpotlightTemplate({
     }) || 'More context coming soon.';
   const sports = profile.sports;
   const isPreview = variant !== 'full';
-  const isMobilePreview = variant === 'mobile-preview';
   const theme = getThemeRuntime(profile.theme);
   const wording = resolveTemplateWording(
     profile.theme,
@@ -73,14 +73,6 @@ export function GoalSpotlightTemplate({
   if (galleryItems.length) ensureContentBlock('gallery', 'Image gallery');
   if (achievements.length) ensureContentBlock('achievements', 'Achievements');
   if (activities.length) ensureContentBlock('activities', 'Activities');
-  const coverStyle =
-    theme.coverType === 'image'
-      ? { backgroundImage: `url('${profile.coverUrl}')` }
-      : theme.coverType === 'gradient'
-        ? {
-            backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
-          }
-        : { backgroundColor: theme.coverColor };
 
   return (
     <main
@@ -94,106 +86,14 @@ export function GoalSpotlightTemplate({
         fontFamily: theme.fontFamilies.body,
       }}
     >
-      <section
-        className={cn(
-          'relative flex items-end overflow-hidden bg-slate-950 bg-cover bg-center',
-          isPreview
-            ? 'min-h-[360px] px-5 py-6'
-            : 'min-h-[78dvh] px-5 py-8 sm:px-8 lg:px-12',
-          isMobilePreview && 'min-h-[360px] px-4 py-5',
-        )}
-        style={{ ...coverStyle, color: theme.palette.headerText }}
-      >
-        {theme.coverType === 'image' ? (
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundColor: theme.coverColor,
-              opacity: theme.overlayOpacity,
-            }}
-          />
-        ) : null}
-        <div
-          className={cn(
-            'relative mx-auto flex w-full flex-col',
-            isPreview ? 'max-w-4xl gap-7' : 'max-w-6xl gap-10',
-          )}
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div
-                className={cn(
-                  'shrink-0 rounded-full border-2 border-white/80 bg-slate-200 bg-cover bg-center',
-                  isMobilePreview ? 'h-12 w-12' : 'h-14 w-14',
-                )}
-                style={{ backgroundImage: `url('${profile.avatarUrl}')` }}
-              />
-              <div>
-                <p className="font-semibold">{profile.displayName}</p>
-                {wording.discipline ? (
-                  <p
-                    className="mt-0.5 text-xs"
-                    style={{ color: theme.palette.mutedHeaderText }}
-                  >
-                    {wording.discipline}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-            {wording.badge ? (
-              <span className="text-xs font-semibold tracking-[0.18em] uppercase">
-                {wording.badge}
-              </span>
-            ) : null}
-          </div>
-
-          <div className="max-w-4xl">
-            {wording.eyebrow ? (
-              <p
-                className="text-xs font-semibold tracking-[0.28em] uppercase"
-                style={{ color: theme.palette.mutedHeaderText }}
-              >
-                {wording.eyebrow}
-              </p>
-            ) : null}
-            <h1
-              className={cn(
-                'max-w-4xl leading-[1.02] font-semibold',
-                wording.eyebrow && 'mt-4',
-                isMobilePreview
-                  ? 'text-4xl'
-                  : isPreview
-                    ? 'text-5xl'
-                    : 'text-5xl sm:text-6xl lg:text-7xl',
-              )}
-              style={{ fontFamily: theme.fontFamilies.heading }}
-            >
-              {goalTitle}
-            </h1>
-            <p
-              className={cn(
-                'mt-6 max-w-2xl leading-7',
-                isPreview ? 'text-base' : 'text-base sm:text-lg',
-              )}
-              style={{ color: theme.palette.mutedHeaderText }}
-            >
-              {goalDescription}
-            </p>
-            <div className="mt-7 flex flex-wrap gap-2 text-sm font-medium">
-              <span
-                className="rounded-full px-4 py-2"
-                style={{
-                  backgroundColor: theme.palette.accent,
-                  color: theme.palette.accentText,
-                }}
-              >
-                {wording.targetLabel ? `${wording.targetLabel}: ` : ''}
-                {goalTarget}
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProfileHeader
+        builder={builder}
+        description={goalDescription}
+        target={goalTarget}
+        title={goalTitle}
+        variant={variant}
+        wording={wording}
+      />
 
       <section
         className={cn(

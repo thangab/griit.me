@@ -146,6 +146,27 @@ export const overlayPresets = ['light', 'balanced', 'strong'] as const;
 export const radiusPresets = ['sharp', 'soft', 'rounded'] as const;
 export const galleryLayouts = ['grid', 'editorial', 'carousel'] as const;
 export const coverTypes = ['image', 'color', 'gradient'] as const;
+export const headerLayouts = [
+  'centered',
+  'split',
+  'left',
+  'immersive',
+] as const;
+export const decorativeIconIds = [
+  'auto',
+  'none',
+  'target',
+  'gauge',
+  'shield',
+  'zap',
+  'dumbbell',
+  'timer',
+  'trophy',
+  'bike',
+  'medal',
+  'activity',
+  'flag',
+] as const;
 
 export type ColorPresetId = (typeof colorPresets)[number]['id'] | 'custom';
 export type FontPresetId = (typeof fontPresets)[number]['id'];
@@ -153,6 +174,8 @@ export type OverlayPreset = (typeof overlayPresets)[number];
 export type RadiusPreset = (typeof radiusPresets)[number];
 export type GalleryLayout = (typeof galleryLayouts)[number];
 export type CoverType = (typeof coverTypes)[number];
+export type HeaderLayout = (typeof headerLayouts)[number];
+export type DecorativeIconId = (typeof decorativeIconIds)[number];
 
 export type ProfileThemeSettings = {
   colorPreset: ColorPresetId;
@@ -177,6 +200,11 @@ export type ProfileThemeSettings = {
   coverColor: string;
   coverGradientFrom: string;
   coverGradientTo: string;
+  headerLayout: HeaderLayout;
+  headerAvatarSize: number;
+  headerSheetColor: string;
+  headerSheetFade: boolean;
+  decorativeIcon: DecorativeIconId;
 };
 
 export const defaultThemeSettings: ProfileThemeSettings = {
@@ -202,11 +230,174 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   coverColor: '#0f172a',
   coverGradientFrom: '#0f172a',
   coverGradientTo: '#3b82f6',
+  headerLayout: 'centered',
+  headerAvatarSize: 96,
+  headerSheetColor: '#ffffff',
+  headerSheetFade: true,
+  decorativeIcon: 'auto',
 };
+
+function createTemplateThemePreset(
+  overrides: Partial<ProfileThemeSettings> & {
+    customColors?: Partial<ProfileThemeSettings['customColors']>;
+  },
+): ProfileThemeSettings {
+  return {
+    ...defaultThemeSettings,
+    ...overrides,
+    customColors: {
+      ...defaultThemeSettings.customColors,
+      ...overrides.customColors,
+    },
+  };
+}
+
+const templateThemePresets: Record<string, ProfileThemeSettings> = {
+  goal_spotlight: createTemplateThemePreset({
+    colorPreset: 'minimal',
+    fontPreset: 'clean',
+    coverOverlay: 'balanced',
+    radiusPreset: 'rounded',
+    galleryLayout: 'grid',
+    coverType: 'image',
+    coverColor: '#0f172a',
+    headerLayout: 'centered',
+    headerAvatarSize: 96,
+    headerSheetColor: '#ffffff',
+  }),
+  sport_running: createTemplateThemePreset({
+    colorPreset: 'endurance_orange',
+    fontPreset: 'clean',
+    coverOverlay: 'strong',
+    radiusPreset: 'soft',
+    galleryLayout: 'grid',
+    coverType: 'image',
+    coverColor: '#18181b',
+    headerLayout: 'left',
+    headerAvatarSize: 80,
+    headerSheetColor: '#18181b',
+  }),
+  sport_boxing: createTemplateThemePreset({
+    colorPreset: 'performance_red',
+    fontPreset: 'clean',
+    coverOverlay: 'strong',
+    radiusPreset: 'sharp',
+    galleryLayout: 'grid',
+    coverType: 'gradient',
+    coverColor: '#18181b',
+    coverGradientFrom: '#18181b',
+    coverGradientTo: '#991b1b',
+    headerLayout: 'left',
+    headerAvatarSize: 72,
+    headerSheetColor: '#fff7ed',
+  }),
+  sport_mma: createTemplateThemePreset({
+    colorPreset: 'obsidian_lime',
+    fontPreset: 'clean',
+    coverOverlay: 'strong',
+    radiusPreset: 'sharp',
+    galleryLayout: 'grid',
+    coverType: 'gradient',
+    coverColor: '#09090b',
+    coverGradientFrom: '#09090b',
+    coverGradientTo: '#365314',
+    headerLayout: 'immersive',
+    headerAvatarSize: 72,
+    headerSheetColor: '#09090b',
+    headerSheetFade: true,
+  }),
+  sport_strength: createTemplateThemePreset({
+    colorPreset: 'midnight_blue',
+    fontPreset: 'clean',
+    coverOverlay: 'balanced',
+    radiusPreset: 'soft',
+    galleryLayout: 'grid',
+    coverType: 'gradient',
+    coverColor: '#071426',
+    coverGradientFrom: '#071426',
+    coverGradientTo: '#1d4ed8',
+    headerLayout: 'split',
+    headerAvatarSize: 112,
+    headerSheetColor: '#10233d',
+  }),
+  sport_hyrox: createTemplateThemePreset({
+    colorPreset: 'electric_purple',
+    fontPreset: 'clean',
+    coverOverlay: 'balanced',
+    radiusPreset: 'sharp',
+    galleryLayout: 'grid',
+    coverType: 'color',
+    coverColor: '#312e81',
+    headerLayout: 'centered',
+    headerAvatarSize: 88,
+    headerSheetColor: '#11102a',
+  }),
+  sport_football: createTemplateThemePreset({
+    colorPreset: 'forest',
+    fontPreset: 'clean',
+    coverOverlay: 'balanced',
+    radiusPreset: 'rounded',
+    galleryLayout: 'grid',
+    coverType: 'gradient',
+    coverColor: '#102a22',
+    coverGradientFrom: '#102a22',
+    coverGradientTo: '#166534',
+    headerLayout: 'split',
+    headerAvatarSize: 104,
+    headerSheetColor: '#173b30',
+  }),
+  sport_cycling: createTemplateThemePreset({
+    colorPreset: 'custom',
+    customColors: {
+      background: '#f4f0e8',
+      surface: '#fffaf0',
+      foreground: '#172554',
+      accent: '#ea580c',
+      social: '#dbeafe',
+      headerText: '#fffaf0',
+      headerMutedText: '#fed7aa',
+      blockTitle: '#172554',
+      description: '#475569',
+      accentText: '#fffaf0',
+      socialText: '#172554',
+    },
+    fontPreset: 'clean',
+    coverOverlay: 'light',
+    radiusPreset: 'rounded',
+    galleryLayout: 'grid',
+    coverType: 'image',
+    coverColor: '#172554',
+    headerLayout: 'immersive',
+    headerAvatarSize: 64,
+    headerSheetColor: '#f4f0e8',
+    headerSheetFade: true,
+  }),
+};
+
+export function getTemplateThemePreset(templateId: string) {
+  const preset =
+    templateThemePresets[templateId] ??
+    templateThemePresets.goal_spotlight ??
+    defaultThemeSettings;
+
+  return resolveThemeSettings(createTemplateThemePreset(preset));
+}
 
 function resolveColor(value: unknown, fallback: string) {
   return typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)
     ? value
+    : fallback;
+}
+
+function resolveNumber(
+  value: unknown,
+  fallback: number,
+  min: number,
+  max: number,
+) {
+  const number = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(number)
+    ? Math.min(max, Math.max(min, number))
     : fallback;
 }
 
@@ -336,6 +527,28 @@ export function resolveThemeSettings(
       theme.coverGradientTo,
       defaultThemeSettings.coverGradientTo,
     ),
+    headerLayout: headerLayouts.includes(theme.headerLayout as HeaderLayout)
+      ? (theme.headerLayout as HeaderLayout)
+      : defaultThemeSettings.headerLayout,
+    headerAvatarSize: resolveNumber(
+      theme.headerAvatarSize,
+      defaultThemeSettings.headerAvatarSize,
+      56,
+      144,
+    ),
+    headerSheetColor: resolveColor(
+      theme.headerSheetColor,
+      resolvedCustomColors.surface,
+    ),
+    headerSheetFade:
+      typeof theme.headerSheetFade === 'boolean'
+        ? theme.headerSheetFade
+        : defaultThemeSettings.headerSheetFade,
+    decorativeIcon: decorativeIconIds.includes(
+      theme.decorativeIcon as DecorativeIconId,
+    )
+      ? (theme.decorativeIcon as DecorativeIconId)
+      : defaultThemeSettings.decorativeIcon,
   };
 }
 

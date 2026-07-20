@@ -22,17 +22,6 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Recent activities',
     secondaryGoalLabel: 'Also chasing',
   },
-  event_poster: {
-    discipline: 'Athlete profile',
-    badge: 'EVENT',
-    eyebrow: 'Target',
-    profileLabel: 'About',
-    targetLabel: 'Date',
-    galleryLabel: 'Gallery',
-    achievementsLabel: 'Achievement',
-    activityLabel: 'Recent activity',
-    secondaryGoalLabel: 'Also chasing',
-  },
   sport_running: {
     discipline: 'Running',
     badge: 'RUN',
@@ -116,6 +105,18 @@ function getText(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+const templateWordingKeys = [
+  'discipline',
+  'badge',
+  'eyebrow',
+  'profileLabel',
+  'targetLabel',
+  'galleryLabel',
+  'achievementsLabel',
+  'activityLabel',
+  'secondaryGoalLabel',
+] as const satisfies readonly (keyof TemplateWording)[];
+
 export function getDefaultTemplateWording(
   templateId: string,
   primarySport?: string,
@@ -142,7 +143,35 @@ export function resolveTemplateWording(
   primarySport?: string,
   templateId = '',
 ): TemplateWording {
-  const source = theme.templateWording ?? theme.sportTemplateText;
+  const defaults = getDefaultTemplateWording(templateId, primarySport);
+  const overrides = getTemplateWordingOverrides(
+    theme,
+    primarySport,
+    templateId,
+  );
+
+  return Object.fromEntries(
+    Object.entries(defaults).map(([key, fallback]) => [
+      key,
+      Object.prototype.hasOwnProperty.call(overrides, key)
+        ? overrides[key as keyof TemplateWording]
+        : fallback,
+    ]),
+  ) as TemplateWording;
+}
+
+export function getTemplateWordingOverrides(
+  theme: Record<string, unknown>,
+  primarySport?: string,
+  templateId = '',
+): Partial<TemplateWording> {
+  const hasExplicitOverrides = Object.prototype.hasOwnProperty.call(
+    theme,
+    'templateWordingOverrides',
+  );
+  const source = hasExplicitOverrides
+    ? theme.templateWordingOverrides
+    : (theme.templateWording ?? theme.sportTemplateText);
   const saved =
     source && typeof source === 'object'
       ? (source as Record<string, unknown>)
@@ -150,11 +179,25 @@ export function resolveTemplateWording(
   const defaults = getDefaultTemplateWording(templateId, primarySport);
 
   return Object.fromEntries(
-    Object.entries(defaults).map(([key, fallback]) => [
-      key,
-      Object.prototype.hasOwnProperty.call(saved, key)
-        ? getText(saved[key])
-        : fallback,
-    ]),
-  ) as TemplateWording;
+    templateWordingKeys.flatMap((key) => {
+      if (!Object.prototype.hasOwnProperty.call(saved, key)) return [];
+
+      const value = getText(saved[key]);
+
+      // Older saves contained every default. Ignore those untouched legacy
+      // values once, then persist only explicit overrides going forward.
+      const isKnownDefault = Object.values(templateWordingDefaults).some(
+        (wording) => wording[key] === value,
+      );
+
+      if (
+        !hasExplicitOverrides &&
+        (value === defaults[key] || isKnownDefault)
+      ) {
+        return [];
+      }
+
+      return [[key, value]];
+    }),
+  ) as Partial<TemplateWording>;
 }

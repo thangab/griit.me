@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
+import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
+import { ProfileHeader } from '@/components/profile/profile-header';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import type { ProfileTemplateVariant } from '@/components/profile/templates/goal-spotlight-template';
@@ -41,11 +43,7 @@ export type SportProfileTemplateId =
   | 'sport_football'
   | 'sport_cycling';
 
-type SportFamily = 'endurance' | 'fight' | 'power' | 'team';
-
 type SportTemplateConfig = {
-  id: SportProfileTemplateId;
-  family: SportFamily;
   icon: LucideIcon;
 };
 
@@ -59,7 +57,6 @@ type SportVisual = {
   surface: string;
   text: string;
   mutedText: string;
-  pattern: string;
 };
 
 const sportTemplateConfigs: Record<
@@ -67,59 +64,27 @@ const sportTemplateConfigs: Record<
   SportTemplateConfig
 > = {
   sport_running: {
-    id: 'sport_running',
-    family: 'endurance',
     icon: Gauge,
   },
   sport_boxing: {
-    id: 'sport_boxing',
-    family: 'fight',
     icon: Shield,
   },
   sport_mma: {
-    id: 'sport_mma',
-    family: 'fight',
     icon: Zap,
   },
   sport_strength: {
-    id: 'sport_strength',
-    family: 'power',
     icon: Dumbbell,
   },
   sport_hyrox: {
-    id: 'sport_hyrox',
-    family: 'power',
     icon: Timer,
   },
   sport_football: {
-    id: 'sport_football',
-    family: 'team',
     icon: Trophy,
   },
   sport_cycling: {
-    id: 'sport_cycling',
-    family: 'endurance',
     icon: Bike,
   },
 };
-
-function getSportPattern(family: SportFamily, accent: string) {
-  const line = `color-mix(in srgb, ${accent} 20%, transparent)`;
-
-  if (family === 'fight') {
-    return `repeating-linear-gradient(0deg, transparent 0 62px, ${line} 62px 65px)`;
-  }
-
-  if (family === 'power') {
-    return `linear-gradient(${line} 1px, transparent 1px), linear-gradient(90deg, ${line} 1px, transparent 1px)`;
-  }
-
-  if (family === 'team') {
-    return `linear-gradient(90deg, transparent 49.7%, ${line} 49.7% 50.3%, transparent 50.3%), radial-gradient(circle at 50% 50%, transparent 0 70px, ${line} 71px 73px, transparent 74px)`;
-  }
-
-  return `repeating-linear-gradient(112deg, transparent 0 48px, ${line} 48px 50px)`;
-}
 
 export function isSportProfileTemplateId(
   value: string,
@@ -164,28 +129,6 @@ function getContentBlocks(builder: ProfileBuilderState) {
   if (activities.length) ensureBlock('activities', 'Activities');
 
   return contentBlocks;
-}
-
-function AthleteAvatar({
-  avatarUrl,
-  displayName,
-  className,
-}: {
-  avatarUrl: string;
-  displayName: string;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        'flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/15 bg-cover bg-center font-black text-white uppercase',
-        className,
-      )}
-      style={avatarUrl ? { backgroundImage: `url('${avatarUrl}')` } : undefined}
-    >
-      {!avatarUrl ? displayName.slice(0, 2) : null}
-    </div>
-  );
 }
 
 function SportContentBlock({
@@ -347,7 +290,6 @@ export function SportProfileTemplate({
     builder.profile.sports[0],
     templateId,
   );
-  const SportIcon = config.icon;
   const theme = getThemeRuntime(builder.profile.theme);
   const goals = builder.goals.filter((goal) => goal.isEnabled);
   const primaryGoal = goals[0];
@@ -362,7 +304,6 @@ export function SportProfileTemplate({
     primaryGoal?.description || 'Training with intent. Competing with purpose.';
   const goalTarget = primaryGoal?.targetLabel || 'Target in progress';
   const isPreview = variant !== 'full';
-  const isMobilePreview = variant === 'mobile-preview';
   const visual: SportVisual = {
     canvas: theme.palette.background,
     hero: theme.coverColor,
@@ -373,7 +314,6 @@ export function SportProfileTemplate({
     surface: theme.palette.surface,
     text: theme.palette.text,
     mutedText: theme.palette.description,
-    pattern: getSportPattern(config.family, theme.palette.accent),
   };
   const sportBuilder: ProfileBuilderState = {
     ...builder,
@@ -398,22 +338,6 @@ export function SportProfileTemplate({
       },
     },
   };
-  const coverStyle =
-    theme.coverType === 'image' && builder.profile.coverUrl
-      ? {
-          backgroundImage: `linear-gradient(90deg, ${visual.hero} 0%, color-mix(in srgb, ${visual.hero} 88%, transparent) 48%, color-mix(in srgb, ${visual.hero} 35%, transparent) 100%), url('${builder.profile.coverUrl}')`,
-        }
-      : theme.coverType === 'gradient'
-        ? {
-            backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
-          }
-        : { backgroundImage: visual.pattern };
-  const familyLayout =
-    config.family === 'fight'
-      ? 'lg:grid-cols-[0.85fr_1.15fr]'
-      : config.family === 'team'
-        ? 'lg:grid-cols-[1fr_1fr]'
-        : 'lg:grid-cols-[1.15fr_0.85fr]';
 
   return (
     <main
@@ -426,142 +350,15 @@ export function SportProfileTemplate({
         fontFamily: theme.fontFamilies.body,
       }}
     >
-      <section
-        className={cn(
-          'relative overflow-hidden bg-cover bg-center',
-          isPreview ? 'px-4 py-5' : 'px-5 py-6 sm:px-8 lg:px-12',
-        )}
-        style={{ ...coverStyle, backgroundColor: visual.hero }}
-      >
-        <div
-          className="absolute inset-0 opacity-60"
-          style={{ backgroundImage: visual.pattern }}
-        />
-        <div
-          className="relative mx-auto max-w-6xl"
-          style={{ color: visual.heroText }}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <AthleteAvatar
-                avatarUrl={builder.profile.avatarUrl}
-                className="h-11 w-11 text-xs"
-                displayName={builder.profile.displayName}
-              />
-              <div>
-                <p className="text-sm font-bold">
-                  {builder.profile.displayName}
-                </p>
-                {text.discipline ? (
-                  <p
-                    className="text-[10px] font-bold tracking-[0.2em] uppercase"
-                    style={{ color: visual.heroMuted }}
-                  >
-                    {text.discipline}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-            {text.badge ? (
-              <span
-                className="flex items-center gap-2 rounded-full px-3 py-2 text-[10px] font-black tracking-[0.18em] uppercase"
-                style={{
-                  backgroundColor: visual.accent,
-                  color: visual.accentText,
-                }}
-              >
-                <SportIcon className="h-3.5 w-3.5" />
-                {text.badge}
-              </span>
-            ) : null}
-          </div>
-
-          <div
-            className={cn(
-              'mt-10 grid items-end gap-8',
-              !isMobilePreview && familyLayout,
-              isPreview ? 'min-h-[320px]' : 'min-h-[520px]',
-            )}
-          >
-            <div className={cn(config.family === 'fight' && 'lg:order-2')}>
-              {text.eyebrow ? (
-                <p
-                  className="text-xs font-black tracking-[0.28em] uppercase"
-                  style={{ color: visual.accent }}
-                >
-                  {text.eyebrow}
-                </p>
-              ) : null}
-              <h1
-                className={cn(
-                  'max-w-4xl leading-[0.94] font-black tracking-[-0.05em] uppercase',
-                  text.eyebrow && 'mt-4',
-                  isMobilePreview
-                    ? 'text-4xl'
-                    : isPreview
-                      ? 'text-5xl'
-                      : 'text-5xl sm:text-7xl',
-                )}
-                style={{ fontFamily: theme.fontFamilies.heading }}
-              >
-                {goalTitle}
-              </h1>
-              <p
-                className="mt-5 max-w-xl text-sm leading-6 sm:text-base"
-                style={{ color: visual.heroMuted }}
-              >
-                {goalDescription}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                <span
-                  className="rounded-full px-4 py-2 text-xs font-bold"
-                  style={{
-                    backgroundColor: visual.accent,
-                    color: visual.accentText,
-                  }}
-                >
-                  {goalTarget}
-                </span>
-                {builder.profile.sports.slice(0, 2).map((sport) => (
-                  <span
-                    key={sport}
-                    className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-bold"
-                  >
-                    {sport}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div
-              className={cn(
-                'relative hidden min-h-64 overflow-hidden border border-white/15 bg-white/5 lg:block',
-                theme.radiusClass,
-                config.family === 'fight' && 'lg:order-1',
-              )}
-            >
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={
-                  theme.coverType === 'image' && builder.profile.coverUrl
-                    ? { backgroundImage: `url('${builder.profile.coverUrl}')` }
-                    : theme.coverType === 'gradient'
-                      ? {
-                          backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
-                        }
-                      : { backgroundImage: visual.pattern }
-                }
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              {text.badge ? (
-                <p className="absolute right-5 bottom-3 text-[clamp(4rem,11vw,9rem)] leading-none font-black tracking-[-0.08em] text-white/15 uppercase">
-                  {text.badge}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProfileHeader
+        badgeIcon={config.icon}
+        builder={builder}
+        description={goalDescription}
+        target={goalTarget}
+        title={goalTitle}
+        variant={variant}
+        wording={text}
+      />
 
       <section
         className={cn(
@@ -642,7 +439,11 @@ export function SportProfileTemplate({
               color: visual.accentText,
             }}
           >
-            <SportIcon className="absolute -right-5 -bottom-5 h-36 w-36 opacity-10" />
+            <ProfileDecorativeIcon
+              className="absolute -right-5 -bottom-5 h-36 w-36 opacity-10"
+              fallback={config.icon}
+              iconId={theme.decorativeIcon}
+            />
             {text.targetLabel ? (
               <p className="text-xs font-black tracking-[0.2em] uppercase opacity-65">
                 {text.targetLabel}

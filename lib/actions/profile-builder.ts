@@ -15,8 +15,10 @@ import { getSubscriptionState } from '@/lib/services/billing';
 import {
   colorPresets,
   coverTypes,
+  decorativeIconIds,
   fontPresets,
   galleryLayouts,
+  headerLayouts,
   overlayPresets,
   radiusPresets,
 } from '@/lib/constants/profile-theme';
@@ -255,6 +257,14 @@ const templateSchema = z.object({
   coverGradientTo: z
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient end color.'),
+  headerLayout: z.enum(headerLayouts),
+  headerAvatarSize: z.coerce.number().int().min(56).max(144),
+  headerSheetColor: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid header sheet color.'),
+  headerSheetFade: z.boolean(),
+  decorativeIcon: z.enum(decorativeIconIds),
+  templateWordingOverrideKeys: z.string().max(500),
   templateWordingDiscipline: z.string().trim().max(60),
   templateWordingBadge: z.string().trim().max(12),
   templateWordingEyebrow: z.string().trim().max(120),
@@ -1120,6 +1130,15 @@ export async function updateProfileTemplateAction(
     coverColor: getString(formData, 'coverColor'),
     coverGradientFrom: getString(formData, 'coverGradientFrom'),
     coverGradientTo: getString(formData, 'coverGradientTo'),
+    headerLayout: getString(formData, 'headerLayout'),
+    headerAvatarSize: getString(formData, 'headerAvatarSize'),
+    headerSheetColor: getString(formData, 'headerSheetColor'),
+    headerSheetFade: formData.get('headerSheetFade') === 'true',
+    decorativeIcon: getString(formData, 'decorativeIcon'),
+    templateWordingOverrideKeys: getString(
+      formData,
+      'templateWordingOverrideKeys',
+    ),
     templateWordingDiscipline: getString(formData, 'templateWordingDiscipline'),
     templateWordingBadge: getString(formData, 'templateWordingBadge'),
     templateWordingEyebrow: getString(formData, 'templateWordingEyebrow'),
@@ -1208,6 +1227,42 @@ export async function updateProfileTemplateAction(
       ? (existingProfile.theme as Record<string, unknown>)
       : {};
   const templateId = parsed.data.templateId || defaultProfileTemplateId;
+  const wordingOverrideKeys = new Set(
+    parsed.data.templateWordingOverrideKeys.split(',').filter(Boolean),
+  );
+  const templateWordingOverrides = {
+    ...(wordingOverrideKeys.has('discipline')
+      ? { discipline: parsed.data.templateWordingDiscipline }
+      : {}),
+    ...(wordingOverrideKeys.has('badge')
+      ? { badge: parsed.data.templateWordingBadge }
+      : {}),
+    ...(wordingOverrideKeys.has('eyebrow')
+      ? { eyebrow: parsed.data.templateWordingEyebrow }
+      : {}),
+    ...(wordingOverrideKeys.has('profileLabel')
+      ? { profileLabel: parsed.data.templateWordingProfileLabel }
+      : {}),
+    ...(wordingOverrideKeys.has('targetLabel')
+      ? { targetLabel: parsed.data.templateWordingTargetLabel }
+      : {}),
+    ...(wordingOverrideKeys.has('galleryLabel')
+      ? { galleryLabel: parsed.data.templateWordingGalleryLabel }
+      : {}),
+    ...(wordingOverrideKeys.has('achievementsLabel')
+      ? {
+          achievementsLabel: parsed.data.templateWordingAchievementsLabel,
+        }
+      : {}),
+    ...(wordingOverrideKeys.has('activityLabel')
+      ? { activityLabel: parsed.data.templateWordingActivityLabel }
+      : {}),
+    ...(wordingOverrideKeys.has('secondaryGoalLabel')
+      ? {
+          secondaryGoalLabel: parsed.data.templateWordingSecondaryGoalLabel,
+        }
+      : {}),
+  };
 
   const { error } = await serviceSupabase
     .from('public_profiles')
@@ -1238,17 +1293,12 @@ export async function updateProfileTemplateAction(
         coverColor: parsed.data.coverColor,
         coverGradientFrom: parsed.data.coverGradientFrom,
         coverGradientTo: parsed.data.coverGradientTo,
-        templateWording: {
-          discipline: parsed.data.templateWordingDiscipline,
-          badge: parsed.data.templateWordingBadge,
-          eyebrow: parsed.data.templateWordingEyebrow,
-          profileLabel: parsed.data.templateWordingProfileLabel,
-          targetLabel: parsed.data.templateWordingTargetLabel,
-          galleryLabel: parsed.data.templateWordingGalleryLabel,
-          achievementsLabel: parsed.data.templateWordingAchievementsLabel,
-          activityLabel: parsed.data.templateWordingActivityLabel,
-          secondaryGoalLabel: parsed.data.templateWordingSecondaryGoalLabel,
-        },
+        headerLayout: parsed.data.headerLayout,
+        headerAvatarSize: parsed.data.headerAvatarSize,
+        headerSheetColor: parsed.data.headerSheetColor,
+        headerSheetFade: parsed.data.headerSheetFade,
+        decorativeIcon: parsed.data.decorativeIcon,
+        templateWordingOverrides,
       },
       updated_at: new Date().toISOString(),
     })

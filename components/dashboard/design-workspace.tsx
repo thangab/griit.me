@@ -4,7 +4,6 @@ import { useActionState, useState, useTransition } from 'react';
 import {
   ChevronDown,
   FileText,
-  ImageIcon,
   LayoutTemplate,
   Lock,
   MonitorSmartphone,
@@ -15,6 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { ContentEditor } from '@/components/dashboard/content-editor';
+import { decorativeIconOptions } from '@/components/profile/decorative-icon';
 import { DesignPreview } from '@/components/dashboard/design-preview';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import { Button } from '@/components/ui/button';
@@ -36,13 +36,15 @@ import {
   coverTypes,
   fontPresets,
   galleryLayouts,
+  getTemplateThemePreset,
+  headerLayouts,
   overlayPresets,
   radiusPresets,
   resolveThemeSettings,
   type ProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
 import {
-  getDefaultTemplateWording,
+  getTemplateWordingOverrides,
   resolveTemplateWording,
   type TemplateWording,
 } from '@/lib/constants/template-wording';
@@ -54,6 +56,13 @@ const mobilePanels = [
 ] as const;
 
 type MobilePanel = (typeof mobilePanels)[number]['id'];
+
+const headerLayoutLabels = {
+  centered: 'Centered',
+  split: 'Split sheet',
+  left: 'Left aligned',
+  immersive: 'Immersive',
+} as const;
 
 const templateWordingFields = [
   {
@@ -476,17 +485,22 @@ function StyleSection({
   description,
   icon: Icon,
   defaultOpen = false,
+  className,
   children,
 }: {
   title: string;
   description: string;
   icon: LucideIcon;
   defaultOpen?: boolean;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
     <details
-      className="border-border bg-background group overflow-hidden rounded-xl border"
+      className={cn(
+        'border-border bg-background group overflow-hidden rounded-xl border',
+        className,
+      )}
       open={defaultOpen}
     >
       <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
@@ -506,12 +520,65 @@ function StyleSection({
   );
 }
 
+function DecorativeIconPicker({
+  value,
+  onValueChange,
+}: {
+  value: ProfileThemeSettings['decorativeIcon'];
+  onValueChange: (value: ProfileThemeSettings['decorativeIcon']) => void;
+}) {
+  const selectedOption =
+    decorativeIconOptions.find((option) => option.id === value) ??
+    decorativeIconOptions[0];
+  const SelectedIcon = selectedOption.icon;
+
+  return (
+    <details className="border-border bg-muted/30 group/icon overflow-hidden rounded-lg border">
+      <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
+        <span className="bg-background border-border flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
+          <SelectedIcon className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs font-medium">Header icon</span>
+          <span className="text-muted-foreground block truncate text-[11px]">
+            {selectedOption.label}
+          </span>
+        </span>
+        <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/icon:rotate-180" />
+      </summary>
+      <div className="border-border grid grid-cols-6 gap-1.5 border-t p-2">
+        {decorativeIconOptions.map((option) => {
+          const Icon = option.icon;
+          const isActive = value === option.id;
+
+          return (
+            <button
+              key={option.id}
+              aria-label={option.label}
+              className={cn(
+                'border-border bg-background hover:border-primary/40 flex h-9 items-center justify-center rounded-md border transition',
+                isActive && 'border-primary bg-primary/10 text-primary',
+              )}
+              title={option.label}
+              type="button"
+              onClick={() => onValueChange(option.id)}
+            >
+              <Icon className="h-3.5 w-3.5" />
+            </button>
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
 function TemplateSelector({
   subscription,
   selectedTemplateId,
   coverUrl,
   themeSettings,
   templateWording,
+  templateWordingOverrides,
   onTemplateSelect,
   onCoverChange,
   onThemeChange,
@@ -522,10 +589,11 @@ function TemplateSelector({
   coverUrl: string;
   themeSettings: ProfileThemeSettings;
   templateWording: TemplateWording;
+  templateWordingOverrides: Partial<TemplateWording>;
   onTemplateSelect: (templateId: ProfileTemplateId) => void;
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
-  onTemplateWordingChange: (text: TemplateWording) => void;
+  onTemplateWordingChange: (key: keyof TemplateWording, value: string) => void;
 }) {
   const [state, formAction, pending] = useActionState(
     updateProfileTemplateAction,
@@ -535,7 +603,7 @@ function TemplateSelector({
 
   const handleTemplateSelect = (templateId: ProfileTemplateId) => {
     setFeedbackDismissed(true);
-    onTemplateWordingChange(getDefaultTemplateWording(templateId));
+    onThemeChange(getTemplateThemePreset(templateId));
     onTemplateSelect(templateId);
   };
   const handleCoverChange = (coverUrl: string) => {
@@ -546,9 +614,12 @@ function TemplateSelector({
     setFeedbackDismissed(true);
     onThemeChange(settings);
   };
-  const handleTemplateWordingChange = (text: TemplateWording) => {
+  const handleTemplateWordingChange = (
+    key: keyof TemplateWording,
+    value: string,
+  ) => {
     setFeedbackDismissed(true);
-    onTemplateWordingChange(text);
+    onTemplateWordingChange(key, value);
   };
 
   return (
@@ -671,14 +742,48 @@ function TemplateSelector({
         type="hidden"
         value={themeSettings.coverGradientTo}
       />
+      <input
+        name="headerLayout"
+        type="hidden"
+        value={themeSettings.headerLayout}
+      />
+      <input
+        name="headerAvatarSize"
+        type="hidden"
+        value={themeSettings.headerAvatarSize}
+      />
+      <input
+        name="headerSheetColor"
+        type="hidden"
+        value={themeSettings.headerSheetColor}
+      />
+      <input
+        name="headerSheetFade"
+        type="hidden"
+        value={String(themeSettings.headerSheetFade)}
+      />
+      <input
+        name="decorativeIcon"
+        type="hidden"
+        value={themeSettings.decorativeIcon}
+      />
+      <input
+        name="templateWordingOverrideKeys"
+        type="hidden"
+        value={Object.keys(templateWordingOverrides).join(',')}
+      />
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <StyleSection
           title="Template"
-          description="Choose the profile structure"
+          description="Apply a complete visual direction"
           icon={LayoutTemplate}
           defaultOpen
         >
+          <p className="text-muted-foreground text-xs leading-5">
+            Selecting a template replaces the current visual settings. Your
+            content and customized wording stay in place.
+          </p>
           {profileTemplates.map((template) => {
             const isLocked = template.proOnly && !subscription.isActive;
             const isSelected = selectedTemplateId === template.id;
@@ -717,33 +822,40 @@ function TemplateSelector({
                 </label>
 
                 {isSelected ? (
-                  <div className="border-primary/20 bg-muted/30 space-y-3 rounded-lg border p-3">
-                    <div>
-                      <p className="text-xs font-semibold">Template wording</p>
-                      <p className="text-muted-foreground mt-0.5 text-[11px]">
-                        Customize every visible label
-                      </p>
-                    </div>
-                    {templateWordingFields.map((field) => (
-                      <label key={field.key} className="block space-y-1.5">
-                        <span className="text-xs font-medium">
-                          {field.label}
+                  <details className="border-primary/20 bg-muted/30 group overflow-hidden rounded-lg border">
+                    <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs font-semibold">
+                          Template wording
                         </span>
-                        <input
-                          className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
-                          maxLength={field.maxLength}
-                          name={field.name}
-                          value={templateWording[field.key]}
-                          onChange={(event) =>
-                            handleTemplateWordingChange({
-                              ...templateWording,
-                              [field.key]: event.target.value,
-                            })
-                          }
-                        />
-                      </label>
-                    ))}
-                  </div>
+                        <span className="text-muted-foreground mt-0.5 block text-[11px]">
+                          Customize every visible label
+                        </span>
+                      </span>
+                      <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
+                    </summary>
+                    <div className="border-primary/20 space-y-3 border-t p-3">
+                      {templateWordingFields.map((field) => (
+                        <label key={field.key} className="block space-y-1.5">
+                          <span className="text-xs font-medium">
+                            {field.label}
+                          </span>
+                          <input
+                            className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+                            maxLength={field.maxLength}
+                            name={field.name}
+                            value={templateWording[field.key]}
+                            onChange={(event) =>
+                              handleTemplateWordingChange(
+                                field.key,
+                                event.target.value,
+                              )
+                            }
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </details>
                 ) : null}
               </div>
             );
@@ -751,10 +863,138 @@ function TemplateSelector({
         </StyleSection>
 
         <StyleSection
-          title="Cover"
-          description="Image, color or gradient"
-          icon={ImageIcon}
+          title="Header"
+          description="Layout, profile picture and cover"
+          icon={LayoutTemplate}
+          className="order-first"
+          defaultOpen
         >
+          <div className="border-border grid grid-cols-4 overflow-hidden rounded-lg border">
+            {headerLayouts.map((layout) => (
+              <button
+                key={layout}
+                aria-label={`${layout} header layout`}
+                className={cn(
+                  'border-border flex h-16 items-center justify-center border-r last:border-r-0',
+                  themeSettings.headerLayout === layout
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-background text-muted-foreground hover:bg-muted/40',
+                )}
+                type="button"
+                onClick={() =>
+                  handleThemeChange({ ...themeSettings, headerLayout: layout })
+                }
+              >
+                <span className="relative block h-9 w-7 rounded border-2 border-current">
+                  <span
+                    className={cn(
+                      'absolute h-2 w-2 rounded-full border border-current',
+                      layout === 'centered' &&
+                        'top-1 left-1/2 -translate-x-1/2',
+                      layout === 'split' && 'top-3 left-1/2 -translate-x-1/2',
+                      layout === 'left' && 'top-1 left-1',
+                      layout === 'immersive' &&
+                        'bottom-1 left-1/2 -translate-x-1/2',
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      'absolute h-px bg-current',
+                      layout === 'centered' && 'right-1 bottom-2 left-1',
+                      layout === 'split' && 'top-3 right-0 left-0',
+                      layout === 'left' && 'right-1 bottom-2 left-1',
+                      layout === 'immersive' && 'right-0 bottom-3 left-0',
+                    )}
+                  />
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="text-muted-foreground grid grid-cols-4 gap-1 text-center text-[10px] capitalize">
+            {headerLayouts.map((layout) => (
+              <span key={layout}>{headerLayoutLabels[layout]}</span>
+            ))}
+          </div>
+
+          <label className="border-border bg-muted/30 block rounded-lg border p-3">
+            <span className="flex items-center justify-between gap-3 text-xs font-medium">
+              <span>Profile picture size</span>
+              <span className="text-muted-foreground font-mono">
+                {themeSettings.headerAvatarSize}px
+              </span>
+            </span>
+            <input
+              aria-label="Profile picture size"
+              className="accent-primary mt-3 w-full"
+              max="144"
+              min="56"
+              step="4"
+              type="range"
+              value={themeSettings.headerAvatarSize}
+              onChange={(event) =>
+                handleThemeChange({
+                  ...themeSettings,
+                  headerAvatarSize: Number(event.target.value),
+                })
+              }
+            />
+          </label>
+
+          <DecorativeIconPicker
+            value={themeSettings.decorativeIcon}
+            onValueChange={(decorativeIcon) =>
+              handleThemeChange({ ...themeSettings, decorativeIcon })
+            }
+          />
+
+          {themeSettings.headerLayout === 'split' ||
+          themeSettings.headerLayout === 'immersive' ? (
+            <label className="border-border bg-muted/30 flex items-center justify-between gap-3 rounded-lg border p-3">
+              <span className="text-xs font-medium">Sheet color</span>
+              <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
+                <input
+                  aria-label="Header sheet color"
+                  className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                  type="color"
+                  value={themeSettings.headerSheetColor}
+                  onChange={(event) =>
+                    handleThemeChange({
+                      ...themeSettings,
+                      headerSheetColor: event.target.value,
+                    })
+                  }
+                />
+                <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                  {themeSettings.headerSheetColor}
+                </span>
+              </span>
+            </label>
+          ) : null}
+
+          {themeSettings.headerLayout === 'immersive' ? (
+            <label className="border-border bg-muted/30 flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-3">
+              <span className="text-xs font-medium">Sheet fade</span>
+              <input
+                checked={themeSettings.headerSheetFade}
+                className="accent-primary h-4 w-4"
+                type="checkbox"
+                onChange={(event) =>
+                  handleThemeChange({
+                    ...themeSettings,
+                    headerSheetFade: event.target.checked,
+                  })
+                }
+              />
+            </label>
+          ) : null}
+
+          <div className="border-border border-t pt-3">
+            <p className="text-xs font-semibold">Cover</p>
+            <p className="text-muted-foreground mt-0.5 text-[11px]">
+              Image, color or gradient
+            </p>
+          </div>
+
           <div className="bg-muted grid grid-cols-3 gap-1 rounded-lg p-1">
             {coverTypes.map((coverType) => (
               <button
@@ -1190,6 +1430,7 @@ function StylesPanel({
   coverUrl,
   themeSettings,
   templateWording,
+  templateWordingOverrides,
   onTemplateSelect,
   onCoverChange,
   onThemeChange,
@@ -1200,10 +1441,11 @@ function StylesPanel({
   coverUrl: string;
   themeSettings: ProfileThemeSettings;
   templateWording: TemplateWording;
+  templateWordingOverrides: Partial<TemplateWording>;
   onTemplateSelect: (templateId: ProfileTemplateId) => void;
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
-  onTemplateWordingChange: (text: TemplateWording) => void;
+  onTemplateWordingChange: (key: keyof TemplateWording, value: string) => void;
 }) {
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:[contain:size]">
@@ -1213,6 +1455,7 @@ function StylesPanel({
         coverUrl={coverUrl}
         themeSettings={themeSettings}
         templateWording={templateWording}
+        templateWordingOverrides={templateWordingOverrides}
         onTemplateSelect={onTemplateSelect}
         onCoverChange={onCoverChange}
         onThemeChange={onThemeChange}
@@ -1284,12 +1527,19 @@ export function DesignWorkspace({
   const [themeSettings, setThemeSettings] = useState<ProfileThemeSettings>(() =>
     resolveThemeSettings(builder.profile.theme),
   );
-  const [templateWording, setTemplateWording] = useState<TemplateWording>(() =>
-    resolveTemplateWording(
+  const [templateWordingOverrides, setTemplateWordingOverrides] = useState<
+    Partial<TemplateWording>
+  >(() =>
+    getTemplateWordingOverrides(
       builder.profile.theme,
       builder.profile.sports[0],
       resolveProfileTemplateId(builder.profile.theme),
     ),
+  );
+  const templateWording = resolveTemplateWording(
+    { templateWordingOverrides },
+    builder.profile.sports[0],
+    selectedTemplateId,
   );
   const previewBuilder: ProfileBuilderState = {
     ...draftBuilder,
@@ -1299,6 +1549,7 @@ export function DesignWorkspace({
         ...draftBuilder.profile.theme,
         templateId: selectedTemplateId,
         ...themeSettings,
+        templateWordingOverrides,
         templateWording,
       },
     },
@@ -1342,6 +1593,15 @@ export function DesignWorkspace({
       },
     }));
   };
+  const handleTemplateWordingChange = (
+    key: keyof TemplateWording,
+    value: string,
+  ) => {
+    setTemplateWordingOverrides((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
 
   return (
     <div className="min-h-full xl:h-full xl:min-h-0 xl:flex-1 xl:overflow-hidden">
@@ -1370,10 +1630,11 @@ export function DesignWorkspace({
             coverUrl={draftBuilder.profile.coverUrl}
             themeSettings={themeSettings}
             templateWording={templateWording}
+            templateWordingOverrides={templateWordingOverrides}
             onTemplateSelect={setSelectedTemplateId}
             onCoverChange={handleCoverChange}
             onThemeChange={setThemeSettings}
-            onTemplateWordingChange={setTemplateWording}
+            onTemplateWordingChange={handleTemplateWordingChange}
           />
         ) : null}
       </div>
@@ -1396,10 +1657,11 @@ export function DesignWorkspace({
           coverUrl={draftBuilder.profile.coverUrl}
           themeSettings={themeSettings}
           templateWording={templateWording}
+          templateWordingOverrides={templateWordingOverrides}
           onTemplateSelect={setSelectedTemplateId}
           onCoverChange={handleCoverChange}
           onThemeChange={setThemeSettings}
-          onTemplateWordingChange={setTemplateWording}
+          onTemplateWordingChange={handleTemplateWordingChange}
         />
       </div>
     </div>

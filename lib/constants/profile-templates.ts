@@ -8,12 +8,6 @@ export const profileTemplates = [
     proOnly: false,
   },
   {
-    id: 'event_poster',
-    name: 'Event Poster',
-    description: 'A more editorial layout for dated goals and events.',
-    proOnly: true,
-  },
-  {
     id: 'sport_running',
     name: 'Running',
     description: 'Pace, movement and race-day energy.',
