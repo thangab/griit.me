@@ -36,6 +36,12 @@ export interface ProfileBuilderActionState {
   message: string;
 }
 
+export interface UsernameAvailabilityResult {
+  available: boolean;
+  message: string;
+  username?: string;
+}
+
 const contentSaveSections = [
   'profile',
   'sports',
@@ -1138,6 +1144,56 @@ export async function saveProfileBuilderAction(
   return {
     success: true,
     message: 'Profile saved.',
+  };
+}
+
+export async function checkUsernameAvailabilityAction(
+  value: string,
+): Promise<UsernameAvailabilityResult> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      available: false,
+      message: 'Sign in to check username availability.',
+    };
+  }
+
+  const parsed = usernameSchema.safeParse({ username: value });
+  if (!parsed.success) {
+    return {
+      available: false,
+      message: parsed.error.issues[0]?.message ?? 'Invalid username.',
+    };
+  }
+
+  const { username } = parsed.data;
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: existingProfile, error } = await serviceSupabase
+    .from('public_profiles')
+    .select('user_id')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (error) {
+    return {
+      available: false,
+      message: 'Unable to check this username right now.',
+    };
+  }
+
+  const available =
+    !existingProfile || existingProfile.user_id === userData.user.id;
+
+  return {
+    available,
+    username,
+    message: available
+      ? existingProfile
+        ? 'This is your current username.'
+        : 'This username is available.'
+      : 'This username is already taken.',
   };
 }
 
