@@ -1,9 +1,5 @@
+import { GriitLoader } from '@/components/ui/griit-loader';
+
 export default function Loading() {
-  return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
-      <div className="text-muted-foreground text-sm font-medium">
-        Loading Griit…
-      </div>
-    </div>
-  );
+  return <GriitLoader label="Loading Griit" />;
 }

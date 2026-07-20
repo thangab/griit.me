@@ -1,9 +1,5 @@
+import { GriitLoader } from '@/components/ui/griit-loader';
+
 export default function DashboardLoading() {
-  return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
-      <div className="text-muted-foreground text-sm font-medium">
-        Loading your workspace…
-      </div>
-    </div>
-  );
+  return <GriitLoader compact label="Loading your workspace" />;
 }
