@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
+import { LinkBlock } from '@/components/profile/link-block';
 import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
@@ -107,6 +108,7 @@ function getContentBlocks(builder: ProfileBuilderState) {
           'sponsors',
           'media',
           'offer',
+          'link',
         ].includes(block.type),
     )
     .map((block) => ({ ...block }));
@@ -161,6 +163,10 @@ function SportContentBlock({
 
   if (block.type === 'offer') {
     return <OfferBlock key={blockKey} block={block} builder={builder} />;
+  }
+
+  if (block.type === 'link') {
+    return <LinkBlock key={blockKey} block={block} builder={builder} />;
   }
 
   if (block.type === 'gallery') {
@@ -307,6 +313,7 @@ export function SportProfileTemplate({
   const goalDescription =
     primaryGoal?.description || 'Training with intent. Competing with purpose.';
   const goalTarget = primaryGoal?.targetLabel || 'Target in progress';
+  const PrimaryGoalCard = primaryGoal?.url ? 'a' : 'div';
   const isPreview = variant !== 'full';
   const visual: SportVisual = {
     canvas: theme.palette.background,
@@ -360,6 +367,7 @@ export function SportProfileTemplate({
         description={goalDescription}
         target={goalTarget}
         title={goalTitle}
+        url={primaryGoal?.url}
         variant={variant}
         wording={text}
       />
@@ -449,11 +457,18 @@ export function SportProfileTemplate({
             ) : null}
           </div>
 
-          <div
+          <PrimaryGoalCard
             className={cn(
               theme.radiusClass,
               'relative overflow-hidden p-5 sm:p-6',
             )}
+            {...(primaryGoal?.url
+              ? {
+                  href: primaryGoal.url,
+                  rel: 'noreferrer',
+                  target: '_blank',
+                }
+              : {})}
             style={{
               backgroundColor: visual.accent,
               color: visual.accentText,
@@ -476,13 +491,16 @@ export function SportProfileTemplate({
                 text.targetLabel && 'mt-4',
               )}
             >
-              {goalTitle}
+              <span>{goalTitle}</span>
+              {primaryGoal?.url ? (
+                <ArrowUpRight className="ml-1 inline h-5 w-5" />
+              ) : null}
             </p>
             <p className="relative mt-5 flex items-center gap-2 text-sm font-bold">
               <Timer className="h-4 w-4" />
               {goalTarget}
             </p>
-          </div>
+          </PrimaryGoalCard>
         </div>
 
         {secondaryGoals.length ? (
@@ -493,36 +511,46 @@ export function SportProfileTemplate({
               marginTop: `${theme.blockGap}px`,
             }}
           >
-            {secondaryGoals.map((goal) => (
-              <div
-                key={`${goal.title}-${goal.sortOrder}`}
-                className={cn(theme.radiusClass, 'border p-5')}
-                style={{
-                  backgroundColor: visual.surface,
-                  color: visual.text,
-                  ...theme.blockStyle,
-                }}
-              >
-                {text.secondaryGoalLabel ? (
-                  <p className="text-xs font-black tracking-[0.16em] uppercase opacity-50">
-                    {text.secondaryGoalLabel}
-                  </p>
-                ) : null}
-                <p
-                  className={cn(
-                    'text-lg font-bold',
-                    text.secondaryGoalLabel && 'mt-3',
-                  )}
+            {secondaryGoals.map((goal) => {
+              const GoalCard = goal.url ? 'a' : 'div';
+
+              return (
+                <GoalCard
+                  key={`${goal.title}-${goal.sortOrder}`}
+                  className={cn(theme.radiusClass, 'border p-5')}
+                  {...(goal.url
+                    ? { href: goal.url, rel: 'noreferrer', target: '_blank' }
+                    : {})}
+                  style={{
+                    backgroundColor: visual.surface,
+                    color: visual.text,
+                    ...theme.blockStyle,
+                  }}
                 >
-                  {goal.title}
-                </p>
-                {goal.description ? (
-                  <p className="mt-2 text-sm leading-6 opacity-70">
-                    {goal.description}
+                  {text.secondaryGoalLabel ? (
+                    <p className="text-xs font-black tracking-[0.16em] uppercase opacity-50">
+                      {text.secondaryGoalLabel}
+                    </p>
+                  ) : null}
+                  <p
+                    className={cn(
+                      'text-lg font-bold',
+                      text.secondaryGoalLabel && 'mt-3',
+                    )}
+                  >
+                    <span>{goal.title}</span>
+                    {goal.url ? (
+                      <ArrowUpRight className="ml-1 inline h-4 w-4" />
+                    ) : null}
                   </p>
-                ) : null}
-              </div>
-            ))}
+                  {goal.description ? (
+                    <p className="mt-2 text-sm leading-6 opacity-70">
+                      {goal.description}
+                    </p>
+                  ) : null}
+                </GoalCard>
+              );
+            })}
           </div>
         ) : null}
 

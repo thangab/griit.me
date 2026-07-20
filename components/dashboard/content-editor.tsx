@@ -13,10 +13,10 @@ import {
   Flag,
   Handshake,
   ImageIcon,
+  Link2,
   Loader2,
   Lock,
   Plus,
-  Save,
   Share2,
   ShoppingBag,
   Target,
@@ -31,7 +31,6 @@ import {
   saveProfileBuilderAction,
   type ProfileBuilderActionState,
 } from '@/lib/actions/profile-builder';
-import { Button } from '@/components/ui/button';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { socialPlatforms } from '@/lib/constants/social-platforms';
@@ -43,6 +42,31 @@ const initialState: ProfileBuilderActionState = {
   success: false,
   message: '',
 };
+
+export type AutosaveStatus = 'idle' | 'waiting' | 'saving' | 'saved' | 'error';
+
+function getFormFingerprint(form: HTMLFormElement) {
+  return JSON.stringify(
+    Array.from(new FormData(form).entries()).map(([key, value]) => [
+      key,
+      typeof value === 'string'
+        ? value
+        : `${value.name}:${value.size}:${value.lastModified}`,
+    ]),
+  );
+}
+
+function getAutosaveDelay(target: EventTarget | null) {
+  if (
+    target instanceof HTMLSelectElement ||
+    (target instanceof HTMLInputElement &&
+      ['checkbox', 'radio', 'date'].includes(target.type))
+  ) {
+    return 120;
+  }
+
+  return 1200;
+}
 
 function EditorSection({
   title,
@@ -184,6 +208,23 @@ function GoalEditor({
         />
       </label>
 
+      <label className="block space-y-2">
+        <span className="flex items-center gap-2 text-xs font-semibold">
+          Goal link
+          <span className="text-muted-foreground font-normal">Optional</span>
+        </span>
+        <input
+          className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+          name={`goalUrl${number}`}
+          defaultValue={goal?.url ?? ''}
+          placeholder="https://example.com/my-goal"
+          type="url"
+        />
+        <span className="text-muted-foreground block text-xs">
+          Link to a race, fundraiser, event, or more details.
+        </span>
+      </label>
+
       <div className="border-border bg-muted/25 rounded-lg border p-3">
         <label className="block space-y-2">
           <span className="flex items-center gap-2 text-xs font-semibold">
@@ -292,7 +333,13 @@ function SportsField({
 }
 
 type ContentBlockType =
-  'gallery' | 'achievements' | 'activities' | 'sponsors' | 'media' | 'offer';
+  | 'gallery'
+  | 'achievements'
+  | 'activities'
+  | 'sponsors'
+  | 'media'
+  | 'offer'
+  | 'link';
 
 type ActiveContentBlock = {
   key: string;
@@ -437,6 +484,12 @@ function SocialLinksEditor({
 }
 
 const availableContentBlocks = [
+  {
+    type: 'link' as const,
+    label: 'Link / URL',
+    description: 'Send visitors to a website, event, article, or resource.',
+    icon: Link2,
+  },
   {
     type: 'offer' as const,
     label: 'Offer / product',
@@ -790,11 +843,15 @@ function ContentBlocksEditor({
   );
   const mediaBlocks = builder.blocks.filter((block) => block.type === 'media');
   const offerBlocks = builder.blocks.filter((block) => block.type === 'offer');
+  const linkBlocks = builder.blocks.filter((block) => block.type === 'link');
   const [nextMediaSlot, setNextMediaSlot] = useState(
     Math.max(1, mediaBlocks.length + 1),
   );
   const [nextOfferSlot, setNextOfferSlot] = useState(
     Math.max(1, offerBlocks.length + 1),
+  );
+  const [nextLinkSlot, setNextLinkSlot] = useState(
+    Math.max(1, linkBlocks.length + 1),
   );
   const [activeBlocks, setActiveBlocks] = useState<ActiveContentBlock[]>(() => {
     const blocksWithContent = new Set<ContentBlockType>();
@@ -806,6 +863,7 @@ function ContentBlocksEditor({
 
     let mediaIndex = 0;
     let offerIndex = 0;
+    let linkIndex = 0;
     const orderedBlocks: ActiveContentBlock[] = builder.blocks
       .filter((block) =>
         availableContentBlocks.some((item) => item.type === block.type),
@@ -828,6 +886,11 @@ function ContentBlocksEditor({
           return { key: `offer-${offerIndex}`, type };
         }
 
+        if (type === 'link') {
+          linkIndex += 1;
+          return { key: `link-${linkIndex}`, type };
+        }
+
         return { key: type, type };
       });
 
@@ -845,6 +908,7 @@ function ContentBlocksEditor({
     (block) =>
       block.type === 'media' ||
       block.type === 'offer' ||
+      block.type === 'link' ||
       !activeBlocks.some((active) => active.type === block.type),
   );
 
@@ -1394,6 +1458,52 @@ function ContentBlocksEditor({
                           Supports YouTube, Vimeo, and TikTok video links.
                         </p>
                       </>
+                    ) : type === 'link' ? (
+                      <>
+                        <Field
+                          label="URL"
+                          name={`linkUrl${key.replace('link-', '')}`}
+                          defaultValue={
+                            typeof linkBlocks[
+                              Number(key.replace('link-', '')) - 1
+                            ]?.content.url === 'string'
+                              ? (linkBlocks[
+                                  Number(key.replace('link-', '')) - 1
+                                ].content.url as string)
+                              : ''
+                          }
+                          placeholder="https://example.com"
+                          type="url"
+                        />
+                        <Field
+                          label="Title (optional)"
+                          name={`linkTitle${key.replace('link-', '')}`}
+                          defaultValue={
+                            typeof linkBlocks[
+                              Number(key.replace('link-', '')) - 1
+                            ]?.content.title === 'string'
+                              ? (linkBlocks[
+                                  Number(key.replace('link-', '')) - 1
+                                ].content.title as string)
+                              : ''
+                          }
+                          placeholder="Discover my next event"
+                        />
+                        <TextareaField
+                          label="Description (optional)"
+                          name={`linkDescription${key.replace('link-', '')}`}
+                          defaultValue={
+                            typeof linkBlocks[
+                              Number(key.replace('link-', '')) - 1
+                            ]?.content.description === 'string'
+                              ? (linkBlocks[
+                                  Number(key.replace('link-', '')) - 1
+                                ].content.description as string)
+                              : ''
+                          }
+                          placeholder="Add a little context about this link."
+                        />
+                      </>
                     ) : (
                       <>
                         <Field
@@ -1483,6 +1593,15 @@ function ContentBlocksEditor({
                             ]);
                             setNextOfferSlot(slot + 1);
                             setPendingFocusKey(key);
+                          } else if (block.type === 'link') {
+                            const slot = nextLinkSlot;
+                            const key = `link-${slot}`;
+                            setActiveBlocks((current) => [
+                              ...current,
+                              { key, type: 'link' },
+                            ]);
+                            setNextLinkSlot(slot + 1);
+                            setPendingFocusKey(key);
                           } else {
                             setActiveBlocks((current) => [
                               ...current,
@@ -1522,10 +1641,12 @@ export function ContentEditor({
   builder,
   subscription,
   onPreviewChange,
+  onAutosaveStatusChange,
 }: {
   builder: ProfileBuilderState;
   subscription: SubscriptionState;
   onPreviewChange?: (form: HTMLFormElement) => void;
+  onAutosaveStatusChange?: (status: AutosaveStatus, message?: string) => void;
 }) {
   const [state, formAction, pending] = useActionState(
     saveProfileBuilderAction,
@@ -1537,19 +1658,99 @@ export function ContentEditor({
     subscription.isActive ? Math.max(1, goals.length) : 1,
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const autosaveTimerRef = useRef<number | null>(null);
+  const pendingRef = useRef(pending);
+  const dirtyRef = useRef(false);
+  const lastSavedFingerprintRef = useRef('');
+  const inFlightFingerprintRef = useRef<string | null>(null);
+
+  const submitWhenReady = () => {
+    if (pendingRef.current) {
+      autosaveTimerRef.current = window.setTimeout(submitWhenReady, 250);
+      return;
+    }
+
+    if (!dirtyRef.current) return;
+
+    const form = formRef.current;
+    if (!form) return;
+
+    const fingerprint = getFormFingerprint(form);
+    if (fingerprint === lastSavedFingerprintRef.current) {
+      dirtyRef.current = false;
+      onAutosaveStatusChange?.('saved');
+      return;
+    }
+
+    dirtyRef.current = false;
+    inFlightFingerprintRef.current = fingerprint;
+    form.requestSubmit();
+  };
+  const scheduleAutosave = (delay = 1200) => {
+    if (autosaveTimerRef.current) {
+      window.clearTimeout(autosaveTimerRef.current);
+    }
+
+    dirtyRef.current = true;
+    onAutosaveStatusChange?.('waiting');
+    autosaveTimerRef.current = window.setTimeout(submitWhenReady, delay);
+  };
   const schedulePreviewUpdate = () => {
     window.requestAnimationFrame(() => {
       if (formRef.current) {
         onPreviewChange?.(formRef.current);
+        scheduleAutosave(120);
       }
     });
   };
+
+  useEffect(() => {
+    if (formRef.current) {
+      lastSavedFingerprintRef.current = getFormFingerprint(formRef.current);
+    }
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (autosaveTimerRef.current) {
+        window.clearTimeout(autosaveTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    pendingRef.current = pending;
+  }, [pending]);
+
+  useEffect(() => {
+    if (pending) onAutosaveStatusChange?.('saving');
+  }, [onAutosaveStatusChange, pending]);
+
+  useEffect(() => {
+    if (pending || !state.message) return;
+
+    if (state.success && inFlightFingerprintRef.current) {
+      lastSavedFingerprintRef.current = inFlightFingerprintRef.current;
+    }
+    inFlightFingerprintRef.current = null;
+
+    if (dirtyRef.current) {
+      onAutosaveStatusChange?.('waiting');
+      return;
+    }
+
+    onAutosaveStatusChange?.(state.success ? 'saved' : 'error', state.message);
+  }, [onAutosaveStatusChange, pending, state]);
 
   return (
     <form
       action={formAction}
       className="space-y-4"
-      onChange={(event) => onPreviewChange?.(event.currentTarget)}
+      onChange={(event) => {
+        onPreviewChange?.(event.currentTarget);
+        scheduleAutosave(getAutosaveDelay(event.target));
+      }}
       ref={formRef}
     >
       <input
@@ -1558,30 +1759,14 @@ export function ContentEditor({
         value={profile.isPublished ? 'on' : ''}
       />
       <input name="coverUrl" type="hidden" value={profile.coverUrl} />
-      <div className="flex items-center justify-between gap-3">
+      <div>
         <div>
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
             Content
           </p>
           <p className="mt-2 font-semibold">Profile details</p>
         </div>
-        <Button size="sm" type="submit" disabled={pending}>
-          <Save className="h-4 w-4" />
-          {pending ? 'Saving' : 'Save'}
-        </Button>
       </div>
-
-      {state.message ? (
-        <p
-          className={`rounded-md px-3 py-2 text-sm ${
-            state.success
-              ? 'bg-emerald-50 text-emerald-900'
-              : 'bg-red-50 text-red-900'
-          }`}
-        >
-          {state.message}
-        </p>
-      ) : null}
 
       <EditorSection
         title="Athlete identity"
@@ -1644,9 +1829,10 @@ export function ContentEditor({
             <button
               className="border-primary/25 text-primary hover:bg-primary/5 flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed text-sm font-semibold transition-colors"
               type="button"
-              onClick={() =>
-                setGoalCount((current) => Math.min(3, current + 1))
-              }
+              onClick={() => {
+                setGoalCount((current) => Math.min(3, current + 1));
+                schedulePreviewUpdate();
+              }}
             >
               <Plus className="h-4 w-4" />
               Add another goal

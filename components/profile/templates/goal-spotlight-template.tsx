@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react';
+import { ArrowUpRight, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
@@ -8,6 +8,7 @@ import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
+import { LinkBlock } from '@/components/profile/link-block';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { resolveTemplateWording } from '@/lib/constants/template-wording';
 
@@ -56,6 +57,7 @@ export function GoalSpotlightTemplate({
         'sponsors',
         'media',
         'offer',
+        'link',
       ].includes(block.type),
     )
     .filter((block) => block.isEnabled);
@@ -92,6 +94,7 @@ export function GoalSpotlightTemplate({
         description={goalDescription}
         target={goalTarget}
         title={goalTitle}
+        url={primaryGoal?.url}
         variant={variant}
         wording={wording}
       />
@@ -188,47 +191,57 @@ export function GoalSpotlightTemplate({
 
           {secondaryGoals.length ? (
             <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
-              {secondaryGoals.map((goal) => (
-                <div
-                  key={`${goal.title}-${goal.sortOrder}`}
-                  className={cn(theme.radiusClass, 'p-5 shadow-sm')}
-                  style={{
-                    backgroundColor: theme.palette.surface,
-                    color: theme.palette.text,
-                    ...theme.blockStyle,
-                  }}
-                >
-                  {wording.secondaryGoalLabel ? (
+              {secondaryGoals.map((goal) => {
+                const GoalCard = goal.url ? 'a' : 'div';
+
+                return (
+                  <GoalCard
+                    key={`${goal.title}-${goal.sortOrder}`}
+                    className={cn(theme.radiusClass, 'p-5 shadow-sm')}
+                    {...(goal.url
+                      ? { href: goal.url, rel: 'noreferrer', target: '_blank' }
+                      : {})}
+                    style={{
+                      backgroundColor: theme.palette.surface,
+                      color: theme.palette.text,
+                      ...theme.blockStyle,
+                    }}
+                  >
+                    {wording.secondaryGoalLabel ? (
+                      <p
+                        className="text-xs font-semibold tracking-[0.2em] uppercase"
+                        style={{ color: theme.palette.description }}
+                      >
+                        {wording.secondaryGoalLabel}
+                      </p>
+                    ) : null}
                     <p
-                      className="text-xs font-semibold tracking-[0.2em] uppercase"
+                      className={cn(
+                        'text-lg font-semibold',
+                        wording.secondaryGoalLabel && 'mt-3',
+                      )}
+                      style={{ color: theme.palette.blockTitle }}
+                    >
+                      <span>{goal.title}</span>
+                      {goal.url ? (
+                        <ArrowUpRight className="ml-1 inline h-4 w-4" />
+                      ) : null}
+                    </p>
+                    <p
+                      className="mt-2 text-sm leading-6"
                       style={{ color: theme.palette.description }}
                     >
-                      {wording.secondaryGoalLabel}
+                      {goal.description}
                     </p>
-                  ) : null}
-                  <p
-                    className={cn(
-                      'text-lg font-semibold',
-                      wording.secondaryGoalLabel && 'mt-3',
-                    )}
-                    style={{ color: theme.palette.blockTitle }}
-                  >
-                    {goal.title}
-                  </p>
-                  <p
-                    className="mt-2 text-sm leading-6"
-                    style={{ color: theme.palette.description }}
-                  >
-                    {goal.description}
-                  </p>
-                  <p
-                    className="mt-4 text-sm font-medium"
-                    style={{ color: theme.palette.mutedDescription }}
-                  >
-                    {goal.targetLabel}
-                  </p>
-                </div>
-              ))}
+                    <p
+                      className="mt-4 text-sm font-medium"
+                      style={{ color: theme.palette.mutedDescription }}
+                    >
+                      {goal.targetLabel}
+                    </p>
+                  </GoalCard>
+                );
+              })}
             </div>
           ) : null}
 
@@ -348,6 +361,12 @@ export function GoalSpotlightTemplate({
             if (type === 'offer') {
               return (
                 <OfferBlock key={blockKey} block={block} builder={builder} />
+              );
+            }
+
+            if (type === 'link') {
+              return (
+                <LinkBlock key={blockKey} block={block} builder={builder} />
               );
             }
 

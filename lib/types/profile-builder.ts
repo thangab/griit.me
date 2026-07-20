@@ -76,6 +76,7 @@ export interface BuilderGoalItem {
   id: number | null;
   title: string;
   description: string;
+  url: string;
   targetDate: string;
   targetLabel: string;
   status: string;

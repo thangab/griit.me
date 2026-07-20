@@ -1,23 +1,34 @@
 'use client';
 
-import { useActionState, useState, useTransition } from 'react';
 import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
+import {
+  Check,
   ChevronDown,
+  CircleAlert,
   FileText,
   LayoutTemplate,
+  LoaderCircle,
   Lock,
   MonitorSmartphone,
   Palette,
-  Save,
   SlidersHorizontal,
   Type as TypeIcon,
   type LucideIcon,
 } from 'lucide-react';
-import { ContentEditor } from '@/components/dashboard/content-editor';
+import {
+  ContentEditor,
+  type AutosaveStatus,
+} from '@/components/dashboard/content-editor';
 import { decorativeIconOptions } from '@/components/profile/decorative-icon';
 import { DesignPreview } from '@/components/dashboard/design-preview';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
-import { Button } from '@/components/ui/button';
 import {
   setProfilePublishedAction,
   updateProfileTemplateAction,
@@ -56,6 +67,8 @@ const mobilePanels = [
 ] as const;
 
 type MobilePanel = (typeof mobilePanels)[number]['id'];
+type AutosaveSource = 'content' | 'styles';
+type AutosaveState = { status: AutosaveStatus; message?: string };
 
 const headerLayoutLabels = {
   centered: 'Centered',
@@ -162,6 +175,28 @@ const initialTemplateState: ProfileBuilderActionState = {
   message: '',
 };
 
+function getFormFingerprint(form: HTMLFormElement) {
+  return JSON.stringify(
+    Array.from(new FormData(form).entries()).map(([key, value]) => [
+      key,
+      typeof value === 'string'
+        ? value
+        : `${value.name}:${value.size}:${value.lastModified}`,
+    ]),
+  );
+}
+
+function getAutosaveDelay(target: EventTarget | null) {
+  if (target instanceof HTMLInputElement) {
+    if (target.type === 'range') return 1200;
+    if (['checkbox', 'radio'].includes(target.type)) return 120;
+    if (target.type === 'color') return 400;
+  }
+
+  if (target instanceof HTMLSelectElement) return 120;
+  return 1200;
+}
+
 function formatPreviewDate(value: string) {
   if (!value) {
     return 'No target date';
@@ -199,6 +234,7 @@ function createLivePreviewState(
         id: builder.goals[index]?.id ?? null,
         title,
         description: getValue(`goalDescription${number}`),
+        url: getValue(`goalUrl${number}`),
         targetDate,
         targetLabel: formatPreviewDate(targetDate),
         status: getValue(`goalStatus${number}`) || 'planned',
@@ -255,6 +291,7 @@ function createLivePreviewState(
     'sponsors',
     'media',
     'offer',
+    'link',
   ];
   const contentBlockOrder = data
     .getAll('contentBlockOrder')
@@ -263,7 +300,8 @@ function createLivePreviewState(
       (key) =>
         contentBlockTypes.includes(key) ||
         /^media-\d+$/.test(key) ||
-        /^offer-\d+$/.test(key),
+        /^offer-\d+$/.test(key) ||
+        /^link-\d+$/.test(key),
     );
   const baseBlocks = builder.blocks.filter(
     (block) => !contentBlockTypes.includes(block.type),
@@ -273,6 +311,9 @@ function createLivePreviewState(
   );
   const existingOfferBlocks = builder.blocks.filter(
     (block) => block.type === 'offer',
+  );
+  const existingLinkBlocks = builder.blocks.filter(
+    (block) => block.type === 'link',
   );
   const blocks = [
     ...baseBlocks,
@@ -315,6 +356,25 @@ function createLivePreviewState(
             ctaLabel: getValue(`offerCtaLabel${slot}`) || 'View offer',
             displaySize: getValue(`offerDisplaySize${slot}`) || 'medium',
             isAffiliate: data.get(`offerIsAffiliate${slot}`) === 'on',
+          },
+          sortOrder: index + 2,
+          isEnabled: true,
+        };
+      }
+
+      if (blockKey.startsWith('link-')) {
+        const slot = Number(blockKey.replace('link-', ''));
+        const existingBlock = existingLinkBlocks[slot - 1];
+
+        return {
+          id: existingBlock?.id ?? null,
+          type: 'link',
+          title: getValue(`linkTitle${slot}`) || 'Link',
+          content: {
+            builderManaged: true,
+            url: getValue(`linkUrl${slot}`),
+            title: getValue(`linkTitle${slot}`),
+            description: getValue(`linkDescription${slot}`),
           },
           sortOrder: index + 2,
           isEnabled: true,
@@ -440,10 +500,12 @@ function ContentPanel({
   builder,
   subscription,
   onPreviewChange,
+  onAutosaveStatusChange,
 }: {
   builder: ProfileBuilderState;
   subscription: SubscriptionState;
   onPreviewChange: (form: HTMLFormElement) => void;
+  onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
 }) {
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 rounded-xl border xl:h-full xl:overflow-y-auto xl:[contain:size]">
@@ -452,6 +514,7 @@ function ContentPanel({
           builder={builder}
           subscription={subscription}
           onPreviewChange={onPreviewChange}
+          onAutosaveStatusChange={onAutosaveStatusChange}
         />
       </div>
     </aside>
@@ -577,10 +640,12 @@ function AppearanceRange({
   label,
   value,
   onValueChange,
+  onCommit,
 }: {
   label: string;
   value: number;
   onValueChange: (value: number) => void;
+  onCommit: () => void;
 }) {
   return (
     <label className="border-border bg-muted/30 flex items-center gap-3 rounded-lg border px-3 py-2.5">
@@ -593,6 +658,8 @@ function AppearanceRange({
         type="range"
         value={value}
         onChange={(event) => onValueChange(Number(event.target.value))}
+        onKeyUp={onCommit}
+        onPointerUp={onCommit}
       />
       <span className="bg-background text-muted-foreground w-12 rounded-md px-1.5 py-1 text-center font-mono text-[11px]">
         {Math.round(value)}%
@@ -612,6 +679,7 @@ function TemplateSelector({
   onCoverChange,
   onThemeChange,
   onTemplateWordingChange,
+  onAutosaveStatusChange,
 }: {
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
@@ -623,65 +691,129 @@ function TemplateSelector({
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
   onTemplateWordingChange: (key: keyof TemplateWording, value: string) => void;
+  onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
 }) {
   const [state, formAction, pending] = useActionState(
     updateProfileTemplateAction,
     initialTemplateState,
   );
-  const [feedbackDismissed, setFeedbackDismissed] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const autosaveTimerRef = useRef<number | null>(null);
+  const pendingRef = useRef(pending);
+  const dirtyRef = useRef(false);
+  const lastSavedFingerprintRef = useRef('');
+  const inFlightFingerprintRef = useRef<string | null>(null);
+
+  const submitWhenReady = () => {
+    if (pendingRef.current) {
+      autosaveTimerRef.current = window.setTimeout(submitWhenReady, 250);
+      return;
+    }
+
+    if (!dirtyRef.current) return;
+
+    const form = formRef.current;
+    if (!form) return;
+
+    const fingerprint = getFormFingerprint(form);
+    if (fingerprint === lastSavedFingerprintRef.current) {
+      dirtyRef.current = false;
+      onAutosaveStatusChange('saved');
+      return;
+    }
+
+    dirtyRef.current = false;
+    inFlightFingerprintRef.current = fingerprint;
+    form.requestSubmit();
+  };
+  const scheduleAutosave = (delay = 1200) => {
+    if (autosaveTimerRef.current) {
+      window.clearTimeout(autosaveTimerRef.current);
+    }
+
+    dirtyRef.current = true;
+    onAutosaveStatusChange('waiting');
+    autosaveTimerRef.current = window.setTimeout(submitWhenReady, delay);
+  };
+
+  useEffect(() => {
+    if (formRef.current) {
+      lastSavedFingerprintRef.current = getFormFingerprint(formRef.current);
+    }
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (autosaveTimerRef.current) {
+        window.clearTimeout(autosaveTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    pendingRef.current = pending;
+  }, [pending]);
+
+  useEffect(() => {
+    if (pending) onAutosaveStatusChange('saving');
+  }, [onAutosaveStatusChange, pending]);
+
+  useEffect(() => {
+    if (pending || !state.message) return;
+
+    if (state.success && inFlightFingerprintRef.current) {
+      lastSavedFingerprintRef.current = inFlightFingerprintRef.current;
+    }
+    inFlightFingerprintRef.current = null;
+
+    if (dirtyRef.current) {
+      onAutosaveStatusChange('waiting');
+      return;
+    }
+
+    onAutosaveStatusChange(state.success ? 'saved' : 'error', state.message);
+  }, [onAutosaveStatusChange, pending, state]);
 
   const handleTemplateSelect = (templateId: ProfileTemplateId) => {
-    setFeedbackDismissed(true);
     onThemeChange(getTemplateThemePreset(templateId));
     onTemplateSelect(templateId);
+    scheduleAutosave(120);
   };
   const handleCoverChange = (coverUrl: string) => {
-    setFeedbackDismissed(true);
     onCoverChange(coverUrl);
+    scheduleAutosave(120);
   };
-  const handleThemeChange = (settings: ProfileThemeSettings) => {
-    setFeedbackDismissed(true);
+  const handleThemeChange = (
+    settings: ProfileThemeSettings,
+    delay: number | null = 120,
+  ) => {
     onThemeChange(settings);
+    if (delay !== null) scheduleAutosave(delay);
   };
   const handleTemplateWordingChange = (
     key: keyof TemplateWording,
     value: string,
   ) => {
-    setFeedbackDismissed(true);
     onTemplateWordingChange(key, value);
+    scheduleAutosave(1200);
   };
 
   return (
     <form
       action={formAction}
       className="space-y-4"
-      onSubmit={() => setFeedbackDismissed(false)}
+      ref={formRef}
+      onChange={(event) => scheduleAutosave(getAutosaveDelay(event.target))}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div>
         <div>
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
             Styles
           </p>
           <p className="mt-2 font-semibold">Visual settings</p>
         </div>
-        <Button size="sm" type="submit" disabled={pending}>
-          <Save className="h-4 w-4" />
-          {pending ? 'Saving' : 'Save'}
-        </Button>
       </div>
-
-      {!feedbackDismissed && !pending && state.message ? (
-        <p
-          className={cn(
-            'rounded-md px-3 py-2 text-sm',
-            state.success
-              ? 'bg-emerald-50 text-emerald-900'
-              : 'bg-red-50 text-red-900',
-          )}
-        >
-          {state.message}
-        </p>
-      ) : null}
 
       <input
         name="colorPreset"
@@ -991,11 +1123,16 @@ function TemplateSelector({
               type="range"
               value={themeSettings.headerAvatarSize}
               onChange={(event) =>
-                handleThemeChange({
-                  ...themeSettings,
-                  headerAvatarSize: Number(event.target.value),
-                })
+                handleThemeChange(
+                  {
+                    ...themeSettings,
+                    headerAvatarSize: Number(event.target.value),
+                  },
+                  null,
+                )
               }
+              onKeyUp={() => scheduleAutosave(120)}
+              onPointerUp={() => scheduleAutosave(120)}
             />
           </label>
 
@@ -1440,15 +1577,17 @@ function TemplateSelector({
             label="Block corner"
             value={themeSettings.blockCorner}
             onValueChange={(blockCorner) =>
-              handleThemeChange({ ...themeSettings, blockCorner })
+              handleThemeChange({ ...themeSettings, blockCorner }, null)
             }
+            onCommit={() => scheduleAutosave(120)}
           />
           <AppearanceRange
             label="Block border"
             value={themeSettings.blockBorder}
             onValueChange={(blockBorder) =>
-              handleThemeChange({ ...themeSettings, blockBorder })
+              handleThemeChange({ ...themeSettings, blockBorder }, null)
             }
+            onCommit={() => scheduleAutosave(120)}
           />
           <label className="border-border bg-muted/30 flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5">
             <span className="text-xs font-medium">Block border color</span>
@@ -1474,8 +1613,9 @@ function TemplateSelector({
             label="Block shadow"
             value={themeSettings.blockShadow}
             onValueChange={(blockShadow) =>
-              handleThemeChange({ ...themeSettings, blockShadow })
+              handleThemeChange({ ...themeSettings, blockShadow }, null)
             }
+            onCommit={() => scheduleAutosave(120)}
           />
           {themeSettings.blockShadow > 0 ? (
             <div className="border-border grid grid-cols-2 overflow-hidden rounded-lg border">
@@ -1502,8 +1642,9 @@ function TemplateSelector({
             label="Block spacing"
             value={themeSettings.blockSpacing}
             onValueChange={(blockSpacing) =>
-              handleThemeChange({ ...themeSettings, blockSpacing })
+              handleThemeChange({ ...themeSettings, blockSpacing }, null)
             }
+            onCommit={() => scheduleAutosave(120)}
           />
 
           <div className="border-border border-t pt-3">
@@ -1546,6 +1687,7 @@ function StylesPanel({
   onCoverChange,
   onThemeChange,
   onTemplateWordingChange,
+  onAutosaveStatusChange,
 }: {
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
@@ -1557,6 +1699,7 @@ function StylesPanel({
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
   onTemplateWordingChange: (key: keyof TemplateWording, value: string) => void;
+  onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
 }) {
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:[contain:size]">
@@ -1571,6 +1714,7 @@ function StylesPanel({
         onCoverChange={onCoverChange}
         onThemeChange={onThemeChange}
         onTemplateWordingChange={onTemplateWordingChange}
+        onAutosaveStatusChange={onAutosaveStatusChange}
       />
 
       <div className="border-border bg-card rounded-xl border p-4">
@@ -1619,6 +1763,57 @@ function MobilePanelBar({
   );
 }
 
+function AutosaveIndicator({
+  states,
+}: {
+  states: Record<AutosaveSource, AutosaveState>;
+}) {
+  const values = Object.values(states);
+  const error = values.find((state) => state.status === 'error');
+  const status: AutosaveStatus = values.some(
+    (state) => state.status === 'saving',
+  )
+    ? 'saving'
+    : values.some((state) => state.status === 'waiting')
+      ? 'waiting'
+      : error
+        ? 'error'
+        : values.some((state) => state.status === 'saved')
+          ? 'saved'
+          : 'idle';
+
+  if (status === 'idle') return null;
+
+  return (
+    <div
+      aria-live="polite"
+      className={cn(
+        'bg-background fixed right-4 bottom-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium shadow-lg',
+        status === 'error'
+          ? 'border-red-200 text-red-700'
+          : 'border-border text-muted-foreground',
+      )}
+    >
+      {status === 'saving' || status === 'waiting' ? (
+        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+      ) : status === 'error' ? (
+        <CircleAlert className="h-3.5 w-3.5" />
+      ) : (
+        <Check className="h-3.5 w-3.5 text-emerald-600" />
+      )}
+      <span className="truncate">
+        {status === 'waiting'
+          ? 'Unsaved changes…'
+          : status === 'saving'
+            ? 'Saving…'
+            : status === 'error'
+              ? error?.message || 'Save failed. Edit to retry.'
+              : 'Saved'}
+      </span>
+    </div>
+  );
+}
+
 export function DesignWorkspace({
   builder,
   subscription,
@@ -1629,6 +1824,12 @@ export function DesignWorkspace({
   const [activePanel, setActivePanel] = useState<MobilePanel>('preview');
   const [publishPending, startPublishTransition] = useTransition();
   const [publishMessage, setPublishMessage] = useState('');
+  const [autosaveStates, setAutosaveStates] = useState<
+    Record<AutosaveSource, AutosaveState>
+  >({
+    content: { status: 'idle' },
+    styles: { status: 'idle' },
+  });
   const [draftBuilder, setDraftBuilder] =
     useState<ProfileBuilderState>(builder);
   const [selectedTemplateId, setSelectedTemplateId] =
@@ -1713,28 +1914,63 @@ export function DesignWorkspace({
       [key]: value,
     }));
   };
+  const handleContentAutosaveStatusChange = useCallback(
+    (status: AutosaveStatus, message?: string) => {
+      setAutosaveStates((current) => ({
+        ...current,
+        content: { status, message },
+      }));
+    },
+    [],
+  );
+  const handleStylesAutosaveStatusChange = useCallback(
+    (status: AutosaveStatus, message?: string) => {
+      setAutosaveStates((current) => ({
+        ...current,
+        styles: { status, message },
+      }));
+    },
+    [],
+  );
 
   return (
     <div className="min-h-full xl:h-full xl:min-h-0 xl:flex-1 xl:overflow-hidden">
+      <AutosaveIndicator states={autosaveStates} />
       <MobilePanelBar activePanel={activePanel} onSelect={setActivePanel} />
 
-      <div className="xl:hidden">
-        {activePanel === 'content' ? (
+      <div className="min-w-0 gap-4 xl:grid xl:h-full xl:max-h-full xl:min-h-0 xl:grid-cols-[340px_minmax(0,1fr)_340px] xl:grid-rows-[minmax(0,1fr)] xl:overflow-hidden">
+        <div
+          className={cn(
+            'min-h-0 min-w-0 xl:block xl:h-full',
+            activePanel !== 'content' && 'hidden',
+          )}
+        >
           <ContentPanel
             builder={draftBuilder}
             subscription={subscription}
             onPreviewChange={handlePreviewChange}
+            onAutosaveStatusChange={handleContentAutosaveStatusChange}
           />
-        ) : null}
-        {activePanel === 'preview' ? (
+        </div>
+        <div
+          className={cn(
+            'min-h-0 min-w-0 xl:block xl:h-full',
+            activePanel !== 'preview' && 'hidden',
+          )}
+        >
           <PreviewPanel
             builder={previewBuilder}
             onPublishChange={handlePublishChange}
             publishMessage={publishMessage}
             publishPending={publishPending}
           />
-        ) : null}
-        {activePanel === 'styles' ? (
+        </div>
+        <div
+          className={cn(
+            'min-h-0 min-w-0 xl:block xl:h-full',
+            activePanel !== 'styles' && 'hidden',
+          )}
+        >
           <StylesPanel
             subscription={subscription}
             selectedTemplateId={selectedTemplateId}
@@ -1746,34 +1982,9 @@ export function DesignWorkspace({
             onCoverChange={handleCoverChange}
             onThemeChange={setThemeSettings}
             onTemplateWordingChange={handleTemplateWordingChange}
+            onAutosaveStatusChange={handleStylesAutosaveStatusChange}
           />
-        ) : null}
-      </div>
-
-      <div className="hidden min-w-0 gap-4 xl:grid xl:h-full xl:max-h-full xl:min-h-0 xl:grid-cols-[340px_minmax(0,1fr)_340px] xl:grid-rows-[minmax(0,1fr)] xl:overflow-hidden">
-        <ContentPanel
-          builder={draftBuilder}
-          subscription={subscription}
-          onPreviewChange={handlePreviewChange}
-        />
-        <PreviewPanel
-          builder={previewBuilder}
-          onPublishChange={handlePublishChange}
-          publishMessage={publishMessage}
-          publishPending={publishPending}
-        />
-        <StylesPanel
-          subscription={subscription}
-          selectedTemplateId={selectedTemplateId}
-          coverUrl={draftBuilder.profile.coverUrl}
-          themeSettings={themeSettings}
-          templateWording={templateWording}
-          templateWordingOverrides={templateWordingOverrides}
-          onTemplateSelect={setSelectedTemplateId}
-          onCoverChange={handleCoverChange}
-          onThemeChange={setThemeSettings}
-          onTemplateWordingChange={handleTemplateWordingChange}
-        />
+        </div>
       </div>
     </div>
   );

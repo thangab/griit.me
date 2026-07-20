@@ -101,7 +101,7 @@ const builderSchema = z.object({
       z
         .string()
         .regex(
-          /^(gallery|achievements|activities|sponsors|media-\d+|offer-\d+)$/,
+          /^(gallery|achievements|activities|sponsors|media-\d+|offer-\d+|link-\d+)$/,
           'Invalid content block.',
         ),
     )
@@ -137,6 +137,16 @@ const builderSchema = z.object({
         ctaLabel: z.string().trim().max(60),
         displaySize: z.enum(['small', 'medium', 'large']),
         isAffiliate: z.boolean(),
+      }),
+    )
+    .max(50),
+  linkBlocks: z
+    .array(
+      z.object({
+        slot: z.number().int().positive(),
+        url: urlSchema,
+        title: z.string().trim().max(160),
+        description: z.string().trim().max(500),
       }),
     )
     .max(50),
@@ -178,6 +188,7 @@ const builderSchema = z.object({
       z.object({
         title: z.string().trim().max(160),
         description: z.string().trim().max(500).optional(),
+        url: urlSchema,
         targetAt: dateSchema,
         status: z
           .string()
@@ -343,6 +354,7 @@ function getGoals(formData: FormData) {
   return [1, 2, 3].map((index) => ({
     title: getString(formData, `goalTitle${index}`),
     description: getString(formData, `goalDescription${index}`),
+    url: getString(formData, `goalUrl${index}`),
     targetAt: getString(formData, `goalTargetAt${index}`),
     status: getString(formData, `goalStatus${index}`) || 'planned',
   }));
@@ -434,6 +446,26 @@ function getOfferBlocks(formData: FormData) {
         ctaLabel: getString(formData, `offerCtaLabel${slot}`),
         displaySize: getString(formData, `offerDisplaySize${slot}`) || 'medium',
         isAffiliate: formData.get(`offerIsAffiliate${slot}`) === 'on',
+      };
+    });
+}
+
+function getLinkBlocks(formData: FormData) {
+  return Array.from(formData.entries())
+    .filter(([key]) => /^linkUrl\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftSlot = Number(left.replace('linkUrl', ''));
+      const rightSlot = Number(right.replace('linkUrl', ''));
+      return leftSlot - rightSlot;
+    })
+    .map(([key, value]) => {
+      const slot = Number(key.replace('linkUrl', ''));
+
+      return {
+        slot,
+        url: String(value).trim(),
+        title: getString(formData, `linkTitle${slot}`),
+        description: getString(formData, `linkDescription${slot}`),
       };
     });
 }
@@ -546,6 +578,7 @@ async function replaceGoals(
       profile_id: profileId,
       title: goal.title,
       description: goal.description || null,
+      url: goal.url,
       target_at: goal.targetAt,
       status: goal.status || 'planned',
       sort_order: index,
@@ -719,6 +752,12 @@ async function ensureHomePageAndBlocks(
     displaySize: 'small' | 'medium' | 'large';
     isAffiliate: boolean;
   }>,
+  linkBlocks: Array<{
+    slot: number;
+    url: string | null;
+    title: string;
+    description: string;
+  }>,
   partnership: {
     mode: 'sponsors' | 'seeking' | 'both';
     headline?: string;
@@ -786,6 +825,7 @@ async function ensureHomePageAndBlocks(
       'sponsors',
       'media',
       'offer',
+      'link',
     ]);
 
   if (contentBlockOrder.length) {
@@ -801,6 +841,7 @@ async function ensureHomePageAndBlocks(
     const offerBySlot = new Map(
       offerBlocks.map((offer) => [offer.slot, offer]),
     );
+    const linkBySlot = new Map(linkBlocks.map((link) => [link.slot, link]));
 
     await serviceSupabase.from('profile_blocks').insert(
       contentBlockOrder.map((blockKey, index) => {
@@ -840,6 +881,25 @@ async function ensureHomePageAndBlocks(
               builderManaged: true,
               ...offer,
               ctaLabel: offer.ctaLabel || 'View offer',
+            },
+            sort_order: index + 2,
+            is_enabled: true,
+          };
+        }
+
+        if (blockKey.startsWith('link-')) {
+          const link = linkBySlot.get(Number(blockKey.replace('link-', '')));
+          if (!link) throw new Error('Unable to save an invalid link block.');
+
+          return {
+            page_id: homePageId,
+            type: 'link',
+            title: link.title || 'Link',
+            content: {
+              builderManaged: true,
+              url: link.url,
+              title: link.title,
+              description: link.description,
             },
             sort_order: index + 2,
             is_enabled: true,
@@ -889,6 +949,7 @@ export async function saveProfileBuilderAction(
     contentBlockOrder: getContentBlockOrder(formData),
     mediaBlocks: getMediaBlocks(formData),
     offerBlocks: getOfferBlocks(formData),
+    linkBlocks: getLinkBlocks(formData),
     galleryUrls: getGalleryUrls(formData),
     sponsors: getSponsors(formData),
     partnershipMode: getString(formData, 'partnershipMode') || 'seeking',
@@ -978,6 +1039,7 @@ export async function saveProfileBuilderAction(
         input.contentBlockOrder,
         input.mediaBlocks,
         input.offerBlocks,
+        input.linkBlocks,
         {
           mode: input.partnershipMode,
           headline: input.partnershipHeadline,

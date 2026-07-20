@@ -104,6 +104,7 @@ interface GoalRow {
   id: number;
   title: string;
   description: string | null;
+  url: string | null;
   target_at: string | null;
   status: string;
   sort_order: number;
@@ -222,6 +223,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
         title: 'Run 10K under 40 minutes',
         description:
           'A clear performance goal to guide the next training block.',
+        url: '',
         targetDate: '',
         targetLabel: 'No target date',
         status: 'planned',
@@ -341,6 +343,7 @@ function mapGoal(row: GoalRow): BuilderGoalItem {
     id: row.id,
     title: row.title,
     description: row.description ?? '',
+    url: row.url ?? '',
     targetDate: formatDateInput(row.target_at),
     targetLabel: formatGoalTargetLabel(row.target_at),
     status: row.status,

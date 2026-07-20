@@ -1,4 +1,4 @@
-import { Target, type LucideIcon } from 'lucide-react';
+import { ArrowUpRight, Target, type LucideIcon } from 'lucide-react';
 import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
@@ -15,6 +15,7 @@ export function ProfileHeader({
   title,
   description,
   target,
+  url,
   badgeIcon = Target,
 }: {
   builder: ProfileBuilderState;
@@ -23,6 +24,7 @@ export function ProfileHeader({
   title: string;
   description: string;
   target: string;
+  url?: string;
   badgeIcon?: LucideIcon;
 }) {
   const { profile } = builder;
@@ -140,7 +142,19 @@ export function ProfileHeader({
         )}
         style={{ fontFamily: theme.fontFamilies.heading }}
       >
-        {title}
+        {url ? (
+          <a
+            className="inline-flex items-start gap-2 transition-opacity hover:opacity-75"
+            href={url}
+            rel="noreferrer"
+            target="_blank"
+          >
+            <span>{title}</span>
+            <ArrowUpRight className="mt-1 h-[0.42em] w-[0.42em] shrink-0" />
+          </a>
+        ) : (
+          title
+        )}
       </h1>
       {description ? (
         <p

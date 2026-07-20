@@ -71,6 +71,13 @@
       "when": 1784160000000,
       "tag": "0009_add_profile_media_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784541847000,
+      "tag": "0010_add_profile_goal_url",
+      "breakpoints": true
     }
   ]
 }

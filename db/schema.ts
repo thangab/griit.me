@@ -301,6 +301,7 @@ export const profile_goals = pgTable(
       .references(() => public_profiles.id),
     title: varchar('title', { length: 160 }).notNull(),
     description: text('description'),
+    url: text('url'),
     target_at: timestamp('target_at'),
     status: varchar('status', { length: 32 }).default('planned').notNull(),
     sort_order: integer('sort_order').default(0).notNull(),
