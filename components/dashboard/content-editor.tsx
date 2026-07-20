@@ -1501,6 +1501,23 @@ function ContentBlocksEditor({
                           placeholder="https://example.com"
                           type="url"
                         />
+                        <ImageUploadField
+                          folder="links"
+                          helpText="Optional image displayed as a thumbnail in the link card."
+                          label="Link image (optional)"
+                          name={`linkImageUrl${key.replace('link-', '')}`}
+                          previewShape="wide"
+                          value={
+                            typeof linkBlocks[
+                              Number(key.replace('link-', '')) - 1
+                            ]?.content.imageUrl === 'string'
+                              ? (linkBlocks[
+                                  Number(key.replace('link-', '')) - 1
+                                ].content.imageUrl as string)
+                              : ''
+                          }
+                          onValueChange={onStructureChange}
+                        />
                         <Field
                           label="Title (optional)"
                           name={`linkTitle${key.replace('link-', '')}`}

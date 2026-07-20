@@ -33,6 +33,7 @@ export function LinkBlock({
   const hostname = getHostname(url);
   const title = getText(block.content, 'title') || hostname || 'Open link';
   const description = getText(block.content, 'description');
+  const imageUrl = getText(block.content, 'imageUrl');
 
   return (
     <a
@@ -49,15 +50,26 @@ export function LinkBlock({
       }}
       target="_blank"
     >
-      <span
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-        style={{
-          backgroundColor: theme.palette.accent,
-          color: theme.palette.accentText,
-        }}
-      >
-        <Link2 className="h-4 w-4" />
-      </span>
+      {imageUrl ? (
+        <span
+          aria-hidden="true"
+          className="h-16 w-16 shrink-0 rounded-lg border bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${JSON.stringify(imageUrl)})`,
+            borderColor: theme.palette.border,
+          }}
+        />
+      ) : (
+        <span
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: theme.palette.accent,
+            color: theme.palette.accentText,
+          }}
+        >
+          <Link2 className="h-4 w-4" />
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span
           className="block truncate text-sm font-bold"

@@ -393,6 +393,7 @@ function createLivePreviewState(
             url: getValue(`linkUrl${slot}`),
             title: getValue(`linkTitle${slot}`),
             description: getValue(`linkDescription${slot}`),
+            imageUrl: getValue(`linkImageUrl${slot}`),
           },
           sortOrder: index + 2,
           isEnabled: true,

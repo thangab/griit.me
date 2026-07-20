@@ -148,6 +148,7 @@ const builderSchema = z.object({
         url: urlSchema,
         title: z.string().trim().max(160),
         description: z.string().trim().max(500),
+        imageUrl: urlSchema,
       }),
     )
     .max(50),
@@ -469,6 +470,7 @@ function getLinkBlocks(formData: FormData) {
         url: String(value).trim(),
         title: getString(formData, `linkTitle${slot}`),
         description: getString(formData, `linkDescription${slot}`),
+        imageUrl: getString(formData, `linkImageUrl${slot}`),
       };
     });
 }
@@ -761,6 +763,7 @@ async function ensureHomePageAndBlocks(
     url: string | null;
     title: string;
     description: string;
+    imageUrl: string | null;
   }>,
   partnership: {
     mode: 'sponsors' | 'seeking' | 'both';
@@ -904,6 +907,7 @@ async function ensureHomePageAndBlocks(
               url: link.url,
               title: link.title,
               description: link.description,
+              imageUrl: link.imageUrl,
             },
             sort_order: index + 2,
             is_enabled: true,
