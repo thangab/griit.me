@@ -38,16 +38,14 @@ export function ProfileHeader({
   const theme = getThemeRuntime(profile.theme);
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
-  const avatarSize = Math.round(
-    theme.headerAvatarSize * (isMobilePreview ? 0.8 : isPreview ? 0.9 : 1),
-  );
+  const avatarSize = theme.headerAvatarSize;
   const coverStyle =
     theme.coverType === 'gradient'
       ? {
           backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
         }
       : { backgroundColor: theme.coverColor };
-  const heroHeight = isPreview ? 'min-h-[390px]' : 'min-h-[560px]';
+  const heroHeight = 'min-h-[560px]';
 
   const coverImage =
     theme.coverType === 'image' && profile.coverUrl ? (
@@ -151,11 +149,7 @@ export function ProfileHeader({
         className={cn(
           'leading-[0.98] font-black tracking-[-0.04em]',
           wording.eyebrow && 'mt-3',
-          isMobilePreview
-            ? 'text-4xl'
-            : isPreview
-              ? 'text-5xl'
-              : 'text-5xl sm:text-7xl',
+          isMobilePreview ? 'text-5xl' : 'text-5xl sm:text-7xl',
         )}
         style={{ fontFamily: theme.fontFamilies.heading }}
       >
@@ -175,7 +169,10 @@ export function ProfileHeader({
       </h1>
       {description ? (
         <p
-          className="mt-4 text-sm leading-6 sm:text-base"
+          className={cn(
+            'mt-4 leading-6',
+            isMobilePreview ? 'text-sm' : 'text-sm sm:text-base',
+          )}
           style={{
             color: onSheet
               ? theme.palette.description
@@ -200,19 +197,22 @@ export function ProfileHeader({
   if (theme.headerLayout === 'split') {
     return (
       <header
-        className="overflow-hidden py-5 sm:py-8"
+        className={cn('overflow-hidden py-5', !isMobilePreview && 'sm:py-8')}
         style={{ backgroundColor: theme.palette.background }}
       >
         <div
           className={cn(
             theme.radiusClass,
             'mx-auto max-w-2xl overflow-hidden border',
-            isPreview ? 'mx-3' : 'mx-4 sm:mx-auto',
+            isMobilePreview ? 'mx-4' : 'mx-4 sm:mx-auto',
           )}
           style={{ color: theme.palette.text }}
         >
           <div
-            className="relative px-5 pt-5 pb-4 sm:px-8 sm:pt-7"
+            className={cn(
+              'relative px-5 pt-5 pb-4',
+              !isMobilePreview && 'sm:px-8 sm:pt-7',
+            )}
             style={{ backgroundColor: theme.headerSheetColor }}
           >
             <div className="mb-5 flex items-center justify-between gap-3">
@@ -229,7 +229,7 @@ export function ProfileHeader({
           <div
             className={cn(
               'relative overflow-hidden border-y border-dashed bg-cover bg-center',
-              isPreview ? 'h-28' : 'h-36 sm:h-44',
+              isMobilePreview ? 'h-36' : 'h-36 sm:h-44',
             )}
             style={{ ...coverStyle, borderColor: theme.palette.border }}
           >
@@ -242,7 +242,10 @@ export function ProfileHeader({
             />
           </div>
           <div
-            className="relative px-5 py-7 sm:px-8 sm:py-9"
+            className={cn(
+              'relative px-5 py-7',
+              !isMobilePreview && 'sm:px-8 sm:py-9',
+            )}
             style={{ backgroundColor: theme.headerSheetColor }}
           >
             <span
@@ -259,7 +262,7 @@ export function ProfileHeader({
   if (theme.headerLayout === 'immersive') {
     return (
       <header
-        className="overflow-hidden py-5 sm:py-8"
+        className={cn('overflow-hidden py-5', !isMobilePreview && 'sm:py-8')}
         style={{
           backgroundColor: theme.palette.background,
           color: theme.palette.headerText,
@@ -269,7 +272,9 @@ export function ProfileHeader({
           className={cn(
             theme.radiusClass,
             'relative mx-auto flex max-w-2xl flex-col justify-between overflow-hidden border bg-cover bg-center',
-            isPreview ? 'mx-3 min-h-[500px]' : 'mx-4 min-h-[620px] sm:mx-auto',
+            isMobilePreview
+              ? 'mx-4 min-h-[620px]'
+              : 'mx-4 min-h-[620px] sm:mx-auto',
           )}
           style={{ ...coverStyle, borderColor: theme.palette.border }}
         >
@@ -287,14 +292,22 @@ export function ProfileHeader({
             className="absolute -top-20 -right-20 h-64 w-64 rotate-12 opacity-85"
             style={{ backgroundColor: theme.palette.accent }}
           />
-          <div className="relative flex items-start justify-between gap-3 px-5 py-6 sm:px-8">
+          <div
+            className={cn(
+              'relative flex items-start justify-between gap-3 px-5 py-6',
+              !isMobilePreview && 'sm:px-8',
+            )}
+          >
             {identity(false, 'left')}
             <span className="text-[9px] font-black tracking-[0.24em] uppercase [writing-mode:vertical-rl]">
               @{profile.username}
             </span>
           </div>
           <div
-            className="relative px-5 pb-7 sm:px-8 sm:pb-10"
+            className={cn(
+              'relative px-5 pb-7',
+              !isMobilePreview && 'sm:px-8 sm:pb-10',
+            )}
             style={{
               color: theme.headerSheetFade
                 ? theme.palette.text
@@ -324,7 +337,7 @@ export function ProfileHeader({
       <header
         className={cn(
           'relative flex items-end overflow-hidden bg-cover bg-center',
-          heroHeight,
+          'min-h-[480px]',
         )}
         style={{ ...coverStyle, color: theme.palette.headerText }}
       >
@@ -343,11 +356,21 @@ export function ProfileHeader({
           fallback={badgeIcon}
           iconId={theme.decorativeIcon}
         />
-        <div className="relative mx-auto w-full max-w-2xl px-5 py-8 sm:px-8 sm:py-12">
+        <div
+          className={cn(
+            'relative mx-auto w-full max-w-2xl px-5 py-8',
+            !isMobilePreview && 'sm:px-8 sm:py-12',
+          )}
+        >
           <div className="border-b border-white/25 pb-5">
             {identity(false, 'left')}
           </div>
-          <div className="relative mt-8 pl-5 sm:mt-12 sm:pl-8">
+          <div
+            className={cn(
+              'relative mt-8 pl-5',
+              !isMobilePreview && 'sm:mt-12 sm:pl-8',
+            )}
+          >
             <span
               className="absolute top-0 bottom-0 left-0 w-1"
               style={{ backgroundColor: theme.palette.accent }}
@@ -390,8 +413,8 @@ export function ProfileHeader({
       />
       <div
         className={cn(
-          'relative mx-auto flex w-full max-w-2xl flex-col justify-between px-5 py-7 sm:px-8 sm:py-10',
-          isPreview && 'px-4 py-6',
+          'relative mx-auto flex w-full max-w-2xl flex-col justify-between px-5 py-7',
+          !isMobilePreview && 'sm:px-8 sm:py-10',
         )}
       >
         <div className="self-start">{identity(false, 'left')}</div>

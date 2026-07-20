@@ -44,6 +44,7 @@ export function GoalSpotlightTemplate({
     }) || 'More context coming soon.';
   const sports = profile.sports;
   const isPreview = variant !== 'full';
+  const isMobilePreview = variant === 'mobile-preview';
   const theme = getThemeRuntime(profile.theme);
   const wording = resolveTemplateWording(
     profile.theme,
@@ -105,9 +106,8 @@ export function GoalSpotlightTemplate({
       <section
         className={cn(
           'mx-auto',
-          isPreview
-            ? 'max-w-4xl px-4 py-5'
-            : 'max-w-6xl px-5 py-8 sm:px-8 lg:px-12',
+          'max-w-6xl px-5 py-8',
+          !isMobilePreview && 'sm:px-8 lg:px-12',
         )}
       >
         <div className="flex flex-col" style={{ gap: `${theme.blockGap}px` }}>

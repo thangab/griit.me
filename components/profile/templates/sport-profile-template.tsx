@@ -333,6 +333,7 @@ export function SportProfileTemplate({
   const goalTarget = primaryGoal?.targetLabel || 'Target in progress';
   const PrimaryGoalCard = primaryGoal?.url ? 'a' : 'div';
   const isPreview = variant !== 'full';
+  const isMobilePreview = variant === 'mobile-preview';
   const visual: SportVisual = {
     canvas: theme.palette.background,
     hero: theme.coverColor,
@@ -394,7 +395,8 @@ export function SportProfileTemplate({
       <section
         className={cn(
           'mx-auto max-w-6xl',
-          isPreview ? 'px-4 py-5' : 'px-5 py-8 sm:px-8 lg:px-12',
+          'px-5 py-8',
+          !isMobilePreview && 'sm:px-8 lg:px-12',
         )}
       >
         <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
