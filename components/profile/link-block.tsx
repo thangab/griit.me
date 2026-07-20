@@ -1,4 +1,5 @@
 import { ArrowUpRight, Link2 } from 'lucide-react';
+import Image from 'next/image';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import type {
   BuilderBlock,
@@ -53,12 +54,19 @@ export function LinkBlock({
       {imageUrl ? (
         <span
           aria-hidden="true"
-          className="h-16 w-16 shrink-0 rounded-lg border bg-cover bg-center"
+          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border"
           style={{
-            backgroundImage: `url(${JSON.stringify(imageUrl)})`,
             borderColor: theme.palette.border,
           }}
-        />
+        >
+          <Image
+            alt=""
+            className="object-cover"
+            fill
+            sizes="64px"
+            src={imageUrl}
+          />
+        </span>
       ) : (
         <span
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"

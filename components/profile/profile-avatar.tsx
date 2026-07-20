@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 
 export function ProfileAvatar({
@@ -8,11 +9,13 @@ export function ProfileAvatar({
   displayName,
   size,
   className,
+  priority = false,
 }: {
   avatarUrl: string;
   displayName: string;
   size: number;
   className?: string;
+  priority?: boolean;
 }) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const showImage = Boolean(avatarUrl) && avatarUrl !== failedUrl;
@@ -21,18 +24,18 @@ export function ProfileAvatar({
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-center overflow-hidden rounded-full border-2 text-sm font-bold uppercase',
+        'relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border-2 text-sm font-bold uppercase',
         className,
       )}
       style={{ width: size, height: size }}
     >
       {showImage ? (
-        // The URL comes from the public Supabase Storage bucket and is already
-        // resized by the fixed avatar container, so Next image optimization is
-        // intentionally unnecessary here.
-        <img
+        <Image
           alt={`${displayName || 'Profile'} avatar`}
           className="h-full w-full object-cover"
+          fill
+          priority={priority}
+          sizes={`${size}px`}
           src={avatarUrl}
           onError={() => setFailedUrl(avatarUrl)}
         />

@@ -29,8 +29,8 @@ import {
   Timer,
   Trophy,
   Waves,
-  type Icon as PhosphorIcon,
-} from '@phosphor-icons/react';
+} from '@phosphor-icons/react/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import type { DecorativeIconId } from '@/lib/constants/profile-theme';
 import type { ProfileTemplateId } from '@/lib/constants/profile-templates';
 

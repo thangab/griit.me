@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { z } from 'zod';
 import {
   createServerSupabaseClient,
@@ -12,6 +12,7 @@ import {
   isProfileTemplateId,
 } from '@/lib/constants/profile-templates';
 import { getSubscriptionState } from '@/lib/services/billing';
+import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import {
   blockShadowStyles,
   colorPresets,
@@ -33,6 +34,33 @@ import { goalDateDisplays } from '@/lib/utils/goal-date';
 export interface ProfileBuilderActionState {
   success: boolean;
   message: string;
+}
+
+const contentSaveSections = [
+  'profile',
+  'sports',
+  'goals',
+  'socials',
+  'blocks',
+  'gallery',
+  'sponsors',
+  'achievements',
+  'activities',
+] as const;
+
+type ContentSaveSection = (typeof contentSaveSections)[number];
+
+function getDirtySections(formData: FormData) {
+  const allowedSections = new Set<string>(contentSaveSections);
+  const sections = getString(formData, 'dirtySections')
+    .split(',')
+    .filter((section): section is ContentSaveSection =>
+      allowedSections.has(section),
+    );
+
+  return new Set<ContentSaveSection>(
+    sections.length ? sections : contentSaveSections,
+  );
 }
 
 const urlSchema = z
@@ -978,6 +1006,7 @@ export async function saveProfileBuilderAction(
   }
 
   const input = parsed.data;
+  const dirtySections = getDirtySections(formData);
   const goalCount = input.goals.filter((goal) => goal.title).length;
   const galleryCount = input.galleryUrls.filter(Boolean).length;
   const achievementCount = input.achievements.filter(
@@ -1002,68 +1031,95 @@ export async function saveProfileBuilderAction(
 
   const serviceSupabase = createServiceSupabaseClient();
 
-  await ensurePrivateProfile(userData.user);
   const { data: existingProfile } = await serviceSupabase
     .from('public_profiles')
-    .select('username')
+    .select('id, username')
     .eq('user_id', userData.user.id)
     .maybeSingle();
+
+  if (!existingProfile) {
+    await ensurePrivateProfile(userData.user);
+    contentSaveSections.forEach((section) => dirtySections.add(section));
+  }
 
   const username =
     existingProfile?.username ?? deriveUsername(userData.user.email);
 
-  const now = new Date().toISOString();
-  const { data: profileData, error: profileError } = await serviceSupabase
-    .from('public_profiles')
-    .upsert(
-      {
-        user_id: userData.user.id,
-        username,
-        display_name: input.displayName,
-        bio: input.bio || null,
-        location: input.location || null,
-        avatar_url: input.avatarUrl,
-        is_published: input.isPublished,
-        updated_at: now,
-      },
-      { onConflict: 'user_id' },
-    )
-    .select('id')
-    .single();
+  let profileId = existingProfile?.id as number | undefined;
 
-  if (profileError || !profileData) {
+  if (!profileId || dirtySections.has('profile')) {
+    const { data: profileData, error: profileError } = await serviceSupabase
+      .from('public_profiles')
+      .upsert(
+        {
+          user_id: userData.user.id,
+          username,
+          display_name: input.displayName,
+          bio: input.bio || null,
+          location: input.location || null,
+          avatar_url: input.avatarUrl,
+          is_published: input.isPublished,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id' },
+      )
+      .select('id')
+      .single();
+
+    if (profileError || !profileData) {
+      return {
+        success: false,
+        message: profileError?.message ?? 'Unable to save profile.',
+      };
+    }
+
+    profileId = profileData.id as number;
+  }
+
+  if (!profileId) {
     return {
       success: false,
-      message: profileError?.message ?? 'Unable to save profile.',
+      message: 'Unable to resolve the profile to update.',
     };
   }
 
-  const profileId = profileData.id as number;
-
   try {
-    await Promise.all([
-      ensureHomePageAndBlocks(
-        profileId,
-        input.contentBlockOrder,
-        input.mediaBlocks,
-        input.offerBlocks,
-        input.linkBlocks,
-        {
-          mode: input.partnershipMode,
-          headline: input.partnershipHeadline,
-          description: input.partnershipDescription,
-          contact: input.partnershipContact,
-          ctaLabel: input.partnershipCtaLabel || "Let's work together",
-        },
-      ),
-      replaceSocialLinks(profileId, input),
-      replaceGalleryItems(profileId, input),
-      replaceSponsors(profileId, input),
-      replaceAchievements(profileId, input),
-      replaceActivities(profileId, input),
-      replaceGoals(profileId, input),
-      replaceSports(profileId, input),
-    ]);
+    const updates: Promise<void>[] = [];
+
+    if (dirtySections.has('blocks')) {
+      updates.push(
+        ensureHomePageAndBlocks(
+          profileId,
+          input.contentBlockOrder,
+          input.mediaBlocks,
+          input.offerBlocks,
+          input.linkBlocks,
+          {
+            mode: input.partnershipMode,
+            headline: input.partnershipHeadline,
+            description: input.partnershipDescription,
+            contact: input.partnershipContact,
+            ctaLabel: input.partnershipCtaLabel || "Let's work together",
+          },
+        ),
+      );
+    }
+    if (dirtySections.has('socials'))
+      updates.push(replaceSocialLinks(profileId, input));
+    if (dirtySections.has('gallery'))
+      updates.push(replaceGalleryItems(profileId, input));
+    if (dirtySections.has('sponsors'))
+      updates.push(replaceSponsors(profileId, input));
+    if (dirtySections.has('achievements'))
+      updates.push(replaceAchievements(profileId, input));
+    if (dirtySections.has('activities'))
+      updates.push(replaceActivities(profileId, input));
+    if (dirtySections.has('goals'))
+      updates.push(replaceGoals(profileId, input));
+    if (dirtySections.has('sports'))
+      updates.push(replaceSports(profileId, input));
+
+    await Promise.all(updates);
   } catch (error) {
     return {
       success: false,
@@ -1077,6 +1133,7 @@ export async function saveProfileBuilderAction(
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/design');
   revalidatePath(`/${username}`);
+  updateTag(getPublicProfileCacheTag(username));
 
   return {
     success: true,
@@ -1164,9 +1221,11 @@ export async function updateProfileUrlAction(
   revalidatePath('/dashboard/design');
   revalidatePath('/dashboard/settings');
   revalidatePath(`/${username}`);
+  updateTag(getPublicProfileCacheTag(username));
 
   if (previousUsername && previousUsername !== username) {
     revalidatePath(`/${previousUsername}`);
+    updateTag(getPublicProfileCacheTag(previousUsername));
   }
 
   return {
@@ -1408,6 +1467,7 @@ export async function updateProfileTemplateAction(
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/design');
   revalidatePath(`/${existingProfile.username}`);
+  updateTag(getPublicProfileCacheTag(existingProfile.username));
 
   return {
     success: true,
@@ -1450,6 +1510,7 @@ export async function setProfilePublishedAction(
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/design');
   revalidatePath(`/${profile.username}`);
+  updateTag(getPublicProfileCacheTag(profile.username));
 
   return {
     success: true,

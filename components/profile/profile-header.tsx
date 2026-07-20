@@ -1,4 +1,6 @@
-import { Target, type Icon as PhosphorIcon } from '@phosphor-icons/react';
+import { Target } from '@phosphor-icons/react/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
+import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
@@ -40,25 +42,34 @@ export function ProfileHeader({
     theme.headerAvatarSize * (isMobilePreview ? 0.8 : isPreview ? 0.9 : 1),
   );
   const coverStyle =
-    theme.coverType === 'image' && profile.coverUrl
-      ? { backgroundImage: `url('${profile.coverUrl}')` }
-      : theme.coverType === 'gradient'
-        ? {
-            backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
-          }
-        : { backgroundColor: theme.coverColor };
+    theme.coverType === 'gradient'
+      ? {
+          backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
+        }
+      : { backgroundColor: theme.coverColor };
   const heroHeight = isPreview ? 'min-h-[390px]' : 'min-h-[560px]';
 
-  const imageOverlay =
-    theme.coverType === 'image' ? (
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundColor: theme.coverColor,
-          opacity: theme.overlayOpacity,
-        }}
+  const coverImage =
+    theme.coverType === 'image' && profile.coverUrl ? (
+      <Image
+        alt=""
+        className="object-cover"
+        fill
+        priority={!isPreview}
+        sizes={isPreview ? '672px' : '100vw'}
+        src={profile.coverUrl}
       />
     ) : null;
+
+  const imageOverlay = coverImage ? (
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundColor: theme.coverColor,
+        opacity: theme.overlayOpacity,
+      }}
+    />
+  ) : null;
 
   const identity = (onSheet = false, align: 'center' | 'left' = 'center') => (
     <div className={cn(align === 'center' ? 'text-center' : 'text-left')}>
@@ -72,6 +83,7 @@ export function ProfileHeader({
           avatarUrl={profile.avatarUrl}
           className={onSheet ? 'border-white shadow-lg' : 'border-white/80'}
           displayName={profile.displayName}
+          priority={!isPreview}
           size={avatarSize}
         />
         <div>
@@ -221,6 +233,7 @@ export function ProfileHeader({
             )}
             style={{ ...coverStyle, borderColor: theme.palette.border }}
           >
+            {coverImage}
             {imageOverlay}
             <ProfileDecorativeIcon
               className="absolute right-4 bottom-1/2 h-16 w-16 translate-y-1/2 opacity-40"
@@ -260,6 +273,7 @@ export function ProfileHeader({
           )}
           style={{ ...coverStyle, borderColor: theme.palette.border }}
         >
+          {coverImage}
           {imageOverlay}
           <div
             className="absolute inset-0"
@@ -314,6 +328,7 @@ export function ProfileHeader({
         )}
         style={{ ...coverStyle, color: theme.palette.headerText }}
       >
+        {coverImage}
         {imageOverlay}
         <div
           className="absolute inset-0 opacity-20"
@@ -352,6 +367,7 @@ export function ProfileHeader({
       )}
       style={{ ...coverStyle, color: theme.palette.headerText }}
     >
+      {coverImage}
       {imageOverlay}
       <div
         className="absolute -top-20 -left-24 h-64 w-64 rotate-12 opacity-90"

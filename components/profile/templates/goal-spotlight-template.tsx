@@ -1,4 +1,5 @@
 import { ArrowUpRight, MapPin } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
@@ -283,13 +284,24 @@ export function GoalSpotlightTemplate({
                       <div
                         key={`${item.imageUrl}-${index}`}
                         className={cn(
-                          'aspect-square bg-slate-200 bg-cover bg-center',
+                          'relative aspect-square overflow-hidden bg-slate-200',
                           theme.radiusClass,
                           theme.galleryLayout === 'carousel' &&
                             'w-52 shrink-0 snap-center',
                         )}
-                        style={{ backgroundImage: `url('${item.imageUrl}')` }}
-                      />
+                      >
+                        <Image
+                          alt={item.altText || item.caption || ''}
+                          className="object-cover"
+                          fill
+                          sizes={
+                            theme.galleryLayout === 'carousel'
+                              ? '208px'
+                              : '(max-width: 640px) 33vw, 320px'
+                          }
+                          src={item.imageUrl}
+                        />
+                      </div>
                     ))}
                   </div>
                 </section>

@@ -1,4 +1,10 @@
-import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import { unstable_cache } from 'next/cache';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  createPublicSupabaseClient,
+  createServerSupabaseClient,
+} from '@/lib/config/supabase-server';
+import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import { defaultProfileTemplateId } from '@/lib/constants/profile-templates';
 import { defaultSports } from '@/lib/constants/sports';
 import type {
@@ -367,8 +373,9 @@ function getProfileSport(row: ProfileSportRow) {
 }
 
 async function mapProfileBuilderState(
-  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  supabase: SupabaseClient,
   profileRow: PublicProfileRow,
+  includeAvailableSports = true,
 ): Promise<ProfileBuilderState> {
   const [
     pagesResult,
@@ -391,11 +398,13 @@ async function mapProfileBuilderState(
       .select('*')
       .eq('profile_id', profileRow.id)
       .order('sort_order', { ascending: true }),
-    supabase
-      .from('sports')
-      .select('*')
-      .eq('is_enabled', true)
-      .order('sort_order', { ascending: true }),
+    includeAvailableSports
+      ? supabase
+          .from('sports')
+          .select('*')
+          .eq('is_enabled', true)
+          .order('sort_order', { ascending: true })
+      : Promise.resolve({ data: [] }),
     supabase
       .from('profile_sports')
       .select('sort_order, is_enabled, sports(*)')
@@ -503,8 +512,10 @@ export async function getProfileBuilderState(): Promise<ProfileBuilderState> {
   return mapProfileBuilderState(supabase, profileRow);
 }
 
-export async function getPublicProfileBuilderState(username: string) {
-  const supabase = await createServerSupabaseClient();
+async function loadPublicProfileBuilderState(username: string) {
+  // Public profiles do not need the visitor's cookies. The anonymous client
+  // keeps RLS active (so disabled content stays private) and is safe to cache.
+  const supabase = createPublicSupabaseClient();
   const { data: profileData } = await supabase
     .from('public_profiles')
     .select('*')
@@ -518,5 +529,18 @@ export async function getPublicProfileBuilderState(username: string) {
     return null;
   }
 
-  return mapProfileBuilderState(supabase, profileRow);
+  return mapProfileBuilderState(supabase, profileRow, false);
+}
+
+export function getPublicProfileBuilderState(username: string) {
+  const normalizedUsername = username.toLowerCase();
+
+  return unstable_cache(
+    () => loadPublicProfileBuilderState(normalizedUsername),
+    ['public-profile-builder', normalizedUsername],
+    {
+      revalidate: 300,
+      tags: [getPublicProfileCacheTag(normalizedUsername)],
+    },
+  )();
 }

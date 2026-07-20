@@ -6,6 +6,7 @@ import {
   Medal,
   Target,
 } from 'lucide-react';
+import Image from 'next/image';
 import {
   Barbell,
   Bicycle,
@@ -14,8 +15,8 @@ import {
   Shield,
   Timer,
   Trophy,
-  type Icon as PhosphorIcon,
-} from '@phosphor-icons/react';
+} from '@phosphor-icons/react/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
@@ -203,13 +204,24 @@ function SportContentBlock({
             <div
               key={`${item.imageUrl}-${index}`}
               className={cn(
-                'aspect-square bg-slate-200 bg-cover bg-center',
+                'relative aspect-square overflow-hidden bg-slate-200',
                 theme.radiusClass,
                 theme.galleryLayout === 'carousel' &&
                   'w-52 shrink-0 snap-center',
               )}
-              style={{ backgroundImage: `url('${item.imageUrl}')` }}
-            />
+            >
+              <Image
+                alt={item.altText || item.caption || ''}
+                className="object-cover"
+                fill
+                sizes={
+                  theme.galleryLayout === 'carousel'
+                    ? '208px'
+                    : '(max-width: 640px) 50vw, 320px'
+                }
+                src={item.imageUrl}
+              />
+            </div>
           ))}
         </div>
       </section>

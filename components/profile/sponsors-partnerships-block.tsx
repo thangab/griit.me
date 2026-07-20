@@ -1,4 +1,5 @@
 import { ArrowUpRight, Handshake } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import type {
@@ -29,23 +30,23 @@ function SponsorCard({
 }) {
   const content = (
     <>
-      <span
-        aria-hidden="true"
-        className="block h-12 w-full bg-contain bg-center bg-no-repeat"
-        style={
-          sponsor.logoUrl
-            ? { backgroundImage: `url('${sponsor.logoUrl}')` }
-            : undefined
-        }
-      >
-        {!sponsor.logoUrl ? (
+      <span aria-hidden="true" className="relative block h-12 w-full">
+        {sponsor.logoUrl ? (
+          <Image
+            alt=""
+            className="object-contain"
+            fill
+            sizes="160px"
+            src={sponsor.logoUrl}
+          />
+        ) : (
           <span
             className="flex h-full items-center justify-center text-lg font-bold"
             style={{ color: theme.palette.blockTitle }}
           >
             {sponsor.name.slice(0, 2).toUpperCase()}
           </span>
-        ) : null}
+        )}
       </span>
       <span
         className="mt-2 block truncate text-center text-xs font-semibold"

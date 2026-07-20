@@ -58,3 +58,12 @@ export async function createServerSupabaseClient() {
 export function createServiceSupabaseClient() {
   return createClient(getSupabaseUrl(), getSupabaseServiceRoleKey());
 }
+
+export function createPublicSupabaseClient() {
+  return createClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}

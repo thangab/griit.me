@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Check, Copy, ExternalLink, ShoppingBag } from 'lucide-react';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import type {
@@ -72,7 +73,7 @@ export function OfferBlock({
     >
       <div
         className={cn(
-          'bg-cover bg-center',
+          'relative overflow-hidden',
           isSmall && 'min-h-full',
           isMedium && 'min-h-40',
           displaySize === 'large' && presentation === 'poster'
@@ -83,12 +84,24 @@ export function OfferBlock({
             : '',
         )}
         style={
-          imageUrl
-            ? { backgroundImage: `url(${JSON.stringify(imageUrl)})` }
-            : { backgroundColor: theme.palette.subtle }
+          !imageUrl ? { backgroundColor: theme.palette.subtle } : undefined
         }
       >
-        {!imageUrl ? (
+        {imageUrl ? (
+          <Image
+            alt=""
+            className="object-cover"
+            fill
+            sizes={
+              isSmall
+                ? '76px'
+                : isMedium
+                  ? '168px'
+                  : '(max-width: 640px) 100vw, 520px'
+            }
+            src={imageUrl}
+          />
+        ) : (
           <span
             className={cn(
               'flex h-full items-center justify-center',
@@ -100,7 +113,7 @@ export function OfferBlock({
               aria-hidden="true"
             />
           </span>
-        ) : null}
+        )}
       </div>
 
       <div

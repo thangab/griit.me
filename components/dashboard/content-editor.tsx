@@ -50,15 +50,63 @@ const goalDateDisplayOptions = [
 
 export type AutosaveStatus = 'idle' | 'waiting' | 'saving' | 'saved' | 'error';
 
+type ContentSaveSection =
+  | 'profile'
+  | 'sports'
+  | 'goals'
+  | 'socials'
+  | 'blocks'
+  | 'gallery'
+  | 'sponsors'
+  | 'achievements'
+  | 'activities';
+
 function getFormFingerprint(form: HTMLFormElement) {
   return JSON.stringify(
-    Array.from(new FormData(form).entries()).map(([key, value]) => [
-      key,
-      typeof value === 'string'
-        ? value
-        : `${value.name}:${value.size}:${value.lastModified}`,
-    ]),
+    Array.from(new FormData(form).entries())
+      .filter(([key]) => key !== 'dirtySections')
+      .map(([key, value]) => [
+        key,
+        typeof value === 'string'
+          ? value
+          : `${value.name}:${value.size}:${value.lastModified}`,
+      ]),
   );
+}
+
+function getContentSaveSections(target: EventTarget | null) {
+  if (
+    !(target instanceof HTMLInputElement) &&
+    !(target instanceof HTMLSelectElement) &&
+    !(target instanceof HTMLTextAreaElement)
+  ) {
+    return ['profile'] satisfies ContentSaveSection[];
+  }
+
+  const { name } = target;
+  if (name === 'sportSlugs') return ['sports'] satisfies ContentSaveSection[];
+  if (name.startsWith('goal')) return ['goals'] satisfies ContentSaveSection[];
+  if (name.startsWith('social'))
+    return ['socials'] satisfies ContentSaveSection[];
+  if (name.startsWith('gallery'))
+    return ['gallery'] satisfies ContentSaveSection[];
+  if (name.startsWith('sponsor'))
+    return ['sponsors'] satisfies ContentSaveSection[];
+  if (name.startsWith('achievement'))
+    return ['achievements'] satisfies ContentSaveSection[];
+  if (name.startsWith('activity'))
+    return ['activities'] satisfies ContentSaveSection[];
+  if (
+    name === 'contentBlockOrder' ||
+    name.startsWith('media') ||
+    name.startsWith('offer') ||
+    name.startsWith('link') ||
+    name.startsWith('partnership')
+  ) {
+    return ['blocks'] satisfies ContentSaveSection[];
+  }
+
+  return ['profile'] satisfies ContentSaveSection[];
 }
 
 function getAutosaveDelay(target: EventTarget | null) {
@@ -1701,11 +1749,26 @@ export function ContentEditor({
     subscription.isActive ? Math.max(1, goals.length) : 1,
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const dirtySectionsInputRef = useRef<HTMLInputElement>(null);
   const autosaveTimerRef = useRef<number | null>(null);
   const pendingRef = useRef(pending);
   const dirtyRef = useRef(false);
   const lastSavedFingerprintRef = useRef('');
   const inFlightFingerprintRef = useRef<string | null>(null);
+  const dirtySectionsRef = useRef(new Set<ContentSaveSection>());
+  const inFlightSectionsRef = useRef<ContentSaveSection[]>([]);
+
+  const markDirtySections = (
+    sections: ContentSaveSection | ContentSaveSection[],
+  ) => {
+    const nextSections = Array.isArray(sections) ? sections : [sections];
+    nextSections.forEach((section) => dirtySectionsRef.current.add(section));
+    if (dirtySectionsInputRef.current) {
+      dirtySectionsInputRef.current.value = Array.from(
+        dirtySectionsRef.current,
+      ).join(',');
+    }
+  };
 
   const submitWhenReady = () => {
     if (pendingRef.current) {
@@ -1727,22 +1790,40 @@ export function ContentEditor({
 
     dirtyRef.current = false;
     inFlightFingerprintRef.current = fingerprint;
+    inFlightSectionsRef.current = Array.from(dirtySectionsRef.current);
+    if (!inFlightSectionsRef.current.length) {
+      inFlightSectionsRef.current = ['profile'];
+    }
+    if (dirtySectionsInputRef.current) {
+      dirtySectionsInputRef.current.value =
+        inFlightSectionsRef.current.join(',');
+    }
     form.requestSubmit();
+    dirtySectionsRef.current.clear();
+    if (dirtySectionsInputRef.current) {
+      dirtySectionsInputRef.current.value = '';
+    }
   };
-  const scheduleAutosave = (delay = 1200) => {
+  const scheduleAutosave = (
+    delay = 1200,
+    sections?: ContentSaveSection | ContentSaveSection[],
+  ) => {
     if (autosaveTimerRef.current) {
       window.clearTimeout(autosaveTimerRef.current);
     }
 
     dirtyRef.current = true;
+    if (sections) markDirtySections(sections);
     onAutosaveStatusChange?.('waiting');
     autosaveTimerRef.current = window.setTimeout(submitWhenReady, delay);
   };
-  const schedulePreviewUpdate = () => {
+  const schedulePreviewUpdate = (
+    sections: ContentSaveSection | ContentSaveSection[] = 'blocks',
+  ) => {
     window.requestAnimationFrame(() => {
       if (formRef.current) {
         onPreviewChange?.(formRef.current);
-        scheduleAutosave(120);
+        scheduleAutosave(400, sections);
       }
     });
   };
@@ -1775,8 +1856,11 @@ export function ContentEditor({
 
     if (state.success && inFlightFingerprintRef.current) {
       lastSavedFingerprintRef.current = inFlightFingerprintRef.current;
+    } else if (!state.success) {
+      markDirtySections(inFlightSectionsRef.current);
     }
     inFlightFingerprintRef.current = null;
+    inFlightSectionsRef.current = [];
 
     if (dirtyRef.current) {
       onAutosaveStatusChange?.('waiting');
@@ -1792,7 +1876,10 @@ export function ContentEditor({
       className="space-y-4"
       onChange={(event) => {
         onPreviewChange?.(event.currentTarget);
-        scheduleAutosave(getAutosaveDelay(event.target));
+        scheduleAutosave(
+          getAutosaveDelay(event.target),
+          getContentSaveSections(event.target),
+        );
       }}
       ref={formRef}
     >
@@ -1801,6 +1888,7 @@ export function ContentEditor({
         type="hidden"
         value={profile.isPublished ? 'on' : ''}
       />
+      <input ref={dirtySectionsInputRef} name="dirtySections" type="hidden" />
       <input name="coverUrl" type="hidden" value={profile.coverUrl} />
       <div>
         <div>
@@ -1823,7 +1911,7 @@ export function ContentEditor({
           name="avatarUrl"
           previewShape="square"
           value={profile.avatarUrl}
-          onValueChange={schedulePreviewUpdate}
+          onValueChange={() => schedulePreviewUpdate('profile')}
         />
         <Field
           label="Display name"
@@ -1874,7 +1962,7 @@ export function ContentEditor({
               type="button"
               onClick={() => {
                 setGoalCount((current) => Math.min(3, current + 1));
-                schedulePreviewUpdate();
+                schedulePreviewUpdate('goals');
               }}
             >
               <Plus className="h-4 w-4" />
@@ -1909,14 +1997,22 @@ export function ContentEditor({
       >
         <SocialLinksEditor
           links={builder.socialLinks}
-          onStructureChange={schedulePreviewUpdate}
+          onStructureChange={() => schedulePreviewUpdate('socials')}
         />
       </EditorSection>
 
       <ContentBlocksEditor
         builder={builder}
         subscription={subscription}
-        onStructureChange={schedulePreviewUpdate}
+        onStructureChange={() =>
+          schedulePreviewUpdate([
+            'blocks',
+            'gallery',
+            'sponsors',
+            'achievements',
+            'activities',
+          ])
+        }
       />
     </form>
   );

@@ -15,11 +15,79 @@ const allowedImageTypes = new Map([
   ['image/avif', 'avif'],
 ]);
 
+type ImageFolder =
+  'avatars' | 'covers' | 'gallery' | 'sponsors' | 'offers' | 'links';
+
+const maxImageDimension: Record<ImageFolder, number> = {
+  avatars: 800,
+  covers: 1920,
+  gallery: 1400,
+  sponsors: 800,
+  offers: 1400,
+  links: 1200,
+};
+
+async function optimizeImage(file: File, folder: ImageFolder) {
+  if (file.type === 'image/gif') return file;
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxDimension = maxImageDimension[folder];
+    const scale = Math.min(
+      1,
+      maxDimension / Math.max(bitmap.width, bitmap.height),
+    );
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      bitmap.close();
+      return file;
+    }
+
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/webp', 0.82),
+    );
+
+    if (!blob || (scale === 1 && blob.size >= file.size)) return file;
+
+    return new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {
+      type: 'image/webp',
+      lastModified: file.lastModified,
+    });
+  } catch {
+    return file;
+  }
+}
+
+function getOwnedStoragePath(url: string, userId: string) {
+  try {
+    const marker = `/storage/v1/object/public/${profileMediaBucket}/`;
+    const pathname = new URL(url).pathname;
+    const markerIndex = pathname.indexOf(marker);
+    if (markerIndex < 0) return null;
+
+    const path = decodeURIComponent(
+      pathname.slice(markerIndex + marker.length),
+    );
+    return path.startsWith(`${userId}/`) ? path : null;
+  } catch {
+    return null;
+  }
+}
+
 type ImageUploadFieldProps = {
   name: string;
   label: string;
   value: string;
-  folder: 'avatars' | 'covers' | 'gallery' | 'sponsors' | 'offers' | 'links';
+  folder: ImageFolder;
   helpText?: string;
   previewShape?: 'square' | 'wide' | 'logo';
   onValueChange?: (url: string) => void;
@@ -47,12 +115,37 @@ export function ImageUploadField({
     onValueChange?.(url);
   };
 
+  const removeStoredImage = async (
+    supabase: ReturnType<typeof createBrowserSupabaseClient>,
+    url: string,
+    userId: string,
+  ) => {
+    const path = getOwnedStoragePath(url, userId);
+    if (path) {
+      await supabase.storage.from(profileMediaBucket).remove([path]);
+    }
+  };
+
+  const removeCurrentImage = async () => {
+    if (!currentValue) return;
+
+    setStatus('uploading');
+    const supabase = createBrowserSupabaseClient();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (userData.user) {
+      await removeStoredImage(supabase, currentValue, userData.user.id);
+    }
+
+    updateValue('');
+  };
+
   const uploadFile = async (file: File | undefined) => {
     if (!file) return;
 
-    const extension = allowedImageTypes.get(file.type);
+    const originalExtension = allowedImageTypes.get(file.type);
 
-    if (!extension) {
+    if (!originalExtension) {
       setStatus('error');
       setMessage('Use a JPG, PNG, WebP, GIF, or AVIF image.');
       return;
@@ -67,6 +160,10 @@ export function ImageUploadField({
     setStatus('uploading');
     setMessage('');
 
+    const optimizedFile = await optimizeImage(file, folder);
+    const extension =
+      allowedImageTypes.get(optimizedFile.type) ?? originalExtension;
+
     const supabase = createBrowserSupabaseClient();
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -79,9 +176,9 @@ export function ImageUploadField({
     const path = `${userData.user.id}/${folder}/${crypto.randomUUID()}.${extension}`;
     const { error: uploadError } = await supabase.storage
       .from(profileMediaBucket)
-      .upload(path, file, {
+      .upload(path, optimizedFile, {
         cacheControl: '31536000',
-        contentType: file.type,
+        contentType: optimizedFile.type,
         upsert: false,
       });
 
@@ -95,7 +192,11 @@ export function ImageUploadField({
       .from(profileMediaBucket)
       .getPublicUrl(path);
 
+    const previousValue = currentValue;
     updateValue(data.publicUrl);
+    if (previousValue) {
+      await removeStoredImage(supabase, previousValue, userData.user.id);
+    }
   };
 
   const handleFileChange = async (
@@ -115,7 +216,7 @@ export function ImageUploadField({
             className="text-muted-foreground hover:text-destructive inline-flex items-center gap-1 text-xs font-medium transition-colors"
             disabled={status === 'uploading'}
             type="button"
-            onClick={() => updateValue('')}
+            onClick={() => void removeCurrentImage()}
           >
             <Trash2 className="h-3.5 w-3.5" />
             Remove
