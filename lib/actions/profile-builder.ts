@@ -13,6 +13,7 @@ import {
 } from '@/lib/constants/profile-templates';
 import { getSubscriptionState } from '@/lib/services/billing';
 import {
+  blockShadowStyles,
   colorPresets,
   coverTypes,
   decorativeIconIds,
@@ -90,6 +91,7 @@ const socialLinkSchema = z
 const builderSchema = z.object({
   displayName: z.string().trim().min(1, 'Display name is required.').max(120),
   bio: z.string().trim().max(300).optional(),
+  location: z.string().trim().max(120).optional(),
   sportSlugs: z.array(z.string().trim().max(80)).max(8),
   avatarUrl: urlSchema,
   isPublished: z.boolean(),
@@ -264,6 +266,14 @@ const templateSchema = z.object({
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid header sheet color.'),
   headerSheetFade: z.boolean(),
   decorativeIcon: z.enum(decorativeIconIds),
+  blockCorner: z.coerce.number().min(0).max(100),
+  blockBorder: z.coerce.number().min(0).max(100),
+  blockBorderColor: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid block border color.'),
+  blockShadow: z.coerce.number().min(0).max(100),
+  blockShadowStyle: z.enum(blockShadowStyles),
+  blockSpacing: z.coerce.number().min(0).max(100),
   templateWordingOverrideKeys: z.string().max(500),
   templateWordingDiscipline: z.string().trim().max(60),
   templateWordingBadge: z.string().trim().max(12),
@@ -871,6 +881,7 @@ export async function saveProfileBuilderAction(
   const parsed = builderSchema.safeParse({
     displayName: getString(formData, 'displayName'),
     bio: getString(formData, 'bio'),
+    location: getString(formData, 'location'),
     sportSlugs: getSportSlugs(formData),
     avatarUrl: getString(formData, 'avatarUrl'),
     isPublished: formData.get('isPublished') === 'on',
@@ -941,6 +952,7 @@ export async function saveProfileBuilderAction(
         username,
         display_name: input.displayName,
         bio: input.bio || null,
+        location: input.location || null,
         avatar_url: input.avatarUrl,
         is_published: input.isPublished,
         updated_at: now,
@@ -1135,6 +1147,12 @@ export async function updateProfileTemplateAction(
     headerSheetColor: getString(formData, 'headerSheetColor'),
     headerSheetFade: formData.get('headerSheetFade') === 'true',
     decorativeIcon: getString(formData, 'decorativeIcon'),
+    blockCorner: getString(formData, 'blockCorner'),
+    blockBorder: getString(formData, 'blockBorder'),
+    blockBorderColor: getString(formData, 'blockBorderColor'),
+    blockShadow: getString(formData, 'blockShadow'),
+    blockShadowStyle: getString(formData, 'blockShadowStyle'),
+    blockSpacing: getString(formData, 'blockSpacing'),
     templateWordingOverrideKeys: getString(
       formData,
       'templateWordingOverrideKeys',
@@ -1298,6 +1316,12 @@ export async function updateProfileTemplateAction(
         headerSheetColor: parsed.data.headerSheetColor,
         headerSheetFade: parsed.data.headerSheetFade,
         decorativeIcon: parsed.data.decorativeIcon,
+        blockCorner: parsed.data.blockCorner,
+        blockBorder: parsed.data.blockBorder,
+        blockBorderColor: parsed.data.blockBorderColor,
+        blockShadow: parsed.data.blockShadow,
+        blockShadowStyle: parsed.data.blockShadowStyle,
+        blockSpacing: parsed.data.blockSpacing,
         templateWordingOverrides,
       },
       updated_at: new Date().toISOString(),

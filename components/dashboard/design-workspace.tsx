@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils/cn';
 import type { SubscriptionState } from '@/lib/types/billing';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import {
+  blockShadowStyles,
   colorPresets,
   coverTypes,
   fontPresets,
@@ -39,7 +40,6 @@ import {
   getTemplateThemePreset,
   headerLayouts,
   overlayPresets,
-  radiusPresets,
   resolveThemeSettings,
   type ProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
@@ -408,6 +408,7 @@ function createLivePreviewState(
       ...builder.profile,
       displayName: getValue('displayName'),
       bio: getValue('bio'),
+      location: getValue('location'),
       sports: selectedSports.map((sport) => sport.name),
       sportSlugs: selectedSports.map((sport) => sport.slug),
       avatarUrl: getValue('avatarUrl'),
@@ -569,6 +570,34 @@ function DecorativeIconPicker({
         })}
       </div>
     </details>
+  );
+}
+
+function AppearanceRange({
+  label,
+  value,
+  onValueChange,
+}: {
+  label: string;
+  value: number;
+  onValueChange: (value: number) => void;
+}) {
+  return (
+    <label className="border-border bg-muted/30 flex items-center gap-3 rounded-lg border px-3 py-2.5">
+      <span className="min-w-0 flex-1 text-xs font-medium">{label}</span>
+      <input
+        aria-label={label}
+        className="accent-primary w-24 sm:w-28"
+        max="100"
+        min="0"
+        type="range"
+        value={value}
+        onChange={(event) => onValueChange(Number(event.target.value))}
+      />
+      <span className="bg-background text-muted-foreground w-12 rounded-md px-1.5 py-1 text-center font-mono text-[11px]">
+        {Math.round(value)}%
+      </span>
+    </label>
   );
 }
 
@@ -766,6 +795,36 @@ function TemplateSelector({
         name="decorativeIcon"
         type="hidden"
         value={themeSettings.decorativeIcon}
+      />
+      <input
+        name="blockCorner"
+        type="hidden"
+        value={themeSettings.blockCorner}
+      />
+      <input
+        name="blockBorder"
+        type="hidden"
+        value={themeSettings.blockBorder}
+      />
+      <input
+        name="blockBorderColor"
+        type="hidden"
+        value={themeSettings.blockBorderColor}
+      />
+      <input
+        name="blockShadow"
+        type="hidden"
+        value={themeSettings.blockShadow}
+      />
+      <input
+        name="blockShadowStyle"
+        type="hidden"
+        value={themeSettings.blockShadowStyle}
+      />
+      <input
+        name="blockSpacing"
+        type="hidden"
+        value={themeSettings.blockSpacing}
       />
       <input
         name="templateWordingOverrideKeys"
@@ -1374,50 +1433,102 @@ function TemplateSelector({
 
         <StyleSection
           title="Appearance"
-          description="Corners and gallery"
+          description="Shape, depth and spacing"
           icon={SlidersHorizontal}
         >
-          {[
-            {
-              label: 'Corners',
-              key: 'radiusPreset' as const,
-              values: radiusPresets,
-            },
-            {
-              label: 'Gallery layout',
-              key: 'galleryLayout' as const,
-              values: galleryLayouts,
-            },
-          ].map((group) => (
-            <div key={group.key}>
-              <p className="text-xs font-semibold">{group.label}</p>
-              <div className="bg-muted mt-2 grid grid-cols-3 gap-1 rounded-lg p-1">
-                {group.values.map((value) => (
-                  <button
-                    type="button"
-                    key={value}
-                    onClick={() =>
-                      handleThemeChange({
-                        ...themeSettings,
-                        [group.key]: value,
-                      })
-                    }
-                    className={cn(
-                      'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
-                      themeSettings[group.key] === value
-                        ? 'bg-background shadow-sm'
-                        : 'text-muted-foreground',
-                    )}
-                  >
-                    {value}
-                    {group.key === 'galleryLayout' && value !== 'grid'
-                      ? ' · Pro'
-                      : ''}
-                  </button>
-                ))}
-              </div>
+          <AppearanceRange
+            label="Block corner"
+            value={themeSettings.blockCorner}
+            onValueChange={(blockCorner) =>
+              handleThemeChange({ ...themeSettings, blockCorner })
+            }
+          />
+          <AppearanceRange
+            label="Block border"
+            value={themeSettings.blockBorder}
+            onValueChange={(blockBorder) =>
+              handleThemeChange({ ...themeSettings, blockBorder })
+            }
+          />
+          <label className="border-border bg-muted/30 flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5">
+            <span className="text-xs font-medium">Block border color</span>
+            <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
+              <input
+                aria-label="Block border color"
+                className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                type="color"
+                value={themeSettings.blockBorderColor}
+                onChange={(event) =>
+                  handleThemeChange({
+                    ...themeSettings,
+                    blockBorderColor: event.target.value,
+                  })
+                }
+              />
+              <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                {themeSettings.blockBorderColor}
+              </span>
+            </span>
+          </label>
+          <AppearanceRange
+            label="Block shadow"
+            value={themeSettings.blockShadow}
+            onValueChange={(blockShadow) =>
+              handleThemeChange({ ...themeSettings, blockShadow })
+            }
+          />
+          {themeSettings.blockShadow > 0 ? (
+            <div className="border-border grid grid-cols-2 overflow-hidden rounded-lg border">
+              {blockShadowStyles.map((blockShadowStyle) => (
+                <button
+                  key={blockShadowStyle}
+                  className={cn(
+                    'border-border h-10 border-r text-xs font-medium capitalize last:border-r-0',
+                    themeSettings.blockShadowStyle === blockShadowStyle
+                      ? 'bg-primary/10 text-primary'
+                      : 'bg-background text-muted-foreground hover:bg-muted/40',
+                  )}
+                  type="button"
+                  onClick={() =>
+                    handleThemeChange({ ...themeSettings, blockShadowStyle })
+                  }
+                >
+                  {blockShadowStyle} shadow
+                </button>
+              ))}
             </div>
-          ))}
+          ) : null}
+          <AppearanceRange
+            label="Block spacing"
+            value={themeSettings.blockSpacing}
+            onValueChange={(blockSpacing) =>
+              handleThemeChange({ ...themeSettings, blockSpacing })
+            }
+          />
+
+          <div className="border-border border-t pt-3">
+            <p className="text-xs font-semibold">Gallery layout</p>
+            <div className="bg-muted mt-2 grid grid-cols-3 gap-1 rounded-lg p-1">
+              {galleryLayouts.map((galleryLayout) => (
+                <button
+                  key={galleryLayout}
+                  className={cn(
+                    'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
+                    themeSettings.galleryLayout === galleryLayout
+                      ? 'bg-background shadow-sm'
+                      : 'text-muted-foreground',
+                  )}
+                  type="button"
+                  onClick={() =>
+                    handleThemeChange({ ...themeSettings, galleryLayout })
+                  }
+                >
+                  {galleryLayout}
+                  {galleryLayout !== 'grid' ? ' · Pro' : ''}
+                </button>
+              ))}
+            </div>
+          </div>
         </StyleSection>
       </div>
     </form>

@@ -165,7 +165,11 @@ function SportContentBlock({
 
   if (block.type === 'gallery') {
     return galleryItems.length ? (
-      <section key={blockKey} className="col-span-full">
+      <section
+        key={blockKey}
+        className="col-span-full p-4"
+        style={{ backgroundColor: visual.surface, ...theme.blockStyle }}
+      >
         {text.galleryLabel ? (
           <div className="mb-3 flex items-center gap-2">
             <Flag className="h-4 w-4" style={{ color: visual.accent }} />
@@ -207,8 +211,8 @@ function SportContentBlock({
         className={cn(theme.radiusClass, 'border p-5')}
         style={{
           backgroundColor: visual.surface,
-          borderColor: `color-mix(in srgb, ${visual.accent} 34%, transparent)`,
           color: visual.text,
+          ...theme.blockStyle,
         }}
       >
         {text.achievementsLabel ? (
@@ -247,8 +251,8 @@ function SportContentBlock({
       className={cn(theme.radiusClass, 'border p-5')}
       style={{
         backgroundColor: visual.hero,
-        borderColor: visual.hero,
         color: visual.heroText,
+        ...theme.blockStyle,
       }}
     >
       {text.activityLabel ? (
@@ -366,13 +370,13 @@ export function SportProfileTemplate({
           isPreview ? 'px-4 py-5' : 'px-5 py-8 sm:px-8 lg:px-12',
         )}
       >
-        <div className="grid gap-4">
+        <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
           <div
             className={cn(theme.radiusClass, 'border p-5 sm:p-6')}
             style={{
               backgroundColor: visual.surface,
-              borderColor: `color-mix(in srgb, ${visual.accent} 27%, transparent)`,
               color: visual.text,
+              ...theme.blockStyle,
             }}
           >
             {text.profileLabel ? (
@@ -398,11 +402,27 @@ export function SportProfileTemplate({
                 {builder.profile.location}
               </p>
             ) : null}
+            {builder.profile.sports.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {builder.profile.sports.map((sport) => (
+                  <span
+                    key={sport}
+                    className="rounded-full px-3 py-1.5 text-xs font-bold"
+                    style={{
+                      backgroundColor: visual.accent,
+                      color: visual.accentText,
+                    }}
+                  >
+                    {sport}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             {socialLinks.length ? (
               <div className="mt-5 flex flex-wrap gap-2">
-                {socialLinks.map((link) => (
+                {socialLinks.map((link, index) => (
                   <a
-                    key={`${link.platform}-${link.url}`}
+                    key={link.id ?? `social-${link.sortOrder}-${index}`}
                     aria-label={link.label || link.platform}
                     className="flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition hover:-translate-y-0.5"
                     href={getSocialLinkHref(link.platform, link.url)}
@@ -437,6 +457,7 @@ export function SportProfileTemplate({
             style={{
               backgroundColor: visual.accent,
               color: visual.accentText,
+              ...theme.blockStyle,
             }}
           >
             <ProfileDecorativeIcon
@@ -465,15 +486,21 @@ export function SportProfileTemplate({
         </div>
 
         {secondaryGoals.length ? (
-          <div className="mt-4 grid gap-4">
+          <div
+            className="grid"
+            style={{
+              gap: `${theme.blockGap}px`,
+              marginTop: `${theme.blockGap}px`,
+            }}
+          >
             {secondaryGoals.map((goal) => (
               <div
                 key={`${goal.title}-${goal.sortOrder}`}
                 className={cn(theme.radiusClass, 'border p-5')}
                 style={{
                   backgroundColor: visual.surface,
-                  borderColor: `color-mix(in srgb, ${visual.accent} 27%, transparent)`,
                   color: visual.text,
+                  ...theme.blockStyle,
                 }}
               >
                 {text.secondaryGoalLabel ? (
@@ -499,7 +526,13 @@ export function SportProfileTemplate({
           </div>
         ) : null}
 
-        <div className="mt-4 grid gap-4">
+        <div
+          className="grid"
+          style={{
+            gap: `${theme.blockGap}px`,
+            marginTop: `${theme.blockGap}px`,
+          }}
+        >
           {contentBlocks.map((block, index) => (
             <SportContentBlock
               key={block.id ?? `${block.type}-${block.sortOrder}-${index}`}

@@ -167,6 +167,7 @@ export const decorativeIconIds = [
   'activity',
   'flag',
 ] as const;
+export const blockShadowStyles = ['soft', 'solid'] as const;
 
 export type ColorPresetId = (typeof colorPresets)[number]['id'] | 'custom';
 export type FontPresetId = (typeof fontPresets)[number]['id'];
@@ -176,6 +177,7 @@ export type GalleryLayout = (typeof galleryLayouts)[number];
 export type CoverType = (typeof coverTypes)[number];
 export type HeaderLayout = (typeof headerLayouts)[number];
 export type DecorativeIconId = (typeof decorativeIconIds)[number];
+export type BlockShadowStyle = (typeof blockShadowStyles)[number];
 
 export type ProfileThemeSettings = {
   colorPreset: ColorPresetId;
@@ -205,6 +207,12 @@ export type ProfileThemeSettings = {
   headerSheetColor: string;
   headerSheetFade: boolean;
   decorativeIcon: DecorativeIconId;
+  blockCorner: number;
+  blockBorder: number;
+  blockBorderColor: string;
+  blockShadow: number;
+  blockShadowStyle: BlockShadowStyle;
+  blockSpacing: number;
 };
 
 export const defaultThemeSettings: ProfileThemeSettings = {
@@ -235,6 +243,12 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   headerSheetColor: '#ffffff',
   headerSheetFade: true,
   decorativeIcon: 'auto',
+  blockCorner: 75,
+  blockBorder: 25,
+  blockBorderColor: '#e2e8f0',
+  blockShadow: 12,
+  blockShadowStyle: 'soft',
+  blockSpacing: 35,
 };
 
 function createTemplateThemePreset(
@@ -242,9 +256,15 @@ function createTemplateThemePreset(
     customColors?: Partial<ProfileThemeSettings['customColors']>;
   },
 ): ProfileThemeSettings {
+  const radiusPreset =
+    overrides.radiusPreset ?? defaultThemeSettings.radiusPreset;
+
   return {
     ...defaultThemeSettings,
     ...overrides,
+    blockCorner:
+      overrides.blockCorner ??
+      { sharp: 0, soft: 38, rounded: 75 }[radiusPreset],
     customColors: {
       ...defaultThemeSettings.customColors,
       ...overrides.customColors,
@@ -264,6 +284,9 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerLayout: 'centered',
     headerAvatarSize: 96,
     headerSheetColor: '#ffffff',
+    blockBorderColor: '#e2e8f0',
+    blockShadow: 12,
+    blockSpacing: 35,
   }),
   sport_running: createTemplateThemePreset({
     colorPreset: 'endurance_orange',
@@ -276,6 +299,10 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerLayout: 'left',
     headerAvatarSize: 80,
     headerSheetColor: '#18181b',
+    blockBorder: 12,
+    blockBorderColor: '#3f3f46',
+    blockShadow: 18,
+    blockSpacing: 42,
   }),
   sport_boxing: createTemplateThemePreset({
     colorPreset: 'performance_red',
@@ -290,6 +317,11 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerLayout: 'left',
     headerAvatarSize: 72,
     headerSheetColor: '#fff7ed',
+    blockBorder: 55,
+    blockBorderColor: '#ef4444',
+    blockShadow: 32,
+    blockShadowStyle: 'solid',
+    blockSpacing: 24,
   }),
   sport_mma: createTemplateThemePreset({
     colorPreset: 'obsidian_lime',
@@ -305,6 +337,11 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 72,
     headerSheetColor: '#09090b',
     headerSheetFade: true,
+    blockBorder: 30,
+    blockBorderColor: '#3f6212',
+    blockShadow: 0,
+    blockShadowStyle: 'solid',
+    blockSpacing: 20,
   }),
   sport_strength: createTemplateThemePreset({
     colorPreset: 'midnight_blue',
@@ -319,6 +356,10 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerLayout: 'split',
     headerAvatarSize: 112,
     headerSheetColor: '#10233d',
+    blockBorder: 35,
+    blockBorderColor: '#1e3a5f',
+    blockShadow: 28,
+    blockSpacing: 32,
   }),
   sport_hyrox: createTemplateThemePreset({
     colorPreset: 'electric_purple',
@@ -331,6 +372,10 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerLayout: 'centered',
     headerAvatarSize: 88,
     headerSheetColor: '#11102a',
+    blockBorder: 45,
+    blockBorderColor: '#4f46e5',
+    blockShadow: 8,
+    blockSpacing: 26,
   }),
   sport_football: createTemplateThemePreset({
     colorPreset: 'forest',
@@ -345,6 +390,10 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerLayout: 'split',
     headerAvatarSize: 104,
     headerSheetColor: '#173b30',
+    blockBorder: 22,
+    blockBorderColor: '#245244',
+    blockShadow: 14,
+    blockSpacing: 38,
   }),
   sport_cycling: createTemplateThemePreset({
     colorPreset: 'custom',
@@ -371,6 +420,10 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 64,
     headerSheetColor: '#f4f0e8',
     headerSheetFade: true,
+    blockBorder: 18,
+    blockBorderColor: '#bfdbfe',
+    blockShadow: 20,
+    blockSpacing: 46,
   }),
 };
 
@@ -549,6 +602,47 @@ export function resolveThemeSettings(
     )
       ? (theme.decorativeIcon as DecorativeIconId)
       : defaultThemeSettings.decorativeIcon,
+    blockCorner: resolveNumber(
+      theme.blockCorner,
+      {
+        sharp: 0,
+        soft: 38,
+        rounded: 75,
+      }[
+        radiusPresets.includes(theme.radiusPreset as RadiusPreset)
+          ? (theme.radiusPreset as RadiusPreset)
+          : defaultThemeSettings.radiusPreset
+      ],
+      0,
+      100,
+    ),
+    blockBorder: resolveNumber(
+      theme.blockBorder,
+      defaultThemeSettings.blockBorder,
+      0,
+      100,
+    ),
+    blockBorderColor: resolveColor(
+      theme.blockBorderColor,
+      resolvedCustomColors.social,
+    ),
+    blockShadow: resolveNumber(
+      theme.blockShadow,
+      defaultThemeSettings.blockShadow,
+      0,
+      100,
+    ),
+    blockShadowStyle: blockShadowStyles.includes(
+      theme.blockShadowStyle as BlockShadowStyle,
+    )
+      ? (theme.blockShadowStyle as BlockShadowStyle)
+      : defaultThemeSettings.blockShadowStyle,
+    blockSpacing: resolveNumber(
+      theme.blockSpacing,
+      defaultThemeSettings.blockSpacing,
+      0,
+      100,
+    ),
   };
 }
 
@@ -639,6 +733,13 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
       body: 'ui-sans-serif, system-ui, sans-serif',
     },
   }[settings.fontPreset];
+  const blockRadius = Math.round(settings.blockCorner * 0.32);
+  const blockBorderWidth = Number((settings.blockBorder * 0.04).toFixed(2));
+  const blockShadowOpacity = Number((settings.blockShadow * 0.0024).toFixed(3));
+  const blockShadowY = Math.round(settings.blockShadow * 0.08);
+  const blockShadowBlur = Math.round(settings.blockShadow * 0.24);
+  const blockGap = Math.round(8 + settings.blockSpacing * 0.24);
+
   return {
     ...settings,
     color,
@@ -651,6 +752,19 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
       soft: 'rounded-xl',
       rounded: 'rounded-3xl',
     }[settings.radiusPreset],
+    blockStyle: {
+      borderColor: settings.blockBorderColor,
+      borderRadius: `${blockRadius}px`,
+      borderStyle: 'solid' as const,
+      borderWidth: `${blockBorderWidth}px`,
+      boxShadow:
+        settings.blockShadow > 0
+          ? settings.blockShadowStyle === 'solid'
+            ? `${blockShadowY}px ${blockShadowY}px 0 ${settings.blockBorderColor}`
+            : `0 ${blockShadowY}px ${blockShadowBlur}px rgba(15, 23, 42, ${blockShadowOpacity})`
+          : 'none',
+    },
+    blockGap,
     fontFamilies,
   };
 }

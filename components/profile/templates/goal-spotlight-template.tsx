@@ -1,3 +1,4 @@
+import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
@@ -103,12 +104,13 @@ export function GoalSpotlightTemplate({
             : 'max-w-6xl px-5 py-8 sm:px-8 lg:px-12',
         )}
       >
-        <div className="space-y-6">
+        <div className="flex flex-col" style={{ gap: `${theme.blockGap}px` }}>
           <div
             className={cn(theme.radiusClass, 'p-6 shadow-sm')}
             style={{
               backgroundColor: theme.palette.surface,
               color: theme.palette.text,
+              ...theme.blockStyle,
             }}
           >
             {wording.profileLabel ? (
@@ -128,6 +130,15 @@ export function GoalSpotlightTemplate({
             >
               {profileSummary}
             </p>
+            {profile.location ? (
+              <p
+                className="mt-4 flex items-center gap-2 text-xs font-medium"
+                style={{ color: theme.palette.description }}
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                {profile.location}
+              </p>
+            ) : null}
             {sports.length ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {sports.map((sport) => (
@@ -146,9 +157,9 @@ export function GoalSpotlightTemplate({
             ) : null}
             {socialLinks.length ? (
               <div className="mt-5 flex flex-wrap gap-2">
-                {socialLinks.map((link) => (
+                {socialLinks.map((link, index) => (
                   <a
-                    key={`${link.platform}-${link.url}`}
+                    key={link.id ?? `social-${link.sortOrder}-${index}`}
                     aria-label={link.label || link.platform}
                     className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition"
                     style={{
@@ -176,7 +187,7 @@ export function GoalSpotlightTemplate({
           </div>
 
           {secondaryGoals.length ? (
-            <div className="grid gap-4">
+            <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
               {secondaryGoals.map((goal) => (
                 <div
                   key={`${goal.title}-${goal.sortOrder}`}
@@ -184,6 +195,7 @@ export function GoalSpotlightTemplate({
                   style={{
                     backgroundColor: theme.palette.surface,
                     color: theme.palette.text,
+                    ...theme.blockStyle,
                   }}
                 >
                   {wording.secondaryGoalLabel ? (
@@ -227,7 +239,14 @@ export function GoalSpotlightTemplate({
 
             if (type === 'gallery') {
               return galleryItems.length ? (
-                <section key={blockKey}>
+                <section
+                  key={blockKey}
+                  className="p-4"
+                  style={{
+                    backgroundColor: theme.palette.surface,
+                    ...theme.blockStyle,
+                  }}
+                >
                   {wording.galleryLabel ? (
                     <p
                       className="mb-3 text-sm font-semibold"
@@ -270,6 +289,7 @@ export function GoalSpotlightTemplate({
                   style={{
                     backgroundColor: theme.palette.surface,
                     color: theme.palette.text,
+                    ...theme.blockStyle,
                   }}
                 >
                   {wording.achievementsLabel ? (
@@ -338,6 +358,7 @@ export function GoalSpotlightTemplate({
                 style={{
                   backgroundColor: theme.palette.surface,
                   color: theme.palette.text,
+                  ...theme.blockStyle,
                 }}
               >
                 {wording.activityLabel ? (

@@ -128,8 +128,8 @@ export function SponsorsPartnershipsBlock({
       )}
       style={{
         backgroundColor: theme.palette.surface,
-        borderColor: theme.palette.border,
         color: theme.palette.text,
+        ...theme.blockStyle,
       }}
     >
       {sponsors.length ? (

@@ -71,6 +71,7 @@ export function MediaBlock({
       style={{
         backgroundColor: theme.palette.surface,
         color: theme.palette.text,
+        ...theme.blockStyle,
       }}
     >
       {player}

@@ -150,7 +150,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       bio: 'I run and build my athlete story.',
       sports: ['Running'],
       sportSlugs: ['running'],
-      location: 'Bangkok',
+      location: '',
       avatarUrl: '',
       coverUrl: '',
       isPublished: false,

@@ -1609,6 +1609,12 @@ export function ContentEditor({
           defaultValue={profile.bio}
           placeholder="Tell the story in a few lines."
         />
+        <Field
+          label="Location"
+          name="location"
+          defaultValue={profile.location}
+          placeholder="Bangkok, Thailand"
+        />
         <SportsField
           availableSports={builder.availableSports}
           selectedSlugs={profile.sportSlugs}
