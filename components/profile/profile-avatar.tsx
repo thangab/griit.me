@@ -45,7 +45,6 @@ export function ProfileAvatar({
     <div
       className={cn(
         'relative flex shrink-0 items-center justify-center overflow-hidden text-sm font-bold uppercase',
-        isPolygon ? 'p-[2px]' : 'border-2',
         className,
       )}
       style={{
@@ -54,7 +53,6 @@ export function ProfileAvatar({
         ...shapeStyle,
         ...(isPolygon
           ? {
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
               filter: 'drop-shadow(0 5px 7px rgba(0, 0, 0, 0.14))',
             }
           : {}),

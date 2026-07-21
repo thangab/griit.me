@@ -912,6 +912,19 @@ function ContentBlocksEditor({
       (_, index) => index,
     ),
   );
+  const [activitySlots, setActivitySlots] = useState(() =>
+    Array.from(
+      {
+        length: Math.max(
+          1,
+          subscription.isActive
+            ? builder.activities.length
+            : Math.min(3, builder.activities.length),
+        ),
+      },
+      (_, index) => index,
+    ),
+  );
   const [sponsorSlots, setSponsorSlots] = useState(() =>
     Array.from(
       { length: Math.max(1, builder.sponsors.length) },
@@ -980,7 +993,6 @@ function ContentBlocksEditor({
 
     return orderedBlocks;
   });
-  const activity = builder.activities[0];
   const galleryItems = builder.galleryItems;
   const choices = availableContentBlocks.filter(
     (block) =>
@@ -1620,33 +1632,103 @@ function ContentBlocksEditor({
                           placeholder="Add a little context about this link."
                         />
                       </>
-                    ) : (
+                    ) : type === 'activities' ? (
                       <>
-                        <input
-                          name="activityId1"
-                          type="hidden"
-                          value={activity?.id ?? ''}
-                        />
-                        <Field
-                          label="Activity"
-                          name="activityTitle1"
-                          defaultValue={activity?.title ?? ''}
-                          placeholder="Sunday long run"
-                        />
-                        <Field
-                          label="Activity type"
-                          name="activityType1"
-                          defaultValue={activity?.description ?? ''}
-                          placeholder="Running"
-                        />
-                        <Field
-                          label="Date"
-                          name="activityDate1"
-                          defaultValue={activity?.date ?? ''}
-                          type="date"
-                        />
+                        {activitySlots.map((slot, position) => {
+                          const activity = builder.activities[slot];
+                          const number = slot + 1;
+
+                          return (
+                            <div
+                              key={slot}
+                              className={
+                                position > 0
+                                  ? 'border-border space-y-3 border-t pt-3'
+                                  : 'space-y-3'
+                              }
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-xs font-semibold">
+                                  Activity {position + 1}
+                                </p>
+                                {activitySlots.length > 1 ? (
+                                  <button
+                                    aria-label={`Remove activity ${position + 1}`}
+                                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
+                                    type="button"
+                                    onClick={() => {
+                                      setActivitySlots((current) =>
+                                        current.filter((item) => item !== slot),
+                                      );
+                                      onStructureChange();
+                                    }}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                ) : null}
+                              </div>
+                              <input
+                                name={`activityId${number}`}
+                                type="hidden"
+                                value={activity?.id ?? ''}
+                              />
+                              <Field
+                                label="Activity"
+                                name={`activityTitle${number}`}
+                                defaultValue={activity?.title ?? ''}
+                                placeholder="Sunday long run"
+                              />
+                              <Field
+                                label="Activity type"
+                                name={`activityType${number}`}
+                                defaultValue={activity?.description ?? ''}
+                                placeholder="Running"
+                              />
+                              <Field
+                                label="Date"
+                                name={`activityDate${number}`}
+                                defaultValue={activity?.date ?? ''}
+                                type="date"
+                              />
+                            </div>
+                          );
+                        })}
+                        {activitySlots.length < 3 ||
+                        (subscription.isActive && activitySlots.length < 50) ? (
+                          <button
+                            className="border-border text-muted-foreground hover:border-primary/40 hover:text-primary flex h-9 w-full items-center justify-center gap-2 rounded-md border border-dashed text-xs font-semibold transition-colors"
+                            type="button"
+                            onClick={() => {
+                              const nextSlot = activitySlots.length
+                                ? Math.max(...activitySlots) + 1
+                                : 0;
+                              setActivitySlots((current) => [
+                                ...current,
+                                nextSlot,
+                              ]);
+                              onStructureChange();
+                            }}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            Add activity
+                          </button>
+                        ) : !subscription.isActive ? (
+                          <Link
+                            className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
+                            href="/dashboard/settings"
+                          >
+                            <span className="flex items-center gap-2 text-xs font-semibold">
+                              <Plus className="h-3.5 w-3.5" />
+                              Add more activities
+                            </span>
+                            <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
+                              <Lock className="h-3 w-3" />
+                              Pro
+                            </span>
+                          </Link>
+                        ) : null}
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </details>
               );

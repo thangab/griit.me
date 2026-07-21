@@ -83,7 +83,7 @@ export function ProfileHeader({
       >
         <ProfileAvatar
           avatarUrl={profile.avatarUrl}
-          className={onSheet ? 'border-white shadow-lg' : 'border-white/80'}
+          className={onSheet ? 'shadow-lg' : undefined}
           displayName={profile.displayName}
           priority={!isPreview}
           shape={theme.headerAvatarShape}
@@ -237,7 +237,7 @@ export function ProfileHeader({
           <div
             className={cn(
               'relative overflow-hidden border-y border-dashed bg-cover bg-center',
-              isMobilePreview ? 'h-36' : 'h-36 sm:h-44',
+              isMobilePreview ? 'h-24' : 'h-24 sm:h-34',
             )}
             style={{ ...coverStyle, borderColor: theme.palette.border }}
           >
@@ -281,8 +281,8 @@ export function ProfileHeader({
             theme.radiusClass,
             'relative mx-auto flex max-w-2xl flex-col justify-between overflow-hidden border bg-cover bg-center',
             isMobilePreview
-              ? 'mx-4 min-h-[620px]'
-              : 'mx-4 min-h-[620px] sm:mx-auto',
+              ? 'mx-4 min-h-[520px]'
+              : 'mx-4 min-h-[520px] sm:mx-auto',
           )}
           style={{ ...coverStyle, borderColor: theme.palette.border }}
         >

@@ -235,7 +235,7 @@ const builderSchema = z.object({
         occurredAt: dateSchema,
       }),
     )
-    .max(1),
+    .max(50),
   goals: z
     .array(
       z.object({
@@ -456,14 +456,26 @@ function getAchievements(formData: FormData) {
 }
 
 function getActivities(formData: FormData) {
-  return [
-    {
-      id: getPersistedId(formData, 'activityId1'),
-      title: getString(formData, 'activityTitle1'),
-      activityType: getString(formData, 'activityType1'),
-      occurredAt: getString(formData, 'activityDate1'),
-    },
-  ];
+  return Array.from(formData.entries())
+    .filter(([key]) => /^activityTitle\d+$/.test(key))
+    .map(([key, value]) => {
+      const index = Number(key.replace('activityTitle', ''));
+
+      return {
+        index,
+        id: getPersistedId(formData, `activityId${index}`),
+        title: String(value).trim(),
+        activityType: getString(formData, `activityType${index}`),
+        occurredAt: getString(formData, `activityDate${index}`),
+      };
+    })
+    .sort((left, right) => left.index - right.index)
+    .map(({ id, title, activityType, occurredAt }) => ({
+      id,
+      title,
+      activityType,
+      occurredAt,
+    }));
 }
 
 function getSportSlugs(formData: FormData) {
@@ -1168,8 +1180,16 @@ export async function saveProfileBuilderAction(
   const achievementCount = input.achievements.filter(
     (achievement) => achievement.title,
   ).length;
+  const activityCount = input.activities.filter(
+    (activity) => activity.title,
+  ).length;
 
-  if (goalCount > 1 || galleryCount > 3 || achievementCount > 3) {
+  if (
+    goalCount > 1 ||
+    galleryCount > 3 ||
+    achievementCount > 3 ||
+    activityCount > 3
+  ) {
     const subscription = await getSubscriptionState();
 
     if (!subscription.isActive) {
@@ -1180,7 +1200,9 @@ export async function saveProfileBuilderAction(
             ? 'Multiple goals require the Pro plan.'
             : galleryCount > 3
               ? 'More than 3 gallery images require the Pro plan.'
-              : 'More than 3 achievements require the Pro plan.',
+              : achievementCount > 3
+                ? 'More than 3 achievements require the Pro plan.'
+                : 'More than 3 activities require the Pro plan.',
       };
     }
   }

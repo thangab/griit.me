@@ -1,9 +1,12 @@
 'use client';
 
 import {
+  memo,
   useActionState,
   useCallback,
+  useDeferredValue,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
@@ -473,8 +476,6 @@ function createLivePreviewState(
         : { ...block, sortOrder: index + 2 };
     }),
   ];
-  const activityTitle = getValue('activityTitle1');
-  const activityDate = getValue('activityDate1');
   const achievements = Array.from(data.entries())
     .filter(([key]) => /^achievementTitle\d+$/.test(key))
     .sort(([left], [right]) => {
@@ -493,6 +494,30 @@ function createLivePreviewState(
         analyticsKey: builder.achievements[sourceIndex]?.analyticsKey ?? '',
         title: title || 'New achievement',
         description: getValue(`achievementDescription${number}`),
+        date,
+        dateLabel: date ? formatPreviewDate(date) : '',
+        sortOrder: index,
+        isEnabled: true,
+      };
+    });
+  const activities = Array.from(data.entries())
+    .filter(([key]) => /^activityTitle\d+$/.test(key))
+    .sort(([left], [right]) => {
+      const leftIndex = Number(left.replace('activityTitle', ''));
+      const rightIndex = Number(right.replace('activityTitle', ''));
+      return leftIndex - rightIndex;
+    })
+    .map(([key, value], index) => {
+      const number = Number(key.replace('activityTitle', ''));
+      const sourceIndex = number - 1;
+      const title = String(value).trim();
+      const date = getValue(`activityDate${number}`);
+
+      return {
+        id: builder.activities[sourceIndex]?.id ?? null,
+        analyticsKey: builder.activities[sourceIndex]?.analyticsKey ?? '',
+        title: title || 'New activity',
+        description: getValue(`activityType${number}`),
         date,
         dateLabel: date ? formatPreviewDate(date) : '',
         sortOrder: index,
@@ -539,20 +564,7 @@ function createLivePreviewState(
     galleryItems,
     sponsors,
     achievements,
-    activities: data.has('activityTitle1')
-      ? [
-          {
-            id: builder.activities[0]?.id ?? null,
-            analyticsKey: builder.activities[0]?.analyticsKey ?? '',
-            title: activityTitle || 'New activity',
-            description: getValue('activityType1'),
-            date: activityDate,
-            dateLabel: activityDate ? formatPreviewDate(activityDate) : '',
-            sortOrder: 0,
-            isEnabled: true,
-          },
-        ]
-      : [],
+    activities,
     socialLinks,
   };
 }
@@ -582,7 +594,7 @@ function ContentPanel({
   );
 }
 
-function PreviewPanel({
+const PreviewPanel = memo(function PreviewPanel({
   builder,
   onPublishChange,
   publishMessage,
@@ -603,7 +615,7 @@ function PreviewPanel({
       />
     </section>
   );
-}
+});
 
 function StyleSection({
   title,
@@ -2063,6 +2075,7 @@ export function DesignWorkspace({
   const [themeSettings, setThemeSettings] = useState<ProfileThemeSettings>(() =>
     resolveThemeSettings(builder.profile.theme),
   );
+  const deferredThemeSettings = useDeferredValue(themeSettings);
   const [templateWordingOverrides, setTemplateWordingOverrides] = useState<
     Partial<TemplateWording>
   >(() =>
@@ -2072,55 +2085,71 @@ export function DesignWorkspace({
       resolveProfileTemplateId(builder.profile.theme),
     ),
   );
-  const templateWording = resolveTemplateWording(
-    { templateWordingOverrides },
-    builder.profile.sports[0],
-    selectedTemplateId,
+  const templateWording = useMemo(
+    () =>
+      resolveTemplateWording(
+        { templateWordingOverrides },
+        builder.profile.sports[0],
+        selectedTemplateId,
+      ),
+    [builder.profile.sports, selectedTemplateId, templateWordingOverrides],
   );
-  const previewBuilder: ProfileBuilderState = {
-    ...draftBuilder,
-    profile: {
-      ...draftBuilder.profile,
-      theme: {
-        ...draftBuilder.profile.theme,
-        templateId: selectedTemplateId,
-        ...themeSettings,
-        templateWordingOverrides,
-        templateWording,
-      },
-    },
-  };
-  const handlePreviewChange = (form: HTMLFormElement) => {
-    setDraftBuilder((current) => createLivePreviewState(current, form));
-  };
-  const handlePublishChange = (isPublished: boolean) => {
-    const previousValue = draftBuilder.profile.isPublished;
-
-    setPublishMessage('');
-    setDraftBuilder((current) => ({
-      ...current,
+  const previewBuilder = useMemo<ProfileBuilderState>(
+    () => ({
+      ...draftBuilder,
       profile: {
-        ...current.profile,
-        isPublished,
+        ...draftBuilder.profile,
+        theme: {
+          ...draftBuilder.profile.theme,
+          templateId: selectedTemplateId,
+          ...deferredThemeSettings,
+          templateWordingOverrides,
+          templateWording,
+        },
       },
-    }));
+    }),
+    [
+      deferredThemeSettings,
+      draftBuilder,
+      selectedTemplateId,
+      templateWording,
+      templateWordingOverrides,
+    ],
+  );
+  const handlePreviewChange = useCallback((form: HTMLFormElement) => {
+    setDraftBuilder((current) => createLivePreviewState(current, form));
+  }, []);
+  const handlePublishChange = useCallback(
+    (isPublished: boolean) => {
+      const previousValue = draftBuilder.profile.isPublished;
 
-    startPublishTransition(async () => {
-      const result = await setProfilePublishedAction(isPublished);
-      setPublishMessage(result.message);
+      setPublishMessage('');
+      setDraftBuilder((current) => ({
+        ...current,
+        profile: {
+          ...current.profile,
+          isPublished,
+        },
+      }));
 
-      if (!result.success) {
-        setDraftBuilder((current) => ({
-          ...current,
-          profile: {
-            ...current.profile,
-            isPublished: previousValue,
-          },
-        }));
-      }
-    });
-  };
-  const handleCoverChange = (coverUrl: string) => {
+      startPublishTransition(async () => {
+        const result = await setProfilePublishedAction(isPublished);
+        setPublishMessage(result.message);
+
+        if (!result.success) {
+          setDraftBuilder((current) => ({
+            ...current,
+            profile: {
+              ...current.profile,
+              isPublished: previousValue,
+            },
+          }));
+        }
+      });
+    },
+    [draftBuilder.profile.isPublished],
+  );
+  const handleCoverChange = useCallback((coverUrl: string) => {
     setDraftBuilder((current) => ({
       ...current,
       profile: {
@@ -2128,16 +2157,16 @@ export function DesignWorkspace({
         coverUrl,
       },
     }));
-  };
-  const handleTemplateWordingChange = (
-    key: keyof TemplateWording,
-    value: string,
-  ) => {
-    setTemplateWordingOverrides((current) => ({
-      ...current,
-      [key]: value,
-    }));
-  };
+  }, []);
+  const handleTemplateWordingChange = useCallback(
+    (key: keyof TemplateWording, value: string) => {
+      setTemplateWordingOverrides((current) => ({
+        ...current,
+        [key]: value,
+      }));
+    },
+    [],
+  );
   const handleContentAutosaveStatusChange = useCallback(
     (status: AutosaveStatus, message?: string) => {
       setAutosaveStates((current) => ({
