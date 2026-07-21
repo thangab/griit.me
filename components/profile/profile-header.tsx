@@ -342,10 +342,7 @@ export function ProfileHeader({
   if (theme.headerLayout === 'left') {
     return (
       <header
-        className={cn(
-          'relative flex items-end overflow-hidden bg-cover bg-center',
-          'min-h-[480px]',
-        )}
+        className="relative flex items-end overflow-hidden bg-cover bg-center"
         style={{ ...coverStyle, color: theme.palette.headerText }}
       >
         {coverImage}
