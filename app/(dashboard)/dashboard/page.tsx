@@ -30,8 +30,12 @@ function MobileProfilePreview({ builder }: { builder: ProfileBuilderState }) {
         </Button>
       </div>
 
-      <div className="flex min-h-0 flex-1 justify-center p-5 sm:p-7">
-        <MobileProfileFrame builder={builder} className="h-full" fillHeight />
+      <div className="flex min-h-0 flex-1 justify-center p-4 sm:p-5">
+        <MobileProfileFrame
+          builder={builder}
+          className="h-full max-w-[390px]"
+          fillHeight
+        />
       </div>
     </aside>
   );
@@ -49,7 +53,7 @@ export default async function DashboardHomePage() {
   const publicUrl = `griit.me/${builder.profile.username}`;
 
   return (
-    <div className="grid min-w-0 gap-6 xl:h-[calc(100dvh-3rem)] xl:grid-cols-[minmax(0,1fr)_400px] xl:overflow-hidden">
+    <div className="grid min-w-0 gap-6 xl:h-[calc(100dvh-3rem)] xl:grid-cols-[minmax(0,1fr)_460px] xl:overflow-hidden">
       <div className="min-w-0 space-y-6 xl:h-full xl:overflow-y-auto xl:pr-1">
         <div className="border-border bg-card/80 rounded-xl border p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
