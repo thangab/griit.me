@@ -2081,18 +2081,13 @@ export function DesignWorkspace({
   >(() =>
     getTemplateWordingOverrides(
       builder.profile.theme,
-      builder.profile.sports[0],
       resolveProfileTemplateId(builder.profile.theme),
     ),
   );
   const templateWording = useMemo(
     () =>
-      resolveTemplateWording(
-        { templateWordingOverrides },
-        builder.profile.sports[0],
-        selectedTemplateId,
-      ),
-    [builder.profile.sports, selectedTemplateId, templateWordingOverrides],
+      resolveTemplateWording({ templateWordingOverrides }, selectedTemplateId),
+    [selectedTemplateId, templateWordingOverrides],
   );
   const previewBuilder = useMemo<ProfileBuilderState>(
     () => ({

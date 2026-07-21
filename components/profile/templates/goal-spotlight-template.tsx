@@ -39,7 +39,7 @@ export function GoalSpotlightTemplate({
   const activities = builder.activities.filter((item) => item.isEnabled);
   const goalTitle = primaryGoal?.title ?? 'Next goal coming soon';
   const goalDescription =
-    primaryGoal?.description ?? 'This athlete is preparing the next objective.';
+    primaryGoal?.description ?? 'The next objective is taking shape.';
   const goalTarget = primaryGoal?.targetLabel ?? 'No target date';
   const profileSummary =
     formatProfileSummary({
@@ -49,11 +49,7 @@ export function GoalSpotlightTemplate({
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
   const theme = getThemeRuntime(profile.theme);
-  const wording = resolveTemplateWording(
-    profile.theme,
-    profile.sports[0],
-    'spotlight',
-  );
+  const wording = resolveTemplateWording(profile.theme, 'spotlight');
   const contentBlocks = builder.blocks
     .filter((block) =>
       [

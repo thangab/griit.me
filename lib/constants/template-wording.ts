@@ -12,92 +12,92 @@ export type TemplateWording = {
 
 const templateWordingDefaults: Record<string, TemplateWording> = {
   spotlight: {
-    discipline: 'Athlete profile',
-    badge: 'GOAL',
-    eyebrow: 'Next goal',
-    profileLabel: 'About',
-    targetLabel: 'Target',
-    galleryLabel: 'Gallery',
-    achievementsLabel: 'Achievements',
-    activityLabel: 'Recent activities',
-    secondaryGoalLabel: 'Also chasing',
+    discipline: 'Personal profile',
+    badge: 'FOCUS',
+    eyebrow: 'The next chapter',
+    profileLabel: 'The story',
+    targetLabel: 'Current focus',
+    galleryLabel: 'Highlights',
+    achievementsLabel: 'Milestones',
+    activityLabel: 'Latest updates',
+    secondaryGoalLabel: "What's next",
   },
   momentum: {
-    discipline: 'Running',
-    badge: 'RUN',
-    eyebrow: 'Miles with purpose',
-    profileLabel: 'Runner profile',
-    targetLabel: 'Race target',
-    galleryLabel: 'On the road',
-    achievementsLabel: 'Race results',
-    activityLabel: 'Latest session',
-    secondaryGoalLabel: 'Also chasing',
+    discipline: 'Driven by progress',
+    badge: 'MOVE',
+    eyebrow: 'Keep moving forward',
+    profileLabel: 'The journey',
+    targetLabel: 'Next milestone',
+    galleryLabel: 'In motion',
+    achievementsLabel: 'Highlights',
+    activityLabel: 'Latest update',
+    secondaryGoalLabel: 'On the horizon',
   },
   impact: {
-    discipline: 'Boxing',
-    badge: 'BOX',
-    eyebrow: 'Built round by round',
-    profileLabel: 'Fighter profile',
-    targetLabel: 'Next bout',
-    galleryLabel: 'In the ring',
-    achievementsLabel: 'Fight record',
-    activityLabel: 'Fight camp',
-    secondaryGoalLabel: 'Next challenges',
+    discipline: 'Built to stand out',
+    badge: 'IMPACT',
+    eyebrow: 'Make every move count',
+    profileLabel: 'About',
+    targetLabel: 'Main objective',
+    galleryLabel: 'Highlights',
+    achievementsLabel: 'Milestones',
+    activityLabel: 'Latest update',
+    secondaryGoalLabel: 'Up next',
   },
   obsidian: {
-    discipline: 'Mixed Martial Arts',
-    badge: 'MMA',
-    eyebrow: 'Every range. Every round.',
-    profileLabel: 'Fighter profile',
-    targetLabel: 'Fight target',
-    galleryLabel: 'Inside the cage',
-    achievementsLabel: 'Fight record',
-    activityLabel: 'Training camp',
-    secondaryGoalLabel: 'Next challenges',
+    discipline: 'Focused. Unfiltered.',
+    badge: 'CORE',
+    eyebrow: 'Made in the work',
+    profileLabel: 'The story',
+    targetLabel: 'Current mission',
+    galleryLabel: 'Behind the scenes',
+    achievementsLabel: 'Milestones',
+    activityLabel: 'Latest update',
+    secondaryGoalLabel: 'Next missions',
   },
   midnight: {
-    discipline: 'Strength',
-    badge: 'LIFT',
-    eyebrow: 'Progress under pressure',
-    profileLabel: 'Athlete profile',
-    targetLabel: 'Strength target',
-    galleryLabel: 'In the gym',
-    achievementsLabel: 'Personal records',
-    activityLabel: 'Latest lift',
+    discipline: 'Progress in focus',
+    badge: 'PROGRESS',
+    eyebrow: 'Built with consistency',
+    profileLabel: 'Profile',
+    targetLabel: 'Current focus',
+    galleryLabel: 'The process',
+    achievementsLabel: 'Key moments',
+    activityLabel: 'Latest update',
     secondaryGoalLabel: 'Next milestones',
   },
   pulse: {
-    discipline: 'Hyrox',
-    badge: 'HYROX',
-    eyebrow: 'Eight runs. Eight stations.',
-    profileLabel: 'Athlete profile',
-    targetLabel: 'Race target',
-    galleryLabel: 'Race mode',
-    achievementsLabel: 'Race results',
-    activityLabel: 'Latest station',
-    secondaryGoalLabel: 'Next milestones',
+    discipline: 'High energy',
+    badge: 'PULSE',
+    eyebrow: 'Momentum starts here',
+    profileLabel: 'About',
+    targetLabel: 'Current challenge',
+    galleryLabel: 'Highlights',
+    achievementsLabel: 'Wins',
+    activityLabel: 'Latest update',
+    secondaryGoalLabel: 'Coming next',
   },
   evergreen: {
-    discipline: 'Football',
-    badge: 'XI',
-    eyebrow: 'Play for the badge',
-    profileLabel: 'Player profile',
-    targetLabel: 'Season target',
-    galleryLabel: 'Matchday',
-    achievementsLabel: 'Honours',
-    activityLabel: 'Latest match',
-    secondaryGoalLabel: 'Season objectives',
+    discipline: 'Growing with purpose',
+    badge: 'GROW',
+    eyebrow: 'A journey worth sharing',
+    profileLabel: 'The story',
+    targetLabel: 'Current focus',
+    galleryLabel: 'Moments',
+    achievementsLabel: 'Proud moments',
+    activityLabel: 'Latest update',
+    secondaryGoalLabel: "What's ahead",
   },
   horizon: {
-    discipline: 'Cycling',
-    badge: 'RIDE',
-    eyebrow: 'Chase the next summit',
-    profileLabel: 'Rider profile',
+    discipline: 'Always exploring',
+    badge: 'EXPLORE',
+    eyebrow: 'Follow the next chapter',
+    profileLabel: 'About',
     targetLabel: 'Next objective',
-    galleryLabel: 'On the bike',
-    achievementsLabel: 'Results',
-    activityLabel: 'Latest ride',
-    secondaryGoalLabel: 'Also chasing',
+    galleryLabel: 'Field notes',
+    achievementsLabel: 'Highlights',
+    activityLabel: 'Latest update',
+    secondaryGoalLabel: 'On the horizon',
   },
 };
 
@@ -117,38 +117,29 @@ const templateWordingKeys = [
   'secondaryGoalLabel',
 ] as const satisfies readonly (keyof TemplateWording)[];
 
-export function getDefaultTemplateWording(
-  templateId: string,
-  primarySport?: string,
-): TemplateWording {
+export function getDefaultTemplateWording(templateId: string): TemplateWording {
   const defaults = templateWordingDefaults[templateId];
   if (defaults) return { ...defaults };
 
-  const discipline = primarySport || 'Athlete';
   return {
-    discipline,
-    badge: discipline.replace(/\s+/g, '').slice(0, 6).toUpperCase(),
+    discipline: 'Personal profile',
+    badge: 'FOCUS',
     eyebrow: 'Built for the next challenge',
-    profileLabel: 'Athlete profile',
+    profileLabel: 'The story',
     targetLabel: 'Next objective',
-    galleryLabel: 'Gallery',
-    achievementsLabel: 'Achievements',
-    activityLabel: 'Latest activity',
-    secondaryGoalLabel: 'Also chasing',
+    galleryLabel: 'Highlights',
+    achievementsLabel: 'Milestones',
+    activityLabel: 'Latest updates',
+    secondaryGoalLabel: "What's next",
   };
 }
 
 export function resolveTemplateWording(
   theme: Record<string, unknown>,
-  primarySport?: string,
   templateId = '',
 ): TemplateWording {
-  const defaults = getDefaultTemplateWording(templateId, primarySport);
-  const overrides = getTemplateWordingOverrides(
-    theme,
-    primarySport,
-    templateId,
-  );
+  const defaults = getDefaultTemplateWording(templateId);
+  const overrides = getTemplateWordingOverrides(theme, templateId);
 
   return Object.fromEntries(
     Object.entries(defaults).map(([key, fallback]) => [
@@ -162,7 +153,6 @@ export function resolveTemplateWording(
 
 export function getTemplateWordingOverrides(
   theme: Record<string, unknown>,
-  primarySport?: string,
   templateId = '',
 ): Partial<TemplateWording> {
   const hasExplicitOverrides = Object.prototype.hasOwnProperty.call(
@@ -176,7 +166,7 @@ export function getTemplateWordingOverrides(
     source && typeof source === 'object'
       ? (source as Record<string, unknown>)
       : {};
-  const defaults = getDefaultTemplateWording(templateId, primarySport);
+  const defaults = getDefaultTemplateWording(templateId);
 
   return Object.fromEntries(
     templateWordingKeys.flatMap((key) => {

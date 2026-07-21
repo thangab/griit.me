@@ -314,11 +314,7 @@ export function SportProfileTemplate({
   variant: ProfileTemplateVariant;
 }) {
   const config = sportTemplateConfigs[templateId];
-  const text = resolveTemplateWording(
-    builder.profile.theme,
-    builder.profile.sports[0],
-    templateId,
-  );
+  const text = resolveTemplateWording(builder.profile.theme, templateId);
   const theme = getThemeRuntime(builder.profile.theme);
   const goals = builder.goals.filter((goal) => goal.isEnabled);
   const primaryGoal = goals[0];
@@ -330,7 +326,7 @@ export function SportProfileTemplate({
     `${builder.profile.displayName} is building the next chapter.`;
   const goalTitle = primaryGoal?.title || 'The next objective starts here';
   const goalDescription =
-    primaryGoal?.description || 'Training with intent. Competing with purpose.';
+    primaryGoal?.description || 'Moving with intent. Building with purpose.';
   const goalTarget = primaryGoal?.targetLabel || 'Target in progress';
   const PrimaryGoalCard = primaryGoal?.url ? 'a' : 'div';
   const isPreview = variant !== 'full';
