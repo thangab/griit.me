@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PublicProfileView } from '@/components/profile/public-profile-view';
+import { ProfileAnalyticsTracker } from '@/components/profile/profile-analytics-tracker';
 import { getPublicProfileBuilderState } from '@/lib/services/profile-builder';
 
 type PublicProfilePageProps = {
@@ -40,5 +41,12 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  return <PublicProfileView builder={builder} />;
+  return (
+    <>
+      {builder.profile.id ? (
+        <ProfileAnalyticsTracker profileId={builder.profile.id} />
+      ) : null}
+      <PublicProfileView builder={builder} />
+    </>
+  );
 }

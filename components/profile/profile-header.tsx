@@ -22,6 +22,7 @@ export function ProfileHeader({
   target,
   targetDisplay = 'date',
   url,
+  targetKey,
   badgeIcon = Target,
 }: {
   builder: ProfileBuilderState;
@@ -32,6 +33,7 @@ export function ProfileHeader({
   target: string;
   targetDisplay?: GoalDateDisplay;
   url?: string;
+  targetKey?: string;
   badgeIcon?: PhosphorIcon;
 }) {
   const { profile } = builder;
@@ -155,6 +157,9 @@ export function ProfileHeader({
       >
         {url ? (
           <a
+            data-analytics-event="goal_click"
+            data-analytics-target-key={targetKey}
+            data-analytics-target-type="goal"
             className="inline-flex items-start gap-2 transition-opacity hover:opacity-75"
             href={url}
             rel="noreferrer"

@@ -180,6 +180,9 @@ export function OfferBlock({
             ) : null}
             {promoCode ? (
               <button
+                data-analytics-event="promo_copy"
+                data-analytics-target-key={block.analyticsKey}
+                data-analytics-target-type="block"
                 aria-label={`Copy promo code ${promoCode}`}
                 className={cn(
                   'flex w-full items-center justify-between gap-2 font-mono font-bold',
@@ -220,6 +223,9 @@ export function OfferBlock({
             <span />
           )}
           <a
+            data-analytics-event="block_click"
+            data-analytics-target-key={block.analyticsKey}
+            data-analytics-target-type="block"
             className={cn(
               'inline-flex items-center rounded-full font-bold transition hover:-translate-y-0.5',
               isSmall

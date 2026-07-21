@@ -388,6 +388,7 @@ export function SportProfileTemplate({
         target={goalTarget}
         targetDisplay={primaryGoal?.dateDisplay}
         title={goalTitle}
+        targetKey={primaryGoal?.analyticsKey}
         url={primaryGoal?.url}
         variant={variant}
         wording={text}
@@ -452,6 +453,9 @@ export function SportProfileTemplate({
               <div className="mt-5 flex flex-wrap gap-2">
                 {socialLinks.map((link, index) => (
                   <a
+                    data-analytics-event="social_click"
+                    data-analytics-target-key={link.analyticsKey}
+                    data-analytics-target-type="social"
                     key={link.id ?? `social-${link.sortOrder}-${index}`}
                     aria-label={link.label || link.platform}
                     className="flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition hover:-translate-y-0.5"
@@ -480,6 +484,11 @@ export function SportProfileTemplate({
           </div>
 
           <PrimaryGoalCard
+            data-analytics-event={primaryGoal?.url ? 'goal_click' : undefined}
+            data-analytics-target-key={
+              primaryGoal?.url ? primaryGoal.analyticsKey : undefined
+            }
+            data-analytics-target-type={primaryGoal?.url ? 'goal' : undefined}
             className={cn(
               theme.radiusClass,
               'relative overflow-hidden p-5 sm:p-6',
@@ -541,6 +550,11 @@ export function SportProfileTemplate({
 
               return (
                 <GoalCard
+                  data-analytics-event={goal.url ? 'goal_click' : undefined}
+                  data-analytics-target-key={
+                    goal.url ? goal.analyticsKey : undefined
+                  }
+                  data-analytics-target-type={goal.url ? 'goal' : undefined}
                   key={`${goal.title}-${goal.sortOrder}`}
                   className={cn(theme.radiusClass, 'border p-5')}
                   {...(goal.url

@@ -99,6 +99,7 @@ export function GoalSpotlightTemplate({
         target={goalTarget}
         targetDisplay={primaryGoal?.dateDisplay}
         title={goalTitle}
+        targetKey={primaryGoal?.analyticsKey}
         url={primaryGoal?.url}
         variant={variant}
         wording={wording}
@@ -166,6 +167,9 @@ export function GoalSpotlightTemplate({
               <div className="mt-5 flex flex-wrap gap-2">
                 {socialLinks.map((link, index) => (
                   <a
+                    data-analytics-event="social_click"
+                    data-analytics-target-key={link.analyticsKey}
+                    data-analytics-target-type="social"
                     key={link.id ?? `social-${link.sortOrder}-${index}`}
                     aria-label={link.label || link.platform}
                     className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition"
@@ -200,6 +204,11 @@ export function GoalSpotlightTemplate({
 
                 return (
                   <GoalCard
+                    data-analytics-event={goal.url ? 'goal_click' : undefined}
+                    data-analytics-target-key={
+                      goal.url ? goal.analyticsKey : undefined
+                    }
+                    data-analytics-target-type={goal.url ? 'goal' : undefined}
                     key={`${goal.title}-${goal.sortOrder}`}
                     className={cn(theme.radiusClass, 'p-5 shadow-sm')}
                     {...(goal.url

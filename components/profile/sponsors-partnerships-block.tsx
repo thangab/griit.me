@@ -68,6 +68,9 @@ function SponsorCard({
 
   return sponsor.websiteUrl ? (
     <a
+      data-analytics-event="sponsor_click"
+      data-analytics-target-key={sponsor.analyticsKey}
+      data-analytics-target-type="sponsor"
       aria-label={`Visit ${sponsor.name}`}
       className={className}
       href={sponsor.websiteUrl}
@@ -176,6 +179,9 @@ export function SponsorsPartnershipsBlock({
           ) : null}
           {contactHref ? (
             <a
+              data-analytics-event="block_click"
+              data-analytics-target-key={block.analyticsKey}
+              data-analytics-target-type="block"
               className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-xs font-semibold text-slate-950 transition hover:bg-white"
               href={contactHref}
               rel={contactHref.startsWith('mailto:') ? undefined : 'noreferrer'}

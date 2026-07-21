@@ -84,6 +84,9 @@ export function MediaBlock({
         </p>
       ) : null}
       <a
+        data-analytics-event="media_open"
+        data-analytics-target-key={block.analyticsKey}
+        data-analytics-target-type="block"
         className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium"
         href={sourceUrl}
         rel="noreferrer"

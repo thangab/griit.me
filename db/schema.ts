@@ -6,6 +6,7 @@ import {
   boolean,
   varchar,
   integer,
+  bigint,
   jsonb,
   uniqueIndex,
   index,
@@ -350,5 +351,54 @@ export const profile_goals = pgTable(
     analyticsKeyUnique: uniqueIndex(
       'profile_goals_profile_id_analytics_key_unique',
     ).on(table.profile_id, table.analytics_key),
+  }),
+);
+
+export const profile_analytics_events = pgTable(
+  'profile_analytics_events',
+  {
+    id: bigint('id', { mode: 'number' })
+      .primaryKey()
+      .generatedAlwaysAsIdentity(),
+    profile_id: integer('profile_id')
+      .notNull()
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
+    event_type: varchar('event_type', { length: 32 }).notNull(),
+    target_type: varchar('target_type', { length: 32 }),
+    target_key: uuid('target_key'),
+    target_label: varchar('target_label', { length: 160 }),
+    visitor_hash: varchar('visitor_hash', { length: 64 }).notNull(),
+    referrer_host: varchar('referrer_host', { length: 255 }),
+    utm_source: varchar('utm_source', { length: 120 }),
+    utm_medium: varchar('utm_medium', { length: 120 }),
+    utm_campaign: varchar('utm_campaign', { length: 160 }),
+    country_code: varchar('country_code', { length: 2 }),
+    region: varchar('region', { length: 120 }),
+    city: varchar('city', { length: 120 }),
+    browser: varchar('browser', { length: 40 }),
+    os: varchar('os', { length: 40 }),
+    device_type: varchar('device_type', { length: 16 }),
+    occurred_at: timestamp('occurred_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    profileDateIdx: index('profile_analytics_events_profile_date_idx').on(
+      table.profile_id,
+      table.occurred_at,
+    ),
+    profileEventIdx: index('profile_analytics_events_profile_event_idx').on(
+      table.profile_id,
+      table.event_type,
+    ),
+    visitorDateIdx: index('profile_analytics_events_visitor_date_idx').on(
+      table.profile_id,
+      table.visitor_hash,
+      table.occurred_at,
+    ),
+    targetIdx: index('profile_analytics_events_target_idx').on(
+      table.profile_id,
+      table.target_key,
+    ),
   }),
 );

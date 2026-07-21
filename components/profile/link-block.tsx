@@ -38,6 +38,9 @@ export function LinkBlock({
 
   return (
     <a
+      data-analytics-event="block_click"
+      data-analytics-target-key={block.analyticsKey}
+      data-analytics-target-type="block"
       className={cn(
         theme.radiusClass,
         'group flex items-center gap-4 border p-4 transition hover:-translate-y-0.5',
