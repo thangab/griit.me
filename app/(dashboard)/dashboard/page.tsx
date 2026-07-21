@@ -1,9 +1,7 @@
 import Link from 'next/link';
-import {
-  ArrowSquareOutIcon as ExternalLink,
-  PencilSimpleIcon as Pencil,
-} from '@phosphor-icons/react/ssr';
+import { PencilSimpleIcon as Pencil } from '@phosphor-icons/react/ssr';
 import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
+import { PublicAddressCard } from '@/components/dashboard/public-address-card';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -53,7 +51,9 @@ export default async function DashboardHomePage() {
   const enabledBlocks = builder.blocks.filter(
     (block) => block.isEnabled,
   ).length;
-  const publicUrl = `griit.me/${builder.profile.username}`;
+  const enabledSocialLinks = builder.socialLinks.filter(
+    (link) => link.isEnabled,
+  ).length;
 
   return (
     <div className="grid min-w-0 gap-6 xl:h-[calc(100dvh-3rem)] xl:grid-cols-[minmax(0,1fr)_460px] xl:overflow-hidden">
@@ -74,16 +74,18 @@ export default async function DashboardHomePage() {
                   : ' your draft athlete profile.'}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center">
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-emerald-900 uppercase">
                 {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
               </span>
-              <Button asChild>
-                <Link href="/dashboard/design">Open Design</Link>
-              </Button>
             </div>
           </div>
         </div>
+
+        <PublicAddressCard
+          isPublished={builder.profile.isPublished}
+          username={builder.profile.username}
+        />
 
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <Card className="space-y-6">
@@ -106,9 +108,9 @@ export default async function DashboardHomePage() {
                 </p>
               </div>
               <div className="border-border bg-background rounded-xl border p-5">
-                <p className="text-sm font-medium">Public URL</p>
-                <p className="mt-2 truncate text-2xl font-semibold">
-                  {publicUrl}
+                <p className="text-sm font-medium">Social links</p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {enabledSocialLinks}
                 </p>
               </div>
               <div className="border-border bg-background rounded-xl border p-5">
@@ -154,21 +156,6 @@ export default async function DashboardHomePage() {
             </div>
             <Button asChild variant="secondary">
               <Link href="/dashboard/design">Go to Design</Link>
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="border-border bg-background/50 rounded-xl border border-dashed p-6 xl:hidden">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle>Public page</CardTitle>
-              <CardDescription>{publicUrl}</CardDescription>
-            </div>
-            <Button asChild variant="outline">
-              <a href={`/${builder.profile.username}`}>
-                Open public page
-                <ExternalLink className="h-4 w-4" />
-              </a>
             </Button>
           </div>
         </Card>

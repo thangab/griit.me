@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import {
-  ArrowUpRightIcon as ArrowUpRight,
   CheckIcon as Check,
   CircleNotchIcon as LoaderCircle,
   FloppyDiskIcon as Save,
@@ -124,67 +123,58 @@ export function PublicProfileSettings({
         </span>
       </div>
 
-      <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        <div className="bg-muted/30 border-border flex flex-col justify-between rounded-xl border p-4">
-          <div>
-            <p className="text-muted-foreground text-xs font-medium">
-              Current public address
-            </p>
-            <p className="mt-2 text-lg font-semibold break-all">
-              griit.me/{savedUsername}
-            </p>
-          </div>
-          {builder.profile.isPublished ? (
-            <a
-              className="text-muted-foreground hover:text-foreground mt-6 inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
-              href={`/${savedUsername}`}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Open public profile
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </a>
-          ) : (
-            <p className="text-muted-foreground mt-6 text-xs leading-5">
-              Publish your profile when you are ready to share this address.
-            </p>
-          )}
-        </div>
-
-        <form action={formAction} className="space-y-4">
-          <label className="block">
-            <span className="text-sm font-semibold">Choose your username</span>
-            <span className="text-muted-foreground mt-1 block text-xs">
-              3–32 characters · letters, numbers and underscores
-            </span>
-            <div
-              className={`bg-background mt-3 flex h-12 overflow-hidden rounded-xl border transition-colors focus-within:ring-2 focus-within:ring-offset-2 ${
-                availabilityStatus === 'available'
-                  ? 'border-emerald-400 focus-within:ring-emerald-200'
-                  : availabilityStatus === 'taken' ||
-                      availabilityStatus === 'invalid'
-                    ? 'border-red-300 focus-within:ring-red-100'
-                    : 'border-border focus-within:border-primary focus-within:ring-primary/15'
-              }`}
-            >
-              <span className="text-muted-foreground bg-muted/40 border-border flex shrink-0 items-center border-r px-3 text-sm">
-                griit.me/
+      <div className="p-5 sm:p-6">
+        <form action={formAction} className="space-y-3">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <label className="block min-w-0">
+              <span className="text-sm font-semibold">
+                Choose your username
               </span>
-              <input
-                autoCapitalize="none"
-                autoComplete="off"
-                className="min-w-0 flex-1 bg-transparent px-3 text-sm font-medium outline-none"
-                maxLength={32}
-                name="username"
-                placeholder="your_username"
-                spellCheck={false}
-                value={username}
-                onChange={(event) =>
-                  setUsername(event.target.value.toLowerCase())
-                }
-              />
-            </div>
-          </label>
+              <span className="text-muted-foreground mt-1 block text-xs">
+                3–32 characters · letters, numbers and underscores
+              </span>
+              <div
+                className={`bg-background mt-3 flex h-12 overflow-hidden rounded-xl border transition-colors focus-within:ring-2 focus-within:ring-offset-2 ${
+                  availabilityStatus === 'available'
+                    ? 'border-emerald-400 focus-within:ring-emerald-200'
+                    : availabilityStatus === 'taken' ||
+                        availabilityStatus === 'invalid'
+                      ? 'border-red-300 focus-within:ring-red-100'
+                      : 'border-border focus-within:border-primary focus-within:ring-primary/15'
+                }`}
+              >
+                <span className="text-muted-foreground bg-muted/40 border-border flex shrink-0 items-center border-r px-3 text-sm">
+                  griit.me/
+                </span>
+                <input
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  className="min-w-0 flex-1 bg-transparent px-3 text-sm font-medium outline-none"
+                  maxLength={32}
+                  name="username"
+                  placeholder="your_username"
+                  spellCheck={false}
+                  value={username}
+                  onChange={(event) =>
+                    setUsername(event.target.value.toLowerCase())
+                  }
+                />
+              </div>
+            </label>
+
+            <Button
+              className="h-12 w-full px-5 lg:w-auto"
+              type="submit"
+              disabled={pending || !canSave}
+            >
+              {pending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              {pending ? 'Saving…' : 'Update public URL'}
+            </Button>
+          </div>
 
           <div
             className={`flex min-h-5 items-center gap-2 text-xs font-medium ${
@@ -220,17 +210,6 @@ export function PublicProfileSettings({
               {state.message}
             </p>
           ) : null}
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={pending || !canSave}>
-              {pending ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              {pending ? 'Saving…' : 'Update public URL'}
-            </Button>
-          </div>
         </form>
       </div>
     </section>
