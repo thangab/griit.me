@@ -87,36 +87,10 @@ export const public_profiles = pgTable(
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
-    userIdUnique: uniqueIndex('public_profiles_user_id_unique').on(
-      table.user_id,
-    ),
+    userIdIdx: index('public_profiles_user_id_idx').on(table.user_id),
     usernameUnique: uniqueIndex('public_profiles_username_unique').on(
       table.username,
     ),
-  }),
-);
-
-export const profile_pages = pgTable(
-  'profile_pages',
-  {
-    id: serial('id').primaryKey(),
-    profile_id: integer('profile_id')
-      .notNull()
-      .references(() => public_profiles.id),
-    slug: varchar('slug', { length: 64 }).notNull(),
-    title: varchar('title', { length: 120 }).notNull(),
-    sort_order: integer('sort_order').default(0).notNull(),
-    is_home: boolean('is_home').default(false).notNull(),
-    is_published: boolean('is_published').default(true).notNull(),
-    created_at: timestamp('created_at').defaultNow().notNull(),
-    updated_at: timestamp('updated_at').defaultNow().notNull(),
-  },
-  (table) => ({
-    profileSlugUnique: uniqueIndex('profile_pages_profile_id_slug_unique').on(
-      table.profile_id,
-      table.slug,
-    ),
-    profileIdx: index('profile_pages_profile_id_idx').on(table.profile_id),
   }),
 );
 
@@ -125,9 +99,9 @@ export const profile_blocks = pgTable(
   {
     id: serial('id').primaryKey(),
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
-    page_id: integer('page_id')
+    profile_id: integer('profile_id')
       .notNull()
-      .references(() => profile_pages.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     type: varchar('type', { length: 48 }).notNull(),
     title: varchar('title', { length: 160 }),
     content: jsonb('content')
@@ -141,10 +115,10 @@ export const profile_blocks = pgTable(
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
-    pageIdx: index('profile_blocks_page_id_idx').on(table.page_id),
+    profileIdx: index('profile_blocks_profile_id_idx').on(table.profile_id),
     analyticsKeyUnique: uniqueIndex(
-      'profile_blocks_page_id_analytics_key_unique',
-    ).on(table.page_id, table.analytics_key),
+      'profile_blocks_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );
 
@@ -155,7 +129,7 @@ export const profile_social_links = pgTable(
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     platform: varchar('platform', { length: 48 }).notNull(),
     label: varchar('label', { length: 80 }),
     url: text('url').notNull(),
@@ -198,7 +172,7 @@ export const profile_sports = pgTable(
     id: serial('id').primaryKey(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     sport_id: integer('sport_id')
       .notNull()
       .references(() => sports.id),
@@ -223,7 +197,7 @@ export const profile_gallery_items = pgTable(
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     image_url: text('image_url').notNull(),
     caption: text('caption'),
     alt_text: text('alt_text'),
@@ -250,7 +224,7 @@ export const profile_achievements = pgTable(
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 160 }).notNull(),
     description: text('description'),
     achieved_at: timestamp('achieved_at'),
@@ -277,7 +251,7 @@ export const profile_sponsors = pgTable(
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 120 }).notNull(),
     logo_url: text('logo_url'),
     website_url: text('website_url'),
@@ -302,7 +276,7 @@ export const profile_activities = pgTable(
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 160 }).notNull(),
     activity_type: varchar('activity_type', { length: 80 }),
     occurred_at: timestamp('occurred_at'),
@@ -331,7 +305,7 @@ export const profile_goals = pgTable(
     analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
-      .references(() => public_profiles.id),
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 160 }).notNull(),
     description: text('description'),
     url: text('url'),

@@ -13,7 +13,8 @@ The billing system must be designed to support future plans without requiring ma
 
 ## Free Plan
 
-The free plan allows users to create a basic athlete profile.
+The free plan allows users to create one complete athlete profile. The
+dashboard opens directly on that profile, without requiring profile selection.
 
 Features:
 
@@ -36,6 +37,8 @@ The Pro plan unlocks all premium features.
 
 Features:
 
+- Up to 5 independent public profiles per account
+- Profile management and switching
 - Unlimited customization
 - Premium themes
 - Premium templates
@@ -54,6 +57,17 @@ Features:
   - Apple Health
 
 The architecture should make it easy to add more premium features later.
+
+### Multiple profile rules
+
+- Free accounts can create and manage exactly 1 public profile.
+- Pro accounts can create and manage up to 5 public profiles.
+- Each profile owns its own username, content, design, publication state, and
+  analytics.
+- The profile limit is enforced by server actions, not only by the interface.
+- Free users can open the Profiles area to discover the feature, but they see
+  an upgrade screen after their first profile has been created.
+- If an account has no profile yet, it can always create its first one.
 
 ---
 

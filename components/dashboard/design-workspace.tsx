@@ -793,6 +793,7 @@ function TemplateThumbnail({ templateId }: { templateId: ProfileTemplateId }) {
 }
 
 function TemplateSelector({
+  profileId,
   subscription,
   selectedTemplateId,
   coverUrl,
@@ -805,6 +806,7 @@ function TemplateSelector({
   onTemplateWordingChange,
   onAutosaveStatusChange,
 }: {
+  profileId: number;
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
   coverUrl: string;
@@ -935,6 +937,7 @@ function TemplateSelector({
       ref={formRef}
       onChange={(event) => scheduleAutosave(getAutosaveDelay(event.target))}
     >
+      <input name="profileId" type="hidden" value={profileId} />
       <div>
         <div>
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
@@ -1913,6 +1916,7 @@ function TemplateSelector({
 }
 
 function StylesPanel({
+  profileId,
   subscription,
   selectedTemplateId,
   coverUrl,
@@ -1925,6 +1929,7 @@ function StylesPanel({
   onTemplateWordingChange,
   onAutosaveStatusChange,
 }: {
+  profileId: number;
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
   coverUrl: string;
@@ -1940,6 +1945,7 @@ function StylesPanel({
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:overscroll-contain xl:[contain:size]">
       <TemplateSelector
+        profileId={profileId}
         subscription={subscription}
         selectedTemplateId={selectedTemplateId}
         coverUrl={coverUrl}
@@ -2128,7 +2134,10 @@ export function DesignWorkspace({
       }));
 
       startPublishTransition(async () => {
-        const result = await setProfilePublishedAction(isPublished);
+        const result = await setProfilePublishedAction(
+          builder.profile.id ?? 0,
+          isPublished,
+        );
         setPublishMessage(result.message);
 
         if (!result.success) {
@@ -2142,7 +2151,7 @@ export function DesignWorkspace({
         }
       });
     },
-    [draftBuilder.profile.isPublished],
+    [builder.profile.id, draftBuilder.profile.isPublished],
   );
   const handleCoverChange = useCallback((coverUrl: string) => {
     setDraftBuilder((current) => ({
@@ -2220,6 +2229,7 @@ export function DesignWorkspace({
           )}
         >
           <StylesPanel
+            profileId={builder.profile.id ?? 0}
             subscription={subscription}
             selectedTemplateId={selectedTemplateId}
             coverUrl={draftBuilder.profile.coverUrl}

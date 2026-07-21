@@ -35,6 +35,7 @@ import { goalDateDisplays } from '@/lib/utils/goal-date';
 export interface ProfileBuilderActionState {
   success: boolean;
   message: string;
+  profileId?: number;
 }
 
 export interface UsernameAvailabilityResult {
@@ -68,6 +69,11 @@ function getDirtySections(formData: FormData) {
   return new Set<ContentSaveSection>(
     sections.length ? sections : contentSaveSections,
   );
+}
+
+function getProfileId(formData: FormData) {
+  const value = Number(getString(formData, 'profileId'));
+  return Number.isInteger(value) && value > 0 ? value : null;
 }
 
 const urlSchema = z
@@ -266,6 +272,10 @@ const usernameSchema = z.object({
       /^[a-z0-9_]+$/,
       'Username can only contain lowercase letters, numbers, and underscores.',
     ),
+});
+
+const createProfileSchema = usernameSchema.extend({
+  displayName: z.string().trim().min(1, 'Profile name is required.').max(120),
 });
 
 const templateSchema = z.object({
@@ -561,15 +571,6 @@ function getLinkBlocks(formData: FormData) {
     });
 }
 
-function deriveUsername(email?: string | null) {
-  return (
-    email
-      ?.split('@')[0]
-      ?.toLowerCase()
-      .replace(/[^a-z0-9_]/g, '') || 'athlete'
-  );
-}
-
 async function ensurePrivateProfile(user: {
   id: string;
   email?: string | null;
@@ -863,7 +864,7 @@ async function replaceSports(
   }
 }
 
-async function ensureHomePageAndBlocks(
+async function reconcileProfileBlocks(
   profileId: number,
   contentBlockOrder: string[],
   mediaBlocks: Array<{
@@ -903,32 +904,10 @@ async function ensureHomePageAndBlocks(
   },
 ) {
   const serviceSupabase = createServiceSupabaseClient();
-  const { data: pageData, error: pageError } = await serviceSupabase
-    .from('profile_pages')
-    .upsert(
-      {
-        profile_id: profileId,
-        slug: 'home',
-        title: 'Home',
-        sort_order: 0,
-        is_home: true,
-        is_published: true,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'profile_id,slug' },
-    )
-    .select('id')
-    .single();
-
-  if (pageError || !pageData) {
-    throw new Error(pageError?.message ?? 'Unable to save profile page.');
-  }
-
-  const homePageId = pageData.id as number;
   const { data: existingBlocks } = await serviceSupabase
     .from('profile_blocks')
     .select('type')
-    .eq('page_id', homePageId);
+    .eq('profile_id', profileId);
   const existingTypes = new Set(
     ((existingBlocks ?? []) as Array<{ type: string }>).map(
       (block) => block.type,
@@ -942,7 +921,7 @@ async function ensureHomePageAndBlocks(
   if (baseBlocks.length) {
     await serviceSupabase.from('profile_blocks').insert(
       baseBlocks.map((block) => ({
-        page_id: homePageId,
+        profile_id: profileId,
         ...block,
         content: {},
         is_enabled: true,
@@ -963,7 +942,7 @@ async function ensureHomePageAndBlocks(
     await serviceSupabase
       .from('profile_blocks')
       .select('id, type, sort_order, deleted_at')
-      .eq('page_id', homePageId)
+      .eq('profile_id', profileId)
       .in('type', managedTypes)
       .order('sort_order', { ascending: true });
 
@@ -1099,12 +1078,12 @@ async function ensureHomePageAndBlocks(
         .from('profile_blocks')
         .update(values)
         .eq('id', persistedId)
-        .eq('page_id', homePageId);
+        .eq('profile_id', profileId);
       if (error) throw new Error(error.message);
       claimedIds.add(persistedId);
     } else {
       const { error } = await serviceSupabase.from('profile_blocks').insert({
-        page_id: homePageId,
+        profile_id: profileId,
         ...values,
       });
       if (error) throw new Error(error.message);
@@ -1122,7 +1101,7 @@ async function ensureHomePageAndBlocks(
         deleted_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
-      .eq('page_id', homePageId)
+      .eq('profile_id', profileId)
       .in('id', blockIdsToArchive);
     if (error) throw new Error(error.message);
   }
@@ -1140,6 +1119,11 @@ export async function saveProfileBuilderAction(
       success: false,
       message: 'You need to be signed in to save your profile.',
     };
+  }
+
+  const profileId = getProfileId(formData);
+  if (!profileId) {
+    return { success: false, message: 'Invalid profile.' };
   }
 
   const parsed = builderSchema.safeParse({
@@ -1212,53 +1196,39 @@ export async function saveProfileBuilderAction(
   const { data: existingProfile } = await serviceSupabase
     .from('public_profiles')
     .select('id, username')
+    .eq('id', profileId)
     .eq('user_id', userData.user.id)
     .maybeSingle();
 
   if (!existingProfile) {
-    await ensurePrivateProfile(userData.user);
-    contentSaveSections.forEach((section) => dirtySections.add(section));
+    return {
+      success: false,
+      message: 'This profile does not exist or does not belong to you.',
+    };
   }
 
-  const username =
-    existingProfile?.username ?? deriveUsername(userData.user.email);
+  const username = existingProfile.username;
 
-  let profileId = existingProfile?.id as number | undefined;
-
-  if (!profileId || dirtySections.has('profile')) {
-    const { data: profileData, error: profileError } = await serviceSupabase
+  if (dirtySections.has('profile')) {
+    const { error: profileError } = await serviceSupabase
       .from('public_profiles')
-      .upsert(
-        {
-          user_id: userData.user.id,
-          username,
-          display_name: input.displayName,
-          bio: input.bio || null,
-          location: input.location || null,
-          avatar_url: input.avatarUrl,
-          is_published: input.isPublished,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'user_id' },
-      )
-      .select('id')
-      .single();
+      .update({
+        display_name: input.displayName,
+        bio: input.bio || null,
+        location: input.location || null,
+        avatar_url: input.avatarUrl,
+        is_published: input.isPublished,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', profileId)
+      .eq('user_id', userData.user.id);
 
-    if (profileError || !profileData) {
+    if (profileError) {
       return {
         success: false,
         message: profileError?.message ?? 'Unable to save profile.',
       };
     }
-
-    profileId = profileData.id as number;
-  }
-
-  if (!profileId) {
-    return {
-      success: false,
-      message: 'Unable to resolve the profile to update.',
-    };
   }
 
   try {
@@ -1266,7 +1236,7 @@ export async function saveProfileBuilderAction(
 
     if (dirtySections.has('blocks')) {
       updates.push(
-        ensureHomePageAndBlocks(
+        reconcileProfileBlocks(
           profileId,
           input.contentBlockOrder,
           input.mediaBlocks,
@@ -1309,7 +1279,8 @@ export async function saveProfileBuilderAction(
   }
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/design');
+  revalidatePath(`/dashboard/profiles/${profileId}`);
+  revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${username}`);
   updateTag(getPublicProfileCacheTag(username));
 
@@ -1320,6 +1291,7 @@ export async function saveProfileBuilderAction(
 }
 
 export async function checkUsernameAvailabilityAction(
+  profileId: number,
   value: string,
 ): Promise<UsernameAvailabilityResult> {
   const supabase = await createServerSupabaseClient();
@@ -1344,7 +1316,7 @@ export async function checkUsernameAvailabilityAction(
   const serviceSupabase = createServiceSupabaseClient();
   const { data: existingProfile, error } = await serviceSupabase
     .from('public_profiles')
-    .select('user_id')
+    .select('id')
     .eq('username', username)
     .maybeSingle();
 
@@ -1355,8 +1327,7 @@ export async function checkUsernameAvailabilityAction(
     };
   }
 
-  const available =
-    !existingProfile || existingProfile.user_id === userData.user.id;
+  const available = !existingProfile || existingProfile.id === profileId;
 
   return {
     available,
@@ -1367,6 +1338,135 @@ export async function checkUsernameAvailabilityAction(
         : 'This username is available.'
       : 'This username is already taken.',
   };
+}
+
+export async function createProfileAction(
+  _prevState: ProfileBuilderActionState,
+  formData: FormData,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      success: false,
+      message: 'You need to be signed in to create a profile.',
+    };
+  }
+
+  const parsed = createProfileSchema.safeParse({
+    displayName: getString(formData, 'displayName'),
+    username: getString(formData, 'username'),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? 'Invalid profile.',
+    };
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const [{ count }, subscription] = await Promise.all([
+    serviceSupabase
+      .from('public_profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userData.user.id),
+    getSubscriptionState(),
+  ]);
+  const limit = subscription.isActive ? 5 : 1;
+
+  if ((count ?? 0) >= limit) {
+    return {
+      success: false,
+      message: subscription.isActive
+        ? 'The Pro plan supports up to 5 profiles.'
+        : 'The Free plan supports 1 profile. Upgrade to Pro to create more.',
+    };
+  }
+
+  const { data: usernameOwner } = await serviceSupabase
+    .from('public_profiles')
+    .select('id')
+    .eq('username', parsed.data.username)
+    .maybeSingle();
+
+  if (usernameOwner) {
+    return { success: false, message: 'This username is already taken.' };
+  }
+
+  await ensurePrivateProfile(userData.user);
+  const avatarUrl =
+    typeof userData.user.user_metadata?.avatar_url === 'string'
+      ? userData.user.user_metadata.avatar_url
+      : null;
+  const { data: profile, error } = await serviceSupabase
+    .from('public_profiles')
+    .insert({
+      user_id: userData.user.id,
+      username: parsed.data.username,
+      display_name: parsed.data.displayName,
+      avatar_url: avatarUrl,
+      theme: { templateId: defaultProfileTemplateId },
+      is_published: false,
+    })
+    .select('id')
+    .single();
+
+  if (error || !profile) {
+    return {
+      success: false,
+      message: error?.message ?? 'Unable to create this profile.',
+    };
+  }
+
+  revalidatePath('/dashboard');
+
+  return {
+    success: true,
+    message: 'Profile created.',
+    profileId: profile.id,
+  };
+}
+
+export async function deleteProfileAction(
+  profileId: number,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user || !Number.isInteger(profileId)) {
+    return { success: false, message: 'Unable to delete this profile.' };
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: profile } = await serviceSupabase
+    .from('public_profiles')
+    .select('username')
+    .eq('id', profileId)
+    .eq('user_id', userData.user.id)
+    .maybeSingle();
+
+  if (!profile) {
+    return {
+      success: false,
+      message: 'This profile does not exist or does not belong to you.',
+    };
+  }
+
+  const { error } = await serviceSupabase
+    .from('public_profiles')
+    .delete()
+    .eq('id', profileId)
+    .eq('user_id', userData.user.id);
+
+  if (error) return { success: false, message: error.message };
+
+  revalidatePath('/dashboard');
+  revalidatePath(`/${profile.username}`);
+  updateTag(getPublicProfileCacheTag(profile.username));
+
+  return { success: true, message: 'Profile deleted.' };
 }
 
 export async function updateProfileUrlAction(
@@ -1383,6 +1483,11 @@ export async function updateProfileUrlAction(
     };
   }
 
+  const profileId = getProfileId(formData);
+  if (!profileId) {
+    return { success: false, message: 'Invalid profile.' };
+  }
+
   const parsed = usernameSchema.safeParse({
     username: getString(formData, 'username'),
   });
@@ -1397,18 +1502,13 @@ export async function updateProfileUrlAction(
   const { username } = parsed.data;
   const serviceSupabase = createServiceSupabaseClient();
 
-  await ensurePrivateProfile(userData.user);
-
   const { data: existingUsernameOwner } = await serviceSupabase
     .from('public_profiles')
-    .select('user_id')
+    .select('id')
     .eq('username', username)
     .maybeSingle();
 
-  if (
-    existingUsernameOwner &&
-    existingUsernameOwner.user_id !== userData.user.id
-  ) {
+  if (existingUsernameOwner && existingUsernameOwner.id !== profileId) {
     return {
       success: false,
       message: 'This username is already taken.',
@@ -1417,26 +1517,27 @@ export async function updateProfileUrlAction(
 
   const { data: existingProfile } = await serviceSupabase
     .from('public_profiles')
-    .select('username, display_name')
+    .select('username')
+    .eq('id', profileId)
     .eq('user_id', userData.user.id)
     .maybeSingle();
 
-  const previousUsername = existingProfile?.username;
-  const fallbackDisplayName =
-    existingProfile?.display_name ||
-    userData.user.user_metadata?.full_name ||
-    userData.user.user_metadata?.name ||
-    username;
+  if (!existingProfile) {
+    return {
+      success: false,
+      message: 'This profile does not exist or does not belong to you.',
+    };
+  }
 
-  const { error } = await serviceSupabase.from('public_profiles').upsert(
-    {
-      user_id: userData.user.id,
+  const previousUsername = existingProfile?.username;
+  const { error } = await serviceSupabase
+    .from('public_profiles')
+    .update({
       username,
-      display_name: String(fallbackDisplayName),
       updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'user_id' },
-  );
+    })
+    .eq('id', profileId)
+    .eq('user_id', userData.user.id);
 
   if (error) {
     return {
@@ -1446,8 +1547,9 @@ export async function updateProfileUrlAction(
   }
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/design');
-  revalidatePath('/dashboard/settings');
+  revalidatePath(`/dashboard/profiles/${profileId}`);
+  revalidatePath(`/dashboard/profiles/${profileId}/design`);
+  revalidatePath(`/dashboard/profiles/${profileId}/settings`);
   revalidatePath(`/${username}`);
   updateTag(getPublicProfileCacheTag(username));
 
@@ -1474,6 +1576,11 @@ export async function updateProfileTemplateAction(
       success: false,
       message: 'You need to be signed in to update your template.',
     };
+  }
+
+  const profileId = getProfileId(formData);
+  if (!profileId) {
+    return { success: false, message: 'Invalid profile.' };
   }
 
   const parsed = templateSchema.safeParse({
@@ -1586,6 +1693,7 @@ export async function updateProfileTemplateAction(
   const { data: existingProfile, error: existingError } = await serviceSupabase
     .from('public_profiles')
     .select('username, theme')
+    .eq('id', profileId)
     .eq('user_id', userData.user.id)
     .maybeSingle();
 
@@ -1685,6 +1793,7 @@ export async function updateProfileTemplateAction(
       },
       updated_at: new Date().toISOString(),
     })
+    .eq('id', profileId)
     .eq('user_id', userData.user.id);
 
   if (error) {
@@ -1695,7 +1804,8 @@ export async function updateProfileTemplateAction(
   }
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/design');
+  revalidatePath(`/dashboard/profiles/${profileId}`);
+  revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${existingProfile.username}`);
   updateTag(getPublicProfileCacheTag(existingProfile.username));
 
@@ -1706,6 +1816,7 @@ export async function updateProfileTemplateAction(
 }
 
 export async function setProfilePublishedAction(
+  profileId: number,
   isPublished: boolean,
 ): Promise<ProfileBuilderActionState> {
   const supabase = await createServerSupabaseClient();
@@ -1725,6 +1836,7 @@ export async function setProfilePublishedAction(
       is_published: isPublished,
       updated_at: new Date().toISOString(),
     })
+    .eq('id', profileId)
     .eq('user_id', userData.user.id)
     .select('username')
     .maybeSingle();
@@ -1738,7 +1850,8 @@ export async function setProfilePublishedAction(
   }
 
   revalidatePath('/dashboard');
-  revalidatePath('/dashboard/design');
+  revalidatePath(`/dashboard/profiles/${profileId}`);
+  revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${profile.username}`);
   updateTag(getPublicProfileCacheTag(profile.username));
 

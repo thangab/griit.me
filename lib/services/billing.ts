@@ -54,6 +54,7 @@ export async function canAccessFeature(
     'premiumThemes',
     'unlimitedBlocks',
     'advancedAnalytics',
+    'multipleProfiles',
   ]);
 
   if (!premiumFeatures.has(feature)) {

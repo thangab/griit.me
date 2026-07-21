@@ -115,20 +115,13 @@ async function resolveTarget(
   const supabase = createServiceSupabaseClient();
 
   if (targetType === 'block') {
-    const { data: pages } = await supabase
-      .from('profile_pages')
-      .select('id')
-      .eq('profile_id', profileId);
-    const pageIds = (pages ?? []).map((page) => page.id as number);
-    if (!pageIds.length) return null;
-
     const { data } = await supabase
       .from('profile_blocks')
       .select('analytics_key, type, title, content')
+      .eq('profile_id', profileId)
       .eq('analytics_key', targetKey)
       .eq('is_enabled', true)
       .is('deleted_at', null)
-      .in('page_id', pageIds)
       .maybeSingle();
     if (!data) return null;
     const content = (data.content ?? {}) as Record<string, unknown>;

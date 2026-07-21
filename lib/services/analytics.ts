@@ -145,6 +145,7 @@ function queryValues(profileId: number, filters: AnalyticsFilters) {
 }
 
 export async function getAnalyticsDashboardData(
+  profileId: number,
   filters: AnalyticsFilters,
 ): Promise<AnalyticsDashboardData | null> {
   const supabase = await createServerSupabaseClient();
@@ -158,9 +159,9 @@ export async function getAnalyticsDashboardData(
   }>(
     `SELECT id, username
      FROM public_profiles
-     WHERE user_id = $1
+     WHERE id = $1 AND user_id = $2
      LIMIT 1`,
-    [userData.user.id],
+    [profileId, userData.user.id],
   );
   const profile = profileResult.rows[0];
   if (!profile) return null;

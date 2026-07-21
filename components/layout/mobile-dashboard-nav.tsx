@@ -2,18 +2,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
 import {
   ChartBarIcon as BarChart3,
   GearIcon as Settings,
   LayoutIcon as PanelsTopLeft,
   ListIcon as Menu,
+  LockSimpleIcon as LockSimple,
   SignOutIcon as LogOut,
   SquaresFourIcon as LayoutGrid,
   UserCircleIcon as UserRound,
   XIcon as X,
 } from '@phosphor-icons/react/ssr';
-import { dashboardNavItems } from '@/lib/constants/navigation';
+import { getDashboardNavItems } from '@/lib/constants/navigation';
 import { signOutAction } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
@@ -24,11 +26,17 @@ const iconMap = {
   PanelsTopLeft,
   BarChart3,
   Settings,
+  LockSimple,
 };
 
-export function MobileDashboardNav() {
+export function MobileDashboardNav({
+  defaultProfileId,
+}: {
+  defaultProfileId?: number;
+}) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const dashboardNavItems = getDashboardNavItems(pathname, defaultProfileId);
 
   return (
     <div className="lg:hidden">
@@ -97,15 +105,12 @@ export function MobileDashboardNav() {
         <nav className="mt-8 space-y-1">
           {dashboardNavItems.map((item) => {
             const Icon = iconMap[item.icon as keyof typeof iconMap];
-            const isActive =
-              item.href === '/dashboard'
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
+            const isActive = pathname === item.href;
 
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as Route}
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   'text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition',

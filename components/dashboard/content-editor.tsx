@@ -1995,6 +1995,7 @@ export function ContentEditor({
       }}
       ref={formRef}
     >
+      <input name="profileId" type="hidden" value={profile.id ?? ''} />
       <input
         name="isPublished"
         type="hidden"

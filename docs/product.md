@@ -52,6 +52,30 @@ Some templates are available only on the Pro plan.
 
 ---
 
+## Accounts and public profiles
+
+An account opens directly on its current public profile. The athlete should not
+have to choose a profile during normal use.
+
+The Free plan includes one complete public profile. The Pro plan can manage up
+to five independent public profiles from the Profiles area. This supports
+athletes, coaches, teams, creators, or managers who need separate identities
+without creating separate accounts.
+
+Every public profile has its own:
+
+- public username and `griit.me/username` address
+- content, goals, sports, links, sponsors, and media
+- template and visual customization
+- publication state
+- analytics and interaction history
+
+The Profiles area is still accessible on Free, but it presents the Pro upgrade
+instead of a profile switcher. A new Free account can always create its first
+profile.
+
+---
+
 ## Target users
 
 - Running

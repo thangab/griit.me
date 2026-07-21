@@ -1,12 +1,5 @@
-import { DesignWorkspace } from '@/components/dashboard/design-workspace';
-import { getSubscriptionState } from '@/lib/services/billing';
-import { getProfileBuilderState } from '@/lib/services/profile-builder';
+import { redirect } from 'next/navigation';
 
-export default async function DesignPage() {
-  const [builder, subscription] = await Promise.all([
-    getProfileBuilderState(),
-    getSubscriptionState(),
-  ]);
-
-  return <DesignWorkspace builder={builder} subscription={subscription} />;
+export default function LegacyDesignPage() {
+  redirect('/dashboard');
 }

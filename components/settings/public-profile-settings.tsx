@@ -81,20 +81,26 @@ export function PublicProfileSettings({
     if (normalizedUsername === savedUsername || validationMessage) return;
 
     const timer = window.setTimeout(() => {
-      void checkUsernameAvailabilityAction(normalizedUsername).then(
-        (result) => {
-          if (requestId !== requestIdRef.current) return;
-          setAvailabilityResult({
-            username: normalizedUsername,
-            available: result.available,
-            message: result.message,
-          });
-        },
-      );
+      void checkUsernameAvailabilityAction(
+        builder.profile.id ?? 0,
+        normalizedUsername,
+      ).then((result) => {
+        if (requestId !== requestIdRef.current) return;
+        setAvailabilityResult({
+          username: normalizedUsername,
+          available: result.available,
+          message: result.message,
+        });
+      });
     }, 450);
 
     return () => window.clearTimeout(timer);
-  }, [normalizedUsername, savedUsername, validationMessage]);
+  }, [
+    builder.profile.id,
+    normalizedUsername,
+    savedUsername,
+    validationMessage,
+  ]);
 
   const canSave =
     availabilityStatus === 'available' && normalizedUsername !== savedUsername;
@@ -125,6 +131,11 @@ export function PublicProfileSettings({
 
       <div className="p-5 sm:p-6">
         <form action={formAction} className="space-y-3">
+          <input
+            name="profileId"
+            type="hidden"
+            value={builder.profile.id ?? ''}
+          />
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <label className="block min-w-0">
               <span className="text-sm font-semibold">

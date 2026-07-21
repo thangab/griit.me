@@ -12,9 +12,11 @@ export const subscriptionPlans = {
   },
   pro: {
     name: 'Pro',
-    description: 'Unlock premium tools for a fully custom athlete experience.',
+    description:
+      'Manage multiple profiles and unlock the complete athlete toolkit.',
     price: '€3.99 / month',
     features: [
+      'Up to 5 public profiles',
       'Unlimited customization',
       'Premium themes',
       'Unlimited blocks',
@@ -30,4 +32,5 @@ export const premiumFeatureFlags = {
   premiumThemes: 'premiumThemes',
   unlimitedBlocks: 'unlimitedBlocks',
   advancedAnalytics: 'advancedAnalytics',
+  multipleProfiles: 'multipleProfiles',
 } as const;

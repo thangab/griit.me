@@ -17,15 +17,6 @@ export interface BuilderSport {
   slug: string;
 }
 
-export interface BuilderPage {
-  id: number | null;
-  slug: string;
-  title: string;
-  sortOrder: number;
-  isHome: boolean;
-  isPublished: boolean;
-}
-
 export interface BuilderBlock {
   id: number | null;
   analyticsKey: string;
@@ -94,7 +85,6 @@ export interface BuilderGoalItem {
 export interface ProfileBuilderState {
   source: 'database' | 'initial';
   profile: BuilderProfile;
-  pages: BuilderPage[];
   blocks: BuilderBlock[];
   socialLinks: BuilderSocialLink[];
   galleryItems: BuilderGalleryItem[];
