@@ -249,6 +249,7 @@ function createLivePreviewState(
 
       return {
         id: builder.goals[index]?.id ?? null,
+        analyticsKey: builder.goals[index]?.analyticsKey ?? '',
         title,
         description: getValue(`goalDescription${number}`),
         url: getValue(`goalUrl${number}`),
@@ -274,6 +275,7 @@ function createLivePreviewState(
 
       return {
         id: builder.galleryItems[sourceIndex]?.id ?? null,
+        analyticsKey: builder.galleryItems[sourceIndex]?.analyticsKey ?? '',
         imageUrl,
         caption: builder.galleryItems[sourceIndex]?.caption ?? '',
         altText: builder.galleryItems[sourceIndex]?.altText ?? '',
@@ -296,6 +298,7 @@ function createLivePreviewState(
     .sort((left, right) => left.slot - right.slot)
     .map((link, index) => ({
       id: builder.socialLinks[index]?.id ?? null,
+      analyticsKey: builder.socialLinks[index]?.analyticsKey ?? '',
       platform: link.platform,
       label: link.label,
       url: link.url,
@@ -342,6 +345,7 @@ function createLivePreviewState(
 
         return {
           id: existingBlock?.id ?? null,
+          analyticsKey: existingBlock?.analyticsKey ?? '',
           type: 'media',
           title: 'Media',
           content: {
@@ -360,6 +364,7 @@ function createLivePreviewState(
 
         return {
           id: existingBlock?.id ?? null,
+          analyticsKey: existingBlock?.analyticsKey ?? '',
           type: 'offer',
           title: getValue(`offerTitle${slot}`) || 'Offer',
           content: {
@@ -386,6 +391,7 @@ function createLivePreviewState(
 
         return {
           id: existingBlock?.id ?? null,
+          analyticsKey: existingBlock?.analyticsKey ?? '',
           type: 'link',
           title: getValue(`linkTitle${slot}`) || 'Link',
           content: {
@@ -404,6 +410,7 @@ function createLivePreviewState(
       const existingBlock = builder.blocks.find((block) => block.type === type);
       const block = existingBlock ?? {
         id: null,
+        analyticsKey: '',
         type,
         title:
           type === 'gallery'
@@ -451,6 +458,7 @@ function createLivePreviewState(
 
       return {
         id: builder.achievements[sourceIndex]?.id ?? null,
+        analyticsKey: builder.achievements[sourceIndex]?.analyticsKey ?? '',
         title: title || 'New achievement',
         description: getValue(`achievementDescription${number}`),
         date,
@@ -472,6 +480,7 @@ function createLivePreviewState(
 
       return {
         id: builder.sponsors[sourceIndex]?.id ?? null,
+        analyticsKey: builder.sponsors[sourceIndex]?.analyticsKey ?? '',
         name: String(value).trim() || 'New sponsor',
         logoUrl: getValue(`sponsorLogoUrl${number}`),
         websiteUrl: getValue(`sponsorWebsiteUrl${number}`),
@@ -502,6 +511,7 @@ function createLivePreviewState(
       ? [
           {
             id: builder.activities[0]?.id ?? null,
+            analyticsKey: builder.activities[0]?.analyticsKey ?? '',
             title: activityTitle || 'New activity',
             description: getValue('activityType1'),
             date: activityDate,

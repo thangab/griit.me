@@ -83,8 +83,11 @@ const dateSchema = z
   .or(z.literal(''))
   .transform((value) => value || null);
 
+const persistedIdSchema = z.number().int().positive().nullable();
+
 const socialLinkSchema = z
   .object({
+    id: persistedIdSchema,
     platform: z.string().refine(isSocialPlatformId, 'Invalid social platform.'),
     label: z.string().trim().max(80).optional(),
     url: z.string().trim().max(500),
@@ -144,6 +147,7 @@ const builderSchema = z.object({
   mediaBlocks: z
     .array(
       z.object({
+        id: persistedIdSchema,
         slot: z.number().int().positive(),
         sourceUrl: z
           .string()
@@ -161,6 +165,7 @@ const builderSchema = z.object({
   offerBlocks: z
     .array(
       z.object({
+        id: persistedIdSchema,
         slot: z.number().int().positive(),
         url: z.string().trim().url('Offer URL is invalid.').max(1000),
         title: z.string().trim().max(160),
@@ -178,6 +183,7 @@ const builderSchema = z.object({
   linkBlocks: z
     .array(
       z.object({
+        id: persistedIdSchema,
         slot: z.number().int().positive(),
         url: urlSchema,
         title: z.string().trim().max(160),
@@ -186,10 +192,18 @@ const builderSchema = z.object({
       }),
     )
     .max(50),
-  galleryUrls: z.array(urlSchema).max(50),
+  galleryItems: z
+    .array(
+      z.object({
+        id: persistedIdSchema,
+        url: urlSchema,
+      }),
+    )
+    .max(50),
   sponsors: z
     .array(
       z.object({
+        id: persistedIdSchema,
         name: z.string().trim().max(120),
         logoUrl: urlSchema,
         websiteUrl: urlSchema,
@@ -204,6 +218,7 @@ const builderSchema = z.object({
   achievements: z
     .array(
       z.object({
+        id: persistedIdSchema,
         title: z.string().trim().max(160),
         description: z.string().trim().max(500).optional(),
         achievedAt: dateSchema,
@@ -213,6 +228,7 @@ const builderSchema = z.object({
   activities: z
     .array(
       z.object({
+        id: persistedIdSchema,
         title: z.string().trim().max(160),
         activityType: z.string().trim().max(80).optional(),
         occurredAt: dateSchema,
@@ -222,6 +238,7 @@ const builderSchema = z.object({
   goals: z
     .array(
       z.object({
+        id: persistedIdSchema,
         title: z.string().trim().max(160),
         description: z.string().trim().max(500).optional(),
         url: urlSchema,
@@ -338,7 +355,12 @@ function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? '').trim();
 }
 
-function getGalleryUrls(formData: FormData) {
+function getPersistedId(formData: FormData, key: string) {
+  const value = Number(getString(formData, key));
+  return Number.isInteger(value) && value > 0 ? value : null;
+}
+
+function getGalleryItems(formData: FormData) {
   return Array.from(formData.entries())
     .filter(([key]) => /^galleryUrl\d+$/.test(key))
     .sort(([left], [right]) => {
@@ -346,7 +368,13 @@ function getGalleryUrls(formData: FormData) {
       const rightIndex = Number(right.replace('galleryUrl', ''));
       return leftIndex - rightIndex;
     })
-    .map(([, value]) => String(value).trim());
+    .map(([key, value]) => {
+      const index = Number(key.replace('galleryUrl', ''));
+      return {
+        id: getPersistedId(formData, `galleryId${index}`),
+        url: String(value).trim(),
+      };
+    });
 }
 
 function getSponsors(formData: FormData) {
@@ -357,13 +385,15 @@ function getSponsors(formData: FormData) {
 
       return {
         index,
+        id: getPersistedId(formData, `sponsorId${index}`),
         name: String(value).trim(),
         logoUrl: getString(formData, `sponsorLogoUrl${index}`),
         websiteUrl: getString(formData, `sponsorWebsiteUrl${index}`),
       };
     })
     .sort((left, right) => left.index - right.index)
-    .map(({ name, logoUrl, websiteUrl }) => ({
+    .map(({ id, name, logoUrl, websiteUrl }) => ({
+      id,
       name,
       logoUrl,
       websiteUrl,
@@ -378,17 +408,19 @@ function getSocialLinks(formData: FormData) {
 
       return {
         index,
+        id: getPersistedId(formData, `socialId${index}`),
         platform: String(value).trim().toLowerCase(),
         label: getString(formData, `socialLabel${index}`),
         url: getString(formData, `socialUrl${index}`),
       };
     })
     .sort((left, right) => left.index - right.index)
-    .map(({ platform, label, url }) => ({ platform, label, url }));
+    .map(({ id, platform, label, url }) => ({ id, platform, label, url }));
 }
 
 function getGoals(formData: FormData) {
   return [1, 2, 3].map((index) => ({
+    id: getPersistedId(formData, `goalId${index}`),
     title: getString(formData, `goalTitle${index}`),
     description: getString(formData, `goalDescription${index}`),
     url: getString(formData, `goalUrl${index}`),
@@ -406,13 +438,15 @@ function getAchievements(formData: FormData) {
 
       return {
         index,
+        id: getPersistedId(formData, `achievementId${index}`),
         title: String(value).trim(),
         description: getString(formData, `achievementDescription${index}`),
         achievedAt: getString(formData, `achievementDate${index}`),
       };
     })
     .sort((left, right) => left.index - right.index)
-    .map(({ title, description, achievedAt }) => ({
+    .map(({ id, title, description, achievedAt }) => ({
+      id,
       title,
       description,
       achievedAt,
@@ -422,6 +456,7 @@ function getAchievements(formData: FormData) {
 function getActivities(formData: FormData) {
   return [
     {
+      id: getPersistedId(formData, 'activityId1'),
       title: getString(formData, 'activityTitle1'),
       activityType: getString(formData, 'activityType1'),
       occurredAt: getString(formData, 'activityDate1'),
@@ -454,6 +489,7 @@ function getMediaBlocks(formData: FormData) {
       const slot = Number(key.replace('mediaUrl', ''));
 
       return {
+        id: getPersistedId(formData, `contentBlockId-media-${slot}`),
         slot,
         sourceUrl: String(value).trim(),
         caption: getString(formData, `mediaCaption${slot}`),
@@ -473,6 +509,7 @@ function getOfferBlocks(formData: FormData) {
       const slot = Number(key.replace('offerUrl', ''));
 
       return {
+        id: getPersistedId(formData, `contentBlockId-offer-${slot}`),
         slot,
         url: String(value).trim(),
         title: getString(formData, `offerTitle${slot}`),
@@ -500,6 +537,7 @@ function getLinkBlocks(formData: FormData) {
       const slot = Number(key.replace('linkUrl', ''));
 
       return {
+        id: getPersistedId(formData, `contentBlockId-link-${slot}`),
         slot,
         url: String(value).trim(),
         title: getString(formData, `linkTitle${slot}`),
@@ -547,176 +585,216 @@ async function ensurePrivateProfile(user: {
   );
 }
 
+type PersistedContentInput = {
+  id: number | null;
+  values: Record<string, unknown>;
+};
+
+async function reconcileProfileContentRows(
+  table:
+    | 'profile_social_links'
+    | 'profile_gallery_items'
+    | 'profile_goals'
+    | 'profile_achievements'
+    | 'profile_activities'
+    | 'profile_sponsors',
+  profileId: number,
+  rows: PersistedContentInput[],
+) {
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data, error } = await serviceSupabase
+    .from(table)
+    .select('id, sort_order, deleted_at')
+    .eq('profile_id', profileId)
+    .order('sort_order', { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  const existingRows = (data ?? []) as Array<{
+    id: number;
+    sort_order: number;
+    deleted_at: string | null;
+  }>;
+  const existingIds = new Set(existingRows.map((row) => row.id));
+  const claimedIds = new Set<number>();
+
+  for (const [sortOrder, row] of rows.entries()) {
+    if (row.id && (!existingIds.has(row.id) || claimedIds.has(row.id))) {
+      throw new Error(
+        'Unable to update content that does not belong to this profile.',
+      );
+    }
+
+    const fallback = row.id
+      ? null
+      : existingRows.find(
+          (existing) =>
+            !existing.deleted_at &&
+            existing.sort_order === sortOrder &&
+            !claimedIds.has(existing.id),
+        );
+    const persistedId = row.id ?? fallback?.id ?? null;
+    const values = {
+      ...row.values,
+      sort_order: sortOrder,
+      is_enabled: true,
+      deleted_at: null,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (persistedId) {
+      const { error: updateError } = await serviceSupabase
+        .from(table)
+        .update(values)
+        .eq('id', persistedId)
+        .eq('profile_id', profileId);
+      if (updateError) throw new Error(updateError.message);
+      claimedIds.add(persistedId);
+    } else {
+      const { error: insertError } = await serviceSupabase.from(table).insert({
+        profile_id: profileId,
+        ...values,
+      });
+      if (insertError) throw new Error(insertError.message);
+    }
+  }
+
+  const idsToArchive = existingRows
+    .filter((row) => !row.deleted_at && !claimedIds.has(row.id))
+    .map((row) => row.id);
+
+  if (idsToArchive.length) {
+    const { error: archiveError } = await serviceSupabase
+      .from(table)
+      .update({
+        is_enabled: false,
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('profile_id', profileId)
+      .in('id', idsToArchive);
+    if (archiveError) throw new Error(archiveError.message);
+  }
+}
+
 async function replaceSocialLinks(
   profileId: number,
   input: z.infer<typeof builderSchema>,
 ) {
-  const serviceSupabase = createServiceSupabaseClient();
-  await serviceSupabase
-    .from('profile_social_links')
-    .delete()
-    .eq('profile_id', profileId);
-
   const socialRows = input.socialLinks
     .filter((link): link is typeof link & { url: string } => Boolean(link.url))
-    .map((link, index) => ({
-      profile_id: profileId,
-      platform: link.platform,
-      label: link.label || null,
-      url: link.url,
-      sort_order: index,
-      is_enabled: true,
+    .map((link) => ({
+      id: link.id,
+      values: {
+        platform: link.platform,
+        label: link.label || null,
+        url: link.url,
+      },
     }));
 
-  if (!socialRows.length) {
-    return;
-  }
-
-  await serviceSupabase.from('profile_social_links').insert(socialRows);
+  await reconcileProfileContentRows(
+    'profile_social_links',
+    profileId,
+    socialRows,
+  );
 }
 
 async function replaceGalleryItems(
   profileId: number,
   input: z.infer<typeof builderSchema>,
 ) {
-  const serviceSupabase = createServiceSupabaseClient();
-  await serviceSupabase
-    .from('profile_gallery_items')
-    .delete()
-    .eq('profile_id', profileId);
-
-  const galleryRows = input.galleryUrls
-    .filter((url): url is string => Boolean(url))
-    .map((url, index) => ({
-      profile_id: profileId,
-      image_url: url,
-      caption: `Gallery image ${index + 1}`,
-      alt_text: 'Athlete gallery image',
-      sort_order: index,
-      is_enabled: true,
+  const galleryRows = input.galleryItems
+    .filter((item): item is typeof item & { url: string } => Boolean(item.url))
+    .map((item, index) => ({
+      id: item.id,
+      values: {
+        image_url: item.url,
+        caption: `Gallery image ${index + 1}`,
+        alt_text: 'Athlete gallery image',
+      },
     }));
 
-  if (galleryRows.length) {
-    await serviceSupabase.from('profile_gallery_items').insert(galleryRows);
-  }
+  await reconcileProfileContentRows(
+    'profile_gallery_items',
+    profileId,
+    galleryRows,
+  );
 }
 
 async function replaceGoals(
   profileId: number,
   input: z.infer<typeof builderSchema>,
 ) {
-  const serviceSupabase = createServiceSupabaseClient();
-  await serviceSupabase
-    .from('profile_goals')
-    .delete()
-    .eq('profile_id', profileId);
-
   const goalRows = input.goals
     .filter((goal) => goal.title)
-    .map((goal, index) => ({
-      profile_id: profileId,
-      title: goal.title,
-      description: goal.description || null,
-      url: goal.url,
-      target_at: goal.targetAt,
-      date_display: goal.dateDisplay,
-      status: goal.status || 'planned',
-      sort_order: index,
-      is_enabled: true,
+    .map((goal) => ({
+      id: goal.id,
+      values: {
+        title: goal.title,
+        description: goal.description || null,
+        url: goal.url,
+        target_at: goal.targetAt,
+        date_display: goal.dateDisplay,
+        status: goal.status || 'planned',
+      },
     }));
 
-  if (goalRows.length) {
-    await serviceSupabase.from('profile_goals').insert(goalRows);
-  }
+  await reconcileProfileContentRows('profile_goals', profileId, goalRows);
 }
 
 async function replaceAchievements(
   profileId: number,
   input: z.infer<typeof builderSchema>,
 ) {
-  const serviceSupabase = createServiceSupabaseClient();
-  await serviceSupabase
-    .from('profile_achievements')
-    .delete()
-    .eq('profile_id', profileId);
-
   const rows = input.achievements
     .filter((item) => item.title)
-    .map((item, index) => ({
-      profile_id: profileId,
-      title: item.title,
-      description: item.description || null,
-      achieved_at: item.achievedAt,
-      sort_order: index,
-      is_enabled: true,
+    .map((item) => ({
+      id: item.id,
+      values: {
+        title: item.title,
+        description: item.description || null,
+        achieved_at: item.achievedAt,
+      },
     }));
 
-  if (rows.length) {
-    await serviceSupabase.from('profile_achievements').insert(rows);
-  }
+  await reconcileProfileContentRows('profile_achievements', profileId, rows);
 }
 
 async function replaceActivities(
   profileId: number,
   input: z.infer<typeof builderSchema>,
 ) {
-  const serviceSupabase = createServiceSupabaseClient();
-  await serviceSupabase
-    .from('profile_activities')
-    .delete()
-    .eq('profile_id', profileId);
-
   const rows = input.activities
     .filter((item) => item.title)
-    .map((item, index) => ({
-      profile_id: profileId,
-      title: item.title,
-      activity_type: item.activityType || null,
-      occurred_at: item.occurredAt,
-      metrics: {},
-      sort_order: index,
-      is_enabled: true,
+    .map((item) => ({
+      id: item.id,
+      values: {
+        title: item.title,
+        activity_type: item.activityType || null,
+        occurred_at: item.occurredAt,
+        metrics: {},
+      },
     }));
 
-  if (rows.length) {
-    await serviceSupabase.from('profile_activities').insert(rows);
-  }
+  await reconcileProfileContentRows('profile_activities', profileId, rows);
 }
 
 async function replaceSponsors(
   profileId: number,
   input: z.infer<typeof builderSchema>,
 ) {
-  const serviceSupabase = createServiceSupabaseClient();
-  const { error: deleteError } = await serviceSupabase
-    .from('profile_sponsors')
-    .delete()
-    .eq('profile_id', profileId);
-
-  if (deleteError) {
-    throw new Error(deleteError.message);
-  }
-
   const rows = input.sponsors
     .filter((sponsor) => sponsor.name)
-    .map((sponsor, index) => ({
-      profile_id: profileId,
-      name: sponsor.name,
-      logo_url: sponsor.logoUrl,
-      website_url: sponsor.websiteUrl,
-      sort_order: index,
-      is_enabled: true,
+    .map((sponsor) => ({
+      id: sponsor.id,
+      values: {
+        name: sponsor.name,
+        logo_url: sponsor.logoUrl,
+        website_url: sponsor.websiteUrl,
+      },
     }));
 
-  if (rows.length) {
-    const { error: insertError } = await serviceSupabase
-      .from('profile_sponsors')
-      .insert(rows);
-
-    if (insertError) {
-      throw new Error(insertError.message);
-    }
-  }
+  await reconcileProfileContentRows('profile_sponsors', profileId, rows);
 }
 
 async function replaceSports(
@@ -775,11 +853,13 @@ async function ensureHomePageAndBlocks(
   profileId: number,
   contentBlockOrder: string[],
   mediaBlocks: Array<{
+    id: number | null;
     slot: number;
     sourceUrl: string;
     caption?: string;
   }>,
   offerBlocks: Array<{
+    id: number | null;
     slot: number;
     url: string;
     title: string;
@@ -793,6 +873,7 @@ async function ensureHomePageAndBlocks(
     isAffiliate: boolean;
   }>,
   linkBlocks: Array<{
+    id: number | null;
     slot: number;
     url: string | null;
     title: string;
@@ -855,114 +936,181 @@ async function ensureHomePageAndBlocks(
     );
   }
 
-  await serviceSupabase
-    .from('profile_blocks')
-    .delete()
-    .eq('page_id', homePageId)
-    .in('type', [
-      'gallery',
-      'achievements',
-      'activities',
-      'sponsors',
-      'media',
-      'offer',
-      'link',
-    ]);
+  const managedTypes = [
+    'gallery',
+    'achievements',
+    'activities',
+    'sponsors',
+    'media',
+    'offer',
+    'link',
+  ];
+  const { data: managedBlockData, error: managedBlockError } =
+    await serviceSupabase
+      .from('profile_blocks')
+      .select('id, type, sort_order, deleted_at')
+      .eq('page_id', homePageId)
+      .in('type', managedTypes)
+      .order('sort_order', { ascending: true });
 
-  if (contentBlockOrder.length) {
-    const titles = {
-      gallery: 'Image gallery',
-      achievements: 'Achievements',
-      activities: 'Activities',
-      sponsors: 'Sponsors & partnerships',
+  if (managedBlockError) throw new Error(managedBlockError.message);
+
+  const managedBlocks = (managedBlockData ?? []) as Array<{
+    id: number;
+    type: string;
+    sort_order: number;
+    deleted_at: string | null;
+  }>;
+  const managedIds = new Set(managedBlocks.map((block) => block.id));
+  const claimedIds = new Set<number>();
+  const titles = {
+    gallery: 'Image gallery',
+    achievements: 'Achievements',
+    activities: 'Activities',
+    sponsors: 'Sponsors & partnerships',
+  };
+  const mediaBySlot = new Map(mediaBlocks.map((media) => [media.slot, media]));
+  const offerBySlot = new Map(offerBlocks.map((offer) => [offer.slot, offer]));
+  const linkBySlot = new Map(linkBlocks.map((link) => [link.slot, link]));
+
+  const desiredBlocks = contentBlockOrder.map((blockKey, index) => {
+    if (blockKey.startsWith('media-')) {
+      const media = mediaBySlot.get(Number(blockKey.replace('media-', '')));
+      const parsedMedia = media ? parseMediaUrl(media.sourceUrl) : null;
+      if (!media || !parsedMedia) {
+        throw new Error('Unable to save an invalid media block.');
+      }
+      return {
+        id: media.id,
+        type: 'media',
+        title: 'Media',
+        content: {
+          builderManaged: true,
+          sourceUrl: media.sourceUrl,
+          caption: media.caption,
+          provider: parsedMedia.provider,
+          mediaId: parsedMedia.mediaId,
+        },
+        sortOrder: index + 2,
+      };
+    }
+
+    if (blockKey.startsWith('offer-')) {
+      const offer = offerBySlot.get(Number(blockKey.replace('offer-', '')));
+      if (!offer) throw new Error('Unable to save an invalid offer block.');
+      return {
+        id: offer.id,
+        type: 'offer',
+        title: offer.title || 'Offer',
+        content: {
+          builderManaged: true,
+          url: offer.url,
+          title: offer.title,
+          description: offer.description,
+          imageUrl: offer.imageUrl,
+          siteName: offer.siteName,
+          promoCode: offer.promoCode,
+          promoText: offer.promoText,
+          ctaLabel: offer.ctaLabel || 'View offer',
+          displaySize: offer.displaySize,
+          isAffiliate: offer.isAffiliate,
+        },
+        sortOrder: index + 2,
+      };
+    }
+
+    if (blockKey.startsWith('link-')) {
+      const link = linkBySlot.get(Number(blockKey.replace('link-', '')));
+      if (!link) throw new Error('Unable to save an invalid link block.');
+      return {
+        id: link.id,
+        type: 'link',
+        title: link.title || 'Link',
+        content: {
+          builderManaged: true,
+          url: link.url,
+          title: link.title,
+          description: link.description,
+          imageUrl: link.imageUrl,
+        },
+        sortOrder: index + 2,
+      };
+    }
+
+    const type = blockKey as keyof typeof titles;
+    const existing = managedBlocks.find(
+      (block) =>
+        block.type === type && !block.deleted_at && !claimedIds.has(block.id),
+    );
+    return {
+      id: existing?.id ?? null,
+      type,
+      title: titles[type],
+      content:
+        type === 'sponsors'
+          ? { builderManaged: true, ...partnership }
+          : { builderManaged: true },
+      sortOrder: index + 2,
     };
-    const mediaBySlot = new Map(
-      mediaBlocks.map((media) => [media.slot, media]),
-    );
-    const offerBySlot = new Map(
-      offerBlocks.map((offer) => [offer.slot, offer]),
-    );
-    const linkBySlot = new Map(linkBlocks.map((link) => [link.slot, link]));
+  });
 
-    await serviceSupabase.from('profile_blocks').insert(
-      contentBlockOrder.map((blockKey, index) => {
-        if (blockKey.startsWith('media-')) {
-          const media = mediaBySlot.get(Number(blockKey.replace('media-', '')));
-          const parsedMedia = media ? parseMediaUrl(media.sourceUrl) : null;
+  for (const block of desiredBlocks) {
+    if (block.id && (!managedIds.has(block.id) || claimedIds.has(block.id))) {
+      throw new Error(
+        'Unable to update a block that does not belong to this profile.',
+      );
+    }
 
-          if (!media || !parsedMedia) {
-            throw new Error('Unable to save an invalid media block.');
-          }
+    const fallback = block.id
+      ? null
+      : managedBlocks.find(
+          (existing) =>
+            existing.type === block.type &&
+            !existing.deleted_at &&
+            !claimedIds.has(existing.id),
+        );
+    const persistedId = block.id ?? fallback?.id ?? null;
+    const values = {
+      type: block.type,
+      title: block.title,
+      content: block.content,
+      sort_order: block.sortOrder,
+      is_enabled: true,
+      deleted_at: null,
+      updated_at: new Date().toISOString(),
+    };
 
-          return {
-            page_id: homePageId,
-            type: 'media',
-            title: 'Media',
-            content: {
-              builderManaged: true,
-              sourceUrl: media.sourceUrl,
-              caption: media.caption,
-              provider: parsedMedia.provider,
-              mediaId: parsedMedia.mediaId,
-            },
-            sort_order: index + 2,
-            is_enabled: true,
-          };
-        }
+    if (persistedId) {
+      const { error } = await serviceSupabase
+        .from('profile_blocks')
+        .update(values)
+        .eq('id', persistedId)
+        .eq('page_id', homePageId);
+      if (error) throw new Error(error.message);
+      claimedIds.add(persistedId);
+    } else {
+      const { error } = await serviceSupabase.from('profile_blocks').insert({
+        page_id: homePageId,
+        ...values,
+      });
+      if (error) throw new Error(error.message);
+    }
+  }
 
-        if (blockKey.startsWith('offer-')) {
-          const offer = offerBySlot.get(Number(blockKey.replace('offer-', '')));
-          if (!offer) throw new Error('Unable to save an invalid offer block.');
-
-          return {
-            page_id: homePageId,
-            type: 'offer',
-            title: offer.title || 'Offer',
-            content: {
-              builderManaged: true,
-              ...offer,
-              ctaLabel: offer.ctaLabel || 'View offer',
-            },
-            sort_order: index + 2,
-            is_enabled: true,
-          };
-        }
-
-        if (blockKey.startsWith('link-')) {
-          const link = linkBySlot.get(Number(blockKey.replace('link-', '')));
-          if (!link) throw new Error('Unable to save an invalid link block.');
-
-          return {
-            page_id: homePageId,
-            type: 'link',
-            title: link.title || 'Link',
-            content: {
-              builderManaged: true,
-              url: link.url,
-              title: link.title,
-              description: link.description,
-              imageUrl: link.imageUrl,
-            },
-            sort_order: index + 2,
-            is_enabled: true,
-          };
-        }
-
-        const type = blockKey as keyof typeof titles;
-
-        return {
-          page_id: homePageId,
-          type,
-          title: titles[type],
-          content:
-            type === 'sponsors'
-              ? { builderManaged: true, ...partnership }
-              : { builderManaged: true },
-          sort_order: index + 2,
-          is_enabled: true,
-        };
-      }),
-    );
+  const blockIdsToArchive = managedBlocks
+    .filter((block) => !block.deleted_at && !claimedIds.has(block.id))
+    .map((block) => block.id);
+  if (blockIdsToArchive.length) {
+    const { error } = await serviceSupabase
+      .from('profile_blocks')
+      .update({
+        is_enabled: false,
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('page_id', homePageId)
+      .in('id', blockIdsToArchive);
+    if (error) throw new Error(error.message);
   }
 }
 
@@ -992,7 +1140,7 @@ export async function saveProfileBuilderAction(
     mediaBlocks: getMediaBlocks(formData),
     offerBlocks: getOfferBlocks(formData),
     linkBlocks: getLinkBlocks(formData),
-    galleryUrls: getGalleryUrls(formData),
+    galleryItems: getGalleryItems(formData),
     sponsors: getSponsors(formData),
     partnershipMode: getString(formData, 'partnershipMode') || 'seeking',
     partnershipHeadline: getString(formData, 'partnershipHeadline'),
@@ -1014,7 +1162,7 @@ export async function saveProfileBuilderAction(
   const input = parsed.data;
   const dirtySections = getDirtySections(formData);
   const goalCount = input.goals.filter((goal) => goal.title).length;
-  const galleryCount = input.galleryUrls.filter(Boolean).length;
+  const galleryCount = input.galleryItems.filter((item) => item.url).length;
   const achievementCount = input.achievements.filter(
     (achievement) => achievement.title,
   ).length;

@@ -9,6 +9,7 @@ import {
   jsonb,
   uniqueIndex,
   index,
+  uuid,
 } from 'drizzle-orm/pg-core';
 
 export const profiles = pgTable('profiles', {
@@ -122,6 +123,7 @@ export const profile_blocks = pgTable(
   'profile_blocks',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     page_id: integer('page_id')
       .notNull()
       .references(() => profile_pages.id),
@@ -133,11 +135,15 @@ export const profile_blocks = pgTable(
       .notNull(),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
     pageIdx: index('profile_blocks_page_id_idx').on(table.page_id),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_blocks_page_id_analytics_key_unique',
+    ).on(table.page_id, table.analytics_key),
   }),
 );
 
@@ -145,6 +151,7 @@ export const profile_social_links = pgTable(
   'profile_social_links',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
       .references(() => public_profiles.id),
@@ -153,6 +160,7 @@ export const profile_social_links = pgTable(
     url: text('url').notNull(),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -160,6 +168,9 @@ export const profile_social_links = pgTable(
     profileIdx: index('profile_social_links_profile_id_idx').on(
       table.profile_id,
     ),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_social_links_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );
 
@@ -208,6 +219,7 @@ export const profile_gallery_items = pgTable(
   'profile_gallery_items',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
       .references(() => public_profiles.id),
@@ -216,6 +228,7 @@ export const profile_gallery_items = pgTable(
     alt_text: text('alt_text'),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -223,6 +236,9 @@ export const profile_gallery_items = pgTable(
     profileIdx: index('profile_gallery_items_profile_id_idx').on(
       table.profile_id,
     ),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_gallery_items_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );
 
@@ -230,6 +246,7 @@ export const profile_achievements = pgTable(
   'profile_achievements',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
       .references(() => public_profiles.id),
@@ -238,6 +255,7 @@ export const profile_achievements = pgTable(
     achieved_at: timestamp('achieved_at'),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -245,6 +263,9 @@ export const profile_achievements = pgTable(
     profileIdx: index('profile_achievements_profile_id_idx').on(
       table.profile_id,
     ),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_achievements_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );
 
@@ -252,6 +273,7 @@ export const profile_sponsors = pgTable(
   'profile_sponsors',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
       .references(() => public_profiles.id),
@@ -260,11 +282,15 @@ export const profile_sponsors = pgTable(
     website_url: text('website_url'),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
     profileIdx: index('profile_sponsors_profile_id_idx').on(table.profile_id),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_sponsors_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );
 
@@ -272,6 +298,7 @@ export const profile_activities = pgTable(
   'profile_activities',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
       .references(() => public_profiles.id),
@@ -284,11 +311,15 @@ export const profile_activities = pgTable(
       .notNull(),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
     profileIdx: index('profile_activities_profile_id_idx').on(table.profile_id),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_activities_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );
 
@@ -296,6 +327,7 @@ export const profile_goals = pgTable(
   'profile_goals',
   {
     id: serial('id').primaryKey(),
+    analytics_key: uuid('analytics_key').defaultRandom().notNull(),
     profile_id: integer('profile_id')
       .notNull()
       .references(() => public_profiles.id),
@@ -309,10 +341,14 @@ export const profile_goals = pgTable(
     status: varchar('status', { length: 32 }).default('planned').notNull(),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    deleted_at: timestamp('deleted_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => ({
     profileIdx: index('profile_goals_profile_id_idx').on(table.profile_id),
+    analyticsKeyUnique: uniqueIndex(
+      'profile_goals_profile_id_analytics_key_unique',
+    ).on(table.profile_id, table.analytics_key),
   }),
 );

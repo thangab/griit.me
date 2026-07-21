@@ -46,6 +46,7 @@ interface PageRow {
 
 interface BlockRow {
   id: number;
+  analytics_key: string;
   type: string;
   title: string | null;
   content: Record<string, unknown> | null;
@@ -55,6 +56,7 @@ interface BlockRow {
 
 interface SocialLinkRow {
   id: number;
+  analytics_key: string;
   platform: string;
   label: string | null;
   url: string;
@@ -77,6 +79,7 @@ interface ProfileSportRow {
 
 interface GalleryItemRow {
   id: number;
+  analytics_key: string;
   image_url: string;
   caption: string | null;
   alt_text: string | null;
@@ -86,6 +89,7 @@ interface GalleryItemRow {
 
 interface AchievementRow {
   id: number;
+  analytics_key: string;
   title: string;
   description: string | null;
   achieved_at: string | null;
@@ -95,6 +99,7 @@ interface AchievementRow {
 
 interface SponsorRow {
   id: number;
+  analytics_key: string;
   name: string;
   logo_url: string | null;
   website_url: string | null;
@@ -104,6 +109,7 @@ interface SponsorRow {
 
 interface ActivityRow {
   id: number;
+  analytics_key: string;
   title: string;
   activity_type: string | null;
   occurred_at: string | null;
@@ -113,6 +119,7 @@ interface ActivityRow {
 
 interface GoalRow {
   id: number;
+  analytics_key: string;
   title: string;
   description: string | null;
   url: string | null;
@@ -180,6 +187,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
     blocks: [
       {
         id: null,
+        analyticsKey: '',
         type: 'goals',
         title: 'Goals',
         content: {},
@@ -188,6 +196,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       },
       {
         id: null,
+        analyticsKey: '',
         type: 'hero',
         title: 'Athlete intro',
         content: {},
@@ -196,6 +205,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       },
       {
         id: null,
+        analyticsKey: '',
         type: 'gallery',
         title: 'Gallery',
         content: {},
@@ -204,6 +214,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
       },
       {
         id: null,
+        analyticsKey: '',
         type: 'achievements',
         title: 'Achievements',
         content: {},
@@ -214,6 +225,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
     socialLinks: [
       {
         id: null,
+        analyticsKey: '',
         platform: 'instagram',
         label: '@' + username,
         url: `https://instagram.com/${username}`,
@@ -228,6 +240,7 @@ function createInitialBuilderState(email?: string | null): ProfileBuilderState {
     goals: [
       {
         id: null,
+        analyticsKey: '',
         title: 'Run 10K under 40 minutes',
         description:
           'A clear performance goal to guide the next training block.',
@@ -282,6 +295,7 @@ function mapPage(row: PageRow): BuilderPage {
 function mapBlock(row: BlockRow): BuilderBlock {
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     type: row.type,
     title: row.title ?? row.type,
     content: row.content ?? {},
@@ -293,6 +307,7 @@ function mapBlock(row: BlockRow): BuilderBlock {
 function mapSocialLink(row: SocialLinkRow): BuilderSocialLink {
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     platform: row.platform,
     label: row.label ?? '',
     url: row.url,
@@ -304,6 +319,7 @@ function mapSocialLink(row: SocialLinkRow): BuilderSocialLink {
 function mapGalleryItem(row: GalleryItemRow): BuilderGalleryItem {
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     imageUrl: row.image_url,
     caption: row.caption ?? '',
     altText: row.alt_text ?? '',
@@ -315,6 +331,7 @@ function mapGalleryItem(row: GalleryItemRow): BuilderGalleryItem {
 function mapSponsor(row: SponsorRow): BuilderSponsor {
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     name: row.name,
     logoUrl: row.logo_url ?? '',
     websiteUrl: row.website_url ?? '',
@@ -326,6 +343,7 @@ function mapSponsor(row: SponsorRow): BuilderSponsor {
 function mapAchievement(row: AchievementRow): BuilderTimelineItem {
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     title: row.title,
     description: row.description ?? '',
     dateLabel: formatDateLabel(row.achieved_at),
@@ -338,6 +356,7 @@ function mapAchievement(row: AchievementRow): BuilderTimelineItem {
 function mapActivity(row: ActivityRow): BuilderTimelineItem {
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     title: row.title,
     description: row.activity_type ?? '',
     dateLabel: formatDateLabel(row.occurred_at),
@@ -356,6 +375,7 @@ function mapGoal(row: GoalRow): BuilderGoalItem {
 
   return {
     id: row.id,
+    analyticsKey: row.analytics_key,
     title: row.title,
     description: row.description ?? '',
     url: row.url ?? '',
@@ -397,6 +417,7 @@ async function mapProfileBuilderState(
       .from('profile_social_links')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
     includeAvailableSports
       ? supabase
@@ -415,26 +436,31 @@ async function mapProfileBuilderState(
       .from('profile_gallery_items')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_sponsors')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_achievements')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_activities')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
     supabase
       .from('profile_goals')
       .select('*')
       .eq('profile_id', profileRow.id)
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
   ]);
 
@@ -446,6 +472,7 @@ async function mapProfileBuilderState(
         .from('profile_blocks')
         .select('*')
         .eq('page_id', homePage.id)
+        .is('deleted_at', null)
         .order('sort_order', { ascending: true })
     : { data: [] };
 

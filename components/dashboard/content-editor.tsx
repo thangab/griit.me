@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { Fragment, useActionState, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
@@ -228,6 +228,7 @@ function GoalEditor({
 }) {
   return (
     <div className="space-y-5">
+      <input name={`goalId${number}`} type="hidden" value={goal?.id ?? ''} />
       <input name={`goalStatus${number}`} type="hidden" value="in_progress" />
 
       <label className="block space-y-2">
@@ -418,6 +419,7 @@ type ContentBlockType =
 type ActiveContentBlock = {
   key: string;
   type: ContentBlockType;
+  id: number | null;
 };
 
 type PartnershipMode = 'sponsors' | 'seeking' | 'both';
@@ -468,6 +470,7 @@ function SocialLinkFields({
 
   return (
     <div className="border-border bg-background overflow-hidden rounded-lg border">
+      <input name={`socialId${number}`} type="hidden" value={link?.id ?? ''} />
       <div className="border-border bg-muted/30 flex items-center gap-3 border-b px-3 py-2.5">
         <SocialPlatformIcon platform={platform} />
         <span className="min-w-0 flex-1 text-sm font-semibold">
@@ -952,25 +955,26 @@ function ContentBlocksEditor({
 
         if (type === 'media') {
           mediaIndex += 1;
-          return { key: `media-${mediaIndex}`, type };
+          return { key: `media-${mediaIndex}`, type, id: block.id };
         }
 
         if (type === 'offer') {
           offerIndex += 1;
-          return { key: `offer-${offerIndex}`, type };
+          return { key: `offer-${offerIndex}`, type, id: block.id };
         }
 
         if (type === 'link') {
           linkIndex += 1;
-          return { key: `link-${linkIndex}`, type };
+          return { key: `link-${linkIndex}`, type, id: block.id };
         }
 
-        return { key: type, type };
+        return { key: type, type, id: block.id };
       });
 
     blocksWithContent.forEach((type) => {
       if (!orderedBlocks.some((block) => block.type === type)) {
-        orderedBlocks.push({ key: type, type });
+        const savedBlock = builder.blocks.find((block) => block.type === type);
+        orderedBlocks.push({ key: type, type, id: savedBlock?.id ?? null });
       }
     });
 
@@ -1047,12 +1051,18 @@ function ContentBlocksEditor({
         {activeBlocks.length ? (
           <div className="border-border space-y-2 border-t p-3">
             {activeBlocks.map((block) => (
-              <input
-                key={`order-${block.key}`}
-                name="contentBlockOrder"
-                type="hidden"
-                value={block.key}
-              />
+              <Fragment key={`order-${block.key}`}>
+                <input
+                  name="contentBlockOrder"
+                  type="hidden"
+                  value={block.key}
+                />
+                <input
+                  name={`contentBlockId-${block.key}`}
+                  type="hidden"
+                  value={block.id ?? ''}
+                />
+              </Fragment>
             ))}
 
             {activeBlocks.map((activeBlock, blockIndex) => {
@@ -1161,6 +1171,11 @@ function ContentBlocksEditor({
                               value={galleryItems[slot]?.imageUrl ?? ''}
                               onValueChange={onStructureChange}
                             />
+                            <input
+                              name={`galleryId${slot + 1}`}
+                              type="hidden"
+                              value={galleryItems[slot]?.id ?? ''}
+                            />
                           </div>
                         ))}
                         {imageSlots.length < 3 || subscription.isActive ? (
@@ -1250,6 +1265,11 @@ function ContentBlocksEditor({
                                 name={`achievementDate${number}`}
                                 defaultValue={achievement?.date ?? ''}
                                 type="date"
+                              />
+                              <input
+                                name={`achievementId${number}`}
+                                type="hidden"
+                                value={achievement?.id ?? ''}
                               />
                             </div>
                           );
@@ -1408,6 +1428,11 @@ function ContentBlocksEditor({
                                   defaultValue={sponsor?.websiteUrl ?? ''}
                                   placeholder="https://..."
                                   type="url"
+                                />
+                                <input
+                                  name={`sponsorId${number}`}
+                                  type="hidden"
+                                  value={sponsor?.id ?? ''}
                                 />
                               </div>
                             );
@@ -1597,6 +1622,11 @@ function ContentBlocksEditor({
                       </>
                     ) : (
                       <>
+                        <input
+                          name="activityId1"
+                          type="hidden"
+                          value={activity?.id ?? ''}
+                        />
                         <Field
                           label="Activity"
                           name="activityTitle1"
@@ -1671,7 +1701,7 @@ function ContentBlocksEditor({
                             const key = `media-${slot}`;
                             setActiveBlocks((current) => [
                               ...current,
-                              { key, type: 'media' },
+                              { key, type: 'media', id: null },
                             ]);
                             setNextMediaSlot(slot + 1);
                             setPendingFocusKey(key);
@@ -1680,7 +1710,7 @@ function ContentBlocksEditor({
                             const key = `offer-${slot}`;
                             setActiveBlocks((current) => [
                               ...current,
-                              { key, type: 'offer' },
+                              { key, type: 'offer', id: null },
                             ]);
                             setNextOfferSlot(slot + 1);
                             setPendingFocusKey(key);
@@ -1689,14 +1719,14 @@ function ContentBlocksEditor({
                             const key = `link-${slot}`;
                             setActiveBlocks((current) => [
                               ...current,
-                              { key, type: 'link' },
+                              { key, type: 'link', id: null },
                             ]);
                             setNextLinkSlot(slot + 1);
                             setPendingFocusKey(key);
                           } else {
                             setActiveBlocks((current) => [
                               ...current,
-                              { key: block.type, type: block.type },
+                              { key: block.type, type: block.type, id: null },
                             ]);
                             setPendingFocusKey(block.type);
                           }

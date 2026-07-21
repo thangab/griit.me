@@ -28,6 +28,7 @@ export interface BuilderPage {
 
 export interface BuilderBlock {
   id: number | null;
+  analyticsKey: string;
   type: string;
   title: string;
   content: Record<string, unknown>;
@@ -37,6 +38,7 @@ export interface BuilderBlock {
 
 export interface BuilderSocialLink {
   id: number | null;
+  analyticsKey: string;
   platform: string;
   label: string;
   url: string;
@@ -46,6 +48,7 @@ export interface BuilderSocialLink {
 
 export interface BuilderGalleryItem {
   id: number | null;
+  analyticsKey: string;
   imageUrl: string;
   caption: string;
   altText: string;
@@ -55,6 +58,7 @@ export interface BuilderGalleryItem {
 
 export interface BuilderSponsor {
   id: number | null;
+  analyticsKey: string;
   name: string;
   logoUrl: string;
   websiteUrl: string;
@@ -64,6 +68,7 @@ export interface BuilderSponsor {
 
 export interface BuilderTimelineItem {
   id: number | null;
+  analyticsKey: string;
   title: string;
   description: string;
   dateLabel: string;
@@ -74,6 +79,7 @@ export interface BuilderTimelineItem {
 
 export interface BuilderGoalItem {
   id: number | null;
+  analyticsKey: string;
   title: string;
   description: string;
   url: string;

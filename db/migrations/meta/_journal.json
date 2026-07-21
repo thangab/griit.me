@@ -85,6 +85,13 @@
       "when": 1784544408000,
       "tag": "0011_add_goal_date_display",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1784613600000,
+      "tag": "0012_add_stable_content_identity",
+      "breakpoints": true
     }
   ]
 }

@@ -68,6 +68,7 @@ export function GoalSpotlightTemplate({
     if (!contentBlocks.some((block) => block.type === type)) {
       contentBlocks.push({
         id: null,
+        analyticsKey: '',
         type,
         title,
         content: {},
