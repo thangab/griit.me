@@ -14,6 +14,7 @@ import {
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import {
+  avatarShapes,
   blockShadowStyles,
   colorPresets,
   coverTypes,
@@ -326,6 +327,7 @@ const templateSchema = z.object({
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid gradient end color.'),
   headerLayout: z.enum(headerLayouts),
   headerAvatarSize: z.coerce.number().int().min(56).max(144),
+  headerAvatarShape: z.enum(avatarShapes),
   headerSheetColor: z
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid header sheet color.'),
@@ -1477,6 +1479,7 @@ export async function updateProfileTemplateAction(
     coverGradientTo: getString(formData, 'coverGradientTo'),
     headerLayout: getString(formData, 'headerLayout'),
     headerAvatarSize: getString(formData, 'headerAvatarSize'),
+    headerAvatarShape: getString(formData, 'headerAvatarShape'),
     headerSheetColor: getString(formData, 'headerSheetColor'),
     headerSheetFade: formData.get('headerSheetFade') === 'true',
     decorativeIcon: getString(formData, 'decorativeIcon'),
@@ -1646,6 +1649,7 @@ export async function updateProfileTemplateAction(
         coverGradientTo: parsed.data.coverGradientTo,
         headerLayout: parsed.data.headerLayout,
         headerAvatarSize: parsed.data.headerAvatarSize,
+        headerAvatarShape: parsed.data.headerAvatarShape,
         headerSheetColor: parsed.data.headerSheetColor,
         headerSheetFade: parsed.data.headerSheetFade,
         decorativeIcon: parsed.data.decorativeIcon,

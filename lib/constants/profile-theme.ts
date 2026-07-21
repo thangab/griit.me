@@ -152,6 +152,7 @@ export const headerLayouts = [
   'left',
   'immersive',
 ] as const;
+export const avatarShapes = ['circle', 'hexagon', 'diamond', 'shield'] as const;
 export const decorativeIconIds = [
   'auto',
   'none',
@@ -194,6 +195,7 @@ export type RadiusPreset = (typeof radiusPresets)[number];
 export type GalleryLayout = (typeof galleryLayouts)[number];
 export type CoverType = (typeof coverTypes)[number];
 export type HeaderLayout = (typeof headerLayouts)[number];
+export type AvatarShape = (typeof avatarShapes)[number];
 export type DecorativeIconId = (typeof decorativeIconIds)[number];
 export type BlockShadowStyle = (typeof blockShadowStyles)[number];
 
@@ -222,6 +224,7 @@ export type ProfileThemeSettings = {
   coverGradientTo: string;
   headerLayout: HeaderLayout;
   headerAvatarSize: number;
+  headerAvatarShape: AvatarShape;
   headerSheetColor: string;
   headerSheetFade: boolean;
   decorativeIcon: DecorativeIconId;
@@ -258,6 +261,7 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   coverGradientTo: '#3b82f6',
   headerLayout: 'centered',
   headerAvatarSize: 96,
+  headerAvatarShape: 'circle',
   headerSheetColor: '#ffffff',
   headerSheetFade: true,
   decorativeIcon: 'auto',
@@ -301,6 +305,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverColor: '#0f172a',
     headerLayout: 'centered',
     headerAvatarSize: 96,
+    headerAvatarShape: 'circle',
     headerSheetColor: '#ffffff',
     blockBorderColor: '#e2e8f0',
     blockShadow: 12,
@@ -316,6 +321,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverColor: '#18181b',
     headerLayout: 'left',
     headerAvatarSize: 80,
+    headerAvatarShape: 'circle',
     headerSheetColor: '#18181b',
     blockBorder: 12,
     blockBorderColor: '#3f3f46',
@@ -334,6 +340,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverGradientTo: '#991b1b',
     headerLayout: 'left',
     headerAvatarSize: 72,
+    headerAvatarShape: 'hexagon',
     headerSheetColor: '#fff7ed',
     blockBorder: 55,
     blockBorderColor: '#ef4444',
@@ -353,6 +360,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverGradientTo: '#365314',
     headerLayout: 'immersive',
     headerAvatarSize: 72,
+    headerAvatarShape: 'shield',
     headerSheetColor: '#09090b',
     headerSheetFade: true,
     blockBorder: 30,
@@ -373,6 +381,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverGradientTo: '#1d4ed8',
     headerLayout: 'split',
     headerAvatarSize: 112,
+    headerAvatarShape: 'circle',
     headerSheetColor: '#10233d',
     blockBorder: 35,
     blockBorderColor: '#1e3a5f',
@@ -389,6 +398,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverColor: '#312e81',
     headerLayout: 'centered',
     headerAvatarSize: 88,
+    headerAvatarShape: 'diamond',
     headerSheetColor: '#11102a',
     blockBorder: 45,
     blockBorderColor: '#4f46e5',
@@ -407,6 +417,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverGradientTo: '#166534',
     headerLayout: 'split',
     headerAvatarSize: 104,
+    headerAvatarShape: 'circle',
     headerSheetColor: '#173b30',
     blockBorder: 22,
     blockBorderColor: '#245244',
@@ -436,6 +447,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverColor: '#172554',
     headerLayout: 'immersive',
     headerAvatarSize: 64,
+    headerAvatarShape: 'hexagon',
     headerSheetColor: '#f4f0e8',
     headerSheetFade: true,
     blockBorder: 18,
@@ -607,6 +619,11 @@ export function resolveThemeSettings(
       56,
       144,
     ),
+    headerAvatarShape: avatarShapes.includes(
+      theme.headerAvatarShape as AvatarShape,
+    )
+      ? (theme.headerAvatarShape as AvatarShape)
+      : defaultThemeSettings.headerAvatarShape,
     headerSheetColor: resolveColor(
       theme.headerSheetColor,
       resolvedCustomColors.surface,

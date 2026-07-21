@@ -48,6 +48,7 @@ import { cn } from '@/lib/utils/cn';
 import type { SubscriptionState } from '@/lib/types/billing';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import {
+  avatarShapes,
   blockShadowStyles,
   colorPresets,
   coverTypes,
@@ -58,6 +59,7 @@ import {
   headerLayouts,
   overlayPresets,
   resolveThemeSettings,
+  type AvatarShape,
   type ProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
 import {
@@ -87,6 +89,36 @@ const headerLayoutLabels = {
   left: 'Scoreboard',
   immersive: 'Race poster',
 } as const;
+
+const avatarShapeOptions = [
+  {
+    id: 'circle',
+    label: 'Circle',
+    shapeClassName: 'h-7 w-7 rounded-full',
+  },
+  {
+    id: 'hexagon',
+    label: 'Badge',
+    shapeClassName:
+      'h-7 w-7 [clip-path:polygon(24%_4%,76%_4%,100%_50%,76%_96%,24%_96%,0_50%)]',
+  },
+  {
+    id: 'diamond',
+    label: 'Diamond',
+    shapeClassName:
+      'h-7 w-7 [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]',
+  },
+  {
+    id: 'shield',
+    label: 'Shield',
+    shapeClassName:
+      'h-7 w-7 [clip-path:polygon(10%_6%,90%_6%,90%_57%,50%_100%,10%_57%)]',
+  },
+] as const satisfies ReadonlyArray<{
+  id: AvatarShape;
+  label: string;
+  shapeClassName: string;
+}>;
 
 const templateWordingFields = [
   {
@@ -1000,6 +1032,11 @@ function TemplateSelector({
         value={themeSettings.headerAvatarSize}
       />
       <input
+        name="headerAvatarShape"
+        type="hidden"
+        value={themeSettings.headerAvatarShape}
+      />
+      <input
         name="headerSheetColor"
         type="hidden"
         value={themeSettings.headerSheetColor}
@@ -1247,6 +1284,50 @@ function TemplateSelector({
                 </span>
               </button>
             ))}
+          </div>
+
+          <div className="border-border bg-muted/30 rounded-lg border p-3">
+            <p className="text-xs font-medium">Profile picture shape</p>
+            <div className="mt-3 grid grid-cols-4 gap-1.5">
+              {avatarShapes.map((shape) => {
+                const option = avatarShapeOptions.find(
+                  (item) => item.id === shape,
+                )!;
+                const isSelected = themeSettings.headerAvatarShape === shape;
+
+                return (
+                  <button
+                    key={shape}
+                    aria-label={`${option.label} profile picture`}
+                    aria-pressed={isSelected}
+                    className={cn(
+                      'flex min-w-0 flex-col items-center gap-2 rounded-lg border px-1 py-2.5 transition-colors',
+                      isSelected
+                        ? 'border-primary/50 bg-primary/10 text-primary'
+                        : 'border-border bg-background text-muted-foreground hover:bg-muted/60',
+                    )}
+                    title={option.label}
+                    type="button"
+                    onClick={() =>
+                      handleThemeChange({
+                        ...themeSettings,
+                        headerAvatarShape: shape,
+                      })
+                    }
+                  >
+                    <span
+                      className={cn(
+                        'block shrink-0 border-2 border-current bg-current/15',
+                        option.shapeClassName,
+                      )}
+                    />
+                    <span className="max-w-full truncate text-[9px] font-semibold">
+                      {option.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <label className="border-border bg-muted/30 block rounded-lg border p-3">

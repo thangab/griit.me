@@ -86,6 +86,7 @@ export function ProfileHeader({
           className={onSheet ? 'border-white shadow-lg' : 'border-white/80'}
           displayName={profile.displayName}
           priority={!isPreview}
+          shape={theme.headerAvatarShape}
           size={avatarSize}
         />
         <div>
