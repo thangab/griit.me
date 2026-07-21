@@ -43,13 +43,13 @@ import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 
 export type SportProfileTemplateId =
-  | 'sport_running'
-  | 'sport_boxing'
-  | 'sport_mma'
-  | 'sport_strength'
-  | 'sport_hyrox'
-  | 'sport_football'
-  | 'sport_cycling';
+  | 'momentum'
+  | 'impact'
+  | 'obsidian'
+  | 'midnight'
+  | 'pulse'
+  | 'evergreen'
+  | 'horizon';
 
 type SportTemplateConfig = {
   icon: PhosphorIcon;
@@ -71,25 +71,25 @@ const sportTemplateConfigs: Record<
   SportProfileTemplateId,
   SportTemplateConfig
 > = {
-  sport_running: {
+  momentum: {
     icon: Gauge,
   },
-  sport_boxing: {
+  impact: {
     icon: Shield,
   },
-  sport_mma: {
+  obsidian: {
     icon: Lightning,
   },
-  sport_strength: {
+  midnight: {
     icon: Barbell,
   },
-  sport_hyrox: {
+  pulse: {
     icon: Timer,
   },
-  sport_football: {
+  evergreen: {
     icon: Trophy,
   },
-  sport_cycling: {
+  horizon: {
     icon: Bicycle,
   },
 };

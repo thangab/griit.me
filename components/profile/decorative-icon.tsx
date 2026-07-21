@@ -36,14 +36,14 @@ import type { ProfileTemplateId } from '@/lib/constants/profile-templates';
 
 export const templateDecorativeIcons: Record<ProfileTemplateId, PhosphorIcon> =
   {
-    goal_spotlight: Target,
-    sport_running: Gauge,
-    sport_boxing: Shield,
-    sport_mma: Lightning,
-    sport_strength: Barbell,
-    sport_hyrox: Timer,
-    sport_football: Trophy,
-    sport_cycling: Bicycle,
+    spotlight: Target,
+    momentum: Gauge,
+    impact: Shield,
+    obsidian: Lightning,
+    midnight: Barbell,
+    pulse: Timer,
+    evergreen: Trophy,
+    horizon: Bicycle,
   };
 
 const decorativeIconComponents: Record<

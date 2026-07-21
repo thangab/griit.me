@@ -52,7 +52,7 @@ export function GoalSpotlightTemplate({
   const wording = resolveTemplateWording(
     profile.theme,
     profile.sports[0],
-    'goal_spotlight',
+    'spotlight',
   );
   const contentBlocks = builder.blocks
     .filter((block) =>

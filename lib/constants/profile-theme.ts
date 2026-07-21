@@ -291,7 +291,7 @@ function createTemplateThemePreset(
 }
 
 const templateThemePresets: Record<string, ProfileThemeSettings> = {
-  goal_spotlight: createTemplateThemePreset({
+  spotlight: createTemplateThemePreset({
     colorPreset: 'minimal',
     fontPreset: 'clean',
     coverOverlay: 'balanced',
@@ -306,7 +306,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadow: 12,
     blockSpacing: 35,
   }),
-  sport_running: createTemplateThemePreset({
+  momentum: createTemplateThemePreset({
     colorPreset: 'endurance_orange',
     fontPreset: 'clean',
     coverOverlay: 'strong',
@@ -322,7 +322,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadow: 18,
     blockSpacing: 42,
   }),
-  sport_boxing: createTemplateThemePreset({
+  impact: createTemplateThemePreset({
     colorPreset: 'performance_red',
     fontPreset: 'clean',
     coverOverlay: 'strong',
@@ -341,7 +341,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadowStyle: 'solid',
     blockSpacing: 24,
   }),
-  sport_mma: createTemplateThemePreset({
+  obsidian: createTemplateThemePreset({
     colorPreset: 'obsidian_lime',
     fontPreset: 'clean',
     coverOverlay: 'strong',
@@ -361,7 +361,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadowStyle: 'solid',
     blockSpacing: 20,
   }),
-  sport_strength: createTemplateThemePreset({
+  midnight: createTemplateThemePreset({
     colorPreset: 'midnight_blue',
     fontPreset: 'clean',
     coverOverlay: 'balanced',
@@ -379,7 +379,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadow: 28,
     blockSpacing: 32,
   }),
-  sport_hyrox: createTemplateThemePreset({
+  pulse: createTemplateThemePreset({
     colorPreset: 'electric_purple',
     fontPreset: 'clean',
     coverOverlay: 'balanced',
@@ -395,7 +395,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadow: 8,
     blockSpacing: 26,
   }),
-  sport_football: createTemplateThemePreset({
+  evergreen: createTemplateThemePreset({
     colorPreset: 'forest',
     fontPreset: 'clean',
     coverOverlay: 'balanced',
@@ -413,7 +413,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     blockShadow: 14,
     blockSpacing: 38,
   }),
-  sport_cycling: createTemplateThemePreset({
+  horizon: createTemplateThemePreset({
     colorPreset: 'custom',
     customColors: {
       background: '#f4f0e8',
@@ -448,7 +448,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
 export function getTemplateThemePreset(templateId: string) {
   const preset =
     templateThemePresets[templateId] ??
-    templateThemePresets.goal_spotlight ??
+    templateThemePresets.spotlight ??
     defaultThemeSettings;
 
   return resolveThemeSettings(createTemplateThemePreset(preset));

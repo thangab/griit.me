@@ -11,7 +11,7 @@ export type TemplateWording = {
 };
 
 const templateWordingDefaults: Record<string, TemplateWording> = {
-  goal_spotlight: {
+  spotlight: {
     discipline: 'Athlete profile',
     badge: 'GOAL',
     eyebrow: 'Next goal',
@@ -22,7 +22,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Recent activities',
     secondaryGoalLabel: 'Also chasing',
   },
-  sport_running: {
+  momentum: {
     discipline: 'Running',
     badge: 'RUN',
     eyebrow: 'Miles with purpose',
@@ -33,7 +33,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Latest session',
     secondaryGoalLabel: 'Also chasing',
   },
-  sport_boxing: {
+  impact: {
     discipline: 'Boxing',
     badge: 'BOX',
     eyebrow: 'Built round by round',
@@ -44,7 +44,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Fight camp',
     secondaryGoalLabel: 'Next challenges',
   },
-  sport_mma: {
+  obsidian: {
     discipline: 'Mixed Martial Arts',
     badge: 'MMA',
     eyebrow: 'Every range. Every round.',
@@ -55,7 +55,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Training camp',
     secondaryGoalLabel: 'Next challenges',
   },
-  sport_strength: {
+  midnight: {
     discipline: 'Strength',
     badge: 'LIFT',
     eyebrow: 'Progress under pressure',
@@ -66,7 +66,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Latest lift',
     secondaryGoalLabel: 'Next milestones',
   },
-  sport_hyrox: {
+  pulse: {
     discipline: 'Hyrox',
     badge: 'HYROX',
     eyebrow: 'Eight runs. Eight stations.',
@@ -77,7 +77,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Latest station',
     secondaryGoalLabel: 'Next milestones',
   },
-  sport_football: {
+  evergreen: {
     discipline: 'Football',
     badge: 'XI',
     eyebrow: 'Play for the badge',
@@ -88,7 +88,7 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
     activityLabel: 'Latest match',
     secondaryGoalLabel: 'Season objectives',
   },
-  sport_cycling: {
+  horizon: {
     discipline: 'Cycling',
     badge: 'RIDE',
     eyebrow: 'Chase the next summit',
