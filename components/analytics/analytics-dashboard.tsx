@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import type { Route } from 'next';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   ArrowSquareOutIcon as ExternalLink,
   CaretDownIcon as ChevronDown,
@@ -401,6 +402,7 @@ export function AnalyticsDashboard({
   hasAdvancedAnalytics: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [customStart, setCustomStart] = useState(filters.start ?? '');
   const [customEnd, setCustomEnd] = useState(filters.end ?? '');
@@ -418,7 +420,7 @@ export function AnalyticsDashboard({
       if (value) params.set(key, value);
       else params.delete(key);
     });
-    startTransition(() => router.replace(`/dashboard/analytics?${params}`));
+    startTransition(() => router.replace(`${pathname}?${params}` as Route));
   };
 
   useEffect(() => {
