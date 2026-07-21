@@ -206,10 +206,10 @@ function SportContentBlock({
               key={`${item.imageUrl}-${index}`}
               className={cn(
                 'relative aspect-square overflow-hidden bg-slate-200',
-                theme.radiusClass,
                 theme.galleryLayout === 'carousel' &&
                   'w-52 shrink-0 snap-center',
               )}
+              style={theme.blockInnerStyle}
             >
               <Image
                 alt={item.altText || item.caption || ''}

@@ -769,6 +769,7 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
     },
   }[settings.fontPreset];
   const blockRadius = Math.round(settings.blockCorner * 0.32);
+  const blockInnerRadius = Math.round(blockRadius * 0.62);
   const blockBorderWidth = Number((settings.blockBorder * 0.04).toFixed(2));
   const blockShadowOpacity = Number((settings.blockShadow * 0.0024).toFixed(3));
   const blockShadowY = Math.round(settings.blockShadow * 0.08);
@@ -798,6 +799,9 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
             ? `${blockShadowY}px ${blockShadowY}px 0 ${settings.blockBorderColor}`
             : `0 ${blockShadowY}px ${blockShadowBlur}px rgba(15, 23, 42, ${blockShadowOpacity})`
           : 'none',
+    },
+    blockInnerStyle: {
+      borderRadius: `${blockInnerRadius}px`,
     },
     blockGap,
     fontFamilies,

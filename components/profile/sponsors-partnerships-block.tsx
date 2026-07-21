@@ -67,6 +67,7 @@ function SponsorCard({
   const style = {
     borderColor: theme.palette.border,
     backgroundColor: theme.palette.background,
+    ...theme.blockInnerStyle,
   };
 
   return sponsor.websiteUrl ? (
@@ -171,6 +172,7 @@ export function SponsorsPartnershipsBlock({
           style={{
             backgroundColor: theme.palette.accent,
             color: theme.palette.accentText,
+            ...theme.blockInnerStyle,
           }}
         >
           <p className="text-xs font-semibold tracking-[0.2em] uppercase opacity-70">

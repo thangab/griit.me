@@ -178,6 +178,7 @@ export function OfferBlock({
             style={{
               backgroundColor: theme.palette.subtle,
               borderColor: theme.palette.border,
+              ...theme.blockInnerStyle,
             }}
           >
             {promoText && !isSmall ? (

@@ -63,6 +63,7 @@ export function LinkBlock({
           className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border"
           style={{
             borderColor: theme.palette.border,
+            ...theme.blockInnerStyle,
           }}
         >
           <Image

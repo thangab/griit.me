@@ -31,11 +31,11 @@ export function MediaBlock({
     <div
       className={cn(
         'relative w-full overflow-hidden bg-black',
-        theme.radiusClass,
         media.provider === 'tiktok'
           ? 'mx-auto aspect-[9/16] max-w-sm'
           : 'aspect-video',
       )}
+      style={theme.blockInnerStyle}
     >
       <iframe
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
