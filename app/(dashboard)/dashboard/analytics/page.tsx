@@ -90,9 +90,7 @@ export default async function AnalyticsPage({
           browsers: [],
           campaigns: [],
         },
-        interactions: data.interactions.filter(
-          (interaction) => interaction.targetType === 'social',
-        ),
+        interactions: [],
       };
 
   return (
