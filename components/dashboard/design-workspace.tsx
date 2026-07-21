@@ -10,20 +10,20 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  Check,
-  ChevronDown,
-  CircleAlert,
-  FileText,
-  LayoutTemplate,
-  LoaderCircle,
-  Lock,
-  MonitorSmartphone,
-  Palette,
-  SlidersHorizontal,
-  Type as TypeIcon,
-  X,
-  type LucideIcon,
-} from 'lucide-react';
+  CaretDownIcon as ChevronDown,
+  CheckIcon as Check,
+  CircleNotchIcon as LoaderCircle,
+  DevicesIcon as MonitorSmartphone,
+  FileTextIcon as FileText,
+  LayoutIcon as LayoutTemplate,
+  LockIcon as Lock,
+  PaletteIcon as Palette,
+  SlidersHorizontalIcon as SlidersHorizontal,
+  TextTIcon as TypeIcon,
+  WarningCircleIcon as CircleAlert,
+  XIcon as X,
+} from '@phosphor-icons/react/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import {
   ContentEditor,
   type AutosaveStatus,
@@ -583,7 +583,7 @@ function StyleSection({
 }: {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: PhosphorIcon;
   defaultOpen?: boolean;
   className?: string;
   children: React.ReactNode;

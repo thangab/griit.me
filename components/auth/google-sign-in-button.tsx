@@ -1,6 +1,6 @@
 'use client';
 
-import { LogIn } from 'lucide-react';
+import { SignInIcon as LogIn } from '@phosphor-icons/react/ssr';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
 

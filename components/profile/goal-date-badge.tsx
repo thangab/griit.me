@@ -1,4 +1,7 @@
-import { CalendarDays, Timer } from 'lucide-react';
+import {
+  CalendarDotsIcon as CalendarDays,
+  TimerIcon as Timer,
+} from '@phosphor-icons/react/ssr';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import type { GoalDateDisplay } from '@/lib/utils/goal-date';

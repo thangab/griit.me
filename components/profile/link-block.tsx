@@ -1,4 +1,7 @@
-import { ArrowUpRight, Link2 } from 'lucide-react';
+import {
+  ArrowUpRightIcon as ArrowUpRight,
+  LinkIcon as Link2,
+} from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import type {

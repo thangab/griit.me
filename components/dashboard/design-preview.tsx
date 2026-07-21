@@ -1,7 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, EyeOff, Globe2, Monitor, Smartphone } from 'lucide-react';
+import {
+  DeviceMobileIcon as Smartphone,
+  EyeIcon as Eye,
+  EyeSlashIcon as EyeOff,
+  GlobeIcon as Globe2,
+  MonitorIcon as Monitor,
+} from '@phosphor-icons/react/ssr';
 import {
   DesktopProfileFrame,
   MobileProfileFrame,

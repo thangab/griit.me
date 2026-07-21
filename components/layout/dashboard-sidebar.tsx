@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BarChart3,
-  LayoutGrid,
-  LogOut,
-  PanelsTopLeft,
-  Settings,
-  UserRound,
-} from 'lucide-react';
+  ChartBarIcon as BarChart3,
+  GearIcon as Settings,
+  LayoutIcon as PanelsTopLeft,
+  SignOutIcon as LogOut,
+  SquaresFourIcon as LayoutGrid,
+  UserCircleIcon as UserRound,
+} from '@phosphor-icons/react/ssr';
 import { dashboardNavItems } from '@/lib/constants/navigation';
 import { signOutAction } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';

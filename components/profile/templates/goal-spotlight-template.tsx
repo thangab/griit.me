@@ -1,4 +1,7 @@
-import { ArrowUpRight, MapPin } from 'lucide-react';
+import {
+  ArrowUpRightIcon as ArrowUpRight,
+  MapPinIcon as MapPin,
+} from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';

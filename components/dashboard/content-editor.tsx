@@ -4,29 +4,29 @@ import { Fragment, useActionState, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
-  Activity,
-  ArrowDown,
-  ArrowUp,
-  Blocks,
-  CalendarDays,
-  ChevronDown,
-  Flag,
-  Handshake,
+  ArrowDownIcon as ArrowDown,
+  ArrowUpIcon as ArrowUp,
+  CalendarDotsIcon as CalendarDays,
+  CaretDownIcon as ChevronDown,
+  CircleNotchIcon as Loader2,
+  FlagIcon as Flag,
+  HandshakeIcon as Handshake,
   ImageIcon,
-  Link2,
-  Loader2,
-  Lock,
-  Plus,
-  Share2,
-  ShoppingBag,
-  Target,
-  Trash2,
-  Trophy,
-  UserRound,
-  Video,
-  X,
-  type LucideIcon,
-} from 'lucide-react';
+  LinkIcon as Link2,
+  LockIcon as Lock,
+  PlusIcon as Plus,
+  PulseIcon as Activity,
+  ShareNetworkIcon as Share2,
+  ShoppingBagIcon as ShoppingBag,
+  SquaresFourIcon as Blocks,
+  TargetIcon as Target,
+  TrashIcon as Trash2,
+  TrophyIcon as Trophy,
+  UserCircleIcon as UserRound,
+  VideoCameraIcon as Video,
+  XIcon as X,
+} from '@phosphor-icons/react/ssr';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import {
   saveProfileBuilderAction,
   type ProfileBuilderActionState,
@@ -130,7 +130,7 @@ function EditorSection({
 }: {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: PhosphorIcon;
   defaultOpen?: boolean;
   children: React.ReactNode;
 }) {

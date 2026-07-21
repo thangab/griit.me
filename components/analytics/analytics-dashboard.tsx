@@ -4,17 +4,17 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowDownToLine,
-  BarChart3,
-  ChevronDown,
-  ExternalLink,
-  Globe2,
-  Link2,
-  LockKeyhole,
-  MousePointerClick,
-  Smartphone,
-  Users,
-} from 'lucide-react';
+  ArrowSquareOutIcon as ExternalLink,
+  CaretDownIcon as ChevronDown,
+  ChartBarIcon as BarChart3,
+  CursorClickIcon as MousePointerClick,
+  DeviceMobileIcon as Smartphone,
+  DownloadSimpleIcon as ArrowDownToLine,
+  GlobeIcon as Globe2,
+  LinkIcon as Link2,
+  LockKeyIcon as LockKeyhole,
+  UsersIcon as Users,
+} from '@phosphor-icons/react/ssr';
 import type {
   AnalyticsBreakdownItem,
   AnalyticsDashboardData,

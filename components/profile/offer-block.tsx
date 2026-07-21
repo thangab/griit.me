@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Check, Copy, ExternalLink, ShoppingBag } from 'lucide-react';
+import {
+  ArrowSquareOutIcon as ExternalLink,
+  CheckIcon as Check,
+  CopyIcon as Copy,
+  ShoppingBagIcon as ShoppingBag,
+} from '@phosphor-icons/react/ssr';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import type {
   BuilderBlock,

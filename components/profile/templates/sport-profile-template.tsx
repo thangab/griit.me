@@ -1,20 +1,20 @@
 import {
-  Activity,
-  ArrowUpRight,
-  Flag,
-  MapPin,
-  Medal,
-  Target,
-} from 'lucide-react';
+  ArrowUpRightIcon as ArrowUpRight,
+  FlagIcon as Flag,
+  MapPinIcon as MapPin,
+  MedalIcon as Medal,
+  PulseIcon as Activity,
+  TargetIcon as Target,
+} from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import {
-  Barbell,
-  Bicycle,
-  Gauge,
-  Lightning,
-  Shield,
-  Timer,
-  Trophy,
+  BarbellIcon as Barbell,
+  BicycleIcon as Bicycle,
+  GaugeIcon as Gauge,
+  LightningIcon as Lightning,
+  ShieldIcon as Shield,
+  TimerIcon as Timer,
+  TrophyIcon as Trophy,
 } from '@phosphor-icons/react/ssr';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { MediaBlock } from '@/components/profile/media-block';

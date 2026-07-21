@@ -1,5 +1,8 @@
 import Link from 'next/link';
-import { ExternalLink, Pencil } from 'lucide-react';
+import {
+  ArrowSquareOutIcon as ExternalLink,
+  PencilSimpleIcon as Pencil,
+} from '@phosphor-icons/react/ssr';
 import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
 import { Button } from '@/components/ui/button';
 import {

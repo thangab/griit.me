@@ -1,4 +1,7 @@
-import { ArrowUpRight, Handshake } from 'lucide-react';
+import {
+  ArrowUpRightIcon as ArrowUpRight,
+  HandshakeIcon as Handshake,
+} from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import { cn } from '@/lib/utils/cn';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';

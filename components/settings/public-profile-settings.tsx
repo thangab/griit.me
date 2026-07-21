@@ -2,13 +2,13 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import {
-  ArrowUpRight,
-  Check,
-  CircleAlert,
-  Globe2,
-  LoaderCircle,
-  Save,
-} from 'lucide-react';
+  ArrowUpRightIcon as ArrowUpRight,
+  CheckIcon as Check,
+  CircleNotchIcon as LoaderCircle,
+  FloppyDiskIcon as Save,
+  GlobeIcon as Globe2,
+  WarningCircleIcon as CircleAlert,
+} from '@phosphor-icons/react/ssr';
 import {
   checkUsernameAvailabilityAction,
   updateProfileUrlAction,

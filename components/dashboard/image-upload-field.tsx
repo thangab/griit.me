@@ -1,7 +1,12 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ImageIcon, Loader2, Trash2, Upload } from 'lucide-react';
+import {
+  CircleNotchIcon as Loader2,
+  ImageIcon,
+  TrashIcon as Trash2,
+  UploadSimpleIcon as Upload,
+} from '@phosphor-icons/react/ssr';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { cn } from '@/lib/utils/cn';
 

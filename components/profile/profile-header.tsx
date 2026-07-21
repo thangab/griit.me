@@ -1,7 +1,9 @@
-import { Target } from '@phosphor-icons/react/ssr';
+import {
+  ArrowUpRightIcon as ArrowUpRight,
+  TargetIcon as Target,
+} from '@phosphor-icons/react/ssr';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import Image from 'next/image';
-import { ArrowUpRight } from 'lucide-react';
 import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { GoalDateBadge } from '@/components/profile/goal-date-badge';

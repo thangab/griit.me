@@ -1,4 +1,4 @@
-import { ExternalLink } from 'lucide-react';
+import { ArrowSquareOutIcon as ExternalLink } from '@phosphor-icons/react/ssr';
 import { cn } from '@/lib/utils/cn';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import {
