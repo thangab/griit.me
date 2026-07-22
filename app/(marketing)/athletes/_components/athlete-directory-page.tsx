@@ -111,7 +111,6 @@ function HeaderDecoration({
 
 function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
   const theme = getThemeRuntime(athlete.theme);
-  const hasFullSheet = theme.headerSheetCoverage === 100;
   const visibleSports = athlete.sports.slice(0, 3);
   const avatarUrl = withoutUnsplash(athlete.avatarUrl);
   const coverUrl = withoutUnsplash(athlete.coverUrl);
@@ -149,9 +148,7 @@ function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
           className="relative flex h-[58%] overflow-hidden bg-cover bg-center"
           style={{
             ...coverBackground,
-            color: !hasFullSheet
-              ? theme.palette.headerText
-              : theme.palette.text,
+            color: theme.palette.headerText,
           }}
         >
           {canShowCover ? (

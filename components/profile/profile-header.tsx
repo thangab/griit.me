@@ -187,7 +187,10 @@ export function ProfileHeader({
     ) : null;
 
   const identity = (onSheet = false, align: 'center' | 'left' = 'center') => (
-    <div className={cn(align === 'center' ? 'text-center' : 'text-left')}>
+    <div
+      className={cn(align === 'center' ? 'text-center' : 'text-left')}
+      style={{ color: theme.palette.headerText }}
+    >
       <div
         className={cn(
           'flex items-start gap-3',
@@ -229,11 +232,7 @@ export function ProfileHeader({
           {wording.discipline ? (
             <p
               className="mt-1 text-xs font-medium"
-              style={{
-                color: onSheet
-                  ? theme.palette.description
-                  : theme.palette.mutedHeaderText,
-              }}
+              style={{ color: theme.palette.mutedHeaderText }}
             >
               {wording.discipline}
             </p>
@@ -243,24 +242,18 @@ export function ProfileHeader({
     </div>
   );
 
-  const goal = (onSheet = false, align: 'center' | 'left' = 'center') => (
+  const goal = (align: 'center' | 'left' = 'center') => (
     <div
       className={cn(
         'max-w-3xl',
         align === 'center' ? 'mx-auto text-center' : 'text-left',
       )}
-      style={{
-        color: onSheet ? theme.palette.text : theme.palette.headerText,
-      }}
+      style={{ color: theme.palette.headerText }}
     >
       {wording.eyebrow ? (
         <p
           className="text-[11px] font-bold tracking-[0.24em] uppercase"
-          style={{
-            color: onSheet
-              ? theme.palette.description
-              : theme.palette.mutedHeaderText,
-          }}
+          style={{ color: theme.palette.mutedHeaderText }}
         >
           {wording.eyebrow}
         </p>
@@ -296,11 +289,7 @@ export function ProfileHeader({
             'mt-4 leading-6',
             isMobilePreview ? 'text-sm' : 'text-sm sm:text-base',
           )}
-          style={{
-            color: onSheet
-              ? theme.palette.description
-              : theme.palette.mutedHeaderText,
-          }}
+          style={{ color: theme.palette.mutedHeaderText }}
         >
           {description}
         </p>
@@ -329,7 +318,7 @@ export function ProfileHeader({
             'mx-auto max-w-2xl overflow-hidden border',
             isMobilePreview ? 'mx-4' : 'mx-4 sm:mx-auto',
           )}
-          style={{ color: theme.palette.text }}
+          style={{ color: theme.palette.headerText }}
         >
           <div
             className={cn(
@@ -373,7 +362,7 @@ export function ProfileHeader({
               className="absolute top-0 bottom-0 left-0 w-1.5"
               style={{ backgroundColor: theme.palette.accent }}
             />
-            {goal(true, 'left')}
+            {goal('left')}
           </div>
         </div>
       </header>
@@ -386,7 +375,7 @@ export function ProfileHeader({
         className={cn('overflow-hidden py-5', !isMobilePreview && 'sm:py-8')}
         style={{
           backgroundColor: theme.palette.background,
-          color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
+          color: theme.palette.headerText,
         }}
       >
         <div
@@ -420,9 +409,9 @@ export function ProfileHeader({
               'relative px-5 pb-7',
               !isMobilePreview && 'sm:px-8 sm:pb-10',
             )}
-            style={{ color: theme.palette.text }}
+            style={{ color: theme.palette.headerText }}
           >
-            <div className="relative">{goal(true, 'left')}</div>
+            <div className="relative">{goal('left')}</div>
             <div
               className="mt-7 h-1.5 w-20"
               style={{ backgroundColor: theme.palette.accent }}
@@ -439,7 +428,7 @@ export function ProfileHeader({
         className="relative flex items-end overflow-hidden bg-cover bg-center"
         style={{
           ...coverStyle,
-          color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
+          color: theme.palette.headerText,
         }}
       >
         {coverImage}
@@ -466,7 +455,7 @@ export function ProfileHeader({
               className="absolute top-0 bottom-0 left-0 w-1"
               style={{ backgroundColor: theme.palette.accent }}
             />
-            {goal(true, 'left')}
+            {goal('left')}
           </div>
         </div>
       </header>
@@ -482,7 +471,7 @@ export function ProfileHeader({
         )}
         style={{
           ...coverStyle,
-          color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
+          color: theme.palette.headerText,
         }}
       >
         {coverImage}
@@ -514,7 +503,7 @@ export function ProfileHeader({
             </div>
           </div>
 
-          <div className="my-auto max-w-[92%] py-12">{goal(true, 'left')}</div>
+          <div className="my-auto max-w-[92%] py-12">{goal('left')}</div>
 
           <div className="flex items-end justify-between gap-4 border-t border-current/25 pt-4">
             {wording.discipline ? (
@@ -538,7 +527,7 @@ export function ProfileHeader({
       )}
       style={{
         ...coverStyle,
-        color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
+        color: theme.palette.headerText,
       }}
     >
       {coverImage}
@@ -553,7 +542,7 @@ export function ProfileHeader({
         )}
       >
         <div className="self-start">{identity(hasFullSheet, 'left')}</div>
-        <div className="my-auto py-10">{goal(true, 'center')}</div>
+        <div className="my-auto py-10">{goal('center')}</div>
       </div>
     </header>
   );

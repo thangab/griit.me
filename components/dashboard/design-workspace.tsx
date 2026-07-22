@@ -1926,7 +1926,7 @@ function TemplateSelector({
               <div className="mb-2.5">
                 <p className="text-xs font-semibold">Header</p>
                 <p className="text-muted-foreground mt-0.5 text-[11px]">
-                  Text shown over the header background
+                  Independent from the text colors used on the rest of the page
                 </p>
               </div>
               <div className="space-y-1.5">
