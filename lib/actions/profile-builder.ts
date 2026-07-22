@@ -12,6 +12,7 @@ import {
   isProfileTemplateId,
 } from '@/lib/constants/profile-templates';
 import { getSubscriptionState } from '@/lib/services/billing';
+import { ensureAccountProfile } from '@/lib/services/account-profile';
 import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import {
   avatarShapes,
@@ -571,35 +572,6 @@ function getLinkBlocks(formData: FormData) {
         imageUrl: getString(formData, `linkImageUrl${slot}`),
       };
     });
-}
-
-async function ensurePrivateProfile(user: {
-  id: string;
-  email?: string | null;
-  user_metadata?: Record<string, unknown>;
-}) {
-  const serviceSupabase = createServiceSupabaseClient();
-  const fullName =
-    typeof user.user_metadata?.full_name === 'string'
-      ? user.user_metadata.full_name
-      : typeof user.user_metadata?.name === 'string'
-        ? user.user_metadata.name
-        : null;
-  const avatarUrl =
-    typeof user.user_metadata?.avatar_url === 'string'
-      ? user.user_metadata.avatar_url
-      : null;
-
-  await serviceSupabase.from('profiles').upsert(
-    {
-      id: user.id,
-      email: user.email ?? `${user.id}@users.griit.local`,
-      full_name: fullName,
-      avatar_url: avatarUrl,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'id' },
-  );
 }
 
 type PersistedContentInput = {
@@ -1397,7 +1369,17 @@ export async function createProfileAction(
     return { success: false, message: 'This username is already taken.' };
   }
 
-  await ensurePrivateProfile(userData.user);
+  try {
+    await ensureAccountProfile(userData.user);
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Unable to initialize your account profile.',
+    };
+  }
   const { data: profile, error } = await serviceSupabase
     .from('public_profiles')
     .insert({
@@ -1419,6 +1401,8 @@ export async function createProfileAction(
   }
 
   revalidatePath('/dashboard');
+  revalidatePath('/dashboard/onboard');
+  revalidatePath('/dashboard/profiles');
 
   return {
     success: true,

@@ -9,13 +9,9 @@ export default async function ProfilesPage() {
     getSubscriptionState(),
   ]);
 
-  // A Free account must still be able to create its initial profile. Once it
-  // exists, profile switching and additional profiles become a Pro feature.
-  if (!subscription.isActive && profiles.length > 0) {
+  if (!subscription.isActive) {
     return <ProfilesProGate />;
   }
 
-  return (
-    <ProfileManager profiles={profiles} limit={subscription.isActive ? 5 : 1} />
-  );
+  return <ProfileManager profiles={profiles} limit={5} />;
 }

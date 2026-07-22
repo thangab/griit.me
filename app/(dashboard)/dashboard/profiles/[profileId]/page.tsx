@@ -42,11 +42,7 @@ function ProfilePreview({
         </Button>
       </div>
       <div className="flex min-h-0 flex-1 justify-center p-4 sm:p-5">
-        <MobileProfileFrame
-          builder={builder}
-          className="h-full max-w-[420px]"
-          fillHeight
-        />
+        <MobileProfileFrame builder={builder} className="h-full" fillHeight />
       </div>
     </aside>
   );

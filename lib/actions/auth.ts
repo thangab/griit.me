@@ -2,10 +2,8 @@
 
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
-import {
-  createServerSupabaseClient,
-  createServiceSupabaseClient,
-} from '@/lib/config/supabase-server';
+import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import { ensureAccountProfile } from '@/lib/services/account-profile';
 
 export interface AuthActionState {
   success: boolean;
@@ -90,23 +88,10 @@ export async function signUpAction(
     return { success: false, message: error.message };
   }
 
-  const userId = data.user?.id;
-
-  if (userId) {
-    const serviceSupabase = createServiceSupabaseClient();
-    const { error: profileError } = await serviceSupabase
-      .from('profiles')
-      .upsert(
-        {
-          id: userId,
-          email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'id' },
-      );
-
-    if (profileError) {
+  if (data.user) {
+    try {
+      await ensureAccountProfile(data.user);
+    } catch (profileError) {
       console.error('Failed to create profile after sign up:', profileError);
     }
   }

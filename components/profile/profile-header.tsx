@@ -42,7 +42,7 @@ export function ProfileHeader({
           backgroundImage: `linear-gradient(135deg, ${theme.coverGradientFrom}, ${theme.coverGradientTo})`,
         }
       : { backgroundColor: theme.coverColor };
-  const heroHeight = 'min-h-[560px]';
+  const heroHeight = 'min-h-[460px]';
 
   const coverImage =
     theme.coverType === 'image' && profile.coverUrl ? (
@@ -71,7 +71,7 @@ export function ProfileHeader({
       className="pointer-events-none absolute inset-0"
       style={{
         background: theme.headerSheetFade
-          ? `linear-gradient(to bottom, transparent 24%, ${theme.headerSheetColor} 112%)`
+          ? `linear-gradient(to bottom, transparent 8%, ${theme.headerSheetColor} 64%)`
           : theme.headerSheetColor,
       }}
     />
@@ -191,7 +191,11 @@ export function ProfileHeader({
       >
         <ProfileAvatar
           avatarUrl={profile.avatarUrl}
-          className={onSheet ? 'shadow-lg' : undefined}
+          className={
+            onSheet
+              ? 'bg-black/[0.06] shadow-lg'
+              : 'bg-white/15 shadow-lg backdrop-blur-sm'
+          }
           displayName={profile.displayName}
           priority={!isPreview}
           shape={theme.headerAvatarShape}
@@ -555,15 +559,6 @@ export function ProfileHeader({
           {identity(!theme.headerSheetFade, 'left')}
         </div>
         <div className="my-auto py-10">{goal(true, 'center')}</div>
-        <div className="flex items-center justify-center gap-2">
-          <span
-            className="h-1 w-12 rounded-full"
-            style={{ backgroundColor: theme.palette.accent }}
-          />
-          <span className="text-[10px] font-bold tracking-[0.22em] uppercase opacity-70">
-            {wording.discipline || profile.displayName}
-          </span>
-        </div>
       </div>
     </header>
   );

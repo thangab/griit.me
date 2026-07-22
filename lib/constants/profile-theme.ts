@@ -281,18 +281,35 @@ function createTemplateThemePreset(
 
 const templateThemePresets: Record<string, ProfileThemeSettings> = {
   spotlight: createTemplateThemePreset({
-    colorPreset: 'minimal',
+    colorPreset: 'custom',
+    customColors: {
+      background: '#f3f0e8',
+      surface: '#fffdf8',
+      foreground: '#17211c',
+      accent: '#ff5c35',
+      social: '#dfe8de',
+      headerText: '#fffdf8',
+      headerMutedText: '#edf3ef',
+      blockTitle: '#17211c',
+      description: '#465149',
+      accentText: '#fffdf8',
+      socialText: '#23402f',
+    },
     fontPreset: 'clean',
     coverOverlay: 'balanced',
     radiusPreset: 'rounded',
     galleryLayout: 'grid',
-    coverType: 'image',
-    coverColor: '#0f172a',
+    coverType: 'gradient',
+    coverColor: '#173d32',
+    coverGradientFrom: '#102a24',
+    coverGradientTo: '#2f6a50',
     headerLayout: 'centered',
     headerAvatarSize: 96,
     headerAvatarShape: 'circle',
-    headerSheetColor: '#ffffff',
-    blockBorderColor: '#e2e8f0',
+    headerSheetColor: '#f3f0e8',
+    headerGeometry: 'rings',
+    headerTexture: 'none',
+    blockBorderColor: '#d8d4c9',
     blockShadow: 12,
     blockSpacing: 35,
   }),
@@ -670,7 +687,25 @@ export function resolveThemeSettings(
 }
 
 export function getThemeRuntime(theme: Record<string, unknown>) {
-  const settings = resolveThemeSettings(theme);
+  const templateId =
+    typeof theme.templateId === 'string' ? theme.templateId : null;
+  const templatePreset = templateId ? getTemplateThemePreset(templateId) : null;
+  const explicitCustomColors =
+    theme.customColors && typeof theme.customColors === 'object'
+      ? (theme.customColors as Record<string, unknown>)
+      : {};
+  const settings = resolveThemeSettings(
+    templatePreset
+      ? {
+          ...templatePreset,
+          ...theme,
+          customColors: {
+            ...templatePreset.customColors,
+            ...explicitCustomColors,
+          },
+        }
+      : theme,
+  );
   const preset =
     colorPresets.find((item) => item.id === settings.colorPreset) ??
     colorPresets[0];

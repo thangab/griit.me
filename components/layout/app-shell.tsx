@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
 import { MobileDashboardNav } from '@/components/layout/mobile-dashboard-nav';
 import { getOwnedProfiles } from '@/lib/services/profile-builder';
@@ -5,6 +6,10 @@ import { getOwnedProfiles } from '@/lib/services/profile-builder';
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const profiles = await getOwnedProfiles();
   const defaultProfileId = profiles[0]?.id;
+
+  if (!defaultProfileId) {
+    redirect('/dashboard/onboard');
+  }
 
   return (
     <div className="bg-accent fixed inset-0 overflow-hidden">

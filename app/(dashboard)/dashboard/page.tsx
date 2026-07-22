@@ -6,7 +6,7 @@ export default async function DashboardHomePage() {
   const profiles = await getOwnedProfiles();
   const primaryProfile = profiles[0];
 
-  if (!primaryProfile) redirect('/dashboard/profiles');
+  if (!primaryProfile) redirect('/dashboard/onboard');
 
   redirect(`/dashboard/profiles/${primaryProfile.id}` as Route);
 }

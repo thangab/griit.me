@@ -18,7 +18,7 @@ export function MobileProfileFrame({
   return (
     <div
       className={cn(
-        'flex w-full max-w-[320px] flex-col overflow-hidden rounded-xl bg-slate-950 p-2 shadow-2xl',
+        'flex w-full max-w-[360px] flex-col overflow-hidden rounded-xl bg-slate-950 p-2 shadow-2xl',
         fillHeight && 'min-h-0',
         className,
       )}

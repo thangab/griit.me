@@ -1,9 +1,7 @@
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  createServerSupabaseClient,
-  createServiceSupabaseClient,
-} from '@/lib/config/supabase-server';
+import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import { ensureAccountProfile } from '@/lib/services/account-profile';
 
 const emailOtpTypes: EmailOtpType[] = [
   'email',
@@ -13,11 +11,6 @@ const emailOtpTypes: EmailOtpType[] = [
   'recovery',
   'email_change',
 ];
-
-function getMetadataString(metadata: Record<string, unknown>, key: string) {
-  const value = metadata[key];
-  return typeof value === 'string' ? value : null;
-}
 
 function redirectToSignIn(request: NextRequest) {
   const url = request.nextUrl.clone();
@@ -48,27 +41,14 @@ export async function GET(request: NextRequest) {
   }
 
   const user = result.data.user;
-  const metadata = user.user_metadata;
-  const serviceSupabase = createServiceSupabaseClient();
-  const { error: profileError } = await serviceSupabase.from('profiles').upsert(
-    {
-      id: user.id,
-      email: user.email,
-      full_name:
-        getMetadataString(metadata, 'full_name') ??
-        getMetadataString(metadata, 'name'),
-      avatar_url: getMetadataString(metadata, 'avatar_url'),
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'id' },
-  );
-
-  if (profileError) {
-    console.error('Failed to sync profile after auth callback:', profileError);
+  try {
+    await ensureAccountProfile(user);
+  } catch (error) {
+    console.error('Failed to sync profile after auth callback:', error);
   }
 
-  const dashboardUrl = request.nextUrl.clone();
-  dashboardUrl.pathname = '/dashboard';
-  dashboardUrl.search = '';
-  return NextResponse.redirect(dashboardUrl);
+  const onboardingUrl = request.nextUrl.clone();
+  onboardingUrl.pathname = '/dashboard/onboard';
+  onboardingUrl.search = '';
+  return NextResponse.redirect(onboardingUrl);
 }
