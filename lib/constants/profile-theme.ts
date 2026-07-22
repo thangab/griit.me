@@ -821,9 +821,14 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
   const blockRadius = Math.round(settings.blockCorner * 0.32);
   const blockInnerRadius = Math.round(blockRadius * 0.62);
   const blockBorderWidth = Number((settings.blockBorder * 0.04).toFixed(2));
-  const blockShadowOpacity = Number((settings.blockShadow * 0.0024).toFixed(3));
-  const blockShadowY = Math.round(settings.blockShadow * 0.08);
-  const blockShadowBlur = Math.round(settings.blockShadow * 0.24);
+  const blockShadowOpacity = Number(
+    (0.06 + settings.blockShadow * 0.0022).toFixed(3),
+  );
+  const blockShadowY = Math.round(1 + settings.blockShadow * 0.09);
+  const blockShadowBlur = Math.round(4 + settings.blockShadow * 0.28);
+  const blockShadowAccent = Math.round(8 + settings.blockShadow * 0.22);
+  const blockShadowAccentY = Math.max(1, Math.round(blockShadowY * 0.6));
+  const blockShadowAccentBlur = Math.max(4, Math.round(blockShadowBlur * 0.7));
   const blockGap = Math.round(8 + settings.blockSpacing * 0.24);
 
   return {
@@ -845,7 +850,7 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
         settings.blockShadow > 0
           ? settings.blockShadowStyle === 'solid'
             ? `${blockShadowY}px ${blockShadowY}px 0 ${settings.blockBorderColor}`
-            : `0 ${blockShadowY}px ${blockShadowBlur}px rgba(15, 23, 42, ${blockShadowOpacity})`
+            : `0 ${blockShadowY}px ${blockShadowBlur}px -1px rgba(15, 23, 42, ${blockShadowOpacity}), 0 ${blockShadowAccentY}px ${blockShadowAccentBlur}px color-mix(in srgb, ${accent} ${blockShadowAccent}%, transparent)`
           : 'none',
     },
     blockInnerStyle: {
