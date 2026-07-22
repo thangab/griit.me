@@ -1396,17 +1396,13 @@ export async function createProfileAction(
   }
 
   await ensurePrivateProfile(userData.user);
-  const avatarUrl =
-    typeof userData.user.user_metadata?.avatar_url === 'string'
-      ? userData.user.user_metadata.avatar_url
-      : null;
   const { data: profile, error } = await serviceSupabase
     .from('public_profiles')
     .insert({
       user_id: userData.user.id,
       username: parsed.data.username,
       display_name: parsed.data.displayName,
-      avatar_url: avatarUrl,
+      avatar_url: null,
       theme: { templateId: defaultProfileTemplateId },
       is_published: false,
     })

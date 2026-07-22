@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
+import { createServerSupabaseClient } from '@/lib/config/supabase-server';
 
 export const metadata: Metadata = {
   title: 'Griit — The link in bio built for athletes',
@@ -8,11 +9,18 @@ export const metadata: Metadata = {
     'Build your athlete identity around your next goal, achievements, content, sponsors, and partnership opportunities.',
 };
 
-export default function MarketingLayout({
+export default async function MarketingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createServerSupabaseClient();
+  // This only controls a marketing CTA. Reading the cookie-backed session
+  // avoids an Auth API round trip; protected dashboard routes still verify the
+  // user with getUser().
+  const { data } = await supabase.auth.getSession();
+  const isAuthenticated = Boolean(data.session);
+
   return (
     <div className="min-h-screen bg-[#f7f6f1] text-[#151515]">
       <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f6f1]/90 backdrop-blur-xl">
@@ -43,19 +51,31 @@ export default function MarketingLayout({
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              className="hidden rounded-full px-4 py-2 text-sm font-semibold transition-colors hover:bg-black/5 sm:inline-flex"
-              href="/sign-in"
-            >
-              Log in
-            </Link>
-            <Link
-              className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
-              href="/sign-up"
-            >
-              Create your profile
-              <ArrowRightIcon className="h-4 w-4" weight="bold" />
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
+                href="/dashboard"
+              >
+                Dashboard
+                <ArrowRightIcon className="h-4 w-4" weight="bold" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  className="hidden rounded-full px-4 py-2 text-sm font-semibold transition-colors hover:bg-black/5 sm:inline-flex"
+                  href="/sign-in"
+                >
+                  Log in
+                </Link>
+                <Link
+                  className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
+                  href="/sign-up"
+                >
+                  Create your profile
+                  <ArrowRightIcon className="h-4 w-4" weight="bold" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>

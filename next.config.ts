@@ -18,11 +18,18 @@ function getSupabaseStoragePattern() {
 }
 
 const supabaseStoragePattern = getSupabaseStoragePattern();
+const googleAvatarPattern = {
+  protocol: 'https' as const,
+  hostname: 'lh3.googleusercontent.com',
+  pathname: '/**',
+};
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
   images: {
-    remotePatterns: supabaseStoragePattern ? [supabaseStoragePattern] : [],
+    remotePatterns: supabaseStoragePattern
+      ? [supabaseStoragePattern, googleAvatarPattern]
+      : [googleAvatarPattern],
   },
 };
 
