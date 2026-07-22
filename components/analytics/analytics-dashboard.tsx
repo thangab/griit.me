@@ -16,6 +16,16 @@ import {
   LockKeyIcon as LockKeyhole,
   UsersIcon as Users,
 } from '@phosphor-icons/react/ssr';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import type {
   AnalyticsBreakdownItem,
   AnalyticsDashboardData,
@@ -70,11 +80,6 @@ function AnalyticsChart({
   points: AnalyticsSeriesPoint[];
   granularity: AnalyticsFilters['granularity'];
 }) {
-  const width = 1000;
-  const height = 320;
-  const padding = { top: 24, right: 24, bottom: 48, left: 46 };
-  const chartWidth = width - padding.left - padding.right;
-  const chartHeight = height - padding.top - padding.bottom;
   const maxValue = Math.max(
     4,
     ...points.flatMap((point) => [
@@ -84,120 +89,112 @@ function AnalyticsChart({
     ]),
   );
   const roundedMax = Math.ceil(maxValue / 4) * 4;
-  const x = (index: number) =>
-    padding.left +
-    (points.length <= 1
-      ? chartWidth / 2
-      : (index / (points.length - 1)) * chartWidth);
-  const y = (value: number) =>
-    padding.top + chartHeight - (value / roundedMax) * chartHeight;
-  const path = (key: keyof Omit<AnalyticsSeriesPoint, 'bucket'>) =>
-    points
-      .map(
-        (point, index) => `${index ? 'L' : 'M'} ${x(index)} ${y(point[key])}`,
-      )
-      .join(' ');
-  const labelIndexes = Array.from(
-    new Set(
-      Array.from({ length: Math.min(6, points.length) }, (_, index) =>
-        Math.round(
-          (index * (points.length - 1)) /
-            Math.max(1, Math.min(5, points.length - 1)),
-        ),
-      ),
-    ),
+  const yTicks = Array.from(
+    { length: 5 },
+    (_, index) => (roundedMax / 4) * index,
   );
+  const showDots = points.length <= 60;
 
   return (
     <div className="overflow-x-auto">
-      <svg
-        aria-label="Profile views and clicks chart"
-        className="h-auto min-w-[680px]"
+      <div
+        className="h-80 min-w-[680px]"
         role="img"
-        viewBox={`0 0 ${width} ${height}`}
+        aria-label="Profile views and clicks chart"
       >
-        {Array.from({ length: 5 }, (_, index) => {
-          const value = (roundedMax / 4) * index;
-          const lineY = y(value);
-          return (
-            <g key={value}>
-              <line
-                className="stroke-border"
-                x1={padding.left}
-                x2={width - padding.right}
-                y1={lineY}
-                y2={lineY}
-              />
-              <text
-                className="fill-muted-foreground text-[11px]"
-                textAnchor="end"
-                x={padding.left - 10}
-                y={lineY + 4}
-              >
-                {formatNumber(value)}
-              </text>
-            </g>
-          );
-        })}
-        {points.length ? (
-          <>
-            <path
-              d={path('views')}
-              fill="none"
+        <ResponsiveContainer height="100%" width="100%">
+          <LineChart
+            accessibilityLayer
+            data={points}
+            margin={{ top: 16, right: 18, bottom: 4, left: 0 }}
+          >
+            <CartesianGrid stroke="hsl(var(--border))" vertical={false} />
+            <XAxis
+              axisLine={false}
+              dataKey="bucket"
+              minTickGap={32}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+              tickFormatter={(value) => formatDate(String(value), granularity)}
+              tickLine={false}
+            />
+            <YAxis
+              allowDecimals={false}
+              axisLine={false}
+              domain={[0, roundedMax]}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+              tickFormatter={(value) => formatNumber(Number(value))}
+              tickLine={false}
+              ticks={yTicks}
+              width={44}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: 10,
+                boxShadow: '0 12px 32px rgb(15 23 42 / 0.12)',
+                fontSize: 12,
+              }}
+              cursor={{
+                stroke: 'hsl(var(--border))',
+                strokeDasharray: '4 4',
+              }}
+              formatter={(value, name) => [
+                formatNumber(Number(value)),
+                String(name),
+              ]}
+              labelFormatter={(value) => formatDate(String(value), granularity)}
+            />
+            <Legend
+              iconSize={8}
+              iconType="circle"
+              wrapperStyle={{ fontSize: 12, fontWeight: 600, paddingTop: 8 }}
+            />
+            <Line
+              activeDot={{ r: 5 }}
+              dataKey="views"
+              dot={
+                showDots
+                  ? { fill: 'hsl(var(--card))', r: 3, strokeWidth: 2 }
+                  : false
+              }
+              isAnimationActive={points.length <= 60}
+              name="Profile views"
               stroke="#10b981"
-              strokeWidth="3"
+              strokeWidth={3}
+              type="monotone"
             />
-            <path
-              d={path('blockClicks')}
-              fill="none"
+            <Line
+              activeDot={{ r: 5 }}
+              dataKey="blockClicks"
+              dot={
+                showDots
+                  ? { fill: 'hsl(var(--card))', r: 3, strokeWidth: 2 }
+                  : false
+              }
+              isAnimationActive={points.length <= 60}
+              name="Block clicks"
               stroke="#f59e0b"
-              strokeWidth="3"
+              strokeWidth={3}
+              type="monotone"
             />
-            <path
-              d={path('socialClicks')}
-              fill="none"
+            <Line
+              activeDot={{ r: 5 }}
+              dataKey="socialClicks"
+              dot={
+                showDots
+                  ? { fill: 'hsl(var(--card))', r: 3, strokeWidth: 2 }
+                  : false
+              }
+              isAnimationActive={points.length <= 60}
+              name="Social clicks"
               stroke="#2563eb"
-              strokeWidth="3"
+              strokeWidth={3}
+              type="monotone"
             />
-            {points.map((point, index) => (
-              <g key={point.bucket}>
-                {(['views', 'blockClicks', 'socialClicks'] as const)
-                  .filter((key) => points.length <= 60 || point[key] > 0)
-                  .map((key) => (
-                    <circle
-                      key={key}
-                      cx={x(index)}
-                      cy={y(point[key])}
-                      fill="white"
-                      r="3.5"
-                      stroke={
-                        key === 'views'
-                          ? '#10b981'
-                          : key === 'blockClicks'
-                            ? '#f59e0b'
-                            : '#2563eb'
-                      }
-                      strokeWidth="2"
-                    >
-                      <title>{`${formatDate(point.bucket, granularity)} · ${key}: ${point[key]}`}</title>
-                    </circle>
-                  ))}
-              </g>
-            ))}
-            {labelIndexes.map((index) => (
-              <text
-                key={points[index].bucket}
-                className="fill-muted-foreground text-[11px]"
-                textAnchor="middle"
-                x={x(index)}
-                y={height - 14}
-              >
-                {formatDate(points[index].bucket, granularity)}
-              </text>
-            ))}
-          </>
-        ) : null}
-      </svg>
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -329,7 +326,10 @@ function InteractionTable({
         <>
           <div className="divide-border divide-y md:hidden">
             {interactions.map((item) => (
-              <div key={`${item.targetKey}-${item.eventType}`} className="p-4">
+              <div
+                key={`${item.targetType}-${item.targetKey}-${item.eventType}`}
+                className="p-4"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">
@@ -360,7 +360,9 @@ function InteractionTable({
               </thead>
               <tbody className="divide-border divide-y">
                 {interactions.map((item) => (
-                  <tr key={`${item.targetKey}-${item.eventType}`}>
+                  <tr
+                    key={`${item.targetType}-${item.targetKey}-${item.eventType}`}
+                  >
                     <td className="px-5 py-4 capitalize">
                       {item.targetType.replaceAll('_', ' ')}
                     </td>
@@ -633,20 +635,6 @@ export function AnalyticsDashboard({
             points={data.series}
             granularity={filters.granularity}
           />
-          <div className="mt-2 flex flex-wrap justify-center gap-5 text-xs font-semibold">
-            <span className="flex items-center gap-2 text-emerald-600">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Profile
-              views
-            </span>
-            <span className="flex items-center gap-2 text-amber-600">
-              <span className="h-2 w-2 rounded-full bg-amber-500" /> Block
-              clicks
-            </span>
-            <span className="flex items-center gap-2 text-blue-600">
-              <span className="h-2 w-2 rounded-full bg-blue-600" /> Social
-              clicks
-            </span>
-          </div>
         </div>
       </section>
 

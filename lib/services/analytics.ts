@@ -263,12 +263,18 @@ export async function getAnalyticsDashboardData(
            target_key::text AS target_key,
            COALESCE(target_type, 'unknown') AS target_type,
            event_type,
-           COALESCE(NULLIF(target_label, ''), 'Untitled') AS label,
+           COALESCE(
+             (
+               array_agg(NULLIF(target_label, '') ORDER BY occurred_at DESC)
+               FILTER (WHERE NULLIF(target_label, '') IS NOT NULL)
+             )[1],
+             'Untitled'
+           ) AS label,
            ${countExpression} AS clicks,
            max(occurred_at) AS last_interaction
          FROM filtered_events
          WHERE event_type <> 'profile_view' AND target_key IS NOT NULL
-         GROUP BY target_key, target_type, event_type, target_label
+         GROUP BY target_key, COALESCE(target_type, 'unknown'), event_type
          ORDER BY clicks DESC, last_interaction DESC
          LIMIT 100`,
         values,
