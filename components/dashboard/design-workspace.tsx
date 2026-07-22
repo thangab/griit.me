@@ -2012,7 +2012,7 @@ function TemplateSelector({
                         accent: preset.colors[3],
                         social: preset.colors[4],
                         headerText: preset.colors[5],
-                        headerMutedText: preset.colors[7],
+                        headerMutedText: preset.colors[10],
                         blockTitle: preset.colors[6],
                         description: preset.colors[7],
                         accentText: preset.colors[8],
