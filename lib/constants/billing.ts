@@ -5,9 +5,10 @@ export const subscriptionPlans = {
     price: 'Free',
     features: [
       '1 public profile',
-      'Basic customization',
+      'Core blocks and templates',
+      'Core customization',
       'Basic analytics',
-      'Limited blocks',
+      '1 goal and up to 3 gallery, achievement, and activity items',
     ],
   },
   pro: {
@@ -17,12 +18,10 @@ export const subscriptionPlans = {
     price: '€3.99 / month',
     features: [
       'Up to 5 public profiles',
-      'Unlimited customization',
-      'Premium themes',
-      'Unlimited blocks',
+      'Profile management and switching',
+      'Multiple goals and expanded content limits',
+      'Advanced customization',
       'Advanced analytics',
-      'Custom domain',
-      'Remove branding',
     ],
   },
 } as const;

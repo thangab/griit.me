@@ -23,13 +23,18 @@ const googleAvatarPattern = {
   hostname: 'lh3.googleusercontent.com',
   pathname: '/**',
 };
+const legacyUnsplashPattern = {
+  protocol: 'https' as const,
+  hostname: 'images.unsplash.com',
+  pathname: '/**',
+};
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
   images: {
     remotePatterns: supabaseStoragePattern
-      ? [supabaseStoragePattern, googleAvatarPattern]
-      : [googleAvatarPattern],
+      ? [supabaseStoragePattern, googleAvatarPattern, legacyUnsplashPattern]
+      : [googleAvatarPattern, legacyUnsplashPattern],
   },
 };
 

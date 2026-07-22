@@ -30,24 +30,24 @@ export default async function MarketingLayout({
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">
-            <a className="transition-opacity hover:opacity-55" href="#features">
+            <Link
+              className="transition-opacity hover:opacity-55"
+              href="/athletes"
+            >
+              Athletes
+            </Link>
+            <Link
+              className="transition-opacity hover:opacity-55"
+              href="/#features"
+            >
               Features
-            </a>
-            <a
+            </Link>
+            <Link
               className="transition-opacity hover:opacity-55"
-              href="#templates"
+              href="/pricing"
             >
-              Templates
-            </a>
-            <a
-              className="transition-opacity hover:opacity-55"
-              href="#analytics"
-            >
-              Analytics
-            </a>
-            <a className="transition-opacity hover:opacity-55" href="#pricing">
               Pricing
-            </a>
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -94,15 +94,15 @@ export default async function MarketingLayout({
             </p>
           </div>
           <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm text-white/65 sm:grid-cols-3">
-            <a className="hover:text-white" href="#features">
+            <Link className="hover:text-white" href="/athletes">
+              Athletes
+            </Link>
+            <Link className="hover:text-white" href="/#features">
               Features
-            </a>
-            <a className="hover:text-white" href="#templates">
-              Templates
-            </a>
-            <a className="hover:text-white" href="#pricing">
+            </Link>
+            <Link className="hover:text-white" href="/pricing">
               Pricing
-            </a>
+            </Link>
             <Link className="hover:text-white" href="/sign-in">
               Log in
             </Link>

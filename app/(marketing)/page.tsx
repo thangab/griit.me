@@ -564,6 +564,15 @@ export default function HomePage() {
               );
             })}
           </div>
+          <div className="mt-8 text-center">
+            <Link
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-black/15 bg-white px-5 text-sm font-bold transition-colors hover:bg-black hover:text-white"
+              href="/pricing"
+            >
+              Compare every feature
+              <ArrowRightIcon className="h-4 w-4" weight="bold" />
+            </Link>
+          </div>
         </div>
       </section>
 
