@@ -44,20 +44,28 @@ export function ForgotPasswordForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="border-border bg-background h-10 w-full rounded-md border px-3 text-sm"
+          className="h-12 w-full rounded-xl border border-black/12 bg-white px-4 text-sm transition outline-none focus:border-[#3157ff] focus:ring-3 focus:ring-[#3157ff]/10"
           placeholder="you@athlete.com"
         />
       </div>
 
       {message ? (
         <p
-          className={`text-sm ${status === 'error' ? 'text-destructive' : 'text-foreground'}`}
+          className={`rounded-xl px-4 py-3 text-sm ${
+            status === 'error'
+              ? 'bg-red-50 text-red-700'
+              : 'bg-emerald-50 text-emerald-700'
+          }`}
         >
           {message}
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full" disabled={status === 'pending'}>
+      <Button
+        type="submit"
+        className="h-12 w-full rounded-xl bg-[#151515] text-white hover:bg-[#151515]/90"
+        disabled={status === 'pending'}
+      >
         {status === 'pending' ? 'Sending reset link…' : 'Send reset link'}
       </Button>
     </form>

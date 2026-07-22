@@ -1,6 +1,6 @@
 'use client';
 
-import { SignInIcon as LogIn } from '@phosphor-icons/react/ssr';
+import { GoogleLogoIcon } from '@phosphor-icons/react/ssr';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
 
@@ -23,10 +23,10 @@ export function GoogleSignInButton() {
     <Button
       type="button"
       variant="outline"
-      className="w-full gap-2"
+      className="h-12 w-full gap-2 rounded-xl border-black/12 bg-white font-bold hover:bg-black/[0.03]"
       onClick={handleGoogleSignIn}
     >
-      <LogIn className="h-4 w-4" />
+      <GoogleLogoIcon className="h-5 w-5" weight="bold" />
       Continue with Google
     </Button>
   );

@@ -13,7 +13,11 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" className="w-full" disabled={pending}>
+    <Button
+      type="submit"
+      className="h-12 w-full rounded-xl bg-[#151515] text-white hover:bg-[#151515]/90"
+      disabled={pending}
+    >
       {pending ? 'Signing in…' : 'Continue'}
     </Button>
   );
@@ -24,6 +28,14 @@ export function SignInForm() {
 
   return (
     <form action={formAction} className="space-y-4">
+      <GoogleSignInButton />
+      <div className="flex items-center gap-4 py-1">
+        <span className="h-px flex-1 bg-black/10" />
+        <span className="text-[11px] font-bold tracking-[0.12em] text-black/35 uppercase">
+          or continue with email
+        </span>
+        <span className="h-px flex-1 bg-black/10" />
+      </div>
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
           Email
@@ -33,7 +45,7 @@ export function SignInForm() {
           name="email"
           type="email"
           required
-          className="border-border bg-background h-10 w-full rounded-md border px-3 text-sm"
+          className="h-12 w-full rounded-xl border border-black/12 bg-white px-4 text-sm transition outline-none focus:border-[#3157ff] focus:ring-3 focus:ring-[#3157ff]/10"
           placeholder="you@athlete.com"
         />
       </div>
@@ -46,7 +58,7 @@ export function SignInForm() {
           name="password"
           type="password"
           required
-          className="border-border bg-background h-10 w-full rounded-md border px-3 text-sm"
+          className="h-12 w-full rounded-xl border border-black/12 bg-white px-4 text-sm transition outline-none focus:border-[#3157ff] focus:ring-3 focus:ring-[#3157ff]/10"
           placeholder="••••••••"
         />
       </div>
@@ -54,11 +66,8 @@ export function SignInForm() {
         <p className="text-muted-foreground text-sm">{state.message}</p>
       ) : null}
       <SubmitButton />
-      <div className="mt-4">
-        <GoogleSignInButton />
-      </div>
-      <p className="text-muted-foreground text-sm">
-        <Link href="/forgot-password" className="text-primary font-medium">
+      <p className="text-center text-sm text-black/45">
+        <Link href="/forgot-password" className="font-bold text-[#3157ff]">
           Forgot your password?
         </Link>
       </p>
