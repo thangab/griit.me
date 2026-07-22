@@ -1,10 +1,5 @@
-import {
-  ArrowUpRightIcon as ArrowUpRight,
-  TargetIcon as Target,
-} from '@phosphor-icons/react/ssr';
-import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
+import { ArrowUpRightIcon as ArrowUpRight } from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
-import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { GoalDateBadge } from '@/components/profile/goal-date-badge';
 import { getThemeRuntime } from '@/lib/constants/profile-theme';
@@ -25,7 +20,6 @@ export function ProfileHeader({
   targetDisplay = 'date',
   url,
   targetKey,
-  badgeIcon = Target,
 }: {
   builder: ProfileBuilderState;
   variant: HeaderVariant;
@@ -36,7 +30,6 @@ export function ProfileHeader({
   targetDisplay?: GoalDateDisplay;
   url?: string;
   targetKey?: string;
-  badgeIcon?: PhosphorIcon;
 }) {
   const { profile } = builder;
   const theme = getThemeRuntime(profile.theme);
@@ -105,11 +98,6 @@ export function ProfileHeader({
                   color: theme.palette.accentText,
                 }}
               >
-                <ProfileDecorativeIcon
-                  className="h-3 w-3"
-                  fallback={badgeIcon}
-                  iconId={theme.decorativeIcon}
-                />
                 {wording.badge}
               </span>
             ) : null}
@@ -243,11 +231,6 @@ export function ProfileHeader({
           >
             {coverImage}
             {imageOverlay}
-            <ProfileDecorativeIcon
-              className="absolute right-4 bottom-1/2 h-16 w-16 translate-y-1/2 opacity-40"
-              fallback={badgeIcon}
-              iconId={theme.decorativeIcon}
-            />
           </div>
           <div
             className={cn(
@@ -322,11 +305,6 @@ export function ProfileHeader({
                 : theme.palette.headerText,
             }}
           >
-            <ProfileDecorativeIcon
-              className="absolute -right-10 -bottom-10 h-48 w-48 opacity-10"
-              fallback={badgeIcon}
-              iconId={theme.decorativeIcon}
-            />
             <div className="relative">
               {goal(theme.headerSheetFade, 'left')}
             </div>
@@ -355,11 +333,6 @@ export function ProfileHeader({
               'linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px)',
             backgroundSize: '42px 42px',
           }}
-        />
-        <ProfileDecorativeIcon
-          className="absolute -right-12 bottom-4 h-64 w-64 opacity-10"
-          fallback={badgeIcon}
-          iconId={theme.decorativeIcon}
         />
         <div
           className={cn(
@@ -410,11 +383,6 @@ export function ProfileHeader({
           backgroundColor: theme.palette.accent,
           clipPath: 'polygon(42% 0, 100% 28%, 100% 100%, 0 100%)',
         }}
-      />
-      <ProfileDecorativeIcon
-        className="absolute right-4 bottom-12 h-28 w-28 opacity-15 sm:right-8 sm:h-36 sm:w-36"
-        fallback={badgeIcon}
-        iconId={theme.decorativeIcon}
       />
       <div
         className={cn(

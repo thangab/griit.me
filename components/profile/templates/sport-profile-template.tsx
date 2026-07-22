@@ -7,20 +7,9 @@ import {
   TargetIcon as Target,
 } from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
-import {
-  BarbellIcon as Barbell,
-  BicycleIcon as Bicycle,
-  GaugeIcon as Gauge,
-  LightningIcon as Lightning,
-  ShieldIcon as Shield,
-  TimerIcon as Timer,
-  TrophyIcon as Trophy,
-} from '@phosphor-icons/react/ssr';
-import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
-import { ProfileDecorativeIcon } from '@/components/profile/decorative-icon';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import {
   GoalDateBadge,
@@ -42,18 +31,17 @@ import type {
 import { cn } from '@/lib/utils/cn';
 import { formatProfileSummary } from '@/lib/utils/profile-format';
 
-export type SportProfileTemplateId =
-  | 'momentum'
-  | 'impact'
-  | 'obsidian'
-  | 'midnight'
-  | 'pulse'
-  | 'evergreen'
-  | 'horizon';
+const sportProfileTemplateIds = [
+  'momentum',
+  'impact',
+  'obsidian',
+  'midnight',
+  'pulse',
+  'evergreen',
+  'horizon',
+] as const;
 
-type SportTemplateConfig = {
-  icon: PhosphorIcon;
-};
+export type SportProfileTemplateId = (typeof sportProfileTemplateIds)[number];
 
 type SportVisual = {
   accent: string;
@@ -67,37 +55,10 @@ type SportVisual = {
   mutedText: string;
 };
 
-const sportTemplateConfigs: Record<
-  SportProfileTemplateId,
-  SportTemplateConfig
-> = {
-  momentum: {
-    icon: Gauge,
-  },
-  impact: {
-    icon: Shield,
-  },
-  obsidian: {
-    icon: Lightning,
-  },
-  midnight: {
-    icon: Barbell,
-  },
-  pulse: {
-    icon: Timer,
-  },
-  evergreen: {
-    icon: Trophy,
-  },
-  horizon: {
-    icon: Bicycle,
-  },
-};
-
 export function isSportProfileTemplateId(
   value: string,
 ): value is SportProfileTemplateId {
-  return value in sportTemplateConfigs;
+  return sportProfileTemplateIds.includes(value as SportProfileTemplateId);
 }
 
 function getContentBlocks(builder: ProfileBuilderState) {
@@ -313,7 +274,6 @@ export function SportProfileTemplate({
   templateId: SportProfileTemplateId;
   variant: ProfileTemplateVariant;
 }) {
-  const config = sportTemplateConfigs[templateId];
   const text = resolveTemplateWording(builder.profile.theme, templateId);
   const theme = getThemeRuntime(builder.profile.theme);
   const goals = builder.goals.filter((goal) => goal.isEnabled);
@@ -378,7 +338,6 @@ export function SportProfileTemplate({
       }}
     >
       <ProfileHeader
-        badgeIcon={config.icon}
         builder={builder}
         description={goalDescription}
         target={goalTarget}
@@ -502,11 +461,6 @@ export function SportProfileTemplate({
               ...theme.blockStyle,
             }}
           >
-            <ProfileDecorativeIcon
-              className="absolute -right-5 -bottom-5 h-36 w-36 opacity-10"
-              fallback={config.icon}
-              iconId={theme.decorativeIcon}
-            />
             {text.targetLabel ? (
               <p className="text-xs font-black tracking-[0.2em] uppercase opacity-65">
                 {text.targetLabel}

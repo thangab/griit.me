@@ -31,10 +31,6 @@ import {
   ContentEditor,
   type AutosaveStatus,
 } from '@/components/dashboard/content-editor';
-import {
-  decorativeIconOptions,
-  templateDecorativeIcons,
-} from '@/components/profile/decorative-icon';
 import { DesignPreview } from '@/components/dashboard/design-preview';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import {
@@ -657,70 +653,6 @@ function StyleSection({
   );
 }
 
-function DecorativeIconPicker({
-  value,
-  templateId,
-  onValueChange,
-}: {
-  value: ProfileThemeSettings['decorativeIcon'];
-  templateId: ProfileTemplateId;
-  onValueChange: (value: ProfileThemeSettings['decorativeIcon']) => void;
-}) {
-  const selectedOption =
-    decorativeIconOptions.find((option) => option.id === value) ??
-    decorativeIconOptions[0];
-  const TemplateIcon = templateDecorativeIcons[templateId];
-  const SelectedIcon = value === 'auto' ? TemplateIcon : selectedOption.icon;
-
-  return (
-    <details className="border-border bg-muted/30 group/icon overflow-hidden rounded-lg border">
-      <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
-        <span className="bg-background border-border flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
-          <SelectedIcon className="h-4 w-4" weight="light" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-xs font-medium">Header icon</span>
-          <span className="text-muted-foreground block truncate text-[11px]">
-            {selectedOption.label}
-          </span>
-        </span>
-        <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/icon:rotate-180" />
-      </summary>
-      <div className="border-border border-t p-2">
-        <div className="max-h-44 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] overflow-y-auto overscroll-contain pr-1">
-          <div className="grid grid-cols-5 gap-1.5">
-            {decorativeIconOptions.map((option) => {
-              const Icon = option.id === 'auto' ? TemplateIcon : option.icon;
-              const isActive = value === option.id;
-
-              return (
-                <button
-                  key={option.id}
-                  aria-label={option.label}
-                  aria-pressed={isActive}
-                  className={cn(
-                    'border-border bg-background hover:border-primary/40 flex h-10 items-center justify-center rounded-md border transition',
-                    isActive &&
-                      'border-primary bg-primary/10 text-primary ring-primary/15 ring-2',
-                  )}
-                  title={option.label}
-                  type="button"
-                  onClick={() => onValueChange(option.id)}
-                >
-                  <Icon className="h-4 w-4" weight="light" />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <p className="text-muted-foreground mt-2 px-1 text-[10px]">
-          Scroll to explore {decorativeIconOptions.length} icons
-        </p>
-      </div>
-    </details>
-  );
-}
-
 function AppearanceRange({
   label,
   value,
@@ -1062,11 +994,6 @@ function TemplateSelector({
         value={String(themeSettings.headerSheetFade)}
       />
       <input
-        name="decorativeIcon"
-        type="hidden"
-        value={themeSettings.decorativeIcon}
-      />
-      <input
         name="blockCorner"
         type="hidden"
         value={themeSettings.blockCorner}
@@ -1373,14 +1300,6 @@ function TemplateSelector({
               onPointerUp={() => scheduleAutosave(120)}
             />
           </label>
-
-          <DecorativeIconPicker
-            templateId={selectedTemplateId}
-            value={themeSettings.decorativeIcon}
-            onValueChange={(decorativeIcon) =>
-              handleThemeChange({ ...themeSettings, decorativeIcon })
-            }
-          />
 
           {themeSettings.headerLayout === 'split' ||
           themeSettings.headerLayout === 'immersive' ? (

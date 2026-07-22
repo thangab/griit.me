@@ -153,39 +153,6 @@ export const headerLayouts = [
   'immersive',
 ] as const;
 export const avatarShapes = ['circle', 'hexagon', 'diamond', 'shield'] as const;
-export const decorativeIconIds = [
-  'auto',
-  'none',
-  'target',
-  'gauge',
-  'shield',
-  'zap',
-  'dumbbell',
-  'timer',
-  'trophy',
-  'bike',
-  'medal',
-  'activity',
-  'flag',
-  'flame',
-  'heart',
-  'footprints',
-  'mountain',
-  'waves',
-  'award',
-  'star',
-  'rocket',
-  'crown',
-  'crosshair',
-  'goal',
-  'swords',
-  'biceps',
-  'ball',
-  'runner',
-  'compass',
-  'gem',
-  'orbit',
-] as const;
 export const blockShadowStyles = ['soft', 'solid'] as const;
 
 export type ColorPresetId = (typeof colorPresets)[number]['id'] | 'custom';
@@ -196,7 +163,6 @@ export type GalleryLayout = (typeof galleryLayouts)[number];
 export type CoverType = (typeof coverTypes)[number];
 export type HeaderLayout = (typeof headerLayouts)[number];
 export type AvatarShape = (typeof avatarShapes)[number];
-export type DecorativeIconId = (typeof decorativeIconIds)[number];
 export type BlockShadowStyle = (typeof blockShadowStyles)[number];
 
 export type ProfileThemeSettings = {
@@ -227,7 +193,6 @@ export type ProfileThemeSettings = {
   headerAvatarShape: AvatarShape;
   headerSheetColor: string;
   headerSheetFade: boolean;
-  decorativeIcon: DecorativeIconId;
   blockCorner: number;
   blockBorder: number;
   blockBorderColor: string;
@@ -264,7 +229,6 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   headerAvatarShape: 'circle',
   headerSheetColor: '#ffffff',
   headerSheetFade: true,
-  decorativeIcon: 'auto',
   blockCorner: 75,
   blockBorder: 25,
   blockBorderColor: '#e2e8f0',
@@ -632,11 +596,6 @@ export function resolveThemeSettings(
       typeof theme.headerSheetFade === 'boolean'
         ? theme.headerSheetFade
         : defaultThemeSettings.headerSheetFade,
-    decorativeIcon: decorativeIconIds.includes(
-      theme.decorativeIcon as DecorativeIconId,
-    )
-      ? (theme.decorativeIcon as DecorativeIconId)
-      : defaultThemeSettings.decorativeIcon,
     blockCorner: resolveNumber(
       theme.blockCorner,
       {

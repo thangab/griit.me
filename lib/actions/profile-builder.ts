@@ -18,7 +18,6 @@ import {
   blockShadowStyles,
   colorPresets,
   coverTypes,
-  decorativeIconIds,
   fontPresets,
   galleryLayouts,
   headerLayouts,
@@ -342,7 +341,6 @@ const templateSchema = z.object({
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid header sheet color.'),
   headerSheetFade: z.boolean(),
-  decorativeIcon: z.enum(decorativeIconIds),
   blockCorner: z.coerce.number().min(0).max(100),
   blockBorder: z.coerce.number().min(0).max(100),
   blockBorderColor: z
@@ -1607,7 +1605,6 @@ export async function updateProfileTemplateAction(
     headerAvatarShape: getString(formData, 'headerAvatarShape'),
     headerSheetColor: getString(formData, 'headerSheetColor'),
     headerSheetFade: formData.get('headerSheetFade') === 'true',
-    decorativeIcon: getString(formData, 'decorativeIcon'),
     blockCorner: getString(formData, 'blockCorner'),
     blockBorder: getString(formData, 'blockBorder'),
     blockBorderColor: getString(formData, 'blockBorderColor'),
@@ -1778,7 +1775,6 @@ export async function updateProfileTemplateAction(
         headerAvatarShape: parsed.data.headerAvatarShape,
         headerSheetColor: parsed.data.headerSheetColor,
         headerSheetFade: parsed.data.headerSheetFade,
-        decorativeIcon: parsed.data.decorativeIcon,
         blockCorner: parsed.data.blockCorner,
         blockBorder: parsed.data.blockBorder,
         blockBorderColor: parsed.data.blockBorderColor,
