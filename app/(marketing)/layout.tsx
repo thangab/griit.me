@@ -71,7 +71,7 @@ export default async function MarketingLayout({
                   className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
                   href="/sign-up"
                 >
-                  Create your profile
+                  Get started
                   <ArrowRightIcon className="h-4 w-4" weight="bold" />
                 </Link>
               </>

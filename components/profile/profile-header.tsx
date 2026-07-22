@@ -511,25 +511,7 @@ export function ProfileHeader({
             </div>
           </div>
 
-          <div className="my-auto max-w-[92%] py-12">
-            {wording.profileLabel ? (
-              <div
-                className="mb-5 flex items-center gap-3 text-[9px] font-black tracking-[0.28em] uppercase"
-                style={{
-                  color: theme.headerSheetFade
-                    ? theme.palette.mutedHeaderText
-                    : theme.palette.description,
-                }}
-              >
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: theme.palette.accent }}
-                />
-                {wording.profileLabel}
-              </div>
-            ) : null}
-            {goal(true, 'left')}
-          </div>
+          <div className="my-auto max-w-[92%] py-12">{goal(true, 'left')}</div>
 
           <div className="flex items-end justify-between gap-4 border-t border-current/25 pt-4">
             {wording.discipline ? (
