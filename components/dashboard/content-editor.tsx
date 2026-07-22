@@ -1212,7 +1212,7 @@ function ContentBlocksEditor({
                         ) : (
                           <Link
                             className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
-                            href="/dashboard/settings"
+                            href="/dashboard/subscribe"
                           >
                             <span className="flex items-center gap-2 text-xs font-semibold">
                               <Plus className="h-3.5 w-3.5" />
@@ -1309,7 +1309,7 @@ function ContentBlocksEditor({
                         ) : !subscription.isActive ? (
                           <Link
                             className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
-                            href="/dashboard/settings"
+                            href="/dashboard/subscribe"
                           >
                             <span className="flex items-center gap-2 text-xs font-semibold">
                               <Plus className="h-3.5 w-3.5" />
@@ -1715,7 +1715,7 @@ function ContentBlocksEditor({
                         ) : !subscription.isActive ? (
                           <Link
                             className="border-border bg-muted/40 hover:border-primary/40 flex h-10 items-center justify-between gap-3 rounded-md border px-3 transition-colors"
-                            href="/dashboard/settings"
+                            href="/dashboard/subscribe"
                           >
                             <span className="flex items-center gap-2 text-xs font-semibold">
                               <Plus className="h-3.5 w-3.5" />
@@ -2089,7 +2089,7 @@ export function ContentEditor({
         ) : (
           <Link
             className="border-border bg-muted/40 hover:border-primary/40 flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors"
-            href="/dashboard/settings"
+            href="/dashboard/subscribe"
           >
             <span className="flex min-w-0 items-center gap-2 text-sm font-semibold">
               <Plus className="h-4 w-4" />

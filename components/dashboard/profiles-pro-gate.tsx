@@ -28,7 +28,7 @@ export function ProfilesProGate() {
         </p>
 
         <Button asChild className="mt-7" size="lg">
-          <Link href="/dashboard/settings">
+          <Link href="/dashboard/subscribe">
             <LockSimpleIcon className="h-4 w-4" />
             Upgrade to Pro
           </Link>

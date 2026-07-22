@@ -283,7 +283,7 @@ function LockedAnalyticsCard({
         </p>
         <Link
           className="text-primary mt-3 text-xs font-semibold hover:underline"
-          href="/dashboard/settings"
+          href="/dashboard/subscribe"
         >
           Unlock with Pro
         </Link>

@@ -173,7 +173,7 @@ export default async function PricingPage() {
             const isPro = plan.id === 'pro';
             const href = isAuthenticated
               ? isPro
-                ? '/dashboard/settings'
+                ? '/dashboard/subscribe'
                 : '/dashboard'
               : '/sign-up';
 

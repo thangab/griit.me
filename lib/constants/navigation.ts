@@ -47,7 +47,7 @@ export function getDashboardNavItems(
         ] satisfies DashboardNavItem[])
       : []),
     {
-      href: '/dashboard/settings',
+      href: '/dashboard/subscribe',
       label: 'Subscribe',
       icon: 'LockSimple',
     },

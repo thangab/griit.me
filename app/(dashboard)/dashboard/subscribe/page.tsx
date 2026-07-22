@@ -3,7 +3,7 @@ import { getSubscriptionState } from '@/lib/services/billing';
 import { getStripePriceLabel } from '@/lib/services/stripe';
 import { subscriptionPlans } from '@/lib/constants/billing';
 
-export default async function SettingsPage() {
+export default async function SubscribePage() {
   const subscription = await getSubscriptionState();
   const proPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO;
   const proPriceLabel =

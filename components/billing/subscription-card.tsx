@@ -141,7 +141,7 @@ export function SubscriptionCard({
         <Button
           className="mt-6 w-full"
           variant={currentPlan === 'pro' ? 'outline' : 'default'}
-          onClick={() => router.push('/dashboard/settings')}
+          onClick={() => router.push('/dashboard/subscribe')}
         >
           {currentPlan === 'pro' ? 'View your plan' : 'Learn more'}
         </Button>
