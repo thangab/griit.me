@@ -333,17 +333,6 @@ function getAutosaveDelay(target: EventTarget | null) {
   return 1200;
 }
 
-function formatPreviewDate(value: string) {
-  if (!value) {
-    return 'No target date';
-  }
-
-  return new Intl.DateTimeFormat('en', {
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(`${value}T00:00:00`));
-}
-
 function createLivePreviewState(
   builder: ProfileBuilderState,
   form: HTMLFormElement,
@@ -585,7 +574,7 @@ function createLivePreviewState(
         title: title || 'New achievement',
         description: getValue(`achievementDescription${number}`),
         date,
-        dateLabel: date ? formatPreviewDate(date) : '',
+        dateLabel: date ? formatGoalDate(date, 'date') : '',
         sortOrder: index,
         isEnabled: true,
       };
@@ -609,7 +598,7 @@ function createLivePreviewState(
         title: title || 'New activity',
         description: getValue(`activityType${number}`),
         date,
-        dateLabel: date ? formatPreviewDate(date) : '',
+        dateLabel: date ? formatGoalDate(date, 'countdown') : '',
         sortOrder: index,
         isEnabled: true,
       };

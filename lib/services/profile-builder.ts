@@ -119,15 +119,15 @@ interface GoalRow {
   is_enabled: boolean;
 }
 
-function formatDateLabel(value: string | null) {
+function formatDateLabel(
+  value: string | null,
+  display: GoalDateDisplay = 'date',
+) {
   if (!value) {
     return '';
   }
 
-  return new Intl.DateTimeFormat('en', {
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(value));
+  return formatGoalDate(value, display);
 }
 
 function formatDateInput(value: string | null) {
@@ -225,7 +225,7 @@ function mapActivity(row: ActivityRow): BuilderTimelineItem {
     analyticsKey: row.analytics_key,
     title: row.title,
     description: row.activity_type ?? '',
-    dateLabel: formatDateLabel(row.occurred_at),
+    dateLabel: formatDateLabel(row.occurred_at, 'countdown'),
     date: formatDateInput(row.occurred_at),
     sortOrder: row.sort_order,
     isEnabled: row.is_enabled,
