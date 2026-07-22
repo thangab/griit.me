@@ -48,6 +48,7 @@ export function GoalSpotlightTemplate({
   const sports = profile.sports;
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
+  const isDesktopPreview = variant === 'desktop-preview';
   const theme = getThemeRuntime(profile.theme);
   const wording = resolveTemplateWording(profile.theme, 'spotlight');
   const contentBlocks = builder.blocks
@@ -88,237 +89,333 @@ export function GoalSpotlightTemplate({
       )}
       style={{
         backgroundColor: theme.palette.background,
+        backgroundImage: `linear-gradient(135deg, color-mix(in srgb, ${theme.coverColor} 72%, ${theme.palette.background}), color-mix(in srgb, ${theme.palette.accent} 28%, ${theme.palette.background}))`,
         color: theme.palette.text,
         fontFamily: theme.fontFamilies.body,
       }}
     >
-      <ProfileHeader
-        builder={builder}
-        description={goalDescription}
-        target={goalTarget}
-        targetDisplay={primaryGoal?.dateDisplay}
-        title={goalTitle}
-        targetKey={primaryGoal?.analyticsKey}
-        url={primaryGoal?.url}
-        variant={variant}
-        wording={wording}
-      />
-
-      <section
+      <div
         className={cn(
-          'mx-auto',
-          'max-w-6xl px-5 py-8',
-          !isMobilePreview && 'sm:px-8 lg:px-12',
+          'relative mx-auto w-full',
+          isPreview ? 'min-h-full' : 'min-h-dvh',
+          isDesktopPreview &&
+            'max-w-[780px] border-x shadow-[0_24px_80px_rgba(0,0,0,0.2)]',
+          !isPreview &&
+            'sm:max-w-[780px] sm:border-x sm:shadow-[0_24px_80px_rgba(0,0,0,0.2)]',
         )}
+        style={{
+          backgroundColor: theme.palette.background,
+          borderColor: theme.palette.border,
+        }}
       >
-        <div className="flex flex-col" style={{ gap: `${theme.blockGap}px` }}>
-          <div
-            className={cn(theme.radiusClass, 'p-6 shadow-sm')}
-            style={{
-              backgroundColor: theme.palette.surface,
-              color: theme.palette.text,
-              ...theme.blockStyle,
-            }}
-          >
-            {wording.profileLabel ? (
-              <p
-                className="text-sm font-semibold"
-                style={{ color: theme.palette.blockTitle }}
-              >
-                {wording.profileLabel}
-              </p>
-            ) : null}
-            <p
-              className={cn(
-                'leading-7 whitespace-pre-line',
-                wording.profileLabel && 'mt-3',
-              )}
-              style={{ color: theme.palette.mutedText }}
+        <ProfileHeader
+          builder={builder}
+          description={goalDescription}
+          target={goalTarget}
+          targetDisplay={primaryGoal?.dateDisplay}
+          title={goalTitle}
+          targetKey={primaryGoal?.analyticsKey}
+          url={primaryGoal?.url}
+          variant={variant}
+          wording={wording}
+        />
+
+        <section
+          className={cn(
+            'mx-auto',
+            'w-full max-w-[780px] px-5 py-8',
+            !isMobilePreview && 'sm:px-8 lg:px-12',
+          )}
+        >
+          <div className="flex flex-col" style={{ gap: `${theme.blockGap}px` }}>
+            <div
+              className={cn(theme.radiusClass, 'p-6 shadow-sm')}
+              style={{
+                backgroundColor: theme.palette.surface,
+                color: theme.palette.text,
+                ...theme.blockStyle,
+              }}
             >
-              {profileSummary}
-            </p>
-            {profile.location ? (
+              {wording.profileLabel ? (
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: theme.palette.blockTitle }}
+                >
+                  {wording.profileLabel}
+                </p>
+              ) : null}
               <p
-                className="mt-4 flex items-center gap-2 text-xs font-medium"
-                style={{ color: theme.palette.description }}
+                className={cn(
+                  'leading-7 whitespace-pre-line',
+                  wording.profileLabel && 'mt-3',
+                )}
+                style={{ color: theme.palette.mutedText }}
               >
-                <MapPin className="h-3.5 w-3.5" />
-                {profile.location}
+                {profileSummary}
               </p>
-            ) : null}
-            {sports.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {sports.map((sport) => (
-                  <span
-                    key={sport}
-                    className="rounded-full px-3 py-1.5 text-xs font-medium"
-                    style={{
-                      backgroundColor: theme.palette.accent,
-                      color: theme.palette.accentText,
-                    }}
-                  >
-                    {sport}
-                  </span>
-                ))}
+              {profile.location ? (
+                <p
+                  className="mt-4 flex items-center gap-2 text-xs font-medium"
+                  style={{ color: theme.palette.description }}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  {profile.location}
+                </p>
+              ) : null}
+              {sports.length ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {sports.map((sport) => (
+                    <span
+                      key={sport}
+                      className="rounded-full px-3 py-1.5 text-xs font-medium"
+                      style={{
+                        backgroundColor: theme.palette.accent,
+                        color: theme.palette.accentText,
+                      }}
+                    >
+                      {sport}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              {socialLinks.length ? (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {socialLinks.map((link, index) => (
+                    <a
+                      data-analytics-event="social_click"
+                      data-analytics-target-key={link.analyticsKey}
+                      data-analytics-target-type="social"
+                      key={link.id ?? `social-${link.sortOrder}-${index}`}
+                      aria-label={link.label || link.platform}
+                      className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition"
+                      style={{
+                        backgroundColor: theme.palette.social,
+                        color: theme.palette.socialText,
+                      }}
+                      href={getSocialLinkHref(link.platform, link.url)}
+                      rel={
+                        link.platform === 'email' || link.platform === 'phone'
+                          ? undefined
+                          : 'noreferrer'
+                      }
+                      target={
+                        link.platform === 'email' || link.platform === 'phone'
+                          ? undefined
+                          : '_blank'
+                      }
+                    >
+                      <SocialPlatformIcon platform={link.platform} />
+                      {link.label ? <span>{link.label}</span> : null}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            {secondaryGoals.length ? (
+              <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
+                {secondaryGoals.map((goal) => {
+                  const GoalCard = goal.url ? 'a' : 'div';
+
+                  return (
+                    <GoalCard
+                      data-analytics-event={goal.url ? 'goal_click' : undefined}
+                      data-analytics-target-key={
+                        goal.url ? goal.analyticsKey : undefined
+                      }
+                      data-analytics-target-type={goal.url ? 'goal' : undefined}
+                      key={`${goal.title}-${goal.sortOrder}`}
+                      className={cn(theme.radiusClass, 'p-5 shadow-sm')}
+                      {...(goal.url
+                        ? {
+                            href: goal.url,
+                            rel: 'noreferrer',
+                            target: '_blank',
+                          }
+                        : {})}
+                      style={{
+                        backgroundColor: theme.palette.surface,
+                        color: theme.palette.text,
+                        ...theme.blockStyle,
+                      }}
+                    >
+                      {wording.secondaryGoalLabel ? (
+                        <p
+                          className="text-xs font-semibold tracking-[0.2em] uppercase"
+                          style={{ color: theme.palette.description }}
+                        >
+                          {wording.secondaryGoalLabel}
+                        </p>
+                      ) : null}
+                      <p
+                        className={cn(
+                          'text-lg font-semibold',
+                          wording.secondaryGoalLabel && 'mt-3',
+                        )}
+                        style={{ color: theme.palette.blockTitle }}
+                      >
+                        <span>{goal.title}</span>
+                        {goal.url ? (
+                          <ArrowUpRight className="ml-1 inline h-4 w-4" />
+                        ) : null}
+                      </p>
+                      <p
+                        className="mt-2 text-sm leading-6"
+                        style={{ color: theme.palette.description }}
+                      >
+                        {goal.description}
+                      </p>
+                      <GoalDateBadge
+                        builder={builder}
+                        className="mt-4"
+                        display={goal.dateDisplay}
+                        label={goal.targetLabel}
+                      />
+                    </GoalCard>
+                  );
+                })}
               </div>
             ) : null}
-            {socialLinks.length ? (
-              <div className="mt-5 flex flex-wrap gap-2">
-                {socialLinks.map((link, index) => (
-                  <a
-                    data-analytics-event="social_click"
-                    data-analytics-target-key={link.analyticsKey}
-                    data-analytics-target-type="social"
-                    key={link.id ?? `social-${link.sortOrder}-${index}`}
-                    aria-label={link.label || link.platform}
-                    className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition"
+
+            {contentBlocks.map((block, blockIndex) => {
+              const { type } = block;
+              const blockKey =
+                block.id ?? `${type}-${block.sortOrder}-${blockIndex}`;
+
+              if (type === 'gallery') {
+                return galleryItems.length ? (
+                  <section
+                    key={blockKey}
+                    className="p-4"
                     style={{
-                      backgroundColor: theme.palette.social,
-                      color: theme.palette.socialText,
+                      backgroundColor: theme.palette.surface,
+                      ...theme.blockStyle,
                     }}
-                    href={getSocialLinkHref(link.platform, link.url)}
-                    rel={
-                      link.platform === 'email' || link.platform === 'phone'
-                        ? undefined
-                        : 'noreferrer'
-                    }
-                    target={
-                      link.platform === 'email' || link.platform === 'phone'
-                        ? undefined
-                        : '_blank'
-                    }
                   >
-                    <SocialPlatformIcon platform={link.platform} />
-                    {link.label ? <span>{link.label}</span> : null}
-                  </a>
-                ))}
-              </div>
-            ) : null}
-          </div>
+                    {wording.galleryLabel ? (
+                      <p
+                        className="mb-3 text-sm font-semibold"
+                        style={{ color: theme.palette.blockTitle }}
+                      >
+                        {wording.galleryLabel}
+                      </p>
+                    ) : null}
+                    <div
+                      className={cn(
+                        'gap-2',
+                        theme.galleryLayout === 'carousel'
+                          ? 'flex snap-x overflow-x-auto'
+                          : 'grid grid-cols-3',
+                        theme.galleryLayout === 'editorial' && 'grid-cols-2',
+                      )}
+                    >
+                      {galleryItems.map((item, index) => (
+                        <div
+                          key={`${item.imageUrl}-${index}`}
+                          className={cn(
+                            'relative aspect-square overflow-hidden bg-slate-200',
+                            theme.galleryLayout === 'carousel' &&
+                              'w-52 shrink-0 snap-center',
+                          )}
+                          style={theme.blockInnerStyle}
+                        >
+                          <Image
+                            alt={item.altText || item.caption || ''}
+                            className="object-cover"
+                            fill
+                            sizes={
+                              theme.galleryLayout === 'carousel'
+                                ? '208px'
+                                : '(max-width: 640px) 33vw, 320px'
+                            }
+                            src={item.imageUrl}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                ) : null;
+              }
 
-          {secondaryGoals.length ? (
-            <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
-              {secondaryGoals.map((goal) => {
-                const GoalCard = goal.url ? 'a' : 'div';
-
-                return (
-                  <GoalCard
-                    data-analytics-event={goal.url ? 'goal_click' : undefined}
-                    data-analytics-target-key={
-                      goal.url ? goal.analyticsKey : undefined
-                    }
-                    data-analytics-target-type={goal.url ? 'goal' : undefined}
-                    key={`${goal.title}-${goal.sortOrder}`}
-                    className={cn(theme.radiusClass, 'p-5 shadow-sm')}
-                    {...(goal.url
-                      ? { href: goal.url, rel: 'noreferrer', target: '_blank' }
-                      : {})}
+              if (type === 'achievements') {
+                return achievements.length ? (
+                  <div
+                    key={blockKey}
+                    className={cn(theme.radiusClass, 'p-6 shadow-sm')}
                     style={{
                       backgroundColor: theme.palette.surface,
                       color: theme.palette.text,
                       ...theme.blockStyle,
                     }}
                   >
-                    {wording.secondaryGoalLabel ? (
+                    {wording.achievementsLabel ? (
                       <p
-                        className="text-xs font-semibold tracking-[0.2em] uppercase"
-                        style={{ color: theme.palette.description }}
+                        className="text-sm font-semibold"
+                        style={{ color: theme.palette.blockTitle }}
                       >
-                        {wording.secondaryGoalLabel}
+                        {wording.achievementsLabel}
                       </p>
                     ) : null}
-                    <p
-                      className={cn(
-                        'text-lg font-semibold',
-                        wording.secondaryGoalLabel && 'mt-3',
-                      )}
-                      style={{ color: theme.palette.blockTitle }}
-                    >
-                      <span>{goal.title}</span>
-                      {goal.url ? (
-                        <ArrowUpRight className="ml-1 inline h-4 w-4" />
-                      ) : null}
-                    </p>
-                    <p
-                      className="mt-2 text-sm leading-6"
-                      style={{ color: theme.palette.description }}
-                    >
-                      {goal.description}
-                    </p>
-                    <GoalDateBadge
-                      builder={builder}
-                      className="mt-4"
-                      display={goal.dateDisplay}
-                      label={goal.targetLabel}
-                    />
-                  </GoalCard>
-                );
-              })}
-            </div>
-          ) : null}
-
-          {contentBlocks.map((block, blockIndex) => {
-            const { type } = block;
-            const blockKey =
-              block.id ?? `${type}-${block.sortOrder}-${blockIndex}`;
-
-            if (type === 'gallery') {
-              return galleryItems.length ? (
-                <section
-                  key={blockKey}
-                  className="p-4"
-                  style={{
-                    backgroundColor: theme.palette.surface,
-                    ...theme.blockStyle,
-                  }}
-                >
-                  {wording.galleryLabel ? (
-                    <p
-                      className="mb-3 text-sm font-semibold"
-                      style={{ color: theme.palette.blockTitle }}
-                    >
-                      {wording.galleryLabel}
-                    </p>
-                  ) : null}
-                  <div
-                    className={cn(
-                      'gap-2',
-                      theme.galleryLayout === 'carousel'
-                        ? 'flex snap-x overflow-x-auto'
-                        : 'grid grid-cols-3',
-                      theme.galleryLayout === 'editorial' && 'grid-cols-2',
-                    )}
-                  >
-                    {galleryItems.map((item, index) => (
+                    {achievements.map((item) => (
                       <div
-                        key={`${item.imageUrl}-${index}`}
-                        className={cn(
-                          'relative aspect-square overflow-hidden bg-slate-200',
-                          theme.galleryLayout === 'carousel' &&
-                            'w-52 shrink-0 snap-center',
-                        )}
-                        style={theme.blockInnerStyle}
+                        key={`${item.title}-${item.sortOrder}`}
+                        className={
+                          wording.achievementsLabel ? 'mt-4' : undefined
+                        }
                       >
-                        <Image
-                          alt={item.altText || item.caption || ''}
-                          className="object-cover"
-                          fill
-                          sizes={
-                            theme.galleryLayout === 'carousel'
-                              ? '208px'
-                              : '(max-width: 640px) 33vw, 320px'
-                          }
-                          src={item.imageUrl}
-                        />
+                        <p
+                          className="font-semibold"
+                          style={{ color: theme.palette.blockTitle }}
+                        >
+                          {item.title}
+                        </p>
+                        {item.description ? (
+                          <p
+                            className="mt-1 text-sm leading-6"
+                            style={{ color: theme.palette.description }}
+                          >
+                            {item.description}
+                          </p>
+                        ) : null}
+                        {item.dateLabel ? (
+                          <p
+                            className="mt-2 text-xs font-medium"
+                            style={{ color: theme.palette.mutedDescription }}
+                          >
+                            {item.dateLabel}
+                          </p>
+                        ) : null}
                       </div>
                     ))}
                   </div>
-                </section>
-              ) : null;
-            }
+                ) : null;
+              }
 
-            if (type === 'achievements') {
-              return achievements.length ? (
+              if (type === 'sponsors') {
+                return (
+                  <SponsorsPartnershipsBlock key={blockKey} builder={builder} />
+                );
+              }
+
+              if (type === 'media') {
+                return (
+                  <MediaBlock key={blockKey} block={block} builder={builder} />
+                );
+              }
+
+              if (type === 'offer') {
+                return (
+                  <OfferBlock key={blockKey} block={block} builder={builder} />
+                );
+              }
+
+              if (type === 'link') {
+                return (
+                  <LinkBlock key={blockKey} block={block} builder={builder} />
+                );
+              }
+
+              return activities.length ? (
                 <div
                   key={blockKey}
                   className={cn(theme.radiusClass, 'p-6 shadow-sm')}
@@ -328,18 +425,18 @@ export function GoalSpotlightTemplate({
                     ...theme.blockStyle,
                   }}
                 >
-                  {wording.achievementsLabel ? (
+                  {wording.activityLabel ? (
                     <p
                       className="text-sm font-semibold"
                       style={{ color: theme.palette.blockTitle }}
                     >
-                      {wording.achievementsLabel}
+                      {wording.activityLabel}
                     </p>
                   ) : null}
-                  {achievements.map((item) => (
+                  {activities.map((item) => (
                     <div
                       key={`${item.title}-${item.sortOrder}`}
-                      className={wording.achievementsLabel ? 'mt-4' : undefined}
+                      className={wording.activityLabel ? 'mt-4' : undefined}
                     >
                       <p
                         className="font-semibold"
@@ -347,98 +444,24 @@ export function GoalSpotlightTemplate({
                       >
                         {item.title}
                       </p>
-                      {item.description ? (
+                      {item.description || item.dateLabel ? (
                         <p
-                          className="mt-1 text-sm leading-6"
+                          className="mt-1 text-sm"
                           style={{ color: theme.palette.description }}
                         >
-                          {item.description}
-                        </p>
-                      ) : null}
-                      {item.dateLabel ? (
-                        <p
-                          className="mt-2 text-xs font-medium"
-                          style={{ color: theme.palette.mutedDescription }}
-                        >
-                          {item.dateLabel}
+                          {[item.description, item.dateLabel]
+                            .filter(Boolean)
+                            .join(' · ')}
                         </p>
                       ) : null}
                     </div>
                   ))}
                 </div>
               ) : null;
-            }
-
-            if (type === 'sponsors') {
-              return (
-                <SponsorsPartnershipsBlock key={blockKey} builder={builder} />
-              );
-            }
-
-            if (type === 'media') {
-              return (
-                <MediaBlock key={blockKey} block={block} builder={builder} />
-              );
-            }
-
-            if (type === 'offer') {
-              return (
-                <OfferBlock key={blockKey} block={block} builder={builder} />
-              );
-            }
-
-            if (type === 'link') {
-              return (
-                <LinkBlock key={blockKey} block={block} builder={builder} />
-              );
-            }
-
-            return activities.length ? (
-              <div
-                key={blockKey}
-                className={cn(theme.radiusClass, 'p-6 shadow-sm')}
-                style={{
-                  backgroundColor: theme.palette.surface,
-                  color: theme.palette.text,
-                  ...theme.blockStyle,
-                }}
-              >
-                {wording.activityLabel ? (
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: theme.palette.blockTitle }}
-                  >
-                    {wording.activityLabel}
-                  </p>
-                ) : null}
-                {activities.map((item) => (
-                  <div
-                    key={`${item.title}-${item.sortOrder}`}
-                    className={wording.activityLabel ? 'mt-4' : undefined}
-                  >
-                    <p
-                      className="font-semibold"
-                      style={{ color: theme.palette.blockTitle }}
-                    >
-                      {item.title}
-                    </p>
-                    {item.description || item.dateLabel ? (
-                      <p
-                        className="mt-1 text-sm"
-                        style={{ color: theme.palette.description }}
-                      >
-                        {[item.description, item.dateLabel]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            ) : null;
-          })}
-        </div>
-      </section>
+            })}
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

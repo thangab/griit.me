@@ -315,7 +315,7 @@ export function ProfileHeader({
         <div
           className={cn(
             theme.radiusClass,
-            'mx-auto max-w-2xl overflow-hidden border',
+            'mx-auto max-w-[780px] overflow-hidden border',
             isMobilePreview ? 'mx-4' : 'mx-4 sm:mx-auto',
           )}
           style={{ color: theme.palette.headerText }}
@@ -381,7 +381,7 @@ export function ProfileHeader({
         <div
           className={cn(
             theme.radiusClass,
-            'relative mx-auto flex max-w-2xl flex-col justify-between overflow-hidden border bg-cover bg-center',
+            'relative mx-auto flex max-w-[780px] flex-col justify-between overflow-hidden border bg-cover bg-center',
             isMobilePreview
               ? 'mx-4 min-h-[520px]'
               : 'mx-4 min-h-[520px] sm:mx-auto',
@@ -438,7 +438,7 @@ export function ProfileHeader({
         {geometryLayer}
         <div
           className={cn(
-            'relative mx-auto w-full max-w-2xl px-5 py-8',
+            'relative mx-auto w-full max-w-[780px] px-5 py-8',
             !isMobilePreview && 'sm:px-8 sm:py-12',
           )}
         >
@@ -486,7 +486,7 @@ export function ProfileHeader({
 
         <div
           className={cn(
-            'relative mx-auto flex w-full max-w-2xl flex-col px-5 py-6',
+            'relative mx-auto flex w-full max-w-[780px] flex-col px-5 py-6',
             !isMobilePreview && 'sm:px-8 sm:py-9',
           )}
         >
@@ -537,7 +537,7 @@ export function ProfileHeader({
       {geometryLayer}
       <div
         className={cn(
-          'relative mx-auto flex w-full max-w-2xl flex-col justify-between px-5 py-7',
+          'relative mx-auto flex w-full max-w-[780px] flex-col justify-between px-5 py-7',
           !isMobilePreview && 'sm:px-8 sm:py-10',
         )}
       >
