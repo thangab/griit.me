@@ -151,8 +151,23 @@ export const headerLayouts = [
   'split',
   'left',
   'immersive',
+  'kinetic',
 ] as const;
 export const avatarShapes = ['circle', 'hexagon', 'diamond', 'shield'] as const;
+export const headerGeometries = [
+  'none',
+  'velocity',
+  'rings',
+  'chevrons',
+  'blocks',
+] as const;
+export const headerTextures = [
+  'none',
+  'grid',
+  'diagonal',
+  'dots',
+  'scanlines',
+] as const;
 export const blockShadowStyles = ['soft', 'solid'] as const;
 
 export type ColorPresetId = (typeof colorPresets)[number]['id'] | 'custom';
@@ -163,6 +178,8 @@ export type GalleryLayout = (typeof galleryLayouts)[number];
 export type CoverType = (typeof coverTypes)[number];
 export type HeaderLayout = (typeof headerLayouts)[number];
 export type AvatarShape = (typeof avatarShapes)[number];
+export type HeaderGeometry = (typeof headerGeometries)[number];
+export type HeaderTexture = (typeof headerTextures)[number];
 export type BlockShadowStyle = (typeof blockShadowStyles)[number];
 
 export type ProfileThemeSettings = {
@@ -193,6 +210,8 @@ export type ProfileThemeSettings = {
   headerAvatarShape: AvatarShape;
   headerSheetColor: string;
   headerSheetFade: boolean;
+  headerGeometry: HeaderGeometry;
+  headerTexture: HeaderTexture;
   blockCorner: number;
   blockBorder: number;
   blockBorderColor: string;
@@ -229,6 +248,8 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   headerAvatarShape: 'circle',
   headerSheetColor: '#ffffff',
   headerSheetFade: true,
+  headerGeometry: 'velocity',
+  headerTexture: 'grid',
   blockCorner: 75,
   blockBorder: 25,
   blockBorderColor: '#e2e8f0',
@@ -596,6 +617,14 @@ export function resolveThemeSettings(
       typeof theme.headerSheetFade === 'boolean'
         ? theme.headerSheetFade
         : defaultThemeSettings.headerSheetFade,
+    headerGeometry: headerGeometries.includes(
+      theme.headerGeometry as HeaderGeometry,
+    )
+      ? (theme.headerGeometry as HeaderGeometry)
+      : defaultThemeSettings.headerGeometry,
+    headerTexture: headerTextures.includes(theme.headerTexture as HeaderTexture)
+      ? (theme.headerTexture as HeaderTexture)
+      : defaultThemeSettings.headerTexture,
     blockCorner: resolveNumber(
       theme.blockCorner,
       {

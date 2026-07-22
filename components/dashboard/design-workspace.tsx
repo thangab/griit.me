@@ -13,6 +13,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
+  ArrowClockwiseIcon as Redo,
+  ArrowCounterClockwiseIcon as Undo,
   CaretDownIcon as ChevronDown,
   CheckIcon as Check,
   CircleNotchIcon as LoaderCircle,
@@ -55,10 +57,15 @@ import {
   galleryLayouts,
   getTemplateThemePreset,
   getThemeRuntime,
+  headerGeometries,
   headerLayouts,
+  headerTextures,
   overlayPresets,
   resolveThemeSettings,
   type AvatarShape,
+  type HeaderGeometry,
+  type HeaderLayout,
+  type HeaderTexture,
   type ProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
 import {
@@ -81,13 +88,100 @@ const mobilePanels = [
 type MobilePanel = (typeof mobilePanels)[number]['id'];
 type AutosaveSource = 'content' | 'styles';
 type AutosaveState = { status: AutosaveStatus; message?: string };
+type StyleSnapshot = {
+  templateId: ProfileTemplateId;
+  coverUrl: string;
+  themeSettings: ProfileThemeSettings;
+  wordingOverrides: Partial<TemplateWording>;
+};
 
-const headerLayoutLabels = {
-  centered: 'Arena',
-  split: 'Athlete pass',
-  left: 'Scoreboard',
-  immersive: 'Race poster',
+function areStyleSnapshotsEqual(left: StyleSnapshot, right: StyleSnapshot) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function getStyleChangeKey(previous: StyleSnapshot, next: StyleSnapshot) {
+  if (previous.templateId !== next.templateId) return 'template';
+  if (previous.coverUrl !== next.coverUrl) return 'cover';
+
+  const wordingKeys = Array.from(
+    new Set([
+      ...Object.keys(previous.wordingOverrides),
+      ...Object.keys(next.wordingOverrides),
+    ]),
+  ).filter(
+    (key) =>
+      previous.wordingOverrides[key as keyof TemplateWording] !==
+      next.wordingOverrides[key as keyof TemplateWording],
+  );
+  if (wordingKeys.length > 0) return `wording:${wordingKeys.join(',')}`;
+
+  const themeKeys = Object.keys(next.themeSettings).filter(
+    (key) =>
+      JSON.stringify(
+        previous.themeSettings[key as keyof ProfileThemeSettings],
+      ) !==
+      JSON.stringify(next.themeSettings[key as keyof ProfileThemeSettings]),
+  );
+
+  return `theme:${themeKeys.join(',')}`;
+}
+
+const headerGeometryLabels = {
+  none: 'None',
+  velocity: 'Velocity',
+  rings: 'Rings',
+  chevrons: 'Arrows',
+  blocks: 'Blocks',
 } as const;
+
+const headerTextureLabels = {
+  none: 'None',
+  grid: 'Grid',
+  diagonal: 'Diagonal',
+  dots: 'Dots',
+  scanlines: 'Lines',
+} as const;
+
+const headerLayoutDecorationOptions = {
+  centered: {
+    geometries: ['none', 'velocity', 'rings', 'blocks'],
+    textures: ['none', 'grid', 'dots', 'scanlines'],
+    defaultGeometry: 'rings',
+    defaultTexture: 'dots',
+  },
+  split: {
+    geometries: ['none', 'velocity', 'chevrons', 'blocks'],
+    textures: ['none', 'grid', 'diagonal', 'scanlines'],
+    defaultGeometry: 'blocks',
+    defaultTexture: 'grid',
+  },
+  left: {
+    geometries: ['none', 'velocity', 'rings', 'chevrons'],
+    textures: ['none', 'grid', 'dots', 'scanlines'],
+    defaultGeometry: 'velocity',
+    defaultTexture: 'scanlines',
+  },
+  immersive: {
+    geometries: ['none', 'velocity', 'rings', 'blocks'],
+    textures: ['none', 'grid', 'diagonal', 'dots'],
+    defaultGeometry: 'velocity',
+    defaultTexture: 'diagonal',
+  },
+  kinetic: {
+    geometries: headerGeometries,
+    textures: headerTextures,
+    defaultGeometry: 'velocity',
+    defaultTexture: 'grid',
+  },
+} satisfies Record<
+  HeaderLayout,
+  {
+    geometries: readonly HeaderGeometry[];
+    textures: readonly HeaderTexture[];
+    defaultGeometry: HeaderGeometry;
+    defaultTexture: HeaderTexture;
+  }
+>;
 
 const avatarShapeOptions = [
   {
@@ -737,6 +831,11 @@ function TemplateSelector({
   onThemeChange,
   onTemplateWordingChange,
   onAutosaveStatusChange,
+  canUndo,
+  canRedo,
+  historyActionToken,
+  onUndo,
+  onRedo,
 }: {
   profileId: number;
   subscription: SubscriptionState;
@@ -750,6 +849,11 @@ function TemplateSelector({
   onThemeChange: (settings: ProfileThemeSettings) => void;
   onTemplateWordingChange: (key: keyof TemplateWording, value: string) => void;
   onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  historyActionToken: number;
+  onUndo: () => void;
+  onRedo: () => void;
 }) {
   const [state, formAction, pending] = useActionState(
     updateProfileTemplateAction,
@@ -765,6 +869,8 @@ function TemplateSelector({
   const selectedTemplate =
     profileTemplates.find((template) => template.id === selectedTemplateId) ??
     profileTemplates[0];
+  const headerDecorationOptions =
+    headerLayoutDecorationOptions[themeSettings.headerLayout];
 
   const submitWhenReady = () => {
     if (pendingRef.current) {
@@ -797,6 +903,19 @@ function TemplateSelector({
     onAutosaveStatusChange('waiting');
     autosaveTimerRef.current = window.setTimeout(submitWhenReady, delay);
   };
+  const scheduleAutosaveRef = useRef(scheduleAutosave);
+  const previousHistoryActionTokenRef = useRef(historyActionToken);
+
+  useEffect(() => {
+    scheduleAutosaveRef.current = scheduleAutosave;
+  });
+
+  useEffect(() => {
+    if (previousHistoryActionTokenRef.current === historyActionToken) return;
+
+    previousHistoryActionTokenRef.current = historyActionToken;
+    scheduleAutosaveRef.current(120);
+  }, [historyActionToken]);
 
   useEffect(() => {
     if (formRef.current) {
@@ -870,12 +989,34 @@ function TemplateSelector({
       onChange={(event) => scheduleAutosave(getAutosaveDelay(event.target))}
     >
       <input name="profileId" type="hidden" value={profileId} />
-      <div>
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
             Styles
           </p>
           <p className="mt-2 font-semibold">Visual settings</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            aria-label="Undo style change"
+            className="border-border text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!canUndo}
+            title="Undo"
+            type="button"
+            onClick={onUndo}
+          >
+            <Undo className="h-4 w-4" />
+          </button>
+          <button
+            aria-label="Redo style change"
+            className="border-border text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+            disabled={!canRedo}
+            title="Redo"
+            type="button"
+            onClick={onRedo}
+          >
+            <Redo className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
@@ -992,6 +1133,16 @@ function TemplateSelector({
         name="headerSheetFade"
         type="hidden"
         value={String(themeSettings.headerSheetFade)}
+      />
+      <input
+        name="headerGeometry"
+        type="hidden"
+        value={themeSettings.headerGeometry}
+      />
+      <input
+        name="headerTexture"
+        type="hidden"
+        value={themeSettings.headerTexture}
       />
       <input
         name="blockCorner"
@@ -1175,21 +1326,35 @@ function TemplateSelector({
           className="order-first"
           defaultOpen
         >
-          <div className="grid grid-cols-2 gap-2">
-            {headerLayouts.map((layout) => (
+          <div className="grid grid-cols-5 gap-1.5">
+            {headerLayouts.map((layout, index) => (
               <button
                 key={layout}
-                aria-label={`${headerLayoutLabels[layout]} header layout`}
+                aria-label={`Header layout ${index + 1}`}
                 className={cn(
-                  'border-border flex h-20 items-center gap-3 rounded-lg border px-3 text-left transition-colors',
+                  'border-border flex h-16 items-center justify-center rounded-lg border transition-colors',
                   themeSettings.headerLayout === layout
                     ? 'border-primary/50 bg-primary/10 text-primary'
                     : 'bg-background text-muted-foreground hover:bg-muted/40',
                 )}
                 type="button"
-                onClick={() =>
-                  handleThemeChange({ ...themeSettings, headerLayout: layout })
-                }
+                onClick={() => {
+                  const options = headerLayoutDecorationOptions[layout];
+                  handleThemeChange({
+                    ...themeSettings,
+                    headerLayout: layout,
+                    headerGeometry: (
+                      options.geometries as readonly HeaderGeometry[]
+                    ).includes(themeSettings.headerGeometry)
+                      ? themeSettings.headerGeometry
+                      : options.defaultGeometry,
+                    headerTexture: (
+                      options.textures as readonly HeaderTexture[]
+                    ).includes(themeSettings.headerTexture)
+                      ? themeSettings.headerTexture
+                      : options.defaultTexture,
+                  });
+                }}
               >
                 <span className="relative block h-11 w-9 shrink-0 overflow-hidden rounded border-2 border-current">
                   {layout === 'centered' ? (
@@ -1212,6 +1377,13 @@ function TemplateSelector({
                       <span className="absolute top-5 right-1 h-px w-4 bg-current" />
                       <span className="absolute right-1 bottom-2 h-px w-5 bg-current" />
                     </>
+                  ) : layout === 'kinetic' ? (
+                    <>
+                      <span className="absolute inset-0 bg-[linear-gradient(currentColor_1px,transparent_1px),linear-gradient(90deg,currentColor_1px,transparent_1px)] bg-[size:7px_7px] opacity-20" />
+                      <span className="absolute -top-2 -right-2 h-7 w-5 rotate-12 bg-current opacity-40 [clip-path:polygon(25%_0,100%_0,75%_100%,0_100%)]" />
+                      <span className="absolute top-3 left-1 h-2 w-2 rounded-full border border-current" />
+                      <span className="absolute right-1 bottom-2 left-1 h-1 bg-current" />
+                    </>
                   ) : (
                     <>
                       <span className="absolute inset-0 bg-current opacity-10" />
@@ -1221,12 +1393,182 @@ function TemplateSelector({
                     </>
                   )}
                 </span>
-                <span className="min-w-0 text-xs leading-4 font-semibold">
-                  {headerLayoutLabels[layout]}
-                </span>
               </button>
             ))}
           </div>
+
+          <details className="border-border bg-muted/20 group/effects overflow-hidden rounded-lg border">
+            <summary className="hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0">
+                <span className="block text-xs font-semibold">
+                  Header effects
+                </span>
+                <span className="text-muted-foreground mt-0.5 block text-[11px]">
+                  Geometry, texture and sheet
+                </span>
+              </span>
+              <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/effects:rotate-180" />
+            </summary>
+
+            <div className="border-border space-y-4 border-t p-3">
+              <div>
+                <p className="text-xs font-semibold">Geometry</p>
+                <p className="text-muted-foreground mt-0.5 text-[11px]">
+                  Choose a graphic shape or keep it clean.
+                </p>
+                <div
+                  className={cn(
+                    'mt-2 grid gap-1.5',
+                    headerDecorationOptions.geometries.length === 5
+                      ? 'grid-cols-5'
+                      : 'grid-cols-4',
+                  )}
+                >
+                  {headerDecorationOptions.geometries.map((geometry) => {
+                    const isSelected =
+                      themeSettings.headerGeometry === geometry;
+                    return (
+                      <button
+                        aria-label={`${headerGeometryLabels[geometry]} geometry`}
+                        aria-pressed={isSelected}
+                        className={cn(
+                          'flex min-w-0 flex-col items-center gap-1.5 rounded-md border px-1 py-2 transition-colors',
+                          isSelected
+                            ? 'border-primary/50 bg-primary/10 text-primary'
+                            : 'border-border bg-background text-muted-foreground hover:bg-muted/60',
+                        )}
+                        key={geometry}
+                        type="button"
+                        onClick={() =>
+                          handleThemeChange({
+                            ...themeSettings,
+                            headerGeometry: geometry,
+                          })
+                        }
+                      >
+                        <span className="relative flex h-6 w-8 items-center justify-center overflow-hidden">
+                          {geometry === 'none' ? (
+                            <span className="h-px w-5 bg-current opacity-50" />
+                          ) : geometry === 'velocity' ? (
+                            <span className="h-5 w-4 rotate-12 bg-current opacity-60 [clip-path:polygon(25%_0,100%_0,75%_100%,0_100%)]" />
+                          ) : geometry === 'rings' ? (
+                            <span className="h-5 w-5 rounded-full border-2 border-current" />
+                          ) : geometry === 'chevrons' ? (
+                            <span className="text-xl leading-none font-light">
+                              »
+                            </span>
+                          ) : (
+                            <span className="grid grid-cols-2 gap-0.5">
+                              <span className="h-2 w-2 bg-current" />
+                              <span className="h-2 w-2 bg-current opacity-45" />
+                              <span className="h-2 w-2 bg-current opacity-45" />
+                              <span className="h-2 w-2 bg-current" />
+                            </span>
+                          )}
+                        </span>
+                        <span className="max-w-full truncate text-[8px] font-semibold">
+                          {headerGeometryLabels[geometry]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold">Texture</p>
+                <p className="text-muted-foreground mt-0.5 text-[11px]">
+                  Add depth behind the profile content.
+                </p>
+                <div
+                  className={cn(
+                    'mt-2 grid gap-1.5',
+                    headerDecorationOptions.textures.length === 5
+                      ? 'grid-cols-5'
+                      : 'grid-cols-4',
+                  )}
+                >
+                  {headerDecorationOptions.textures.map((texture) => {
+                    const isSelected = themeSettings.headerTexture === texture;
+                    return (
+                      <button
+                        aria-label={`${headerTextureLabels[texture]} texture`}
+                        aria-pressed={isSelected}
+                        className={cn(
+                          'flex min-w-0 flex-col items-center gap-1.5 rounded-md border px-1 py-2 transition-colors',
+                          isSelected
+                            ? 'border-primary/50 bg-primary/10 text-primary'
+                            : 'border-border bg-background text-muted-foreground hover:bg-muted/60',
+                        )}
+                        key={texture}
+                        type="button"
+                        onClick={() =>
+                          handleThemeChange({
+                            ...themeSettings,
+                            headerTexture: texture,
+                          })
+                        }
+                      >
+                        <span
+                          className={cn(
+                            'block h-6 w-8 rounded-sm border border-current/30',
+                            texture === 'none' && 'border-dashed opacity-40',
+                            texture === 'grid' &&
+                              'bg-[linear-gradient(currentColor_1px,transparent_1px),linear-gradient(90deg,currentColor_1px,transparent_1px)] bg-[size:5px_5px]',
+                            texture === 'diagonal' &&
+                              'bg-[repeating-linear-gradient(135deg,transparent_0_4px,currentColor_4px_5px)]',
+                            texture === 'dots' &&
+                              'bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-[size:5px_5px]',
+                            texture === 'scanlines' &&
+                              'bg-[repeating-linear-gradient(to_bottom,transparent_0_3px,currentColor_3px_4px)]',
+                          )}
+                        />
+                        <span className="max-w-full truncate text-[8px] font-semibold">
+                          {headerTextureLabels[texture]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <label className="border-border bg-background flex items-center justify-between gap-3 rounded-lg border p-3">
+                <span className="text-xs font-medium">Sheet color</span>
+                <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
+                  <input
+                    aria-label="Header sheet color"
+                    className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                    type="color"
+                    value={themeSettings.headerSheetColor}
+                    onChange={(event) =>
+                      handleThemeChange({
+                        ...themeSettings,
+                        headerSheetColor: event.target.value,
+                      })
+                    }
+                  />
+                  <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                    {themeSettings.headerSheetColor}
+                  </span>
+                </span>
+              </label>
+
+              <label className="border-border bg-background flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-3">
+                <span className="text-xs font-medium">Sheet fade</span>
+                <input
+                  checked={themeSettings.headerSheetFade}
+                  className="accent-primary h-4 w-4"
+                  type="checkbox"
+                  onChange={(event) =>
+                    handleThemeChange({
+                      ...themeSettings,
+                      headerSheetFade: event.target.checked,
+                    })
+                  }
+                />
+              </label>
+            </div>
+          </details>
 
           <div className="border-border bg-muted/30 rounded-lg border p-3">
             <p className="text-xs font-medium">Profile picture shape</p>
@@ -1300,47 +1642,6 @@ function TemplateSelector({
               onPointerUp={() => scheduleAutosave(120)}
             />
           </label>
-
-          {themeSettings.headerLayout === 'split' ||
-          themeSettings.headerLayout === 'immersive' ? (
-            <label className="border-border bg-muted/30 flex items-center justify-between gap-3 rounded-lg border p-3">
-              <span className="text-xs font-medium">Sheet color</span>
-              <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
-                <input
-                  aria-label="Header sheet color"
-                  className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
-                  type="color"
-                  value={themeSettings.headerSheetColor}
-                  onChange={(event) =>
-                    handleThemeChange({
-                      ...themeSettings,
-                      headerSheetColor: event.target.value,
-                    })
-                  }
-                />
-                <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
-                  {themeSettings.headerSheetColor}
-                </span>
-              </span>
-            </label>
-          ) : null}
-
-          {themeSettings.headerLayout === 'immersive' ? (
-            <label className="border-border bg-muted/30 flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-3">
-              <span className="text-xs font-medium">Sheet fade</span>
-              <input
-                checked={themeSettings.headerSheetFade}
-                className="accent-primary h-4 w-4"
-                type="checkbox"
-                onChange={(event) =>
-                  handleThemeChange({
-                    ...themeSettings,
-                    headerSheetFade: event.target.checked,
-                  })
-                }
-              />
-            </label>
-          ) : null}
 
           <div className="border-border border-t pt-3">
             <p className="text-xs font-semibold">Cover</p>
@@ -1847,6 +2148,11 @@ function StylesPanel({
   onThemeChange,
   onTemplateWordingChange,
   onAutosaveStatusChange,
+  canUndo,
+  canRedo,
+  historyActionToken,
+  onUndo,
+  onRedo,
 }: {
   profileId: number;
   subscription: SubscriptionState;
@@ -1860,6 +2166,11 @@ function StylesPanel({
   onThemeChange: (settings: ProfileThemeSettings) => void;
   onTemplateWordingChange: (key: keyof TemplateWording, value: string) => void;
   onAutosaveStatusChange: (status: AutosaveStatus, message?: string) => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  historyActionToken: number;
+  onUndo: () => void;
+  onRedo: () => void;
 }) {
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:overscroll-contain xl:[contain:size]">
@@ -1876,6 +2187,11 @@ function StylesPanel({
         onThemeChange={onThemeChange}
         onTemplateWordingChange={onTemplateWordingChange}
         onAutosaveStatusChange={onAutosaveStatusChange}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        historyActionToken={historyActionToken}
+        onUndo={onUndo}
+        onRedo={onRedo}
       />
 
       <div className="border-border bg-card rounded-xl border p-4">
@@ -2014,6 +2330,108 @@ export function DesignWorkspace({
       resolveTemplateWording({ templateWordingOverrides }, selectedTemplateId),
     [selectedTemplateId, templateWordingOverrides],
   );
+  const currentStyleSnapshot = useMemo<StyleSnapshot>(
+    () => ({
+      templateId: selectedTemplateId,
+      coverUrl: draftBuilder.profile.coverUrl,
+      themeSettings,
+      wordingOverrides: templateWordingOverrides,
+    }),
+    [
+      draftBuilder.profile.coverUrl,
+      selectedTemplateId,
+      templateWordingOverrides,
+      themeSettings,
+    ],
+  );
+  const observedStyleSnapshotRef = useRef(currentStyleSnapshot);
+  const currentStyleSnapshotRef = useRef(currentStyleSnapshot);
+  const stylePastRef = useRef<StyleSnapshot[]>([]);
+  const styleFutureRef = useRef<StyleSnapshot[]>([]);
+  const styleHistoryBurstRef = useRef<{
+    key: string;
+    timestamp: number;
+  } | null>(null);
+  const [styleHistoryState, setStyleHistoryState] = useState({
+    canUndo: false,
+    canRedo: false,
+  });
+  const [styleHistoryActionToken, setStyleHistoryActionToken] = useState(0);
+
+  const syncStyleHistoryState = useCallback(() => {
+    setStyleHistoryState({
+      canUndo: stylePastRef.current.length > 0,
+      canRedo: styleFutureRef.current.length > 0,
+    });
+  }, []);
+
+  useEffect(() => {
+    const previous = observedStyleSnapshotRef.current;
+    const next = currentStyleSnapshot;
+    currentStyleSnapshotRef.current = next;
+    if (areStyleSnapshotsEqual(previous, next)) return;
+
+    const now = Date.now();
+    const changeKey = getStyleChangeKey(previous, next);
+    const lastBurst = styleHistoryBurstRef.current;
+    const isSameBurst =
+      lastBurst?.key === changeKey && now - lastBurst.timestamp < 650;
+
+    if (!isSameBurst) {
+      stylePastRef.current = [...stylePastRef.current.slice(-49), previous];
+    }
+
+    styleFutureRef.current = [];
+    styleHistoryBurstRef.current = { key: changeKey, timestamp: now };
+    observedStyleSnapshotRef.current = next;
+    syncStyleHistoryState();
+  }, [currentStyleSnapshot, syncStyleHistoryState]);
+
+  const applyStyleSnapshot = useCallback((snapshot: StyleSnapshot) => {
+    observedStyleSnapshotRef.current = snapshot;
+    currentStyleSnapshotRef.current = snapshot;
+    setSelectedTemplateId(snapshot.templateId);
+    setThemeSettings(snapshot.themeSettings);
+    setTemplateWordingOverrides(snapshot.wordingOverrides);
+    setDraftBuilder((current) => ({
+      ...current,
+      profile: {
+        ...current.profile,
+        coverUrl: snapshot.coverUrl,
+      },
+    }));
+  }, []);
+
+  const handleStyleUndo = useCallback(() => {
+    const target = stylePastRef.current.at(-1);
+    if (!target) return;
+
+    stylePastRef.current = stylePastRef.current.slice(0, -1);
+    styleFutureRef.current = [
+      ...styleFutureRef.current.slice(-49),
+      currentStyleSnapshotRef.current,
+    ];
+    styleHistoryBurstRef.current = null;
+    applyStyleSnapshot(target);
+    syncStyleHistoryState();
+    setStyleHistoryActionToken((current) => current + 1);
+  }, [applyStyleSnapshot, syncStyleHistoryState]);
+
+  const handleStyleRedo = useCallback(() => {
+    const target = styleFutureRef.current.at(-1);
+    if (!target) return;
+
+    styleFutureRef.current = styleFutureRef.current.slice(0, -1);
+    stylePastRef.current = [
+      ...stylePastRef.current.slice(-49),
+      currentStyleSnapshotRef.current,
+    ];
+    styleHistoryBurstRef.current = null;
+    applyStyleSnapshot(target);
+    syncStyleHistoryState();
+    setStyleHistoryActionToken((current) => current + 1);
+  }, [applyStyleSnapshot, syncStyleHistoryState]);
+
   const previewBuilder = useMemo<ProfileBuilderState>(
     () => ({
       ...draftBuilder,
@@ -2160,6 +2578,11 @@ export function DesignWorkspace({
             onThemeChange={setThemeSettings}
             onTemplateWordingChange={handleTemplateWordingChange}
             onAutosaveStatusChange={handleStylesAutosaveStatusChange}
+            canUndo={styleHistoryState.canUndo}
+            canRedo={styleHistoryState.canRedo}
+            historyActionToken={styleHistoryActionToken}
+            onUndo={handleStyleUndo}
+            onRedo={handleStyleRedo}
           />
         </div>
       </div>

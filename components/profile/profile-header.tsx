@@ -66,6 +66,121 @@ export function ProfileHeader({
     />
   ) : null;
 
+  const sheetLayer = (
+    <div
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background: theme.headerSheetFade
+          ? `linear-gradient(to bottom, transparent 24%, ${theme.headerSheetColor} 112%)`
+          : theme.headerSheetColor,
+      }}
+    />
+  );
+
+  const textureLayer =
+    theme.headerTexture === 'grid' ? (
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          color: theme.palette.accent,
+          backgroundImage:
+            'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)',
+          backgroundSize: '34px 34px',
+          opacity: 0.2,
+        }}
+      />
+    ) : theme.headerTexture === 'diagonal' ? (
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          color: theme.palette.accent,
+          backgroundImage:
+            'repeating-linear-gradient(135deg, transparent 0 12px, currentColor 12px 13px)',
+          opacity: 0.2,
+        }}
+      />
+    ) : theme.headerTexture === 'dots' ? (
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          color: theme.palette.accent,
+          backgroundImage:
+            'radial-gradient(currentColor 1.4px, transparent 1.4px)',
+          backgroundSize: '18px 18px',
+          opacity: 0.28,
+        }}
+      />
+    ) : theme.headerTexture === 'scanlines' ? (
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          color: theme.palette.accent,
+          backgroundImage:
+            'repeating-linear-gradient(to bottom, transparent 0 7px, currentColor 7px 8px)',
+          opacity: 0.2,
+        }}
+      />
+    ) : null;
+
+  const geometryLayer =
+    theme.headerGeometry === 'velocity' ? (
+      <>
+        <div
+          className="pointer-events-none absolute -top-20 -right-16 h-72 w-52 rotate-12"
+          style={{
+            backgroundColor: theme.palette.accent,
+            clipPath: 'polygon(24% 0, 100% 0, 76% 100%, 0 100%)',
+            opacity: 0.88,
+          }}
+        />
+        <div
+          className="pointer-events-none absolute top-[42%] -right-14 h-44 w-44 rounded-full border-[18px]"
+          style={{ borderColor: theme.palette.accent, opacity: 0.24 }}
+        />
+      </>
+    ) : theme.headerGeometry === 'rings' ? (
+      <>
+        <div
+          className="pointer-events-none absolute -top-16 -right-20 h-72 w-72 rounded-full border-[22px]"
+          style={{ borderColor: theme.palette.accent, opacity: 0.42 }}
+        />
+        <div
+          className="pointer-events-none absolute top-[48%] -left-12 h-36 w-36 rounded-full border-[10px]"
+          style={{ borderColor: theme.palette.accent, opacity: 0.22 }}
+        />
+      </>
+    ) : theme.headerGeometry === 'chevrons' ? (
+      <div className="pointer-events-none absolute top-1/2 right-0 flex -translate-y-1/2 opacity-55">
+        {[0, 1, 2].map((index) => (
+          <span
+            className="-ml-5 h-40 w-24"
+            key={index}
+            style={{
+              backgroundColor: theme.palette.accent,
+              clipPath:
+                'polygon(0 0, 54% 0, 100% 50%, 54% 100%, 0 100%, 46% 50%)',
+              opacity: 1 - index * 0.22,
+            }}
+          />
+        ))}
+      </div>
+    ) : theme.headerGeometry === 'blocks' ? (
+      <>
+        <div
+          className="pointer-events-none absolute -top-8 right-8 h-40 w-24 rotate-12"
+          style={{ backgroundColor: theme.palette.accent, opacity: 0.72 }}
+        />
+        <div
+          className="pointer-events-none absolute top-32 -right-8 h-24 w-40 -rotate-6"
+          style={{ backgroundColor: theme.palette.accent, opacity: 0.34 }}
+        />
+        <div
+          className="pointer-events-none absolute bottom-16 -left-10 h-20 w-32 rotate-6"
+          style={{ backgroundColor: theme.palette.accent, opacity: 0.2 }}
+        />
+      </>
+    ) : null;
+
   const identity = (onSheet = false, align: 'center' | 'left' = 'center') => (
     <div className={cn(align === 'center' ? 'text-center' : 'text-left')}>
       <div
@@ -125,6 +240,9 @@ export function ProfileHeader({
         'max-w-3xl',
         align === 'center' ? 'mx-auto text-center' : 'text-left',
       )}
+      style={{
+        color: onSheet ? theme.palette.text : theme.palette.headerText,
+      }}
     >
       {wording.eyebrow ? (
         <p
@@ -231,6 +349,9 @@ export function ProfileHeader({
           >
             {coverImage}
             {imageOverlay}
+            {sheetLayer}
+            {textureLayer}
+            {geometryLayer}
           </div>
           <div
             className={cn(
@@ -256,7 +377,9 @@ export function ProfileHeader({
         className={cn('overflow-hidden py-5', !isMobilePreview && 'sm:py-8')}
         style={{
           backgroundColor: theme.palette.background,
-          color: theme.palette.headerText,
+          color: theme.headerSheetFade
+            ? theme.palette.headerText
+            : theme.palette.text,
         }}
       >
         <div
@@ -271,25 +394,16 @@ export function ProfileHeader({
         >
           {coverImage}
           {imageOverlay}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: theme.headerSheetFade
-                ? `linear-gradient(to bottom, transparent 18%, ${theme.headerSheetColor} 105%)`
-                : `linear-gradient(to bottom, transparent 35%, ${theme.coverColor} 110%)`,
-            }}
-          />
-          <div
-            className="absolute -top-20 -right-20 h-64 w-64 rotate-12 opacity-85"
-            style={{ backgroundColor: theme.palette.accent }}
-          />
+          {sheetLayer}
+          {textureLayer}
+          {geometryLayer}
           <div
             className={cn(
               'relative flex items-start justify-between gap-3 px-5 py-6',
               !isMobilePreview && 'sm:px-8',
             )}
           >
-            {identity(false, 'left')}
+            {identity(!theme.headerSheetFade, 'left')}
             <span className="text-[9px] font-black tracking-[0.24em] uppercase [writing-mode:vertical-rl]">
               @{profile.username}
             </span>
@@ -299,15 +413,9 @@ export function ProfileHeader({
               'relative px-5 pb-7',
               !isMobilePreview && 'sm:px-8 sm:pb-10',
             )}
-            style={{
-              color: theme.headerSheetFade
-                ? theme.palette.text
-                : theme.palette.headerText,
-            }}
+            style={{ color: theme.palette.text }}
           >
-            <div className="relative">
-              {goal(theme.headerSheetFade, 'left')}
-            </div>
+            <div className="relative">{goal(true, 'left')}</div>
             <div
               className="mt-7 h-1.5 w-20"
               style={{ backgroundColor: theme.palette.accent }}
@@ -322,18 +430,18 @@ export function ProfileHeader({
     return (
       <header
         className="relative flex items-end overflow-hidden bg-cover bg-center"
-        style={{ ...coverStyle, color: theme.palette.headerText }}
+        style={{
+          ...coverStyle,
+          color: theme.headerSheetFade
+            ? theme.palette.headerText
+            : theme.palette.text,
+        }}
       >
         {coverImage}
         {imageOverlay}
-        <div
-          className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px)',
-            backgroundSize: '42px 42px',
-          }}
-        />
+        {sheetLayer}
+        {textureLayer}
+        {geometryLayer}
         <div
           className={cn(
             'relative mx-auto w-full max-w-2xl px-5 py-8',
@@ -341,7 +449,7 @@ export function ProfileHeader({
           )}
         >
           <div className="border-b border-white/25 pb-5">
-            {identity(false, 'left')}
+            {identity(!theme.headerSheetFade, 'left')}
           </div>
           <div
             className={cn(
@@ -353,7 +461,84 @@ export function ProfileHeader({
               className="absolute top-0 bottom-0 left-0 w-1"
               style={{ backgroundColor: theme.palette.accent }}
             />
-            {goal(false, 'left')}
+            {goal(true, 'left')}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  if (theme.headerLayout === 'kinetic') {
+    return (
+      <header
+        className={cn(
+          'relative flex min-h-[560px] items-stretch overflow-hidden bg-cover bg-center',
+          !isMobilePreview && 'sm:min-h-[620px]',
+        )}
+        style={{
+          ...coverStyle,
+          color: theme.headerSheetFade
+            ? theme.palette.headerText
+            : theme.palette.text,
+        }}
+      >
+        {coverImage}
+        {imageOverlay}
+        {sheetLayer}
+        {textureLayer}
+        {geometryLayer}
+        <div
+          className="absolute bottom-0 left-0 h-3 w-2/3"
+          style={{ backgroundColor: theme.palette.accent }}
+        />
+
+        <div
+          className={cn(
+            'relative mx-auto flex w-full max-w-2xl flex-col px-5 py-6',
+            !isMobilePreview && 'sm:px-8 sm:py-9',
+          )}
+        >
+          <div className="flex items-start justify-between gap-5">
+            {identity(!theme.headerSheetFade, 'left')}
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              <span className="text-[9px] font-black tracking-[0.28em] uppercase opacity-80">
+                @{profile.username}
+              </span>
+              <span
+                className="h-1.5 w-16"
+                style={{ backgroundColor: theme.palette.accent }}
+              />
+            </div>
+          </div>
+
+          <div className="my-auto max-w-[92%] py-12">
+            {wording.profileLabel ? (
+              <div
+                className="mb-5 flex items-center gap-3 text-[9px] font-black tracking-[0.28em] uppercase"
+                style={{
+                  color: theme.headerSheetFade
+                    ? theme.palette.mutedHeaderText
+                    : theme.palette.description,
+                }}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: theme.palette.accent }}
+                />
+                {wording.profileLabel}
+              </div>
+            ) : null}
+            {goal(true, 'left')}
+          </div>
+
+          <div className="flex items-end justify-between gap-4 border-t border-current/25 pt-4">
+            {wording.discipline ? (
+              <span className="text-[10px] font-black tracking-[0.22em] uppercase">
+                {wording.discipline}
+              </span>
+            ) : (
+              <span />
+            )}
           </div>
         </div>
       </header>
@@ -366,32 +551,28 @@ export function ProfileHeader({
         'relative flex items-stretch overflow-hidden bg-cover bg-center',
         heroHeight,
       )}
-      style={{ ...coverStyle, color: theme.palette.headerText }}
+      style={{
+        ...coverStyle,
+        color: theme.headerSheetFade
+          ? theme.palette.headerText
+          : theme.palette.text,
+      }}
     >
       {coverImage}
       {imageOverlay}
-      <div
-        className="absolute -top-20 -left-24 h-64 w-64 rotate-12 opacity-90"
-        style={{
-          backgroundColor: theme.palette.accent,
-          clipPath: 'polygon(0 0, 100% 0, 62% 100%, 0 72%)',
-        }}
-      />
-      <div
-        className="absolute right-0 bottom-0 h-36 w-52 opacity-30"
-        style={{
-          backgroundColor: theme.palette.accent,
-          clipPath: 'polygon(42% 0, 100% 28%, 100% 100%, 0 100%)',
-        }}
-      />
+      {sheetLayer}
+      {textureLayer}
+      {geometryLayer}
       <div
         className={cn(
           'relative mx-auto flex w-full max-w-2xl flex-col justify-between px-5 py-7',
           !isMobilePreview && 'sm:px-8 sm:py-10',
         )}
       >
-        <div className="self-start">{identity(false, 'left')}</div>
-        <div className="my-auto py-10">{goal(false, 'center')}</div>
+        <div className="self-start">
+          {identity(!theme.headerSheetFade, 'left')}
+        </div>
+        <div className="my-auto py-10">{goal(true, 'center')}</div>
         <div className="flex items-center justify-center gap-2">
           <span
             className="h-1 w-12 rounded-full"

@@ -20,7 +20,9 @@ import {
   coverTypes,
   fontPresets,
   galleryLayouts,
+  headerGeometries,
   headerLayouts,
+  headerTextures,
   overlayPresets,
   radiusPresets,
 } from '@/lib/constants/profile-theme';
@@ -341,6 +343,8 @@ const templateSchema = z.object({
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid header sheet color.'),
   headerSheetFade: z.boolean(),
+  headerGeometry: z.enum(headerGeometries),
+  headerTexture: z.enum(headerTextures),
   blockCorner: z.coerce.number().min(0).max(100),
   blockBorder: z.coerce.number().min(0).max(100),
   blockBorderColor: z
@@ -1605,6 +1609,8 @@ export async function updateProfileTemplateAction(
     headerAvatarShape: getString(formData, 'headerAvatarShape'),
     headerSheetColor: getString(formData, 'headerSheetColor'),
     headerSheetFade: formData.get('headerSheetFade') === 'true',
+    headerGeometry: getString(formData, 'headerGeometry'),
+    headerTexture: getString(formData, 'headerTexture'),
     blockCorner: getString(formData, 'blockCorner'),
     blockBorder: getString(formData, 'blockBorder'),
     blockBorderColor: getString(formData, 'blockBorderColor'),
@@ -1775,6 +1781,8 @@ export async function updateProfileTemplateAction(
         headerAvatarShape: parsed.data.headerAvatarShape,
         headerSheetColor: parsed.data.headerSheetColor,
         headerSheetFade: parsed.data.headerSheetFade,
+        headerGeometry: parsed.data.headerGeometry,
+        headerTexture: parsed.data.headerTexture,
         blockCorner: parsed.data.blockCorner,
         blockBorder: parsed.data.blockBorder,
         blockBorderColor: parsed.data.blockBorderColor,
