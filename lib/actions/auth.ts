@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -13,6 +14,23 @@ export interface AuthActionState {
 
 async function getServerSupabaseClient() {
   return createServerSupabaseClient();
+}
+
+async function getAppOrigin() {
+  const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '');
+  if (configuredOrigin) return configuredOrigin;
+
+  const requestHeaders = await headers();
+  const host =
+    requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host');
+
+  if (!host) return 'http://localhost:3000';
+
+  const protocol =
+    requestHeaders.get('x-forwarded-proto') ??
+    (host.startsWith('localhost') ? 'http' : 'https');
+
+  return `${protocol}://${host}`;
 }
 
 export async function signInAction(
@@ -56,8 +74,17 @@ export async function signUpAction(
     };
   }
 
-  const supabase = await getServerSupabaseClient();
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const [supabase, appOrigin] = await Promise.all([
+    getServerSupabaseClient(),
+    getAppOrigin(),
+  ]);
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${appOrigin}/auth/callback`,
+    },
+  });
 
   if (error) {
     return { success: false, message: error.message };

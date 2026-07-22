@@ -5,6 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { signUpAction, type AuthActionState } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
+import { AuthFormMessage } from '@/components/auth/auth-form-message';
 
 const initialState: AuthActionState = { success: false, message: '' };
 
@@ -62,7 +63,13 @@ export function SignUpForm() {
         />
       </div>
       {state.message ? (
-        <p className="text-muted-foreground text-sm">{state.message}</p>
+        <AuthFormMessage
+          message={state.message}
+          title={
+            state.success ? 'Check your inbox' : 'Unable to create account'
+          }
+          type={state.success ? 'success' : 'error'}
+        />
       ) : null}
       <SubmitButton />
     </form>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
+import { AuthFormMessage } from '@/components/auth/auth-form-message';
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
@@ -50,15 +51,11 @@ export function ForgotPasswordForm() {
       </div>
 
       {message ? (
-        <p
-          className={`rounded-xl px-4 py-3 text-sm ${
-            status === 'error'
-              ? 'bg-red-50 text-red-700'
-              : 'bg-emerald-50 text-emerald-700'
-          }`}
-        >
-          {message}
-        </p>
+        <AuthFormMessage
+          message={message}
+          title={status === 'error' ? 'Link not sent' : 'Check your inbox'}
+          type={status === 'error' ? 'error' : 'success'}
+        />
       ) : null}
 
       <Button

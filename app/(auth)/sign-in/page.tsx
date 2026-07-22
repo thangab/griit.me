@@ -1,13 +1,29 @@
 import Link from 'next/link';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { SignInForm } from '@/components/auth/sign-in-form';
+import { AuthFormMessage } from '@/components/auth/auth-form-message';
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ authError?: string }>;
+}) {
+  const { authError } = await searchParams;
+
   return (
     <AuthShell
       description="Welcome back. Continue building your athlete profile."
       title="Welcome back"
     >
+      {authError ? (
+        <div className="mb-4">
+          <AuthFormMessage
+            message="The confirmation link is invalid or has expired. Request a new link or sign in if your account is already confirmed."
+            title="Unable to confirm your account"
+            type="error"
+          />
+        </div>
+      ) : null}
       <SignInForm />
       <p className="mt-7 text-center text-sm text-black/45">
         New here?{' '}
