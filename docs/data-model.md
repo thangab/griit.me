@@ -19,7 +19,8 @@ core model.
   descriptions, accent background/text, social background/text and header
   text),
   `fontPreset`, `coverType`, `coverColor`, `coverGradientFrom`,
-  `coverGradientTo`, `coverOverlay`, `radiusPreset` and `galleryLayout`.
+  `coverGradientTo`, `coverOverlayColor`, `coverOverlayOpacity`,
+  `radiusPreset` and `galleryLayout`.
 - `profile_blocks`: ordered content blocks belonging directly to a public
   profile. One public profile represents one public page.
 - `profile_social_links`: ordered external links and social accounts.

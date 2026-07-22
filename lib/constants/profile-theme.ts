@@ -142,7 +142,6 @@ export const fontPresets = [
   },
 ] as const;
 
-export const overlayPresets = ['light', 'balanced', 'strong'] as const;
 export const radiusPresets = ['sharp', 'soft', 'rounded'] as const;
 export const galleryLayouts = ['grid', 'editorial', 'carousel'] as const;
 export const coverTypes = ['image', 'color', 'gradient'] as const;
@@ -172,7 +171,6 @@ export const blockShadowStyles = ['soft', 'solid'] as const;
 
 export type ColorPresetId = (typeof colorPresets)[number]['id'] | 'custom';
 export type FontPresetId = (typeof fontPresets)[number]['id'];
-export type OverlayPreset = (typeof overlayPresets)[number];
 export type RadiusPreset = (typeof radiusPresets)[number];
 export type GalleryLayout = (typeof galleryLayouts)[number];
 export type CoverType = (typeof coverTypes)[number];
@@ -198,7 +196,8 @@ export type ProfileThemeSettings = {
     socialText: string;
   };
   fontPreset: FontPresetId;
-  coverOverlay: OverlayPreset;
+  coverOverlayColor: string;
+  coverOverlayOpacity: number;
   radiusPreset: RadiusPreset;
   galleryLayout: GalleryLayout;
   coverType: CoverType;
@@ -209,7 +208,7 @@ export type ProfileThemeSettings = {
   headerAvatarSize: number;
   headerAvatarShape: AvatarShape;
   headerSheetColor: string;
-  headerSheetFade: boolean;
+  headerSheetCoverage: number;
   headerGeometry: HeaderGeometry;
   headerTexture: HeaderTexture;
   blockCorner: number;
@@ -236,7 +235,8 @@ export const defaultThemeSettings: ProfileThemeSettings = {
     socialText: '#0f172a',
   },
   fontPreset: 'clean',
-  coverOverlay: 'balanced',
+  coverOverlayColor: '#000000',
+  coverOverlayOpacity: 58,
   radiusPreset: 'rounded',
   galleryLayout: 'grid',
   coverType: 'image',
@@ -247,7 +247,7 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   headerAvatarSize: 96,
   headerAvatarShape: 'circle',
   headerSheetColor: '#ffffff',
-  headerSheetFade: true,
+  headerSheetCoverage: 50,
   headerGeometry: 'velocity',
   headerTexture: 'grid',
   blockCorner: 75,
@@ -265,7 +265,6 @@ function createTemplateThemePreset(
 ): ProfileThemeSettings {
   const radiusPreset =
     overrides.radiusPreset ?? defaultThemeSettings.radiusPreset;
-
   return {
     ...defaultThemeSettings,
     ...overrides,
@@ -296,7 +295,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
       socialText: '#23402f',
     },
     fontPreset: 'clean',
-    coverOverlay: 'balanced',
+    coverOverlayOpacity: 58,
     radiusPreset: 'rounded',
     galleryLayout: 'grid',
     coverType: 'gradient',
@@ -316,7 +315,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
   momentum: createTemplateThemePreset({
     colorPreset: 'endurance_orange',
     fontPreset: 'clean',
-    coverOverlay: 'strong',
+    coverOverlayOpacity: 76,
     radiusPreset: 'soft',
     galleryLayout: 'grid',
     coverType: 'image',
@@ -333,7 +332,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
   impact: createTemplateThemePreset({
     colorPreset: 'performance_red',
     fontPreset: 'clean',
-    coverOverlay: 'strong',
+    coverOverlayOpacity: 76,
     radiusPreset: 'sharp',
     galleryLayout: 'grid',
     coverType: 'gradient',
@@ -353,7 +352,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
   obsidian: createTemplateThemePreset({
     colorPreset: 'obsidian_lime',
     fontPreset: 'clean',
-    coverOverlay: 'strong',
+    coverOverlayOpacity: 76,
     radiusPreset: 'sharp',
     galleryLayout: 'grid',
     coverType: 'gradient',
@@ -364,7 +363,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 72,
     headerAvatarShape: 'shield',
     headerSheetColor: '#09090b',
-    headerSheetFade: true,
+    headerSheetCoverage: 50,
     blockBorder: 30,
     blockBorderColor: '#3f6212',
     blockShadow: 0,
@@ -374,7 +373,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
   midnight: createTemplateThemePreset({
     colorPreset: 'midnight_blue',
     fontPreset: 'clean',
-    coverOverlay: 'balanced',
+    coverOverlayOpacity: 58,
     radiusPreset: 'soft',
     galleryLayout: 'grid',
     coverType: 'gradient',
@@ -393,7 +392,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
   pulse: createTemplateThemePreset({
     colorPreset: 'electric_purple',
     fontPreset: 'clean',
-    coverOverlay: 'balanced',
+    coverOverlayOpacity: 58,
     radiusPreset: 'sharp',
     galleryLayout: 'grid',
     coverType: 'color',
@@ -410,7 +409,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
   evergreen: createTemplateThemePreset({
     colorPreset: 'forest',
     fontPreset: 'clean',
-    coverOverlay: 'balanced',
+    coverOverlayOpacity: 58,
     radiusPreset: 'rounded',
     galleryLayout: 'grid',
     coverType: 'gradient',
@@ -442,7 +441,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
       socialText: '#172554',
     },
     fontPreset: 'clean',
-    coverOverlay: 'light',
+    coverOverlayOpacity: 35,
     radiusPreset: 'rounded',
     galleryLayout: 'grid',
     coverType: 'image',
@@ -451,7 +450,7 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 64,
     headerAvatarShape: 'hexagon',
     headerSheetColor: '#f4f0e8',
-    headerSheetFade: true,
+    headerSheetCoverage: 50,
     blockBorder: 18,
     blockBorderColor: '#bfdbfe',
     blockShadow: 20,
@@ -466,6 +465,18 @@ export function getTemplateThemePreset(templateId: string) {
     defaultThemeSettings;
 
   return resolveThemeSettings(createTemplateThemePreset(preset));
+}
+
+export function getHeaderSheetBackground(color: string, coverage: number) {
+  const normalizedCoverage = Math.min(100, Math.max(0, coverage));
+
+  if (normalizedCoverage === 0) return 'transparent';
+  if (normalizedCoverage === 100) return color;
+
+  const solidStart = 100 - normalizedCoverage;
+  const fadeStart = Math.max(0, solidStart - 14);
+
+  return `linear-gradient(to bottom, transparent 0%, transparent ${fadeStart}%, ${color} ${solidStart}%, ${color} 100%)`;
 }
 
 function resolveColor(value: unknown, fallback: string) {
@@ -591,9 +602,16 @@ export function resolveThemeSettings(
       theme.fontPreset,
       defaultThemeSettings.fontPreset,
     ),
-    coverOverlay: overlayPresets.includes(theme.coverOverlay as OverlayPreset)
-      ? (theme.coverOverlay as OverlayPreset)
-      : defaultThemeSettings.coverOverlay,
+    coverOverlayColor: resolveColor(
+      theme.coverOverlayColor,
+      defaultThemeSettings.coverOverlayColor,
+    ),
+    coverOverlayOpacity: resolveNumber(
+      theme.coverOverlayOpacity,
+      defaultThemeSettings.coverOverlayOpacity,
+      0,
+      100,
+    ),
     radiusPreset: radiusPresets.includes(theme.radiusPreset as RadiusPreset)
       ? (theme.radiusPreset as RadiusPreset)
       : defaultThemeSettings.radiusPreset,
@@ -630,10 +648,12 @@ export function resolveThemeSettings(
       theme.headerSheetColor,
       resolvedCustomColors.surface,
     ),
-    headerSheetFade:
-      typeof theme.headerSheetFade === 'boolean'
-        ? theme.headerSheetFade
-        : defaultThemeSettings.headerSheetFade,
+    headerSheetCoverage: resolveNumber(
+      theme.headerSheetCoverage,
+      defaultThemeSettings.headerSheetCoverage,
+      0,
+      100,
+    ),
     headerGeometry: headerGeometries.includes(
       theme.headerGeometry as HeaderGeometry,
     )
@@ -803,9 +823,7 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
     ...settings,
     color,
     palette,
-    overlayOpacity: { light: 0.35, balanced: 0.58, strong: 0.76 }[
-      settings.coverOverlay
-    ],
+    overlayOpacity: settings.coverOverlayOpacity / 100,
     radiusClass: {
       sharp: 'rounded-none',
       soft: 'rounded-xl',

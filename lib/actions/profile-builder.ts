@@ -24,7 +24,6 @@ import {
   headerGeometries,
   headerLayouts,
   headerTextures,
-  overlayPresets,
   radiusPresets,
 } from '@/lib/constants/profile-theme';
 import {
@@ -293,7 +292,10 @@ const templateSchema = z.object({
   fontPreset: z.enum(
     fontPresets.map((item) => item.id) as [string, ...string[]],
   ),
-  coverOverlay: z.enum(overlayPresets),
+  coverOverlayColor: z
+    .string()
+    .regex(/^#[0-9a-f]{6}$/i, 'Invalid photo overlay color.'),
+  coverOverlayOpacity: z.coerce.number().min(0).max(100),
   radiusPreset: z.enum(radiusPresets),
   galleryLayout: z.enum(galleryLayouts),
   customBackground: z
@@ -343,7 +345,7 @@ const templateSchema = z.object({
   headerSheetColor: z
     .string()
     .regex(/^#[0-9a-f]{6}$/i, 'Invalid header sheet color.'),
-  headerSheetFade: z.boolean(),
+  headerSheetCoverage: z.coerce.number().min(0).max(100),
   headerGeometry: z.enum(headerGeometries),
   headerTexture: z.enum(headerTextures),
   blockCorner: z.coerce.number().min(0).max(100),
@@ -1570,7 +1572,8 @@ export async function updateProfileTemplateAction(
     coverUrl: getString(formData, 'coverUrl'),
     colorPreset: getString(formData, 'colorPreset'),
     fontPreset: getString(formData, 'fontPreset'),
-    coverOverlay: getString(formData, 'coverOverlay'),
+    coverOverlayColor: getString(formData, 'coverOverlayColor'),
+    coverOverlayOpacity: getString(formData, 'coverOverlayOpacity'),
     radiusPreset: getString(formData, 'radiusPreset'),
     galleryLayout: getString(formData, 'galleryLayout'),
     customBackground: getString(formData, 'customBackground'),
@@ -1592,7 +1595,7 @@ export async function updateProfileTemplateAction(
     headerAvatarSize: getString(formData, 'headerAvatarSize'),
     headerAvatarShape: getString(formData, 'headerAvatarShape'),
     headerSheetColor: getString(formData, 'headerSheetColor'),
-    headerSheetFade: formData.get('headerSheetFade') === 'true',
+    headerSheetCoverage: getString(formData, 'headerSheetCoverage'),
     headerGeometry: getString(formData, 'headerGeometry'),
     headerTexture: getString(formData, 'headerTexture'),
     blockCorner: getString(formData, 'blockCorner'),
@@ -1753,7 +1756,8 @@ export async function updateProfileTemplateAction(
           socialText: parsed.data.customSocialText,
         },
         fontPreset: parsed.data.fontPreset,
-        coverOverlay: parsed.data.coverOverlay,
+        coverOverlayColor: parsed.data.coverOverlayColor,
+        coverOverlayOpacity: parsed.data.coverOverlayOpacity,
         radiusPreset: parsed.data.radiusPreset,
         galleryLayout: parsed.data.galleryLayout,
         coverType: parsed.data.coverType,
@@ -1764,7 +1768,7 @@ export async function updateProfileTemplateAction(
         headerAvatarSize: parsed.data.headerAvatarSize,
         headerAvatarShape: parsed.data.headerAvatarShape,
         headerSheetColor: parsed.data.headerSheetColor,
-        headerSheetFade: parsed.data.headerSheetFade,
+        headerSheetCoverage: parsed.data.headerSheetCoverage,
         headerGeometry: parsed.data.headerGeometry,
         headerTexture: parsed.data.headerTexture,
         blockCorner: parsed.data.blockCorner,

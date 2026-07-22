@@ -10,7 +10,10 @@ import {
   TargetIcon,
 } from '@phosphor-icons/react/ssr';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
-import { getThemeRuntime } from '@/lib/constants/profile-theme';
+import {
+  getHeaderSheetBackground,
+  getThemeRuntime,
+} from '@/lib/constants/profile-theme';
 import {
   getAthleteDirectory,
   type AthleteDirectoryEntry,
@@ -108,6 +111,7 @@ function HeaderDecoration({
 
 function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
   const theme = getThemeRuntime(athlete.theme);
+  const hasFullSheet = theme.headerSheetCoverage === 100;
   const visibleSports = athlete.sports.slice(0, 3);
   const avatarUrl = withoutUnsplash(athlete.avatarUrl);
   const coverUrl = withoutUnsplash(athlete.coverUrl);
@@ -145,7 +149,7 @@ function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
           className="relative flex h-[58%] overflow-hidden bg-cover bg-center"
           style={{
             ...coverBackground,
-            color: theme.headerSheetFade
+            color: !hasFullSheet
               ? theme.palette.headerText
               : theme.palette.text,
           }}
@@ -154,7 +158,7 @@ function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
             <span
               className="absolute inset-0"
               style={{
-                backgroundColor: theme.coverColor,
+                backgroundColor: theme.coverOverlayColor,
                 opacity: theme.overlayOpacity,
               }}
             />
@@ -162,9 +166,10 @@ function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
           <span
             className="absolute inset-0"
             style={{
-              background: theme.headerSheetFade
-                ? `linear-gradient(to bottom, transparent 24%, ${theme.headerSheetColor} 112%)`
-                : theme.headerSheetColor,
+              background: getHeaderSheetBackground(
+                theme.headerSheetColor,
+                theme.headerSheetCoverage,
+              ),
             }}
           />
           <HeaderDecoration

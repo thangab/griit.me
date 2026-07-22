@@ -2,7 +2,10 @@ import { ArrowUpRightIcon as ArrowUpRight } from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { GoalDateBadge } from '@/components/profile/goal-date-badge';
-import { getThemeRuntime } from '@/lib/constants/profile-theme';
+import {
+  getHeaderSheetBackground,
+  getThemeRuntime,
+} from '@/lib/constants/profile-theme';
 import type { TemplateWording } from '@/lib/constants/template-wording';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
@@ -36,6 +39,7 @@ export function ProfileHeader({
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
   const avatarSize = theme.headerAvatarSize;
+  const hasFullSheet = theme.headerSheetCoverage === 100;
   const coverStyle =
     theme.coverType === 'gradient'
       ? {
@@ -60,7 +64,7 @@ export function ProfileHeader({
     <div
       className="absolute inset-0"
       style={{
-        backgroundColor: theme.coverColor,
+        backgroundColor: theme.coverOverlayColor,
         opacity: theme.overlayOpacity,
       }}
     />
@@ -70,9 +74,10 @@ export function ProfileHeader({
     <div
       className="pointer-events-none absolute inset-0"
       style={{
-        background: theme.headerSheetFade
-          ? `linear-gradient(to bottom, transparent 8%, ${theme.headerSheetColor} 64%)`
-          : theme.headerSheetColor,
+        background: getHeaderSheetBackground(
+          theme.headerSheetColor,
+          theme.headerSheetCoverage,
+        ),
       }}
     />
   );
@@ -381,9 +386,7 @@ export function ProfileHeader({
         className={cn('overflow-hidden py-5', !isMobilePreview && 'sm:py-8')}
         style={{
           backgroundColor: theme.palette.background,
-          color: theme.headerSheetFade
-            ? theme.palette.headerText
-            : theme.palette.text,
+          color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
         }}
       >
         <div
@@ -407,7 +410,7 @@ export function ProfileHeader({
               !isMobilePreview && 'sm:px-8',
             )}
           >
-            {identity(!theme.headerSheetFade, 'left')}
+            {identity(hasFullSheet, 'left')}
             <span className="text-[9px] font-black tracking-[0.24em] uppercase [writing-mode:vertical-rl]">
               @{profile.username}
             </span>
@@ -436,9 +439,7 @@ export function ProfileHeader({
         className="relative flex items-end overflow-hidden bg-cover bg-center"
         style={{
           ...coverStyle,
-          color: theme.headerSheetFade
-            ? theme.palette.headerText
-            : theme.palette.text,
+          color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
         }}
       >
         {coverImage}
@@ -453,7 +454,7 @@ export function ProfileHeader({
           )}
         >
           <div className="border-b border-white/25 pb-5">
-            {identity(!theme.headerSheetFade, 'left')}
+            {identity(hasFullSheet, 'left')}
           </div>
           <div
             className={cn(
@@ -481,9 +482,7 @@ export function ProfileHeader({
         )}
         style={{
           ...coverStyle,
-          color: theme.headerSheetFade
-            ? theme.palette.headerText
-            : theme.palette.text,
+          color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
         }}
       >
         {coverImage}
@@ -503,7 +502,7 @@ export function ProfileHeader({
           )}
         >
           <div className="flex items-start justify-between gap-5">
-            {identity(!theme.headerSheetFade, 'left')}
+            {identity(hasFullSheet, 'left')}
             <div className="flex shrink-0 flex-col items-end gap-2">
               <span className="text-[9px] font-black tracking-[0.28em] uppercase opacity-80">
                 @{profile.username}
@@ -539,9 +538,7 @@ export function ProfileHeader({
       )}
       style={{
         ...coverStyle,
-        color: theme.headerSheetFade
-          ? theme.palette.headerText
-          : theme.palette.text,
+        color: !hasFullSheet ? theme.palette.headerText : theme.palette.text,
       }}
     >
       {coverImage}
@@ -555,9 +552,7 @@ export function ProfileHeader({
           !isMobilePreview && 'sm:px-8 sm:py-10',
         )}
       >
-        <div className="self-start">
-          {identity(!theme.headerSheetFade, 'left')}
-        </div>
+        <div className="self-start">{identity(hasFullSheet, 'left')}</div>
         <div className="my-auto py-10">{goal(true, 'center')}</div>
       </div>
     </header>

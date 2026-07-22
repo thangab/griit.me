@@ -52,7 +52,6 @@ import {
   avatarShapes,
   blockShadowStyles,
   colorPresets,
-  coverTypes,
   fontPresets,
   galleryLayouts,
   getTemplateThemePreset,
@@ -60,7 +59,6 @@ import {
   headerGeometries,
   headerLayouts,
   headerTextures,
-  overlayPresets,
   resolveThemeSettings,
   type AvatarShape,
   type HeaderGeometry,
@@ -807,6 +805,266 @@ function TemplateThumbnail({ templateId }: { templateId: ProfileTemplateId }) {
   );
 }
 
+const headerBackgroundOptions = [
+  { id: 'image', label: 'Photo' },
+  { id: 'color', label: 'Color' },
+  { id: 'gradient', label: 'Gradient' },
+] as const;
+
+function HeaderBackgroundControls({
+  coverUrl,
+  themeSettings,
+  onCoverChange,
+  onThemeChange,
+}: {
+  coverUrl: string;
+  themeSettings: ProfileThemeSettings;
+  onCoverChange: (coverUrl: string) => void;
+  onThemeChange: (settings: ProfileThemeSettings) => void;
+}) {
+  return (
+    <div className="border-border bg-muted/20 space-y-3 rounded-lg border p-3">
+      <div>
+        <p className="text-xs font-semibold">Background</p>
+        <p className="text-muted-foreground mt-0.5 text-[11px]">
+          Choose what appears behind your profile header.
+        </p>
+      </div>
+
+      <div
+        aria-label="Header background type"
+        className="bg-muted grid grid-cols-3 gap-1 rounded-lg p-1"
+      >
+        {headerBackgroundOptions.map((option) => (
+          <button
+            aria-pressed={themeSettings.coverType === option.id}
+            className={cn(
+              'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium transition-colors',
+              themeSettings.coverType === option.id
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+            key={option.id}
+            type="button"
+            onClick={() =>
+              onThemeChange({
+                ...themeSettings,
+                coverType: option.id,
+                headerSheetCoverage:
+                  themeSettings.headerSheetCoverage === 100
+                    ? 50
+                    : themeSettings.headerSheetCoverage,
+              })
+            }
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      {themeSettings.coverType !== 'image' ? (
+        <input name="coverUrl" type="hidden" value={coverUrl} />
+      ) : null}
+
+      {themeSettings.coverType === 'image' ? (
+        <ImageUploadField
+          folder="covers"
+          helpText="This image fills the header behind your profile information."
+          label="Header photo"
+          name="coverUrl"
+          previewShape="wide"
+          value={coverUrl}
+          onValueChange={onCoverChange}
+        />
+      ) : null}
+
+      {themeSettings.coverType === 'image' ? (
+        <div className="border-border bg-background space-y-3 rounded-lg border p-3">
+          <div>
+            <p className="text-xs font-semibold">Photo overlay</p>
+            <p className="text-muted-foreground mt-0.5 text-[11px]">
+              Choose the overlay color and its intensity for readable text.
+            </p>
+          </div>
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium">Overlay color</span>
+            <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
+              <input
+                aria-label="Photo overlay color"
+                className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                type="color"
+                value={themeSettings.coverOverlayColor}
+                onChange={(event) =>
+                  onThemeChange({
+                    ...themeSettings,
+                    coverOverlayColor: event.target.value,
+                  })
+                }
+              />
+              <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                {themeSettings.coverOverlayColor}
+              </span>
+            </span>
+          </label>
+          <label className="block">
+            <span className="flex items-center justify-between gap-3 text-xs font-medium">
+              <span>Overlay intensity</span>
+              <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-[11px]">
+                {Math.round(themeSettings.coverOverlayOpacity)}%
+              </span>
+            </span>
+            <input
+              aria-label="Photo overlay intensity"
+              className="accent-primary mt-2 w-full"
+              max="100"
+              min="0"
+              type="range"
+              value={themeSettings.coverOverlayOpacity}
+              onChange={(event) =>
+                onThemeChange({
+                  ...themeSettings,
+                  coverOverlayOpacity: Number(event.target.value),
+                })
+              }
+            />
+          </label>
+        </div>
+      ) : null}
+
+      {themeSettings.coverType === 'color' ? (
+        <label className="border-border bg-background flex items-center justify-between gap-3 rounded-lg border p-3">
+          <span className="text-xs font-medium">Background color</span>
+          <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
+            <input
+              aria-label="Header background color"
+              className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+              type="color"
+              value={themeSettings.coverColor}
+              onChange={(event) =>
+                onThemeChange({
+                  ...themeSettings,
+                  coverColor: event.target.value,
+                })
+              }
+            />
+            <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+              {themeSettings.coverColor}
+            </span>
+          </span>
+        </label>
+      ) : null}
+
+      {themeSettings.coverType === 'gradient' ? (
+        <div className="border-border bg-background space-y-2 rounded-lg border p-3">
+          {[
+            { key: 'coverGradientFrom' as const, label: 'Start color' },
+            { key: 'coverGradientTo' as const, label: 'End color' },
+          ].map((color) => (
+            <label
+              className="flex items-center justify-between gap-3"
+              key={color.key}
+            >
+              <span className="text-xs font-medium">{color.label}</span>
+              <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
+                <input
+                  aria-label={color.label}
+                  className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                  type="color"
+                  value={themeSettings[color.key]}
+                  onChange={(event) =>
+                    onThemeChange({
+                      ...themeSettings,
+                      [color.key]: event.target.value,
+                    })
+                  }
+                />
+                <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                  {themeSettings[color.key]}
+                </span>
+              </span>
+            </label>
+          ))}
+          <div
+            aria-hidden="true"
+            className="h-12 rounded-md"
+            style={{
+              backgroundImage: `linear-gradient(135deg, ${themeSettings.coverGradientFrom}, ${themeSettings.coverGradientTo})`,
+            }}
+          />
+        </div>
+      ) : null}
+
+      <details className="border-border bg-background group/transition overflow-hidden rounded-lg border">
+        <summary className="hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
+          <span className="min-w-0">
+            <span className="block text-xs font-semibold">
+              Background transition
+            </span>
+            <span className="text-muted-foreground mt-0.5 block text-[11px]">
+              Transition color covers {themeSettings.headerSheetCoverage}% of
+              the header
+            </span>
+          </span>
+          <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/transition:rotate-180" />
+        </summary>
+        <div className="border-border space-y-3 border-t p-3">
+          <p className="text-muted-foreground text-[11px] leading-4">
+            This is separate from photo darkness. It controls the color at the
+            bottom of the header.
+          </p>
+          <label className="block">
+            <span className="flex items-center justify-between gap-3 text-xs font-medium">
+              <span>Color coverage</span>
+              <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-[11px]">
+                {Math.round(themeSettings.headerSheetCoverage)}%
+              </span>
+            </span>
+            <input
+              aria-label="Header transition color coverage"
+              className="accent-primary mt-2 w-full"
+              max="100"
+              min="0"
+              type="range"
+              value={themeSettings.headerSheetCoverage}
+              onChange={(event) =>
+                onThemeChange({
+                  ...themeSettings,
+                  headerSheetCoverage: Number(event.target.value),
+                })
+              }
+            />
+            <span className="text-muted-foreground mt-1 flex justify-between text-[10px]">
+              <span>None</span>
+              <span>Half</span>
+              <span>Full</span>
+            </span>
+          </label>
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium">Transition color</span>
+            <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
+              <input
+                aria-label="Header content background color"
+                className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                type="color"
+                value={themeSettings.headerSheetColor}
+                onChange={(event) =>
+                  onThemeChange({
+                    ...themeSettings,
+                    headerSheetColor: event.target.value,
+                  })
+                }
+              />
+              <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
+                {themeSettings.headerSheetColor}
+              </span>
+            </span>
+          </label>
+        </div>
+      </details>
+    </div>
+  );
+}
+
 function TemplateSelector({
   profileId,
   subscription,
@@ -1017,9 +1275,14 @@ function TemplateSelector({
       />
       <input name="fontPreset" type="hidden" value={themeSettings.fontPreset} />
       <input
-        name="coverOverlay"
+        name="coverOverlayColor"
         type="hidden"
-        value={themeSettings.coverOverlay}
+        value={themeSettings.coverOverlayColor}
+      />
+      <input
+        name="coverOverlayOpacity"
+        type="hidden"
+        value={themeSettings.coverOverlayOpacity}
       />
       <input
         name="radiusPreset"
@@ -1119,9 +1382,9 @@ function TemplateSelector({
         value={themeSettings.headerSheetColor}
       />
       <input
-        name="headerSheetFade"
+        name="headerSheetCoverage"
         type="hidden"
-        value={String(themeSettings.headerSheetFade)}
+        value={themeSettings.headerSheetCoverage}
       />
       <input
         name="headerGeometry"
@@ -1310,11 +1573,17 @@ function TemplateSelector({
 
         <StyleSection
           title="Header"
-          description="Layout, profile picture and cover"
+          description="Layout, background and profile picture"
           icon={LayoutTemplate}
           className="order-first"
           defaultOpen
         >
+          <div>
+            <p className="text-xs font-semibold">Layout</p>
+            <p className="text-muted-foreground mt-0.5 text-[11px]">
+              Choose how your identity is arranged.
+            </p>
+          </div>
           <div className="grid grid-cols-5 gap-1.5">
             {headerLayouts.map((layout, index) => (
               <button
@@ -1386,14 +1655,19 @@ function TemplateSelector({
             ))}
           </div>
 
+          <HeaderBackgroundControls
+            coverUrl={coverUrl}
+            themeSettings={themeSettings}
+            onCoverChange={handleCoverChange}
+            onThemeChange={handleThemeChange}
+          />
+
           <details className="border-border bg-muted/20 group/effects overflow-hidden rounded-lg border">
             <summary className="hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
               <span className="min-w-0">
-                <span className="block text-xs font-semibold">
-                  Header effects
-                </span>
+                <span className="block text-xs font-semibold">Decorations</span>
                 <span className="text-muted-foreground mt-0.5 block text-[11px]">
-                  Geometry, texture and sheet
+                  Optional shapes and textures
                 </span>
               </span>
               <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/effects:rotate-180" />
@@ -1520,42 +1794,6 @@ function TemplateSelector({
                   })}
                 </div>
               </div>
-
-              <label className="border-border bg-background flex items-center justify-between gap-3 rounded-lg border p-3">
-                <span className="text-xs font-medium">Sheet color</span>
-                <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
-                  <input
-                    aria-label="Header sheet color"
-                    className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
-                    type="color"
-                    value={themeSettings.headerSheetColor}
-                    onChange={(event) =>
-                      handleThemeChange({
-                        ...themeSettings,
-                        headerSheetColor: event.target.value,
-                      })
-                    }
-                  />
-                  <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
-                    {themeSettings.headerSheetColor}
-                  </span>
-                </span>
-              </label>
-
-              <label className="border-border bg-background flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-3">
-                <span className="text-xs font-medium">Sheet fade</span>
-                <input
-                  checked={themeSettings.headerSheetFade}
-                  className="accent-primary h-4 w-4"
-                  type="checkbox"
-                  onChange={(event) =>
-                    handleThemeChange({
-                      ...themeSettings,
-                      headerSheetFade: event.target.checked,
-                    })
-                  }
-                />
-              </label>
             </div>
           </details>
 
@@ -1631,139 +1869,6 @@ function TemplateSelector({
               onPointerUp={() => scheduleAutosave(120)}
             />
           </label>
-
-          <div className="border-border border-t pt-3">
-            <p className="text-xs font-semibold">Cover</p>
-            <p className="text-muted-foreground mt-0.5 text-[11px]">
-              Image, color or gradient
-            </p>
-          </div>
-
-          <div className="bg-muted grid grid-cols-3 gap-1 rounded-lg p-1">
-            {coverTypes.map((coverType) => (
-              <button
-                type="button"
-                key={coverType}
-                onClick={() =>
-                  handleThemeChange({ ...themeSettings, coverType })
-                }
-                className={cn(
-                  'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
-                  themeSettings.coverType === coverType
-                    ? 'bg-background shadow-sm'
-                    : 'text-muted-foreground',
-                )}
-              >
-                {coverType}
-              </button>
-            ))}
-          </div>
-
-          {themeSettings.coverType !== 'image' ? (
-            <input name="coverUrl" type="hidden" value={coverUrl} />
-          ) : null}
-
-          {themeSettings.coverType === 'image' ? (
-            <ImageUploadField
-              folder="covers"
-              helpText="Used as the main visual background of your profile."
-              label="Cover image"
-              name="coverUrl"
-              previewShape="wide"
-              value={coverUrl}
-              onValueChange={handleCoverChange}
-            />
-          ) : null}
-
-          {themeSettings.coverType === 'image' ? (
-            <div>
-              <p className="text-xs font-semibold">Cover overlay</p>
-              <div className="bg-muted mt-2 grid grid-cols-3 gap-1 rounded-lg p-1">
-                {overlayPresets.map((overlay) => (
-                  <button
-                    type="button"
-                    key={overlay}
-                    onClick={() =>
-                      handleThemeChange({
-                        ...themeSettings,
-                        coverOverlay: overlay,
-                      })
-                    }
-                    className={cn(
-                      'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
-                      themeSettings.coverOverlay === overlay
-                        ? 'bg-background shadow-sm'
-                        : 'text-muted-foreground',
-                    )}
-                  >
-                    {overlay}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {themeSettings.coverType === 'color' ? (
-            <label className="border-border bg-muted/40 flex items-center justify-between gap-3 rounded-lg border p-3">
-              <span className="text-xs font-medium">Cover color</span>
-              <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
-                <input
-                  aria-label="Cover color"
-                  className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
-                  type="color"
-                  value={themeSettings.coverColor}
-                  onChange={(event) =>
-                    handleThemeChange({
-                      ...themeSettings,
-                      coverColor: event.target.value,
-                    })
-                  }
-                />
-                <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
-                  {themeSettings.coverColor}
-                </span>
-              </span>
-            </label>
-          ) : null}
-
-          {themeSettings.coverType === 'gradient' ? (
-            <div className="border-border bg-muted/40 space-y-2 rounded-lg border p-3">
-              {[
-                { key: 'coverGradientFrom' as const, label: 'Start color' },
-                { key: 'coverGradientTo' as const, label: 'End color' },
-              ].map((color) => (
-                <label
-                  key={color.key}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <span className="text-xs font-medium">{color.label}</span>
-                  <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
-                    <input
-                      aria-label={color.label}
-                      className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
-                      type="color"
-                      value={themeSettings[color.key]}
-                      onChange={(event) =>
-                        handleThemeChange({
-                          ...themeSettings,
-                          [color.key]: event.target.value,
-                        })
-                      }
-                    />
-                    <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
-                      {themeSettings[color.key]}
-                    </span>
-                  </span>
-                </label>
-              ))}
-              <div
-                className="h-14 rounded-md"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${themeSettings.coverGradientFrom}, ${themeSettings.coverGradientTo})`,
-                }}
-              />
-            </div>
-          ) : null}
         </StyleSection>
 
         <StyleSection
@@ -1821,51 +1926,10 @@ function TemplateSelector({
               <div className="mb-2.5">
                 <p className="text-xs font-semibold">Header</p>
                 <p className="text-muted-foreground mt-0.5 text-[11px]">
-                  Cover background and text
+                  Text shown over the header background
                 </p>
               </div>
               <div className="space-y-1.5">
-                {[
-                  {
-                    key: 'coverColor' as const,
-                    label: 'Background',
-                    value: themeSettings.coverColor,
-                  },
-                  {
-                    key: 'coverGradientFrom' as const,
-                    label: 'Gradient start',
-                    value: themeSettings.coverGradientFrom,
-                  },
-                  {
-                    key: 'coverGradientTo' as const,
-                    label: 'Gradient end',
-                    value: themeSettings.coverGradientTo,
-                  },
-                ].map((color) => (
-                  <label
-                    key={color.key}
-                    className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2"
-                  >
-                    <span className="text-xs font-medium">{color.label}</span>
-                    <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
-                      <input
-                        aria-label={`Header ${color.label} color`}
-                        className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
-                        type="color"
-                        value={color.value}
-                        onChange={(event) =>
-                          handleThemeChange({
-                            ...themeSettings,
-                            [color.key]: event.target.value,
-                          })
-                        }
-                      />
-                      <span className="text-muted-foreground w-16 font-mono text-[11px] uppercase">
-                        {color.value}
-                      </span>
-                    </span>
-                  </label>
-                ))}
                 <label className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2">
                   <span className="text-xs font-medium">Text</span>
                   <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
@@ -1915,12 +1979,6 @@ function TemplateSelector({
                   </span>
                 </label>
               </div>
-              <div
-                className="mt-2.5 h-12 rounded-md"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${themeSettings.coverGradientFrom}, ${themeSettings.coverGradientTo})`,
-                }}
-              />
             </div>
           </div>
 
