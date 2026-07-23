@@ -12,6 +12,7 @@ import {
   SquaresFourIcon,
 } from '@phosphor-icons/react/ssr';
 import { subscriptionPlans } from '@/lib/constants/billing';
+import { EditorShowcase } from './editor-showcase';
 
 const featureCards = [
   {
@@ -276,20 +277,20 @@ export default function HomePage() {
       </section>
 
       <section className="px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
-        <div className="mx-auto grid max-w-[1280px] items-center gap-14 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="mx-auto grid max-w-[1280px] items-center gap-14 lg:grid-cols-[0.72fr_1.28fr]">
           <div>
             <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
-              Your story, your way
+              Built around your story
             </p>
             <h2 className="mt-5 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
-              Build around the goal.
+              Everything you need.
               <br />
-              Show the journey.
+              One clear editor.
             </h2>
             <p className="mt-6 max-w-lg text-base leading-7 text-black/55">
-              Start with your next objective, then add the activities,
-              milestones, media, sponsors, and links that explain who you are as
-              an athlete.
+              Shape your profile, organize your content, and see every change as
+              it happens. No code, no disconnected tools, and no guessing what
+              visitors will see.
             </p>
             <Link
               className="mt-7 inline-flex items-center gap-2 text-sm font-black"
@@ -300,60 +301,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="rounded-[2rem] border border-black/10 bg-white p-3 shadow-[0_30px_90px_rgba(20,20,20,0.12)] sm:p-5">
-            <div className="flex items-center gap-2 border-b border-black/8 px-2 pb-4">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ff6b5f]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#ffc44f]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#55c98b]" />
-              <div className="ml-3 h-7 flex-1 rounded-lg bg-black/5" />
-            </div>
-            <div className="grid min-h-[560px] gap-3 pt-3 md:grid-cols-[0.8fr_1.2fr]">
-              <div className="rounded-2xl bg-[#f5f5f2] p-4">
-                <div className="flex gap-2 rounded-xl bg-white p-1 text-[10px] font-bold">
-                  {['Content', 'Preview', 'Styles'].map((item, index) => (
-                    <span
-                      className={`flex-1 rounded-lg px-2 py-2 text-center ${index === 0 ? 'bg-[#3157ff] text-white' : 'text-black/40'}`}
-                      key={item}
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-4 space-y-3">
-                  {[
-                    ['Athlete profile', 'Story, sports, and location'],
-                    ['Next goal', 'Objective, date, and countdown'],
-                    ['Social links', 'Connect every platform'],
-                    ['Story blocks', 'Results, media, sponsors & more'],
-                  ].map(([title, description], index) => (
-                    <div
-                      className="rounded-xl border border-black/8 bg-white p-4"
-                      key={title}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black ${index === 1 ? 'bg-[#a9ed35]' : 'bg-black/5'}`}
-                        >
-                          {index + 1}
-                        </span>
-                        <span>
-                          <span className="block text-xs font-bold">
-                            {title}
-                          </span>
-                          <span className="mt-0.5 block text-[9px] text-black/40">
-                            {description}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center justify-center rounded-2xl bg-[#e9edf5] p-5">
-                <ProfilePhone compact />
-              </div>
-            </div>
-          </div>
+          <EditorShowcase />
         </div>
       </section>
 
