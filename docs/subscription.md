@@ -19,15 +19,18 @@ dashboard opens directly on that profile, without requiring profile selection.
 Features:
 
 - 1 public profile
-- Basic profile customization
-- Basic theme
-- Limited blocks
-- Manual achievements
-- Manual activities
-- Gallery (limited)
-- Social links
-- Sponsors and "Open to partnerships" block
-- Basic analytics
+- All core block types, including links, offers, media, galleries, achievements,
+  activities, sponsors, and partnerships
+- 4 free templates: Spotlight, Momentum, Midnight, and Evergreen
+- Clean typography, every quick color palette, and core design controls
+- Core header decorations: no decoration or Velocity geometry, and no texture
+  or Grid texture
+- Circle and hexagon profile picture shapes
+- Grid gallery layout and soft block shadows
+- 1 active goal
+- Up to 3 gallery images, 3 achievements, and 3 activities
+- Essential analytics: profile views, unique visitors, block clicks, social
+  clicks, and click-through rate
 
 ---
 
@@ -39,22 +42,26 @@ Features:
 
 - Up to 5 independent public profiles per account
 - Profile management and switching
-- Unlimited customization
-- Premium themes
-- Premium templates
-- Unlimited gallery
-- Unlimited blocks
-- Future advanced sponsorship tools and partnership analytics
-- Advanced analytics
-- Custom domain
-- Remove Griit branding
+- All 8 templates, including Impact, Obsidian, Pulse, and Horizon
+- All typography styles: Clean, Athletic, Editorial, and Technical
+- Custom colors for every profile element
+- All header geometries and textures
+- All profile picture shapes, including Diamond and Shield
+- Editorial and carousel gallery layouts
+- Custom block border colors and solid block shadows
+- Up to 3 active goals
+- Up to 50 gallery images, 50 achievements, and 50 activities per profile
+- Advanced analytics for locations, traffic sources, referrers, devices,
+  browsers, campaigns, social clicks, and block interactions
+- No Griit branding on profile previews or public pages
 - Priority support
-- Future integrations:
-  - Strava
-  - Garmin
-  - COROS
-  - Polar
-  - Apple Health
+
+Coming soon features must not be advertised as currently included:
+
+- Custom domains (planned for Pro)
+- Downloadable QR codes
+- Advanced sponsorship tools and partnership analytics
+- Strava, Garmin, COROS, Polar, and Apple Health integrations
 
 The architecture should make it easy to add more premium features later.
 

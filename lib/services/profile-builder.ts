@@ -31,6 +31,7 @@ interface PublicProfileRow {
   cover_url: string | null;
   theme: Record<string, unknown> | null;
   is_published: boolean;
+  show_branding: boolean;
   is_discoverable: boolean;
   allow_indexing: boolean;
   seo_title: string | null;
@@ -160,6 +161,7 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     avatarUrl: row.avatar_url ?? '',
     coverUrl: hasThemeCoverUrl ? themeCoverUrl || '' : row.cover_url || '',
     isPublished: row.is_published,
+    showBranding: row.show_branding,
     isDiscoverable: row.is_discoverable ?? true,
     allowIndexing: row.allow_indexing ?? true,
     seoTitle: row.seo_title ?? '',

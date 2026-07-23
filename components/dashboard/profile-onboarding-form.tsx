@@ -213,6 +213,7 @@ export function ProfileOnboardingForm() {
         avatarUrl: '',
         coverUrl: '',
         isPublished: false,
+        showBranding: true,
         isDiscoverable: true,
         allowIndexing: true,
         seoTitle: '',
@@ -537,6 +538,7 @@ export function ProfileOnboardingForm() {
             builder={previewBuilder}
             className="h-[min(720px,calc(100dvh-110px))] shadow-[0_35px_80px_rgba(15,23,42,0.24)]"
             fillHeight
+            showBranding
           />
         </div>
       </aside>

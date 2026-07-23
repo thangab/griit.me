@@ -12,6 +12,9 @@ core model.
 - `profiles`: private account profile synced from Supabase Auth.
 - `public_profiles`: independent public identities owned by an account. Each
   profile has its own username, content, theme, publication state and analytics.
+  `show_branding` is a materialized plan entitlement initialized at profile
+  creation and synchronized by Stripe webhooks, so public rendering never needs
+  an additional billing query.
   `theme.templateId` selects the public profile template and
   `theme.coverImageUrl` stores its cover visual. Future visual settings such as
   colors and typography also live in this JSON object through `colorPreset`,

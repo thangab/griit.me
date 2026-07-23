@@ -97,8 +97,8 @@ export function SubscriptionCard({
         </ul>
 
         <Button
-          className="mt-6 w-full rounded-full bg-[#151515] hover:bg-[#3157ff]"
-          variant={currentPlan === 'pro' ? 'default' : 'outline'}
+          className="mt-6 w-full rounded-full border border-transparent bg-[#3157ff] text-white shadow-sm hover:bg-[#2447dc] hover:text-white disabled:bg-[#eef2ff] disabled:text-[#3157ff] disabled:opacity-100"
+          variant="default"
           onClick={handleCheckout}
           disabled={isLoading || currentPlan === 'pro'}
         >
@@ -137,8 +137,8 @@ export function SubscriptionCard({
         </ul>
 
         <Button
-          className="mt-6 w-full rounded-full border-black/15 bg-white/75 hover:bg-white"
-          variant={currentPlan === 'pro' ? 'outline' : 'default'}
+          className="mt-6 w-full rounded-full border-black/15 bg-white text-[#151515] hover:bg-[#f4f6fb] hover:text-[#3157ff]"
+          variant="outline"
           onClick={() => router.push('/dashboard/subscribe')}
         >
           {currentPlan === 'pro' ? 'View your plan' : 'Learn more'}

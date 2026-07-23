@@ -264,7 +264,7 @@ export function DashboardSidebar({
             <p className="mt-1 text-sm leading-5 text-white/45">
               {isPro
                 ? 'Everything is unlocked. Keep building what comes next.'
-                : 'Get multiple profiles, advanced analytics, and more customization.'}
+                : 'Unlock every template, advanced styles, deeper analytics, and up to 5 profiles.'}
             </p>
           </div>
           {!isPro ? (

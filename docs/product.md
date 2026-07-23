@@ -74,6 +74,23 @@ The Profiles area is still accessible on Free, but it presents the Pro upgrade
 instead of a profile switcher. A new Free account can always create its first
 profile.
 
+### Current plan boundaries
+
+Free is a complete starting plan rather than a demo. It includes one public
+profile, every core block type, four templates, all quick color palettes, one
+active goal, up to three gallery images, achievements, and activities, plus
+essential view and click analytics.
+
+Pro is the complete creator toolkit. It includes up to five profiles, all eight
+templates, every typography style, custom colors, advanced header decorations
+and profile picture shapes, editorial and carousel galleries, solid shadows,
+up to three goals, up to 50 gallery images, achievements, and activities, and
+detailed audience, campaign, social, and block analytics. Pro members also
+receive priority support and profiles without Griit branding.
+
+Custom domains and downloadable QR codes are visible as coming-soon features;
+they are not part of the currently delivered entitlement.
+
 ---
 
 ## Target users

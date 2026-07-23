@@ -17,7 +17,7 @@ import { createServerSupabaseClient } from '@/lib/config/supabase-server';
 export const metadata: Metadata = {
   title: 'Pricing — Griit',
   description:
-    'Compare Griit Free and Pro plans. Build an athlete profile for free, then unlock multiple profiles, advanced customization, and detailed analytics.',
+    'Compare Griit Free and Pro. Publish an athlete profile for free, then unlock every template, advanced design tools, more content, and detailed analytics.',
 };
 
 const plans = [
@@ -31,10 +31,10 @@ const plans = [
     eyebrow: 'Start your profile',
     features: [
       '1 complete public profile',
-      'Goals, activities, achievements, and gallery',
-      'Social, media, sponsor, and affiliate blocks',
-      'Core templates and customization',
-      'Profile views and click overview',
+      'Every core content and partnership block',
+      '4 free templates and all quick color palettes',
+      '1 goal plus 3 gallery images, achievements, and activities',
+      'Views, visitors, clicks, and click-through rate',
     ],
   },
   {
@@ -47,10 +47,12 @@ const plans = [
     eyebrow: 'Unlock your full toolkit',
     features: [
       'Up to 5 independent public profiles',
-      'Multiple goals and expanded content limits',
-      'All typography and advanced style options',
-      'Audience, source, device, and browser analytics',
-      'Detailed social and block interaction data',
+      'All 8 templates and all 4 typography styles',
+      'Custom colors, advanced shapes, textures, and shadows',
+      'Up to 3 goals and 50 gallery, achievement, and activity items',
+      'Audience, campaign, social, and block analytics',
+      'No Griit branding and priority support',
+      'Custom domain and downloadable QR code — coming soon',
     ],
   },
 ] as const;
@@ -58,17 +60,39 @@ const plans = [
 const comparisonRows = [
   { label: 'Public profiles', free: '1', pro: 'Up to 5' },
   { label: 'Public griit.me address', free: true, pro: true },
-  { label: 'Core content blocks', free: true, pro: true },
-  { label: 'Goals', free: '1', pro: 'Multiple' },
-  { label: 'Gallery images', free: 'Up to 3', pro: 'Expanded' },
-  { label: 'Achievements', free: 'Up to 3', pro: 'Expanded' },
-  { label: 'Activities', free: 'Up to 3', pro: 'Expanded' },
-  { label: 'Templates', free: true, pro: true },
-  { label: 'Advanced typography and layouts', free: false, pro: true },
-  { label: 'Views and clicks overview', free: true, pro: true },
-  { label: 'Audience and traffic analytics', free: false, pro: true },
+  {
+    label: 'Content and partnership blocks',
+    free: 'All types',
+    pro: 'All types',
+  },
+  { label: 'Active goals', free: '1', pro: 'Up to 3' },
+  { label: 'Gallery images', free: 'Up to 3', pro: 'Up to 50' },
+  { label: 'Achievements', free: 'Up to 3', pro: 'Up to 50' },
+  { label: 'Activities', free: 'Up to 3', pro: 'Up to 50' },
+  { label: 'Templates', free: '4 core', pro: 'All 8' },
+  { label: 'Typography styles', free: 'Clean', pro: 'All 4' },
+  { label: 'Quick color palettes', free: true, pro: true },
+  { label: 'Custom colors', free: false, pro: true },
+  {
+    label: 'Header geometry and textures',
+    free: 'Core selection',
+    pro: 'All options',
+  },
+  { label: 'Profile picture shapes', free: '2 shapes', pro: 'All 4' },
+  { label: 'Gallery layouts', free: 'Grid', pro: 'Grid, editorial, carousel' },
+  { label: 'Solid shadows and custom border color', free: false, pro: true },
+  { label: 'Views, visitors, clicks, and CTR', free: true, pro: true },
+  {
+    label: 'Audience, traffic, and campaign analytics',
+    free: false,
+    pro: true,
+  },
   { label: 'Block and social interaction details', free: false, pro: true },
   { label: 'Profile management and switching', free: false, pro: true },
+  { label: 'Griit branding', free: 'Included', pro: 'Removed' },
+  { label: 'Priority support', free: false, pro: true },
+  { label: 'Custom domain', free: false, pro: 'Coming soon' },
+  { label: 'Downloadable QR code', free: false, pro: 'Coming soon' },
 ] as const;
 
 const sharedBenefits = [
@@ -106,12 +130,12 @@ const faqs = [
   {
     question: 'Can I build a useful profile on Free?',
     answer:
-      'Yes. Free includes one complete public profile with every core content type, templates, customization, and a basic analytics overview.',
+      'Yes. Free includes one complete public profile, every core block type, four templates, all quick color palettes, and essential analytics.',
   },
   {
     question: 'What happens when I upgrade?',
     answer:
-      'Your existing profile stays exactly as it is. Pro immediately unlocks multiple profiles, higher content limits, advanced style options, and detailed analytics.',
+      'Your existing profile stays exactly as it is. Pro immediately unlocks every template and typography style, custom colors, advanced design controls, higher content limits, multiple profiles, and detailed analytics.',
   },
   {
     question: 'Who needs multiple profiles?',
@@ -122,6 +146,16 @@ const faqs = [
     question: 'Does each Pro profile have separate analytics?',
     answer:
       'Yes. Every public profile keeps its own username, content, design, publication status, and analytics history.',
+  },
+  {
+    question: 'Are custom domains and QR codes already available?',
+    answer:
+      'Not yet. Both features are planned for Pro and marked as coming soon. Custom domains will let you connect your own address, while QR codes will provide a downloadable shortcut to your profile.',
+  },
+  {
+    question: 'Does Pro include priority support?',
+    answer:
+      'Yes. Pro members receive priority support, so their requests are reviewed before standard Free plan requests.',
   },
 ] as const;
 
@@ -341,7 +375,8 @@ export default async function PricingPage() {
             </h2>
             <p className="mt-7 max-w-xl text-base leading-7 text-white/65">
               Manage separate athlete identities, publish more of the work
-              behind each goal, and understand which stories create momentum.
+              behind each goal, design without limits, and understand which
+              stories create momentum.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -349,11 +384,15 @@ export default async function PricingPage() {
               ['01', 'Up to five profiles, each with its own public address.'],
               [
                 '02',
-                'Detailed audience, traffic, social, and block analytics.',
+                'All templates, typography, colors, shapes, textures, and gallery layouts.',
               ],
               [
                 '03',
-                'More goals, achievements, activities, and gallery content.',
+                'More goals and content, plus detailed audience and interaction analytics.',
+              ],
+              [
+                '04',
+                'Priority support, with custom domains and downloadable QR codes coming soon.',
               ],
             ].map(([number, text]) => (
               <div className="rounded-2xl bg-white/10 p-5" key={number}>

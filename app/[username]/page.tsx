@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { GriitBranding } from '@/components/profile/griit-branding';
 import { PublicProfileView } from '@/components/profile/public-profile-view';
 import { ProfileAnalyticsTracker } from '@/components/profile/profile-analytics-tracker';
 import { getPublicProfileBuilderState } from '@/lib/services/profile-builder';
@@ -76,6 +77,9 @@ export default async function PublicProfilePage({
         <ProfileAnalyticsTracker profileId={builder.profile.id} />
       ) : null}
       <PublicProfileView builder={builder} />
+      {builder.profile.showBranding ? (
+        <GriitBranding className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 sm:bottom-5" />
+      ) : null}
     </>
   );
 }

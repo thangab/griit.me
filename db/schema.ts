@@ -83,6 +83,7 @@ export const public_profiles = pgTable(
       .default({})
       .notNull(),
     is_published: boolean('is_published').default(false).notNull(),
+    show_branding: boolean('show_branding').default(true).notNull(),
     is_discoverable: boolean('is_discoverable').default(true).notNull(),
     allow_indexing: boolean('allow_indexing').default(true).notNull(),
     seo_title: varchar('seo_title', { length: 70 }),

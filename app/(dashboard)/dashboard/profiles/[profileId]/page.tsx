@@ -31,9 +31,11 @@ type ProfileOverviewProps = { params: Promise<{ profileId: string }> };
 function ProfilePreview({
   builder,
   profileId,
+  showBranding,
 }: {
   builder: ProfileBuilderState;
   profileId: number;
+  showBranding: boolean;
 }) {
   return (
     <aside className="flex h-full min-h-0 flex-col overflow-hidden rounded-[2rem] border border-black/10 bg-[#151515] shadow-[0_24px_70px_rgba(21,21,21,0.14)]">
@@ -58,7 +60,12 @@ function ProfilePreview({
         </Button>
       </div>
       <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden bg-[radial-gradient(circle_at_15%_10%,rgba(169,237,53,0.18),transparent_32%),radial-gradient(circle_at_90%_80%,rgba(49,87,255,0.20),transparent_38%)] p-4 sm:p-5">
-        <MobileProfileFrame builder={builder} className="h-full" fillHeight />
+        <MobileProfileFrame
+          builder={builder}
+          className="h-full"
+          fillHeight
+          showBranding={showBranding}
+        />
       </div>
     </aside>
   );
@@ -258,7 +265,11 @@ export default async function ProfileOverviewPage({
         </div>
       </div>
       <div className="min-w-0 xl:h-full xl:min-h-0">
-        <ProfilePreview builder={builder} profileId={profileId} />
+        <ProfilePreview
+          builder={builder}
+          profileId={profileId}
+          showBranding={!subscription.isActive}
+        />
       </div>
     </div>
   );

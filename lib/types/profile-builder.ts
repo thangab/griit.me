@@ -9,6 +9,7 @@ export interface BuilderProfile {
   avatarUrl: string;
   coverUrl: string;
   isPublished: boolean;
+  showBranding: boolean;
   isDiscoverable: boolean;
   allowIndexing: boolean;
   seoTitle: string;

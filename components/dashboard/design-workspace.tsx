@@ -689,11 +689,13 @@ function ContentPanel({
 
 const PreviewPanel = memo(function PreviewPanel({
   builder,
+  showBranding,
   onPublishChange,
   publishMessage,
   publishPending,
 }: {
   builder: ProfileBuilderState;
+  showBranding: boolean;
   onPublishChange: (isPublished: boolean) => void;
   publishMessage: string;
   publishPending: boolean;
@@ -702,6 +704,7 @@ const PreviewPanel = memo(function PreviewPanel({
     <section className="min-w-0 space-y-4 xl:h-full xl:min-h-0 xl:overflow-hidden">
       <DesignPreview
         builder={builder}
+        showBranding={showBranding}
         onPublishChange={onPublishChange}
         publishMessage={publishMessage}
         publishPending={publishPending}
@@ -2336,7 +2339,8 @@ function StylesPanel({
       <div className="border-border bg-card rounded-xl border p-4">
         <p className="text-sm font-semibold">Need more?</p>
         <p className="text-muted-foreground mt-2 text-sm">
-          Pro unlocks more page styles, fonts, and advanced sharing options.
+          Pro unlocks every template, font, custom color, decoration, profile
+          picture shape, gallery layout, and solid shadow.
         </p>
       </div>
     </aside>
@@ -2693,6 +2697,7 @@ export function DesignWorkspace({
         >
           <PreviewPanel
             builder={previewBuilder}
+            showBranding={!subscription.isActive}
             onPublishChange={handlePublishChange}
             publishMessage={publishMessage}
             publishPending={publishPending}

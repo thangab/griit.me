@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import Stripe from 'stripe';
+import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import { createServiceSupabaseClient } from '@/lib/config/supabase-server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '');
@@ -44,6 +46,7 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
 
   const supabase = createServiceSupabaseClient();
   const now = new Date().toISOString();
+  const status = mapSubscriptionStatus(subscription.status);
 
   await supabase.from('stripe_customers').upsert(
     {
@@ -62,7 +65,7 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
       user_id: userId,
       stripe_subscription_id: subscription.id,
       price_id: item.price.id,
-      status: mapSubscriptionStatus(subscription.status),
+      status,
       plan: 'pro',
       current_period_start: toIsoDate(item.current_period_start),
       current_period_end: toIsoDate(item.current_period_end),
@@ -74,6 +77,22 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
 
   if (error) {
     console.error('Failed to upsert Stripe subscription:', error.message);
+    return;
+  }
+
+  const { data: profiles, error: brandingError } = await supabase
+    .from('public_profiles')
+    .update({ show_branding: status !== 'pro' })
+    .eq('user_id', userId)
+    .select('username');
+
+  if (brandingError) {
+    console.error('Failed to sync profile branding:', brandingError.message);
+    return;
+  }
+
+  for (const profile of profiles ?? []) {
+    revalidateTag(getPublicProfileCacheTag(profile.username), { expire: 0 });
   }
 }
 

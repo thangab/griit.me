@@ -1,4 +1,5 @@
 import { PublicProfileView } from '@/components/profile/public-profile-view';
+import { GriitBranding } from '@/components/profile/griit-branding';
 import { cn } from '@/lib/utils/cn';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
@@ -6,6 +7,7 @@ type MobileProfileFrameProps = {
   builder: ProfileBuilderState;
   className?: string;
   fillHeight?: boolean;
+  showBranding?: boolean;
   viewportClassName?: string;
 };
 
@@ -13,6 +15,7 @@ export function MobileProfileFrame({
   builder,
   className,
   fillHeight = false,
+  showBranding = false,
   viewportClassName,
 }: MobileProfileFrameProps) {
   return (
@@ -31,12 +34,15 @@ export function MobileProfileFrame({
       </div>
       <div
         className={cn(
-          'overflow-hidden rounded-xl bg-slate-50',
+          'relative overflow-hidden rounded-xl bg-slate-50',
           fillHeight ? 'min-h-0 flex-1' : 'h-[560px]',
           viewportClassName,
         )}
       >
         <PublicProfileView builder={builder} variant="mobile-preview" />
+        {showBranding ? (
+          <GriitBranding className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2" />
+        ) : null}
       </div>
     </div>
   );
@@ -45,12 +51,14 @@ export function MobileProfileFrame({
 type DesktopProfileFrameProps = {
   builder: ProfileBuilderState;
   className?: string;
+  showBranding?: boolean;
   viewportClassName?: string;
 };
 
 export function DesktopProfileFrame({
   builder,
   className,
+  showBranding = false,
   viewportClassName,
 }: DesktopProfileFrameProps) {
   return (
@@ -74,11 +82,14 @@ export function DesktopProfileFrame({
 
       <div
         className={cn(
-          'min-h-0 flex-1 overflow-hidden bg-slate-50',
+          'relative min-h-0 flex-1 overflow-hidden bg-slate-50',
           viewportClassName,
         )}
       >
         <PublicProfileView builder={builder} variant="desktop-preview" />
+        {showBranding ? (
+          <GriitBranding className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2" />
+        ) : null}
       </div>
     </div>
   );

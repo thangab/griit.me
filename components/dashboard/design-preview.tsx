@@ -27,11 +27,13 @@ const previewStyles = {
 
 export function DesignPreview({
   builder,
+  showBranding,
   onPublishChange,
   publishMessage,
   publishPending,
 }: {
   builder: ProfileBuilderState;
+  showBranding: boolean;
   onPublishChange: (isPublished: boolean) => void;
   publishMessage: string;
   publishPending: boolean;
@@ -43,7 +45,10 @@ export function DesignPreview({
   return (
     <div className="flex min-h-0 flex-col gap-4 xl:h-full">
       <div className="border-border bg-card flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-xl border p-3">
-        <div className="bg-muted flex rounded-lg p-1" aria-label="Preview device">
+        <div
+          className="bg-muted flex rounded-lg p-1"
+          aria-label="Preview device"
+        >
           <button
             className={`flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
               activeMobile
@@ -73,7 +78,9 @@ export function DesignPreview({
         <div className="flex items-center gap-3">
           <Globe2 className="text-muted-foreground hidden h-4 w-4 shrink-0 sm:block" />
           <span className="hidden min-w-0 sm:block">
-            <span className="block text-sm font-medium">Profile visibility</span>
+            <span className="block text-sm font-medium">
+              Profile visibility
+            </span>
             <span
               className="text-muted-foreground block text-xs"
               title={publishMessage || undefined}
@@ -137,12 +144,14 @@ export function DesignPreview({
             builder={builder}
             className="mx-auto sm:max-w-[360px] xl:h-full xl:max-h-full"
             fillHeight
+            showBranding={showBranding}
             viewportClassName={previewStyles.mobile.frame}
           />
         ) : (
           <DesktopProfileFrame
             builder={builder}
             className="mx-auto xl:h-full"
+            showBranding={showBranding}
             viewportClassName={previewStyles.desktop.frame}
           />
         )}

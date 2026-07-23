@@ -19,10 +19,13 @@ export default async function SubscribePage() {
             Griit Pro
           </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-black tracking-[-0.055em] sm:text-5xl">
-            More profiles. Deeper insights. More freedom.
+            Every style. More content. Deeper insights.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/55 sm:text-base">
-            Upgrade when you are ready to grow beyond a single athlete page.
+            Unlock all templates and design tools, higher content limits,
+            advanced analytics, and up to five independent athlete profiles.
+            Priority support is included. Custom domains and downloadable QR
+            codes are coming soon.
           </p>
           <span className="mt-7 inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-white">
             {proPriceLabel}

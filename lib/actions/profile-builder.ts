@@ -1468,6 +1468,7 @@ export async function createProfileAction(
       avatar_url: null,
       theme: { templateId: parsed.data.templateId },
       is_published: false,
+      show_branding: !subscription.isActive,
     })
     .select('id')
     .single();
