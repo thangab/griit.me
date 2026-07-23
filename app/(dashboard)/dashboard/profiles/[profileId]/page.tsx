@@ -1,7 +1,17 @@
 import Link from 'next/link';
 import type { Route } from 'next';
 import { notFound } from 'next/navigation';
-import { PencilSimpleIcon as Pencil } from '@phosphor-icons/react/ssr';
+import {
+  CaretRightIcon as CaretRight,
+  CheckCircleIcon as CheckCircle,
+  CircleIcon as Circle,
+  FileTextIcon as FileText,
+  ImageIcon as Image,
+  PencilSimpleIcon as Pencil,
+  ShareNetworkIcon as ShareNetwork,
+  SquaresFourIcon as SquaresFour,
+  TargetIcon as Target,
+} from '@phosphor-icons/react/ssr';
 import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
 import { PublicAddressCard } from '@/components/dashboard/public-address-card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +24,7 @@ import {
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getProfileBuilderState } from '@/lib/services/profile-builder';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
+import { cn } from '@/lib/utils/cn';
 
 type ProfileOverviewProps = { params: Promise<{ profileId: string }> };
 
@@ -60,11 +71,44 @@ export default async function ProfileOverviewPage({
   ]);
   if (!builder) notFound();
 
-  const enabledBlocks = builder.blocks.filter(
-    (block) => block.isEnabled,
-  ).length;
-  const enabledSocialLinks = builder.socialLinks.filter(
-    (link) => link.isEnabled,
+  const checklist = [
+    {
+      label: 'Add a profile picture',
+      description: 'Make your page immediately recognizable.',
+      complete: Boolean(builder.profile.avatarUrl),
+      icon: Image,
+    },
+    {
+      label: 'Write your bio',
+      description: 'Give visitors a quick introduction.',
+      complete: Boolean(builder.profile.bio.trim()),
+      icon: FileText,
+    },
+    {
+      label: 'Add your first block',
+      description: 'Add any content block to start building your page.',
+      complete: builder.blocks.some((block) => block.isEnabled),
+      icon: SquaresFour,
+    },
+    {
+      label: 'Add your first goal',
+      description: 'Show your audience what you are working toward.',
+      complete: builder.goals.some(
+        (goal) => goal.isEnabled && Boolean(goal.title.trim()),
+      ),
+      icon: Target,
+    },
+    {
+      label: 'Add a social media',
+      description: 'Connect one of your main social profiles.',
+      complete: builder.socialLinks.some(
+        (social) => social.isEnabled && Boolean(social.url.trim()),
+      ),
+      icon: ShareNetwork,
+    },
+  ];
+  const completedChecklistItems = checklist.filter(
+    (item) => item.complete,
   ).length;
 
   return (
@@ -93,28 +137,69 @@ export default async function ProfileOverviewPage({
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <Card>
             <CardHeader>
-              <CardTitle>Profile summary</CardTitle>
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle>Complete your profile</CardTitle>
+                <span className="text-muted-foreground shrink-0 text-xs font-semibold">
+                  {completedChecklistItems}/{checklist.length}
+                </span>
+              </div>
               <CardDescription>
-                Content and visibility for this public page.
+                A few quick improvements to make your page ready to share.
               </CardDescription>
             </CardHeader>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="border-border rounded-xl border p-4">
-                <p className="text-muted-foreground text-sm">Blocks</p>
-                <p className="mt-2 text-2xl font-semibold">{enabledBlocks}</p>
-              </div>
-              <div className="border-border rounded-xl border p-4">
-                <p className="text-muted-foreground text-sm">Social links</p>
-                <p className="mt-2 text-2xl font-semibold">
-                  {enabledSocialLinks}
-                </p>
-              </div>
-              <div className="border-border rounded-xl border p-4">
-                <p className="text-muted-foreground text-sm">Visibility</p>
-                <p className="mt-2 text-lg font-semibold">
-                  {builder.profile.isPublished ? 'Live' : 'Draft'}
-                </p>
-              </div>
+            <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-[width]"
+                style={{
+                  width: `${(completedChecklistItems / checklist.length) * 100}%`,
+                }}
+              />
+            </div>
+            <div className="divide-border overflow-hidden rounded-xl border">
+              {checklist.map((item) => {
+                const ItemIcon = item.icon;
+
+                return (
+                  <Link
+                    className="hover:bg-muted/40 group flex items-center gap-3 px-4 py-3.5 transition-colors"
+                    href={`/dashboard/profiles/${profileId}/design` as Route}
+                    key={item.label}
+                  >
+                    {item.complete ? (
+                      <CheckCircle
+                        className="h-5 w-5 shrink-0 text-emerald-600"
+                        weight="fill"
+                      />
+                    ) : (
+                      <Circle className="text-muted-foreground/45 h-5 w-5 shrink-0" />
+                    )}
+                    <span
+                      className={cn(
+                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                        item.complete
+                          ? 'bg-emerald-50 text-emerald-700'
+                          : 'bg-muted text-muted-foreground',
+                      )}
+                    >
+                      <ItemIcon className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          'block text-sm font-semibold',
+                          item.complete && 'text-muted-foreground',
+                        )}
+                      >
+                        {item.label}
+                      </span>
+                      <span className="text-muted-foreground mt-0.5 block text-xs leading-5">
+                        {item.description}
+                      </span>
+                    </span>
+                    <CaretRight className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                );
+              })}
             </div>
           </Card>
 

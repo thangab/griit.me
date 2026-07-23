@@ -713,7 +713,7 @@ export function resolveThemeSettings(
   };
 }
 
-export function getThemeRuntime(theme: Record<string, unknown>) {
+export function resolveProfileThemeSettings(theme: Record<string, unknown>) {
   const templateId =
     typeof theme.templateId === 'string' ? theme.templateId : null;
   const templatePreset = templateId ? getTemplateThemePreset(templateId) : null;
@@ -721,7 +721,7 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
     theme.customColors && typeof theme.customColors === 'object'
       ? (theme.customColors as Record<string, unknown>)
       : {};
-  const settings = resolveThemeSettings(
+  return resolveThemeSettings(
     templatePreset
       ? {
           ...templatePreset,
@@ -733,6 +733,10 @@ export function getThemeRuntime(theme: Record<string, unknown>) {
         }
       : theme,
   );
+}
+
+export function getThemeRuntime(theme: Record<string, unknown>) {
+  const settings = resolveProfileThemeSettings(theme);
   const preset =
     colorPresets.find((item) => item.id === settings.colorPreset) ??
     colorPresets[0];

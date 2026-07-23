@@ -59,7 +59,7 @@ import {
   headerGeometries,
   headerLayouts,
   headerTextures,
-  resolveThemeSettings,
+  resolveProfileThemeSettings,
   type AvatarShape,
   type HeaderGeometry,
   type HeaderLayout,
@@ -2361,7 +2361,7 @@ export function DesignWorkspace({
       resolveProfileTemplateId(builder.profile.theme),
     );
   const [themeSettings, setThemeSettings] = useState<ProfileThemeSettings>(() =>
-    resolveThemeSettings(builder.profile.theme),
+    resolveProfileThemeSettings(builder.profile.theme),
   );
   const deferredThemeSettings = useDeferredValue(themeSettings);
   const [templateWordingOverrides, setTemplateWordingOverrides] = useState<

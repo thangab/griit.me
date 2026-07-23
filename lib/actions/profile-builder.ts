@@ -277,6 +277,9 @@ const usernameSchema = z.object({
 
 const createProfileSchema = usernameSchema.extend({
   displayName: z.string().trim().min(1, 'Profile name is required.').max(120),
+  sportSlugs: z.array(z.string().trim().max(80)).max(3),
+  objective: z.string().trim().max(160),
+  templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
 });
 
 const templateSchema = z.object({
@@ -1333,6 +1336,9 @@ export async function createProfileAction(
   const parsed = createProfileSchema.safeParse({
     displayName: getString(formData, 'displayName'),
     username: getString(formData, 'username'),
+    sportSlugs: getSportSlugs(formData),
+    objective: getString(formData, 'objective'),
+    templateId: getString(formData, 'templateId') || defaultProfileTemplateId,
   });
 
   if (!parsed.success) {
@@ -1389,7 +1395,7 @@ export async function createProfileAction(
       username: parsed.data.username,
       display_name: parsed.data.displayName,
       avatar_url: null,
-      theme: { templateId: defaultProfileTemplateId },
+      theme: { templateId: parsed.data.templateId },
       is_published: false,
     })
     .select('id')
@@ -1399,6 +1405,76 @@ export async function createProfileAction(
     return {
       success: false,
       message: error?.message ?? 'Unable to create this profile.',
+    };
+  }
+
+  try {
+    if (parsed.data.sportSlugs.length) {
+      const { data: sports, error: sportsError } = await serviceSupabase
+        .from('sports')
+        .select('id, slug')
+        .eq('is_enabled', true)
+        .in('slug', parsed.data.sportSlugs);
+
+      if (sportsError) throw new Error(sportsError.message);
+
+      const sportIdBySlug = new Map(
+        ((sports ?? []) as Array<{ id: number; slug: string }>).map((sport) => [
+          sport.slug,
+          sport.id,
+        ]),
+      );
+      const sportRows = parsed.data.sportSlugs.flatMap((slug, index) => {
+        const sportId = sportIdBySlug.get(slug);
+
+        return sportId
+          ? [
+              {
+                profile_id: profile.id,
+                sport_id: sportId,
+                sort_order: index,
+                is_enabled: true,
+              },
+            ]
+          : [];
+      });
+
+      if (sportRows.length !== parsed.data.sportSlugs.length) {
+        throw new Error('One of the selected sports is unavailable.');
+      }
+
+      const { error: profileSportsError } = await serviceSupabase
+        .from('profile_sports')
+        .insert(sportRows);
+
+      if (profileSportsError) throw new Error(profileSportsError.message);
+    }
+
+    if (parsed.data.objective) {
+      const { error: goalError } = await serviceSupabase
+        .from('profile_goals')
+        .insert({
+          profile_id: profile.id,
+          title: parsed.data.objective,
+          description: null,
+          target_at: null,
+          date_display: 'date',
+          status: 'planned',
+          sort_order: 0,
+          is_enabled: true,
+        });
+
+      if (goalError) throw new Error(goalError.message);
+    }
+  } catch (relatedContentError) {
+    await serviceSupabase.from('public_profiles').delete().eq('id', profile.id);
+
+    return {
+      success: false,
+      message:
+        relatedContentError instanceof Error
+          ? relatedContentError.message
+          : 'Unable to finish setting up this profile.',
     };
   }
 
