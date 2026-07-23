@@ -6,6 +6,8 @@ import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
 import {
   ChartBarIcon as BarChart3,
+  CaretDownIcon as ChevronDown,
+  CheckIcon,
   GearIcon as Settings,
   LayoutIcon as PanelsTopLeft,
   ListIcon as Menu,
@@ -19,6 +21,8 @@ import { getDashboardNavItems } from '@/lib/constants/navigation';
 import { signOutAction } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
+import { ProfileAvatar } from '@/components/profile/profile-avatar';
+import type { OwnedProfileSummary } from '@/lib/services/profile-builder';
 
 const iconMap = {
   LayoutGrid,
@@ -31,20 +35,32 @@ const iconMap = {
 
 export function MobileDashboardNav({
   defaultProfileId,
+  profiles,
+  canSwitchProfiles,
+  isPro,
 }: {
   defaultProfileId?: number;
+  profiles: OwnedProfileSummary[];
+  canSwitchProfiles: boolean;
+  isPro: boolean;
 }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
+  const routeProfileId = Number(
+    pathname.match(/^\/dashboard\/profiles\/(\d+)/)?.[1] ?? defaultProfileId,
+  );
   const dashboardNavItems = getDashboardNavItems(pathname, defaultProfileId);
 
   return (
     <div className="lg:hidden">
       <header className="border-border bg-background/95 sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 backdrop-blur">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-3"
-          onClick={() => setIsOpen(false)}
+        <button
+          aria-expanded={isStudioMenuOpen}
+          aria-haspopup="menu"
+          className="hover:bg-muted flex items-center gap-3 rounded-xl p-1 pr-2 text-left transition-colors"
+          type="button"
+          onClick={() => setIsStudioMenuOpen((current) => !current)}
         >
           <div className="bg-primary text-primary-foreground flex h-9 w-9 items-center justify-center rounded-xl text-sm font-semibold">
             G
@@ -53,11 +69,20 @@ export function MobileDashboardNav({
             <p className="text-sm font-semibold">Griit</p>
             <p className="text-muted-foreground text-xs">Studio</p>
           </div>
-        </Link>
+          <ChevronDown
+            className={cn(
+              'text-muted-foreground h-4 w-4 transition-transform',
+              isStudioMenuOpen && 'rotate-180',
+            )}
+          />
+        </button>
         <Button
           aria-expanded={isOpen}
           aria-label={isOpen ? 'Close menu' : 'Open menu'}
-          onClick={() => setIsOpen((current) => !current)}
+          onClick={() => {
+            setIsStudioMenuOpen(false);
+            setIsOpen((current) => !current);
+          }}
           size="sm"
           type="button"
           variant="outline"
@@ -65,6 +90,85 @@ export function MobileDashboardNav({
           {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
       </header>
+
+      {isStudioMenuOpen ? (
+        <>
+          <button
+            aria-label="Close studio menu"
+            className="fixed inset-0 z-40"
+            type="button"
+            onClick={() => setIsStudioMenuOpen(false)}
+          />
+          <div
+            className="border-border bg-background fixed top-14 left-4 z-50 w-56 rounded-xl border p-1.5 shadow-xl"
+            role="menu"
+          >
+            {canSwitchProfiles ? (
+              <div className="mb-1">
+                <p className="text-muted-foreground px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                  Profiles
+                </p>
+                <div className="max-h-64 overflow-y-auto">
+                  {profiles.map((profile) => {
+                    const isActive = profile.id === routeProfileId;
+                    return (
+                      <Link
+                        key={profile.id}
+                        className={cn(
+                          'hover:bg-accent flex items-center gap-3 rounded-lg px-2 py-2 transition-colors',
+                          isActive && 'bg-accent',
+                        )}
+                        href={`/dashboard/profiles/${profile.id}` as Route}
+                        role="menuitem"
+                        onClick={() => setIsStudioMenuOpen(false)}
+                      >
+                        <ProfileAvatar
+                          avatarUrl={profile.avatarUrl}
+                          className="bg-muted text-muted-foreground"
+                          displayName={profile.displayName}
+                          size={30}
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-semibold">
+                            {profile.displayName}
+                          </span>
+                          <span className="text-muted-foreground block truncate text-xs">
+                            @{profile.username}
+                          </span>
+                        </span>
+                        {isActive ? (
+                          <CheckIcon className="text-primary h-4 w-4 shrink-0" />
+                        ) : null}
+                      </Link>
+                    );
+                  })}
+                </div>
+                <div className="bg-border my-1 h-px" />
+              </div>
+            ) : null}
+            <Link
+              className="hover:bg-accent flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              href="/dashboard"
+              role="menuitem"
+              onClick={() => setIsStudioMenuOpen(false)}
+            >
+              <LayoutGrid className="h-4 w-4" />
+              Dashboard
+            </Link>
+            <div className="bg-border my-1 h-px" />
+            <form action={signOutAction}>
+              <button
+                className="hover:bg-accent flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors"
+                role="menuitem"
+                type="submit"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </button>
+            </form>
+          </div>
+        </>
+      ) : null}
 
       {isOpen ? (
         <button
@@ -125,16 +229,25 @@ export function MobileDashboardNav({
         </nav>
 
         <div className="border-border bg-card mt-auto rounded-xl border p-4">
-          <p className="text-sm font-semibold">Ready to publish?</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Your athlete profile is ready for the next milestone.
+          <p className="text-sm font-semibold">
+            {isPro ? "You're all set" : 'Unlock more with Pro'}
           </p>
-          <form action={signOutAction} className="mt-4">
-            <Button className="w-full" type="submit" variant="outline">
-              <LogOut className="h-4 w-4" />
-              Sign out
+          <p className="text-muted-foreground mt-1 text-sm">
+            {isPro
+              ? 'Everything is unlocked. Keep building what comes next.'
+              : 'Get multiple profiles, advanced analytics, and more customization.'}
+          </p>
+          {!isPro ? (
+            <Button asChild className="mt-4 w-full">
+              <Link
+                href="/dashboard/subscribe"
+                onClick={() => setIsOpen(false)}
+              >
+                <LockSimple className="h-4 w-4" />
+                Upgrade to Pro
+              </Link>
             </Button>
-          </form>
+          ) : null}
         </div>
       </aside>
     </div>

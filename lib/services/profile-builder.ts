@@ -31,6 +31,11 @@ interface PublicProfileRow {
   cover_url: string | null;
   theme: Record<string, unknown> | null;
   is_published: boolean;
+  is_discoverable: boolean;
+  allow_indexing: boolean;
+  seo_title: string | null;
+  seo_description: string | null;
+  share_image_url: string | null;
 }
 
 interface BlockRow {
@@ -154,6 +159,11 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     avatarUrl: row.avatar_url ?? '',
     coverUrl: hasThemeCoverUrl ? themeCoverUrl || '' : row.cover_url || '',
     isPublished: row.is_published,
+    isDiscoverable: row.is_discoverable ?? true,
+    allowIndexing: row.allow_indexing ?? true,
+    seoTitle: row.seo_title ?? '',
+    seoDescription: row.seo_description ?? '',
+    shareImageUrl: row.share_image_url ?? '',
     theme,
   };
 }

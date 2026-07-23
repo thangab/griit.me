@@ -9,6 +9,11 @@ export interface BuilderProfile {
   avatarUrl: string;
   coverUrl: string;
   isPublished: boolean;
+  isDiscoverable: boolean;
+  allowIndexing: boolean;
+  seoTitle: string;
+  seoDescription: string;
+  shareImageUrl: string;
   theme: Record<string, unknown>;
 }
 

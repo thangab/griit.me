@@ -32,3 +32,23 @@ export async function getStripePriceLabel(priceId: string) {
   const price = await stripe.prices.retrieve(priceId);
   return formatStripePrice(price);
 }
+
+export async function cancelStripeSubscription(subscriptionId: string) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('Stripe is not configured. The subscription was not cancelled.');
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  if (subscription.status !== 'canceled') {
+    await stripe.subscriptions.cancel(subscriptionId);
+  }
+}
+
+export async function deleteStripeCustomer(customerId: string) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('Stripe is not configured. The customer was not deleted.');
+  }
+
+  const customer = await stripe.customers.retrieve(customerId);
+  if (!customer.deleted) await stripe.customers.del(customerId);
+}

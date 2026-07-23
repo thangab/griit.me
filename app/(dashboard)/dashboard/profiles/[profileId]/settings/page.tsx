@@ -19,8 +19,11 @@ export default async function ProfileSettingsPage({
           Profile settings
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Public address
+          Settings
         </h1>
+        <p className="text-muted-foreground mt-2 text-sm">
+          Manage your public address, visibility, sharing, and profile data.
+        </p>
       </div>
       <PublicProfileSettings builder={builder} />
     </div>

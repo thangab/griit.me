@@ -23,11 +23,40 @@ export async function generateMetadata({
   }
 
   const primaryGoal = builder.goals.find((goal) => goal.isEnabled);
+  const title =
+    builder.profile.seoTitle || `${builder.profile.displayName} · Griit`;
+  const description =
+    builder.profile.seoDescription ||
+    primaryGoal?.title ||
+    builder.profile.bio ||
+    'Athlete profile on Griit';
+  const shareImage =
+    builder.profile.shareImageUrl || builder.profile.avatarUrl || undefined;
+  const appUrl = (
+    process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  ).replace(/\/$/, '');
+  const publicUrl = `${appUrl}/${builder.profile.username}`;
 
   return {
-    title: `${builder.profile.displayName} · Griit`,
-    description:
-      primaryGoal?.title ?? builder.profile.bio ?? 'Athlete profile on Griit',
+    title,
+    description,
+    alternates: { canonical: publicUrl },
+    robots: builder.profile.allowIndexing
+      ? { index: true, follow: true }
+      : { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'profile',
+      url: publicUrl,
+      images: shareImage ? [{ url: shareImage }] : undefined,
+    },
+    twitter: {
+      card: shareImage ? 'summary_large_image' : 'summary',
+      title,
+      description,
+      images: shareImage ? [shareImage] : undefined,
+    },
   };
 }
 

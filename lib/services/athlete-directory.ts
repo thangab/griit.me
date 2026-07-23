@@ -2,6 +2,7 @@ import 'server-only';
 
 import { unstable_cache } from 'next/cache';
 import { createPublicSupabaseClient } from '@/lib/config/supabase-server';
+import { athleteDirectoryCacheTag } from '@/lib/cache/profile-cache';
 import { defaultSports } from '@/lib/constants/sports';
 
 export type AthleteDirectorySport = {
@@ -61,6 +62,7 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
         'id, username, display_name, bio, location, avatar_url, cover_url, theme',
       )
       .eq('is_published', true)
+      .eq('is_discoverable', true)
       .order('updated_at', { ascending: false }),
     supabase
       .from('sports')
@@ -131,5 +133,5 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
 export const getAthleteDirectory = unstable_cache(
   loadAthleteDirectory,
   ['athlete-directory'],
-  { revalidate: 60 },
+  { revalidate: 60, tags: [athleteDirectoryCacheTag] },
 );

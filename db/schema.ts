@@ -28,7 +28,7 @@ export const stripe_customers = pgTable(
     id: serial('id').primaryKey(),
     user_id: varchar('user_id', { length: 36 })
       .notNull()
-      .references(() => profiles.id),
+      .references(() => profiles.id, { onDelete: 'cascade' }),
     stripe_customer_id: text('stripe_customer_id').notNull().unique(),
     default_payment_method: text('default_payment_method'),
     created_at: timestamp('created_at').defaultNow().notNull(),
@@ -47,7 +47,7 @@ export const subscriptions = pgTable(
     id: serial('id').primaryKey(),
     user_id: varchar('user_id', { length: 36 })
       .notNull()
-      .references(() => profiles.id),
+      .references(() => profiles.id, { onDelete: 'cascade' }),
     stripe_subscription_id: text('stripe_subscription_id').notNull().unique(),
     price_id: text('price_id').notNull(),
     status: varchar('status', { length: 32 }).notNull(),
@@ -71,7 +71,7 @@ export const public_profiles = pgTable(
     id: serial('id').primaryKey(),
     user_id: varchar('user_id', { length: 36 })
       .notNull()
-      .references(() => profiles.id),
+      .references(() => profiles.id, { onDelete: 'cascade' }),
     username: varchar('username', { length: 32 }).notNull(),
     display_name: varchar('display_name', { length: 120 }).notNull(),
     bio: text('bio'),
@@ -83,6 +83,11 @@ export const public_profiles = pgTable(
       .default({})
       .notNull(),
     is_published: boolean('is_published').default(false).notNull(),
+    is_discoverable: boolean('is_discoverable').default(true).notNull(),
+    allow_indexing: boolean('allow_indexing').default(true).notNull(),
+    seo_title: varchar('seo_title', { length: 70 }),
+    seo_description: varchar('seo_description', { length: 160 }),
+    share_image_url: text('share_image_url'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },
@@ -90,6 +95,11 @@ export const public_profiles = pgTable(
     userIdIdx: index('public_profiles_user_id_idx').on(table.user_id),
     usernameUnique: uniqueIndex('public_profiles_username_unique').on(
       table.username,
+    ),
+    directoryIdx: index('public_profiles_directory_idx').on(
+      table.is_published,
+      table.is_discoverable,
+      table.updated_at,
     ),
   }),
 );

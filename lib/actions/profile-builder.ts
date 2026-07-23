@@ -13,7 +13,10 @@ import {
 } from '@/lib/constants/profile-templates';
 import { getSubscriptionState } from '@/lib/services/billing';
 import { ensureAccountProfile } from '@/lib/services/account-profile';
-import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
+import {
+  athleteDirectoryCacheTag,
+  getPublicProfileCacheTag,
+} from '@/lib/cache/profile-cache';
 import {
   avatarShapes,
   blockShadowStyles,
@@ -280,6 +283,21 @@ const createProfileSchema = usernameSchema.extend({
   sportSlugs: z.array(z.string().trim().max(80)).max(3),
   objective: z.string().trim().max(160),
   templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
+});
+
+const profileSettingsSchema = z.object({
+  seoTitle: z.string().trim().max(70, 'SEO title is too long.'),
+  seoDescription: z
+    .string()
+    .trim()
+    .max(160, 'SEO description is too long.'),
+  shareImageUrl: urlSchema,
+});
+
+const profileVisibilitySchema = z.object({
+  isPublished: z.boolean(),
+  isDiscoverable: z.boolean(),
+  allowIndexing: z.boolean(),
 });
 
 const templateSchema = z.object({
@@ -1262,6 +1280,7 @@ export async function saveProfileBuilderAction(
   revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${username}`);
   updateTag(getPublicProfileCacheTag(username));
+  updateTag(athleteDirectoryCacheTag);
 
   return {
     success: true,
@@ -1525,6 +1544,7 @@ export async function deleteProfileAction(
   revalidatePath('/dashboard');
   revalidatePath(`/${profile.username}`);
   updateTag(getPublicProfileCacheTag(profile.username));
+  updateTag(athleteDirectoryCacheTag);
 
   return { success: true, message: 'Profile deleted.' };
 }
@@ -1612,6 +1632,7 @@ export async function updateProfileUrlAction(
   revalidatePath(`/dashboard/profiles/${profileId}/settings`);
   revalidatePath(`/${username}`);
   updateTag(getPublicProfileCacheTag(username));
+  updateTag(athleteDirectoryCacheTag);
 
   if (previousUsername && previousUsername !== username) {
     revalidatePath(`/${previousUsername}`);
@@ -1622,6 +1643,127 @@ export async function updateProfileUrlAction(
     success: true,
     message: 'Public URL updated.',
   };
+}
+
+export async function updateProfileSettingsAction(
+  _prevState: ProfileBuilderActionState,
+  formData: FormData,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      success: false,
+      message: 'You need to be signed in to update profile settings.',
+    };
+  }
+
+  const profileId = getProfileId(formData);
+  if (!profileId) return { success: false, message: 'Invalid profile.' };
+
+  const parsed = profileSettingsSchema.safeParse({
+    seoTitle: getString(formData, 'seoTitle'),
+    seoDescription: getString(formData, 'seoDescription'),
+    shareImageUrl: getString(formData, 'shareImageUrl'),
+  });
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      message: parsed.error.issues[0]?.message ?? 'Invalid profile settings.',
+    };
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: profile, error } = await serviceSupabase
+    .from('public_profiles')
+    .update({
+      seo_title: parsed.data.seoTitle || null,
+      seo_description: parsed.data.seoDescription || null,
+      share_image_url: parsed.data.shareImageUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', profileId)
+    .eq('user_id', userData.user.id)
+    .select('username')
+    .maybeSingle();
+
+  if (error || !profile) {
+    return {
+      success: false,
+      message: error?.message ?? 'Unable to update profile settings.',
+    };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath(`/dashboard/profiles/${profileId}`);
+  revalidatePath(`/dashboard/profiles/${profileId}/settings`);
+  revalidatePath(`/${profile.username}`);
+  revalidatePath('/athletes');
+  updateTag(getPublicProfileCacheTag(profile.username));
+  updateTag(athleteDirectoryCacheTag);
+
+  return { success: true, message: 'Profile settings saved.' };
+}
+
+export async function updateProfileVisibilityAction(
+  _prevState: ProfileBuilderActionState,
+  formData: FormData,
+): Promise<ProfileBuilderActionState> {
+  const supabase = await createServerSupabaseClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !userData.user) {
+    return {
+      success: false,
+      message: 'You need to be signed in to update profile visibility.',
+    };
+  }
+
+  const profileId = getProfileId(formData);
+  if (!profileId) return { success: false, message: 'Invalid profile.' };
+
+  const parsed = profileVisibilitySchema.safeParse({
+    isPublished: formData.get('isPublished') === 'on',
+    isDiscoverable: formData.get('isDiscoverable') === 'on',
+    allowIndexing: formData.get('allowIndexing') === 'on',
+  });
+
+  if (!parsed.success) {
+    return { success: false, message: 'Invalid visibility settings.' };
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: profile, error } = await serviceSupabase
+    .from('public_profiles')
+    .update({
+      is_published: parsed.data.isPublished,
+      is_discoverable: parsed.data.isDiscoverable,
+      allow_indexing: parsed.data.allowIndexing,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', profileId)
+    .eq('user_id', userData.user.id)
+    .select('username')
+    .maybeSingle();
+
+  if (error || !profile) {
+    return {
+      success: false,
+      message: error?.message ?? 'Unable to update profile visibility.',
+    };
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath(`/dashboard/profiles/${profileId}`);
+  revalidatePath(`/dashboard/profiles/${profileId}/settings`);
+  revalidatePath(`/${profile.username}`);
+  revalidatePath('/athletes');
+  updateTag(getPublicProfileCacheTag(profile.username));
+  updateTag(athleteDirectoryCacheTag);
+
+  return { success: true, message: 'Visibility saved.' };
 }
 
 export async function updateProfileTemplateAction(
@@ -1872,6 +2014,7 @@ export async function updateProfileTemplateAction(
   revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${existingProfile.username}`);
   updateTag(getPublicProfileCacheTag(existingProfile.username));
+  updateTag(athleteDirectoryCacheTag);
 
   return {
     success: true,
@@ -1918,6 +2061,7 @@ export async function setProfilePublishedAction(
   revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${profile.username}`);
   updateTag(getPublicProfileCacheTag(profile.username));
+  updateTag(athleteDirectoryCacheTag);
 
   return {
     success: true,

@@ -21,7 +21,13 @@ const allowedImageTypes = new Map([
 ]);
 
 type ImageFolder =
-  'avatars' | 'covers' | 'gallery' | 'sponsors' | 'offers' | 'links';
+  | 'avatars'
+  | 'covers'
+  | 'gallery'
+  | 'sponsors'
+  | 'offers'
+  | 'links'
+  | 'sharing';
 
 const maxImageDimension: Record<ImageFolder, number> = {
   avatars: 800,
@@ -30,6 +36,7 @@ const maxImageDimension: Record<ImageFolder, number> = {
   sponsors: 800,
   offers: 1400,
   links: 1200,
+  sharing: 1600,
 };
 
 async function optimizeImage(file: File, folder: ImageFolder) {
