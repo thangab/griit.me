@@ -53,6 +53,8 @@ import {
   blockShadowStyles,
   colorPresets,
   fontPresets,
+  freeHeaderGeometries,
+  freeHeaderTextures,
   galleryLayouts,
   getTemplateThemePreset,
   getThemeRuntime,
@@ -142,7 +144,7 @@ const headerTextureLabels = {
 
 const headerLayoutDecorationOptions = {
   centered: {
-    geometries: ['none', 'velocity', 'rings', 'blocks'],
+    geometries: ['none', 'velocity', 'rings', 'chevrons', 'blocks'],
     textures: ['none', 'grid', 'dots', 'scanlines'],
     defaultGeometry: 'rings',
     defaultTexture: 'dots',
@@ -154,14 +156,14 @@ const headerLayoutDecorationOptions = {
     defaultTexture: 'grid',
   },
   left: {
-    geometries: ['none', 'velocity', 'rings', 'chevrons'],
-    textures: ['none', 'grid', 'dots', 'scanlines'],
+    geometries: ['none', 'velocity', 'rings', 'chevrons', 'blocks'],
+    textures: ['none', 'grid', 'diagonal', 'dots', 'scanlines'],
     defaultGeometry: 'velocity',
     defaultTexture: 'scanlines',
   },
   immersive: {
     geometries: ['none', 'velocity', 'rings', 'blocks'],
-    textures: ['none', 'grid', 'diagonal', 'dots'],
+    textures: ['none', 'grid', 'diagonal', 'dots', 'scanlines'],
     defaultGeometry: 'velocity',
     defaultTexture: 'diagonal',
   },
@@ -341,7 +343,21 @@ function createLivePreviewState(
     .getAll('sportSlugs')
     .map(String)
     .filter(Boolean);
-  const selectedSports = builder.availableSports.filter((sport) =>
+  const customSports = data.getAll('customSport').flatMap((value) => {
+    try {
+      const sport = JSON.parse(String(value)) as {
+        name?: unknown;
+        slug?: unknown;
+      };
+      return typeof sport.name === 'string' && typeof sport.slug === 'string'
+        ? [{ name: sport.name, slug: sport.slug }]
+        : [];
+    } catch {
+      return [];
+    }
+  });
+  const availableSports = [...builder.availableSports, ...customSports];
+  const selectedSports = availableSports.filter((sport) =>
     selectedSportSlugs.includes(sport.slug),
   );
   const goals = [1, 2, 3]
@@ -1118,6 +1134,7 @@ function TemplateSelector({
     profileTemplates[0];
   const headerDecorationOptions =
     headerLayoutDecorationOptions[themeSettings.headerLayout];
+  const hasProStyles = subscription.isActive;
 
   const submitWhenReady = () => {
     if (pendingRef.current) {
@@ -1534,7 +1551,10 @@ function TemplateSelector({
                             'border-border bg-card hover:border-primary/50 relative min-w-0 rounded-xl border p-2 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
                             isSelected &&
                               'border-primary ring-primary/15 ring-2',
+                            isLocked &&
+                              'hover:border-border cursor-not-allowed opacity-60 hover:translate-y-0 hover:shadow-none',
                           )}
+                          disabled={isLocked}
                           type="button"
                           onClick={() => handleTemplateSelect(template.id)}
                         >
@@ -1575,7 +1595,6 @@ function TemplateSelector({
           title="Header"
           description="Layout, background and profile picture"
           icon={LayoutTemplate}
-          className="order-first"
           defaultOpen
         >
           <div>
@@ -1601,16 +1620,30 @@ function TemplateSelector({
                   handleThemeChange({
                     ...themeSettings,
                     headerLayout: layout,
-                    headerGeometry: (
-                      options.geometries as readonly HeaderGeometry[]
-                    ).includes(themeSettings.headerGeometry)
-                      ? themeSettings.headerGeometry
-                      : options.defaultGeometry,
-                    headerTexture: (
-                      options.textures as readonly HeaderTexture[]
-                    ).includes(themeSettings.headerTexture)
-                      ? themeSettings.headerTexture
-                      : options.defaultTexture,
+                    headerGeometry:
+                      (
+                        options.geometries as readonly HeaderGeometry[]
+                      ).includes(themeSettings.headerGeometry) &&
+                      (hasProStyles ||
+                        freeHeaderGeometries.includes(
+                          themeSettings.headerGeometry,
+                        ))
+                        ? themeSettings.headerGeometry
+                        : hasProStyles
+                          ? options.defaultGeometry
+                          : 'none',
+                    headerTexture:
+                      (options.textures as readonly HeaderTexture[]).includes(
+                        themeSettings.headerTexture,
+                      ) &&
+                      (hasProStyles ||
+                        freeHeaderTextures.includes(
+                          themeSettings.headerTexture,
+                        ))
+                        ? themeSettings.headerTexture
+                        : hasProStyles
+                          ? options.defaultTexture
+                          : 'none',
                   });
                 }}
               >
@@ -1690,6 +1723,8 @@ function TemplateSelector({
                   {headerDecorationOptions.geometries.map((geometry) => {
                     const isSelected =
                       themeSettings.headerGeometry === geometry;
+                    const isLocked =
+                      !hasProStyles && !freeHeaderGeometries.includes(geometry);
                     return (
                       <button
                         aria-label={`${headerGeometryLabels[geometry]} geometry`}
@@ -1699,7 +1734,10 @@ function TemplateSelector({
                           isSelected
                             ? 'border-primary/50 bg-primary/10 text-primary'
                             : 'border-border bg-background text-muted-foreground hover:bg-muted/60',
+                          isLocked &&
+                            'hover:bg-background cursor-not-allowed opacity-50',
                         )}
+                        disabled={isLocked}
                         key={geometry}
                         type="button"
                         onClick={() =>
@@ -1732,6 +1770,7 @@ function TemplateSelector({
                         <span className="max-w-full truncate text-[8px] font-semibold">
                           {headerGeometryLabels[geometry]}
                         </span>
+                        {isLocked ? <Lock className="h-2.5 w-2.5" /> : null}
                       </button>
                     );
                   })}
@@ -1753,6 +1792,8 @@ function TemplateSelector({
                 >
                   {headerDecorationOptions.textures.map((texture) => {
                     const isSelected = themeSettings.headerTexture === texture;
+                    const isLocked =
+                      !hasProStyles && !freeHeaderTextures.includes(texture);
                     return (
                       <button
                         aria-label={`${headerTextureLabels[texture]} texture`}
@@ -1762,7 +1803,10 @@ function TemplateSelector({
                           isSelected
                             ? 'border-primary/50 bg-primary/10 text-primary'
                             : 'border-border bg-background text-muted-foreground hover:bg-muted/60',
+                          isLocked &&
+                            'hover:bg-background cursor-not-allowed opacity-50',
                         )}
+                        disabled={isLocked}
                         key={texture}
                         type="button"
                         onClick={() =>
@@ -1789,6 +1833,7 @@ function TemplateSelector({
                         <span className="max-w-full truncate text-[8px] font-semibold">
                           {headerTextureLabels[texture]}
                         </span>
+                        {isLocked ? <Lock className="h-2.5 w-2.5" /> : null}
                       </button>
                     );
                   })}
@@ -1805,6 +1850,8 @@ function TemplateSelector({
                   (item) => item.id === shape,
                 )!;
                 const isSelected = themeSettings.headerAvatarShape === shape;
+                const isLocked =
+                  !hasProStyles && ['diamond', 'shield'].includes(shape);
 
                 return (
                   <button
@@ -1816,7 +1863,10 @@ function TemplateSelector({
                       isSelected
                         ? 'border-primary/50 bg-primary/10 text-primary'
                         : 'border-border bg-background text-muted-foreground hover:bg-muted/60',
+                      isLocked &&
+                        'hover:bg-background cursor-not-allowed opacity-50',
                     )}
+                    disabled={isLocked}
                     title={option.label}
                     type="button"
                     onClick={() =>
@@ -1835,6 +1885,7 @@ function TemplateSelector({
                     <span className="max-w-full truncate text-[9px] font-semibold">
                       {option.label}
                     </span>
+                    {isLocked ? <Lock className="h-3 w-3" /> : null}
                   </button>
                 );
               })}
@@ -1876,7 +1927,22 @@ function TemplateSelector({
           description="Organized by profile element"
           icon={Palette}
         >
-          <div className="flex flex-col gap-2">
+          {!hasProStyles ? (
+            <div className="border-primary/20 bg-primary/5 text-primary flex items-start gap-2 rounded-lg border p-3 text-xs leading-5">
+              <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                Custom colors are available on Pro. You can still use every
+                quick preset below.
+              </span>
+            </div>
+          ) : null}
+          <fieldset
+            className={cn(
+              'flex flex-col gap-2',
+              !hasProStyles && 'opacity-55 [&_input]:cursor-not-allowed',
+            )}
+            disabled={!hasProStyles}
+          >
             {colorGroups.map((group) => (
               <div
                 key={group.title}
@@ -1980,7 +2046,7 @@ function TemplateSelector({
                 </label>
               </div>
             </div>
-          </div>
+          </fieldset>
 
           <details className="border-border group/presets overflow-hidden rounded-lg border">
             <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
@@ -2049,29 +2115,34 @@ function TemplateSelector({
           description="Choose the profile tone"
           icon={TypeIcon}
         >
-          {fontPresets.map((preset) => (
-            <button
-              type="button"
-              key={preset.id}
-              onClick={() =>
-                handleThemeChange({ ...themeSettings, fontPreset: preset.id })
-              }
-              className={cn(
-                'border-border flex w-full cursor-pointer items-center justify-between rounded-lg border px-3 py-2.5 text-left',
-                themeSettings.fontPreset === preset.id && 'border-primary/60',
-              )}
-            >
-              <span>
-                <span className="block text-sm font-semibold">
-                  {preset.name}
+          {fontPresets.map((preset) => {
+            const isLocked = preset.proOnly && !hasProStyles;
+            return (
+              <button
+                type="button"
+                key={preset.id}
+                disabled={isLocked}
+                onClick={() =>
+                  handleThemeChange({ ...themeSettings, fontPreset: preset.id })
+                }
+                className={cn(
+                  'border-border flex w-full cursor-pointer items-center justify-between rounded-lg border px-3 py-2.5 text-left',
+                  themeSettings.fontPreset === preset.id && 'border-primary/60',
+                  isLocked && 'cursor-not-allowed opacity-50',
+                )}
+              >
+                <span>
+                  <span className="block text-sm font-semibold">
+                    {preset.name}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {preset.sample}
+                  </span>
                 </span>
-                <span className="text-muted-foreground text-xs">
-                  {preset.sample}
-                </span>
-              </span>
-              {preset.proOnly ? <Lock className="h-3.5 w-3.5" /> : null}
-            </button>
-          ))}
+                {preset.proOnly ? <Lock className="h-3.5 w-3.5" /> : null}
+              </button>
+            );
+          })}
         </StyleSection>
 
         <StyleSection
@@ -2095,12 +2166,21 @@ function TemplateSelector({
             }
             onCommit={() => scheduleAutosave(120)}
           />
-          <label className="border-border bg-muted/30 flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5">
-            <span className="text-xs font-medium">Block border color</span>
+          <label
+            className={cn(
+              'border-border bg-muted/30 flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5',
+              !hasProStyles && 'opacity-55',
+            )}
+          >
+            <span className="flex items-center gap-1.5 text-xs font-medium">
+              Block border color
+              {!hasProStyles ? <Lock className="h-3 w-3" /> : null}
+            </span>
             <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
               <input
                 aria-label="Block border color"
                 className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
+                disabled={!hasProStyles}
                 type="color"
                 value={themeSettings.blockBorderColor}
                 onChange={(event) =>
@@ -2125,23 +2205,30 @@ function TemplateSelector({
           />
           {themeSettings.blockShadow > 0 ? (
             <div className="border-border grid grid-cols-2 overflow-hidden rounded-lg border">
-              {blockShadowStyles.map((blockShadowStyle) => (
-                <button
-                  key={blockShadowStyle}
-                  className={cn(
-                    'border-border h-10 border-r text-xs font-medium capitalize last:border-r-0',
-                    themeSettings.blockShadowStyle === blockShadowStyle
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-background text-muted-foreground hover:bg-muted/40',
-                  )}
-                  type="button"
-                  onClick={() =>
-                    handleThemeChange({ ...themeSettings, blockShadowStyle })
-                  }
-                >
-                  {blockShadowStyle} shadow
-                </button>
-              ))}
+              {blockShadowStyles.map((blockShadowStyle) => {
+                const isLocked = !hasProStyles && blockShadowStyle === 'solid';
+                return (
+                  <button
+                    key={blockShadowStyle}
+                    className={cn(
+                      'border-border flex h-10 items-center justify-center gap-1.5 border-r text-xs font-medium capitalize last:border-r-0',
+                      themeSettings.blockShadowStyle === blockShadowStyle
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-background text-muted-foreground hover:bg-muted/40',
+                      isLocked &&
+                        'hover:bg-background cursor-not-allowed opacity-50',
+                    )}
+                    disabled={isLocked}
+                    type="button"
+                    onClick={() =>
+                      handleThemeChange({ ...themeSettings, blockShadowStyle })
+                    }
+                  >
+                    {blockShadowStyle} shadow
+                    {isLocked ? <Lock className="h-3 w-3" /> : null}
+                  </button>
+                );
+              })}
             </div>
           ) : null}
           <AppearanceRange
@@ -2156,24 +2243,29 @@ function TemplateSelector({
           <div className="border-border border-t pt-3">
             <p className="text-xs font-semibold">Gallery layout</p>
             <div className="bg-muted mt-2 grid grid-cols-3 gap-1 rounded-lg p-1">
-              {galleryLayouts.map((galleryLayout) => (
-                <button
-                  key={galleryLayout}
-                  className={cn(
-                    'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
-                    themeSettings.galleryLayout === galleryLayout
-                      ? 'bg-background shadow-sm'
-                      : 'text-muted-foreground',
-                  )}
-                  type="button"
-                  onClick={() =>
-                    handleThemeChange({ ...themeSettings, galleryLayout })
-                  }
-                >
-                  {galleryLayout}
-                  {galleryLayout !== 'grid' ? ' · Pro' : ''}
-                </button>
-              ))}
+              {galleryLayouts.map((galleryLayout) => {
+                const isLocked = !hasProStyles && galleryLayout !== 'grid';
+                return (
+                  <button
+                    key={galleryLayout}
+                    className={cn(
+                      'cursor-pointer rounded-md px-2 py-2 text-center text-xs font-medium capitalize',
+                      themeSettings.galleryLayout === galleryLayout
+                        ? 'bg-background shadow-sm'
+                        : 'text-muted-foreground',
+                      isLocked && 'cursor-not-allowed opacity-45',
+                    )}
+                    disabled={isLocked}
+                    type="button"
+                    onClick={() =>
+                      handleThemeChange({ ...themeSettings, galleryLayout })
+                    }
+                  >
+                    {galleryLayout}
+                    {galleryLayout !== 'grid' ? ' · Pro' : ''}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </StyleSection>

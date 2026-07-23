@@ -20,6 +20,7 @@ export interface BuilderProfile {
 export interface BuilderSport {
   name: string;
   slug: string;
+  isCustom?: boolean;
 }
 
 export interface BuilderBlock {

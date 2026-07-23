@@ -1,0 +1,48 @@
+ALTER TABLE "sports"
+  ADD COLUMN IF NOT EXISTS "is_custom" boolean DEFAULT false NOT NULL;
+--> statement-breakpoint
+INSERT INTO "sports" ("name", "slug", "sort_order", "is_enabled", "is_custom")
+VALUES
+  ('Football', 'football', 0, true, false),
+  ('Basketball', 'basketball', 1, true, false),
+  ('Running', 'running', 2, true, false),
+  ('Swimming', 'swimming', 3, true, false),
+  ('Cycling', 'cycling', 4, true, false),
+  ('Tennis', 'tennis', 5, true, false),
+  ('Volleyball', 'volleyball', 6, true, false),
+  ('Gym & Fitness', 'gym', 7, true, false),
+  ('Cricket', 'cricket', 8, true, false),
+  ('Boxing', 'boxing', 9, true, false),
+  ('Golf', 'golf', 10, true, false),
+  ('Rugby', 'rugby', 11, true, false),
+  ('Athletics', 'athletics', 12, true, false),
+  ('Baseball', 'baseball', 13, true, false),
+  ('Badminton', 'badminton', 14, true, false),
+  ('Table Tennis', 'table-tennis', 15, true, false),
+  ('Martial Arts', 'martial-arts', 16, true, false),
+  ('MMA', 'mma', 17, true, false),
+  ('American Football', 'american-football', 18, true, false),
+  ('Handball', 'handball', 19, true, false),
+  ('Ice Hockey', 'ice-hockey', 20, true, false),
+  ('Field Hockey', 'field-hockey', 21, true, false),
+  ('Padel', 'padel', 22, true, false),
+  ('Gymnastics', 'gymnastics', 23, true, false),
+  ('Weightlifting', 'weightlifting', 24, true, false),
+  ('Powerlifting', 'powerlifting', 25, true, false),
+  ('CrossFit', 'crossfit', 26, true, false),
+  ('HYROX', 'hyrox', 27, true, false),
+  ('Triathlon', 'triathlon', 28, true, false),
+  ('Trail Running', 'trail-running', 29, true, false),
+  ('Climbing', 'climbing', 30, true, false),
+  ('Hiking', 'hiking', 31, true, false),
+  ('Surfing', 'surfing', 32, true, false),
+  ('Skiing', 'skiing', 33, true, false),
+  ('Snowboarding', 'snowboarding', 34, true, false),
+  ('Skateboarding', 'skateboarding', 35, true, false),
+  ('Rowing', 'rowing', 36, true, false)
+ON CONFLICT ("slug") DO UPDATE SET
+  "name" = EXCLUDED."name",
+  "sort_order" = EXCLUDED."sort_order",
+  "is_enabled" = EXCLUDED."is_enabled",
+  "is_custom" = false,
+  "updated_at" = now();

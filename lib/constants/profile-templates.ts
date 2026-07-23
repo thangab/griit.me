@@ -17,13 +17,13 @@ export const profileTemplates = [
     id: 'impact',
     name: 'Impact',
     description: 'Sharp contrasts designed to make a strong impression.',
-    proOnly: false,
+    proOnly: true,
   },
   {
     id: 'obsidian',
     name: 'Obsidian',
     description: 'A dark, immersive direction with vivid highlights.',
-    proOnly: false,
+    proOnly: true,
   },
   {
     id: 'midnight',
@@ -35,7 +35,7 @@ export const profileTemplates = [
     id: 'pulse',
     name: 'Pulse',
     description: 'Electric accents in a focused, high-energy layout.',
-    proOnly: false,
+    proOnly: true,
   },
   {
     id: 'evergreen',
@@ -47,7 +47,7 @@ export const profileTemplates = [
     id: 'horizon',
     name: 'Horizon',
     description: 'A bright editorial style with an adventurous feel.',
-    proOnly: false,
+    proOnly: true,
   },
 ] as const;
 

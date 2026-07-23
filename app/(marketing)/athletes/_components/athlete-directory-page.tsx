@@ -6,9 +6,9 @@ import {
   ArrowUpRightIcon,
   MapPinIcon,
   SparkleIcon,
-  SquaresFourIcon,
   TargetIcon,
 } from '@phosphor-icons/react/ssr';
+import { AthleteSportFilter } from '@/app/(marketing)/athletes/_components/athlete-sport-filter';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import {
   getHeaderSheetBackground,
@@ -317,35 +317,10 @@ export async function AthleteDirectoryPage({
               : 'Browse public athlete profiles for inspiration. Filter by sport and discover what everyone is working toward.'}
           </p>
 
-          <div className="mx-auto mt-12 flex max-w-6xl flex-wrap justify-center gap-2">
-            <Link
-              className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-xs font-bold transition-colors ${
-                !selectedSport
-                  ? 'border-[#151515] bg-[#151515] text-white'
-                  : 'border-black/10 bg-white text-black hover:border-black/30'
-              }`}
-              href="/athletes"
-            >
-              <SquaresFourIcon className="h-4 w-4" weight="bold" />
-              All
-            </Link>
-            {directory.sports.map((sport) => {
-              const isSelected = selectedSport?.slug === sport.slug;
-              return (
-                <Link
-                  className={`inline-flex h-10 items-center rounded-full border px-4 text-xs font-bold transition-colors ${
-                    isSelected
-                      ? 'border-[#3157ff] bg-[#151515] text-white ring-2 ring-[#3157ff]/20'
-                      : 'border-black/10 bg-white text-black hover:border-black/30'
-                  }`}
-                  href={`/athletes/${sport.slug}` as Route}
-                  key={sport.slug}
-                >
-                  {sport.name}
-                </Link>
-              );
-            })}
-          </div>
+          <AthleteSportFilter
+            selectedSlug={selectedSport?.slug}
+            sports={directory.sports}
+          />
         </div>
       </section>
 

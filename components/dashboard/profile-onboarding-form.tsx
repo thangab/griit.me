@@ -8,7 +8,6 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   CheckCircleIcon,
-  CheckIcon,
   CircleNotchIcon,
 } from '@phosphor-icons/react/ssr';
 import {
@@ -18,8 +17,9 @@ import {
 } from '@/lib/actions/profile-builder';
 import { AuthFormMessage } from '@/components/auth/auth-form-message';
 import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
+import { SportsSelector } from '@/components/dashboard/sports-selector';
 import { Button } from '@/components/ui/button';
-import { defaultSports } from '@/lib/constants/sports';
+import { defaultSports, type SportOption } from '@/lib/constants/sports';
 import {
   profileTemplates,
   type ProfileTemplateId,
@@ -57,7 +57,9 @@ const stepContent = [
   },
 ] as const;
 
-const featuredTemplates = profileTemplates.slice(0, 6);
+const featuredTemplates = profileTemplates.filter(
+  (template) => !template.proOnly,
+);
 
 type AvailabilityState =
   | { status: 'idle'; message: string }
@@ -118,6 +120,7 @@ export function ProfileOnboardingForm() {
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [selectedSports, setSelectedSports] = useState<string[]>([]);
+  const [customSports, setCustomSports] = useState<SportOption[]>([]);
   const [objective, setObjective] = useState('');
   const [templateId, setTemplateId] = useState<ProfileTemplateId>('spotlight');
   const [availability, setAvailability] = useState<AvailabilityState>({
@@ -178,24 +181,22 @@ export function ProfileOnboardingForm() {
     }
   };
 
-  const toggleSport = (slug: string) => {
-    setSelectedSports((current) => {
-      if (current.includes(slug)) {
-        return current.filter((sport) => sport !== slug);
-      }
-
-      return current.length < 3 ? [...current, slug] : current;
-    });
-  };
-
   const usernameIsAvailable = availability.status === 'available';
   const canContinueIdentity =
     usernameIsAvailable && Boolean(displayName.trim());
   const previewName = displayName.trim() || 'Display name';
   const previewUsername = username || 'username';
-  const selectedSportNames = defaultSports
-    .filter((sport) => selectedSports.includes(sport.slug))
-    .map((sport) => sport.name);
+  const onboardingSports = useMemo(
+    () => [...defaultSports, ...customSports],
+    [customSports],
+  );
+  const selectedSportNames = useMemo(
+    () =>
+      onboardingSports
+        .filter((sport) => selectedSports.includes(sport.slug))
+        .map((sport) => sport.name),
+    [onboardingSports, selectedSports],
+  );
   const currentStep = stepContent[step - 1] ?? stepContent[0];
 
   const previewBuilder = useMemo<ProfileBuilderState>(
@@ -242,7 +243,7 @@ export function ProfileOnboardingForm() {
             },
           ]
         : [],
-      availableSports: [...defaultSports],
+      availableSports: onboardingSports,
     }),
     [
       objective,
@@ -250,6 +251,7 @@ export function ProfileOnboardingForm() {
       previewUsername,
       selectedSportNames,
       selectedSports,
+      onboardingSports,
       templateId,
     ],
   );
@@ -395,38 +397,16 @@ export function ProfileOnboardingForm() {
                 <p className="mt-1.5 text-xs leading-5 text-black/42">
                   Select between one and three. You can change this later.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2.5">
-                  {defaultSports.map((sport) => {
-                    const selected = selectedSports.includes(sport.slug);
-                    const disabled = !selected && selectedSports.length >= 3;
-
-                    return (
-                      <label
-                        className={cn(
-                          'flex h-10 cursor-pointer items-center gap-2 rounded-full border px-4 text-sm font-semibold transition',
-                          selected
-                            ? 'border-[#3157ff] bg-[#3157ff] text-white shadow-sm'
-                            : 'border-black/10 bg-white hover:border-[#3157ff]/40 hover:bg-[#3157ff]/[0.03]',
-                          disabled && 'cursor-not-allowed opacity-35',
-                        )}
-                        key={sport.slug}
-                      >
-                        <input
-                          checked={selected}
-                          className="sr-only"
-                          disabled={disabled}
-                          name="sportSlugs"
-                          onChange={() => toggleSport(sport.slug)}
-                          type="checkbox"
-                          value={sport.slug}
-                        />
-                        {selected ? (
-                          <CheckIcon className="h-3.5 w-3.5" weight="bold" />
-                        ) : null}
-                        {sport.name}
-                      </label>
-                    );
-                  })}
+                <div className="mt-4">
+                  <SportsSelector
+                    maxSelections={3}
+                    selectedSlugs={selectedSports}
+                    sports={defaultSports}
+                    onChange={(slugs, nextCustomSports) => {
+                      setSelectedSports(slugs);
+                      setCustomSports(nextCustomSports);
+                    }}
+                  />
                 </div>
               </fieldset>
 

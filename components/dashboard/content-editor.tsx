@@ -32,6 +32,7 @@ import {
   type ProfileBuilderActionState,
 } from '@/lib/actions/profile-builder';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
+import { SportsSelector } from '@/components/dashboard/sports-selector';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { socialPlatforms } from '@/lib/constants/social-platforms';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
@@ -322,87 +323,28 @@ function GoalEditor({
 function SportsField({
   availableSports,
   selectedSlugs,
+  onSelectionChange,
 }: {
   availableSports: ProfileBuilderState['availableSports'];
   selectedSlugs: string[];
+  onSelectionChange: () => void;
 }) {
-  const [selected, setSelected] = useState(() => new Set(selectedSlugs));
-  const selectedSports = availableSports.filter((sport) =>
-    selected.has(sport.slug),
-  );
-
-  function toggleSport(slug: string) {
-    setSelected((current) => {
-      const next = new Set(current);
-
-      if (next.has(slug)) {
-        next.delete(slug);
-      } else {
-        next.add(slug);
-      }
-
-      return next;
-    });
-  }
+  const [selected, setSelected] = useState(selectedSlugs);
 
   return (
     <div className="space-y-1.5">
       <p className="text-xs font-medium">Sports</p>
-      <details className="border-border bg-background group/sports overflow-hidden rounded-lg border">
-        <summary className="hover:bg-muted/50 flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 py-2 transition-colors [&::-webkit-details-marker]:hidden">
-          <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-            {selectedSports.length ? (
-              <>
-                {selectedSports.slice(0, 2).map((sport) => (
-                  <span
-                    key={sport.slug}
-                    className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-medium"
-                  >
-                    {sport.name}
-                  </span>
-                ))}
-                {selectedSports.length > 2 ? (
-                  <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-xs font-medium">
-                    +{selectedSports.length - 2}
-                  </span>
-                ) : null}
-              </>
-            ) : (
-              <span className="text-muted-foreground text-sm">
-                Choose your sports
-              </span>
-            )}
-          </span>
-          <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/sports:rotate-180" />
-        </summary>
-
-        <div className="border-border bg-muted/20 grid grid-cols-2 gap-1.5 border-t p-2">
-          {availableSports.map((sport) => {
-            const isSelected = selected.has(sport.slug);
-
-            return (
-              <label
-                key={sport.slug}
-                className={`flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2.5 text-sm transition-colors ${
-                  isSelected
-                    ? 'bg-primary/10 text-primary font-medium'
-                    : 'hover:bg-background text-foreground'
-                }`}
-              >
-                <input
-                  className="accent-primary h-3.5 w-3.5"
-                  checked={isSelected}
-                  name="sportSlugs"
-                  onChange={() => toggleSport(sport.slug)}
-                  type="checkbox"
-                  value={sport.slug}
-                />
-                <span className="truncate">{sport.name}</span>
-              </label>
-            );
-          })}
-        </div>
-      </details>
+      <div className="border-border bg-muted/20 rounded-lg border p-3">
+        <SportsSelector
+          maxSelections={8}
+          selectedSlugs={selected}
+          sports={availableSports}
+          onChange={(slugs) => {
+            setSelected(slugs);
+            onSelectionChange();
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -2047,6 +1989,7 @@ export function ContentEditor({
         <SportsField
           availableSports={builder.availableSports}
           selectedSlugs={profile.sportSlugs}
+          onSelectionChange={() => schedulePreviewUpdate('sports')}
         />
       </EditorSection>
 

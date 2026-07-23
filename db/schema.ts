@@ -167,6 +167,7 @@ export const sports = pgTable(
     slug: varchar('slug', { length: 80 }).notNull(),
     sort_order: integer('sort_order').default(0).notNull(),
     is_enabled: boolean('is_enabled').default(true).notNull(),
+    is_custom: boolean('is_custom').default(false).notNull(),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },

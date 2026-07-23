@@ -63,6 +63,7 @@ interface SportRow {
   name: string;
   slug: string;
   is_enabled: boolean;
+  is_custom: boolean;
 }
 
 interface ProfileSportRow {
@@ -301,6 +302,7 @@ async function mapProfileBuilderState(
           .from('sports')
           .select('*')
           .eq('is_enabled', true)
+          .eq('is_custom', false)
           .order('sort_order', { ascending: true })
       : Promise.resolve({ data: [] }),
     supabase
@@ -346,10 +348,21 @@ async function mapProfileBuilderState(
   ).map((sport) => ({
     name: sport.name,
     slug: sport.slug,
+    isCustom: sport.is_custom,
   }));
   const selectedSports = ((sportsResult.data ?? []) as ProfileSportRow[])
     .map(getProfileSport)
     .filter((sport): sport is SportRow => Boolean(sport));
+  const selectableSports = [...availableSports];
+  for (const sport of selectedSports) {
+    if (!selectableSports.some((item) => item.slug === sport.slug)) {
+      selectableSports.push({
+        name: sport.name,
+        slug: sport.slug,
+        isCustom: sport.is_custom,
+      });
+    }
+  }
 
   return {
     source: 'database',
@@ -373,8 +386,8 @@ async function mapProfileBuilderState(
       mapActivity,
     ),
     goals: ((goalsResult.data ?? []) as GoalRow[]).map(mapGoal),
-    availableSports: availableSports.length
-      ? availableSports
+    availableSports: selectableSports.length
+      ? selectableSports
       : [...defaultSports],
   };
 }

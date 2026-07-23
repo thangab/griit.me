@@ -10,6 +10,7 @@ import {
   defaultProfileTemplateId,
   getProfileTemplate,
   isProfileTemplateId,
+  resolveProfileTemplateId,
 } from '@/lib/constants/profile-templates';
 import { getSubscriptionState } from '@/lib/services/billing';
 import { ensureAccountProfile } from '@/lib/services/account-profile';
@@ -23,11 +24,14 @@ import {
   colorPresets,
   coverTypes,
   fontPresets,
+  freeHeaderGeometries,
+  freeHeaderTextures,
   galleryLayouts,
   headerGeometries,
   headerLayouts,
   headerTextures,
   radiusPresets,
+  resolveProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
 import {
   isSocialPlatformId,
@@ -35,6 +39,7 @@ import {
 } from '@/lib/constants/social-platforms';
 import { parseMediaUrl } from '@/lib/utils/media-embed';
 import { goalDateDisplays } from '@/lib/utils/goal-date';
+import { createSportSlug } from '@/lib/constants/sports';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -137,11 +142,26 @@ const socialLinkSchema = z
     }
   });
 
+const customSportSchema = z
+  .object({
+    name: z.string().trim().min(2).max(32),
+    slug: z
+      .string()
+      .trim()
+      .min(1)
+      .max(80)
+      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  })
+  .refine((sport) => createSportSlug(sport.name) === sport.slug, {
+    message: 'Invalid custom sport.',
+  });
+
 const builderSchema = z.object({
   displayName: z.string().trim().min(1, 'Display name is required.').max(120),
   bio: z.string().trim().max(300).optional(),
   location: z.string().trim().max(120).optional(),
   sportSlugs: z.array(z.string().trim().max(80)).max(8),
+  customSports: z.array(customSportSchema).max(8),
   avatarUrl: urlSchema,
   isPublished: z.boolean(),
   socialLinks: z.array(socialLinkSchema).max(socialPlatforms.length),
@@ -281,16 +301,14 @@ const usernameSchema = z.object({
 const createProfileSchema = usernameSchema.extend({
   displayName: z.string().trim().min(1, 'Profile name is required.').max(120),
   sportSlugs: z.array(z.string().trim().max(80)).max(3),
+  customSports: z.array(customSportSchema).max(3),
   objective: z.string().trim().max(160),
   templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
 });
 
 const profileSettingsSchema = z.object({
   seoTitle: z.string().trim().max(70, 'SEO title is too long.'),
-  seoDescription: z
-    .string()
-    .trim()
-    .max(160, 'SEO description is too long.'),
+  seoDescription: z.string().trim().max(160, 'SEO description is too long.'),
   shareImageUrl: urlSchema,
 });
 
@@ -519,6 +537,16 @@ function getSportSlugs(formData: FormData) {
     .getAll('sportSlugs')
     .map((value) => String(value).trim())
     .filter(Boolean);
+}
+
+function getCustomSports(formData: FormData) {
+  return formData.getAll('customSport').flatMap((value) => {
+    try {
+      return [JSON.parse(String(value))];
+    } catch {
+      return [];
+    }
+  });
 }
 
 function getContentBlockOrder(formData: FormData) {
@@ -814,6 +842,28 @@ async function replaceSports(
   input: z.infer<typeof builderSchema>,
 ) {
   const serviceSupabase = createServiceSupabaseClient();
+  const customSports = input.customSports.filter((sport) =>
+    input.sportSlugs.includes(sport.slug),
+  );
+
+  if (customSports.length) {
+    const { error: customSportsError } = await serviceSupabase
+      .from('sports')
+      .upsert(
+        customSports.map((sport) => ({
+          name: sport.name,
+          slug: sport.slug,
+          sort_order: 1000,
+          is_enabled: true,
+          is_custom: true,
+          updated_at: new Date().toISOString(),
+        })),
+        { onConflict: 'slug', ignoreDuplicates: true },
+      );
+
+    if (customSportsError) throw new Error(customSportsError.message);
+  }
+
   await serviceSupabase
     .from('profile_sports')
     .delete()
@@ -1128,6 +1178,7 @@ export async function saveProfileBuilderAction(
     bio: getString(formData, 'bio'),
     location: getString(formData, 'location'),
     sportSlugs: getSportSlugs(formData),
+    customSports: getCustomSports(formData),
     avatarUrl: getString(formData, 'avatarUrl'),
     isPublished: formData.get('isPublished') === 'on',
     socialLinks: getSocialLinks(formData),
@@ -1356,6 +1407,7 @@ export async function createProfileAction(
     displayName: getString(formData, 'displayName'),
     username: getString(formData, 'username'),
     sportSlugs: getSportSlugs(formData),
+    customSports: getCustomSports(formData),
     objective: getString(formData, 'objective'),
     templateId: getString(formData, 'templateId') || defaultProfileTemplateId,
   });
@@ -1429,6 +1481,28 @@ export async function createProfileAction(
 
   try {
     if (parsed.data.sportSlugs.length) {
+      const customSports = parsed.data.customSports.filter((sport) =>
+        parsed.data.sportSlugs.includes(sport.slug),
+      );
+
+      if (customSports.length) {
+        const { error: customSportsError } = await serviceSupabase
+          .from('sports')
+          .upsert(
+            customSports.map((sport) => ({
+              name: sport.name,
+              slug: sport.slug,
+              sort_order: 1000,
+              is_enabled: true,
+              is_custom: true,
+              updated_at: new Date().toISOString(),
+            })),
+            { onConflict: 'slug', ignoreDuplicates: true },
+          );
+
+        if (customSportsError) throw new Error(customSportsError.message);
+      }
+
       const { data: sports, error: sportsError } = await serviceSupabase
         .from('sports')
         .select('id, slug')
@@ -1915,6 +1989,59 @@ export async function updateProfileTemplateAction(
       ? (existingProfile.theme as Record<string, unknown>)
       : {};
   const templateId = parsed.data.templateId || defaultProfileTemplateId;
+  const existingTemplateId = resolveProfileTemplateId(existingTheme);
+
+  if (!subscription.isActive && templateId === existingTemplateId) {
+    const existingSettings = resolveProfileThemeSettings(existingTheme);
+    const submittedCustomColors = {
+      background: parsed.data.customBackground,
+      surface: parsed.data.customSurface,
+      foreground: parsed.data.customForeground,
+      accent: parsed.data.customAccent,
+      social: parsed.data.customSocial,
+      headerText: parsed.data.customHeaderText,
+      headerMutedText: parsed.data.customHeaderMutedText,
+      blockTitle: parsed.data.customBlockTitle,
+      description: parsed.data.customDescription,
+      accentText: parsed.data.customAccentText,
+      socialText: parsed.data.customSocialText,
+    };
+    const customColorsChanged =
+      JSON.stringify(submittedCustomColors) !==
+      JSON.stringify(existingSettings.customColors);
+    const advancedSetting = [
+      parsed.data.colorPreset === 'custom' && customColorsChanged
+        ? 'Custom colors'
+        : null,
+      parsed.data.headerGeometry !== existingSettings.headerGeometry &&
+      !freeHeaderGeometries.includes(parsed.data.headerGeometry)
+        ? 'Header geometry'
+        : null,
+      parsed.data.headerTexture !== existingSettings.headerTexture &&
+      !freeHeaderTextures.includes(parsed.data.headerTexture)
+        ? 'Header texture'
+        : null,
+      parsed.data.headerAvatarShape !== existingSettings.headerAvatarShape &&
+      ['diamond', 'shield'].includes(parsed.data.headerAvatarShape)
+        ? 'Advanced profile picture shapes'
+        : null,
+      parsed.data.blockBorderColor !== existingSettings.blockBorderColor
+        ? 'Custom block border color'
+        : null,
+      parsed.data.blockShadowStyle !== existingSettings.blockShadowStyle &&
+      parsed.data.blockShadowStyle === 'solid'
+        ? 'Solid block shadow'
+        : null,
+    ].find(Boolean);
+
+    if (advancedSetting) {
+      return {
+        success: false,
+        message: `${advancedSetting} requires the Pro plan.`,
+      };
+    }
+  }
+
   const wordingOverrideKeys = new Set(
     parsed.data.templateWordingOverrideKeys.split(',').filter(Boolean),
   );

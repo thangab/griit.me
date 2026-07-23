@@ -18,6 +18,24 @@ export const colorPresets = [
     proOnly: false,
   },
   {
+    id: 'cobalt',
+    name: 'Cobalt',
+    colors: [
+      '#f3f6fb',
+      '#ffffff',
+      '#101828',
+      '#2f6bff',
+      '#dfe8fb',
+      '#f8fbff',
+      '#101828',
+      '#5d6878',
+      '#ffffff',
+      '#173b7a',
+      '#c9d8f0',
+    ],
+    proOnly: false,
+  },
+  {
     id: 'midnight_blue',
     name: 'Midnight',
     colors: [
@@ -187,6 +205,12 @@ export type HeaderGeometry = (typeof headerGeometries)[number];
 export type HeaderTexture = (typeof headerTextures)[number];
 export type BlockShadowStyle = (typeof blockShadowStyles)[number];
 
+export const freeHeaderGeometries: readonly HeaderGeometry[] = [
+  'none',
+  'velocity',
+];
+export const freeHeaderTextures: readonly HeaderTexture[] = ['none', 'grid'];
+
 export type ProfileThemeSettings = {
   colorPreset: ColorPresetId;
   customColors: {
@@ -255,8 +279,8 @@ export const defaultThemeSettings: ProfileThemeSettings = {
   headerAvatarShape: 'circle',
   headerSheetColor: '#0f172a',
   headerSheetCoverage: 50,
-  headerGeometry: 'velocity',
-  headerTexture: 'grid',
+  headerGeometry: 'none',
+  headerTexture: 'none',
   blockCorner: 75,
   blockBorder: 25,
   blockBorderColor: '#e2e8f0',
@@ -272,6 +296,23 @@ function createTemplateThemePreset(
 ): ProfileThemeSettings {
   const radiusPreset =
     overrides.radiusPreset ?? defaultThemeSettings.radiusPreset;
+  const colorPreset = overrides.colorPreset ?? defaultThemeSettings.colorPreset;
+  const preset = colorPresets.find((item) => item.id === colorPreset);
+  const presetColors = preset
+    ? {
+        background: preset.colors[0],
+        surface: preset.colors[1],
+        foreground: preset.colors[2],
+        accent: preset.colors[3],
+        social: preset.colors[4],
+        headerText: preset.colors[5],
+        blockTitle: preset.colors[6],
+        description: preset.colors[7],
+        accentText: preset.colors[8],
+        socialText: preset.colors[9],
+        headerMutedText: preset.colors[10],
+      }
+    : defaultThemeSettings.customColors;
   return {
     ...defaultThemeSettings,
     ...overrides,
@@ -279,7 +320,7 @@ function createTemplateThemePreset(
       overrides.blockCorner ??
       { sharp: 0, soft: 38, rounded: 75 }[radiusPreset],
     customColors: {
-      ...defaultThemeSettings.customColors,
+      ...presetColors,
       ...overrides.customColors,
     },
   };
@@ -287,37 +328,27 @@ function createTemplateThemePreset(
 
 const templateThemePresets: Record<string, ProfileThemeSettings> = {
   spotlight: createTemplateThemePreset({
-    colorPreset: 'custom',
-    customColors: {
-      background: '#f3f0e8',
-      surface: '#fffdf8',
-      foreground: '#17211c',
-      accent: '#ff5c35',
-      social: '#dfe8de',
-      headerText: '#fffdf8',
-      headerMutedText: '#edf3ef',
-      blockTitle: '#17211c',
-      description: '#465149',
-      accentText: '#fffdf8',
-      socialText: '#23402f',
-    },
+    colorPreset: 'cobalt',
     fontPreset: 'clean',
-    coverOverlayOpacity: 58,
+    coverOverlayColor: '#081426',
+    coverOverlayOpacity: 24,
     radiusPreset: 'rounded',
     galleryLayout: 'grid',
     coverType: 'gradient',
-    coverColor: '#173d32',
-    coverGradientFrom: '#102a24',
-    coverGradientTo: '#2f6a50',
+    coverColor: '#101d36',
+    coverGradientFrom: '#0b1426',
+    coverGradientTo: '#2459bd',
     headerLayout: 'centered',
     headerAvatarSize: 96,
     headerAvatarShape: 'circle',
-    headerSheetColor: '#173d32',
-    headerGeometry: 'rings',
-    headerTexture: 'none',
-    blockBorderColor: '#d8d4c9',
-    blockShadow: 12,
-    blockSpacing: 35,
+    headerSheetColor: '#101d36',
+    headerSheetCoverage: 32,
+    headerGeometry: 'velocity',
+    headerTexture: 'grid',
+    blockBorder: 18,
+    blockBorderColor: '#d8e1ef',
+    blockShadow: 10,
+    blockSpacing: 32,
   }),
   momentum: createTemplateThemePreset({
     colorPreset: 'endurance_orange',
@@ -331,6 +362,8 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 80,
     headerAvatarShape: 'circle',
     headerSheetColor: '#18181b',
+    headerGeometry: 'velocity',
+    headerTexture: 'grid',
     blockBorder: 12,
     blockBorderColor: '#3f3f46',
     blockShadow: 18,
@@ -350,6 +383,8 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 72,
     headerAvatarShape: 'hexagon',
     headerSheetColor: '#7f1d1d',
+    headerGeometry: 'blocks',
+    headerTexture: 'diagonal',
     blockBorder: 55,
     blockBorderColor: '#ef4444',
     blockShadow: 32,
@@ -371,6 +406,8 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarShape: 'shield',
     headerSheetColor: '#09090b',
     headerSheetCoverage: 50,
+    headerGeometry: 'rings',
+    headerTexture: 'scanlines',
     blockBorder: 30,
     blockBorderColor: '#3f6212',
     blockShadow: 0,
@@ -387,10 +424,12 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     coverColor: '#071426',
     coverGradientFrom: '#071426',
     coverGradientTo: '#1d4ed8',
-    headerLayout: 'split',
-    headerAvatarSize: 112,
+    headerLayout: 'kinetic',
+    headerAvatarSize: 88,
     headerAvatarShape: 'circle',
     headerSheetColor: '#10233d',
+    headerGeometry: 'velocity',
+    headerTexture: 'grid',
     blockBorder: 35,
     blockBorderColor: '#1e3a5f',
     blockShadow: 28,
@@ -408,6 +447,8 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 88,
     headerAvatarShape: 'diamond',
     headerSheetColor: '#11102a',
+    headerGeometry: 'chevrons',
+    headerTexture: 'grid',
     blockBorder: 45,
     blockBorderColor: '#4f46e5',
     blockShadow: 8,
@@ -427,6 +468,8 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarSize: 104,
     headerAvatarShape: 'circle',
     headerSheetColor: '#173b30',
+    headerGeometry: 'velocity',
+    headerTexture: 'grid',
     blockBorder: 22,
     blockBorderColor: '#245244',
     blockShadow: 14,
@@ -458,6 +501,8 @@ const templateThemePresets: Record<string, ProfileThemeSettings> = {
     headerAvatarShape: 'hexagon',
     headerSheetColor: '#172554',
     headerSheetCoverage: 50,
+    headerGeometry: 'rings',
+    headerTexture: 'diagonal',
     blockBorder: 18,
     blockBorderColor: '#bfdbfe',
     blockShadow: 20,

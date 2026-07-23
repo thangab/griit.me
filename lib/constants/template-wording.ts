@@ -12,15 +12,15 @@ export type TemplateWording = {
 
 const templateWordingDefaults: Record<string, TemplateWording> = {
   spotlight: {
-    discipline: 'Athlete identity',
-    badge: 'NOW',
-    eyebrow: 'What I’m building',
-    profileLabel: 'About me',
-    targetLabel: 'Next milestone',
+    discipline: 'Built for what’s next',
+    badge: 'FOCUS',
+    eyebrow: 'Current focus',
+    profileLabel: 'About',
+    targetLabel: 'Target',
     galleryLabel: 'Moments',
-    achievementsLabel: 'Highlights',
-    activityLabel: 'In progress',
-    secondaryGoalLabel: 'On the horizon',
+    achievementsLabel: 'Achievements',
+    activityLabel: 'Latest activity',
+    secondaryGoalLabel: 'Up next',
   },
   momentum: {
     discipline: 'Driven by progress',

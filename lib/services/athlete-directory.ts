@@ -68,6 +68,7 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
       .from('sports')
       .select('name, slug')
       .eq('is_enabled', true)
+      .eq('is_custom', false)
       .order('sort_order', { ascending: true }),
   ]);
 

@@ -38,6 +38,12 @@ export function ProfileHeader({
   const theme = getThemeRuntime(profile.theme);
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
+  const desktopHeaderFrameClass =
+    variant === 'desktop-preview'
+      ? 'rounded-none border-0'
+      : variant === 'full'
+        ? 'sm:rounded-none sm:border-0'
+        : undefined;
   const avatarSize = theme.headerAvatarSize;
   const hasFullSheet = theme.headerSheetCoverage === 100;
   const coverStyle =
@@ -317,6 +323,7 @@ export function ProfileHeader({
             theme.radiusClass,
             'mx-auto max-w-[780px] overflow-hidden border',
             isMobilePreview ? 'mx-4' : 'mx-4 sm:mx-auto',
+            desktopHeaderFrameClass,
           )}
           style={{ color: theme.palette.headerText }}
         >
@@ -385,6 +392,7 @@ export function ProfileHeader({
             isMobilePreview
               ? 'mx-4 min-h-[520px]'
               : 'mx-4 min-h-[520px] sm:mx-auto',
+            desktopHeaderFrameClass,
           )}
           style={{ ...coverStyle, borderColor: theme.palette.border }}
         >
