@@ -12,6 +12,10 @@ import {
   SquaresFourIcon,
 } from '@phosphor-icons/react/ssr';
 import { subscriptionPlans } from '@/lib/constants/billing';
+import {
+  HeroProfileCollage,
+  TemplateProfileGallery,
+} from './athlete-profile-showcase';
 import { EditorShowcase } from './editor-showcase';
 
 const featureCards = [
@@ -59,126 +63,28 @@ const featureCards = [
   },
 ] as const;
 
-const templateCards = [
+const journeyPoints = [
   {
-    name: 'Spotlight',
-    background: 'bg-[#f5f2ea]',
-    accent: 'bg-[#3157ff]',
-    text: 'text-[#151515]',
+    number: '01',
+    title: 'Lead with the goal',
+    description: 'Give people a reason to follow the journey.',
   },
   {
-    name: 'Obsidian',
-    background: 'bg-[#151515]',
-    accent: 'bg-[#b7f43c]',
-    text: 'text-white',
+    number: '02',
+    title: 'Own your identity',
+    description: 'Build a profile that feels unmistakably yours.',
   },
   {
-    name: 'Impact',
-    background: 'bg-[#be2e35]',
-    accent: 'bg-[#fff4e8]',
-    text: 'text-white',
+    number: '03',
+    title: 'Show the work',
+    description: 'Bring results, training, and content together.',
   },
   {
-    name: 'Horizon',
-    background: 'bg-[#f2e7d3]',
-    accent: 'bg-[#ed6b2f]',
-    text: 'text-[#172554]',
+    number: '04',
+    title: 'Create opportunities',
+    description: 'Turn attention into partnerships and support.',
   },
 ] as const;
-
-function ProfilePhone({ compact = false }: { compact?: boolean }) {
-  return (
-    <div
-      className={`relative mx-auto w-full overflow-hidden rounded-[2.6rem] border-[9px] border-[#171717] bg-[#f3efe5] shadow-[0_30px_80px_rgba(20,20,20,0.28)] ${
-        compact ? 'max-w-[250px]' : 'max-w-[330px]'
-      }`}
-    >
-      <div className="h-7 bg-[#171717]" />
-      <div className="relative overflow-hidden bg-[#3157ff] px-5 pt-7 pb-8 text-white">
-        <div className="absolute -top-14 -right-12 h-40 w-40 rounded-full border-[28px] border-[#a9ed35]/90" />
-        <div className="relative flex items-start justify-between">
-          <div className="h-16 w-16 rounded-full border-4 border-white bg-[linear-gradient(135deg,#f0c2a0,#7a4d34)]" />
-          <div className="flex gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-xs">
-              +
-            </span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-xs">
-              ↗
-            </span>
-          </div>
-        </div>
-        <p className="relative mt-5 text-xl font-black tracking-tight">
-          Maya Chen
-        </p>
-        <p className="relative mt-1 text-xs text-white/70">
-          Building toward the next finish line.
-        </p>
-        <div className="relative mt-4 flex gap-1.5">
-          <span className="rounded-full bg-white/15 px-2.5 py-1 text-[9px] font-bold">
-            RUNNING
-          </span>
-          <span className="rounded-full bg-white/15 px-2.5 py-1 text-[9px] font-bold">
-            BANGKOK
-          </span>
-        </div>
-      </div>
-      <div className="space-y-3 p-4">
-        <div className="rounded-2xl bg-[#a9ed35] p-4 text-[#151515]">
-          <p className="text-[9px] font-black tracking-[0.2em] uppercase">
-            Next objective
-          </p>
-          <p className="mt-2 text-lg font-black">First marathon</p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/15">
-            <div className="h-full w-3/4 rounded-full bg-black" />
-          </div>
-        </div>
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <p className="text-sm font-bold">My latest training update</p>
-          <p className="mt-1 text-[10px] text-black/45">
-            The work behind the goal.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="h-20 rounded-2xl bg-[linear-gradient(135deg,#ffb174,#f05e49)]" />
-          <div className="h-20 rounded-2xl bg-[linear-gradient(135deg,#bfd1ff,#536edb)]" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TemplateMiniature({
-  template,
-}: {
-  template: (typeof templateCards)[number];
-}) {
-  return (
-    <article>
-      <div
-        className={`${template.background} ${template.text} aspect-[9/16] overflow-hidden rounded-[2rem] border-[5px] border-[#151515] p-4 shadow-[0_18px_35px_rgba(20,20,20,0.15)]`}
-      >
-        <div className="flex items-center justify-between text-[10px]">
-          <span>+</span>
-          <span>↗</span>
-        </div>
-        <div className="mx-auto mt-7 h-16 w-16 rounded-full bg-[linear-gradient(135deg,#dab08d,#593b2c)] ring-4 ring-white/30" />
-        <p className="mt-4 text-center text-sm font-black">Jordan Lee</p>
-        <p className="mx-auto mt-2 max-w-36 text-center text-[8px] leading-4 opacity-60">
-          Training, goals, results, and everything happening next.
-        </p>
-        <div className="mt-6 space-y-2.5">
-          <div className={`${template.accent} h-12 rounded-xl`} />
-          <div className="h-12 rounded-xl bg-white/70" />
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="h-16 rounded-xl bg-white/50" />
-            <div className={`${template.accent} h-16 rounded-xl opacity-75`} />
-          </div>
-        </div>
-      </div>
-      <p className="mt-4 text-center text-sm font-bold">{template.name}</p>
-    </article>
-  );
-}
 
 export default function HomePage() {
   return (
@@ -235,44 +141,32 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[610px] py-6 lg:py-0">
-            <div className="absolute top-12 left-4 hidden w-[250px] -rotate-8 opacity-85 sm:block lg:left-0">
-              <div className="aspect-[9/16] rounded-[2.6rem] border-[9px] border-[#171717] bg-[#f0c8ba] p-5 shadow-2xl">
-                <div className="h-32 rounded-3xl bg-[#be2e35]" />
-                <div className="mx-auto -mt-9 h-18 w-18 rounded-full border-4 border-[#f0c8ba] bg-[#f6dbb5]" />
-                <div className="mx-auto mt-5 h-3 w-24 rounded-full bg-black/75" />
-                <div className="mx-auto mt-3 h-2 w-32 rounded-full bg-black/20" />
-                <div className="mt-8 space-y-3">
-                  <div className="h-14 rounded-2xl bg-white/80" />
-                  <div className="h-14 rounded-2xl bg-[#be2e35]" />
-                  <div className="h-14 rounded-2xl bg-white/80" />
-                </div>
-              </div>
-            </div>
-            <div className="relative z-10 ml-auto max-w-[330px] sm:mr-4 lg:mr-8">
-              <ProfilePhone />
-            </div>
-            <div className="absolute right-0 bottom-20 z-20 rounded-2xl border border-black/10 bg-white p-4 shadow-xl sm:right-[-1rem]">
-              <p className="text-[10px] font-bold tracking-wider text-black/40 uppercase">
-                This month
-              </p>
-              <p className="mt-1 text-2xl font-black">2.4K</p>
-              <p className="mt-1 text-[10px] font-bold text-emerald-600">
-                ↑ 28% profile views
-              </p>
-            </div>
-          </div>
+          <HeroProfileCollage />
         </div>
       </section>
 
-      <section className="border-b border-black/10 bg-[#151515] py-5 text-white">
-        <div className="mx-auto flex max-w-[1380px] flex-wrap justify-center gap-x-10 gap-y-3 px-5 text-xs font-bold tracking-[0.14em] text-white/55 uppercase sm:px-8 lg:px-12">
-          <span>Running</span>
-          <span>HYROX</span>
-          <span>Gym & CrossFit</span>
-          <span>Cycling & Triathlon</span>
-          <span>Boxing & MMA</span>
-          <span>Football & Team sports</span>
+      <section className="border-b border-black/10 bg-[#151515] text-white">
+        <div className="mx-auto grid max-w-[1380px] grid-cols-1 px-5 sm:grid-cols-2 sm:px-8 lg:grid-cols-4 lg:px-12">
+          {journeyPoints.map((point, index) => (
+            <div
+              className={`flex gap-4 border-white/10 py-6 sm:px-6 lg:py-7 ${
+                index > 0 ? 'border-t sm:border-t-0' : ''
+              } ${index % 2 === 1 ? 'sm:border-l' : ''} ${
+                index > 1 ? 'sm:border-t lg:border-t-0' : ''
+              } ${index > 0 ? 'lg:border-l' : ''}`}
+              key={point.number}
+            >
+              <span className="pt-0.5 text-[10px] font-black tracking-[0.14em] text-[#a9ed35]">
+                {point.number}
+              </span>
+              <div>
+                <p className="text-sm font-black">{point.title}</p>
+                <p className="mt-1 text-xs leading-5 text-white/45">
+                  {point.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -356,15 +250,11 @@ export default function HomePage() {
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-6 text-black/50">
-              Start with a visual direction, then adapt every word, color, and
-              block to your sport and personality.
+              These are real Griit profile layouts. Start with a complete visual
+              direction, then adapt every word, color, and block to your story.
             </p>
           </div>
-          <div className="mt-14 grid grid-cols-2 gap-5 sm:grid-cols-4 lg:gap-8">
-            {templateCards.map((template) => (
-              <TemplateMiniature key={template.name} template={template} />
-            ))}
-          </div>
+          <TemplateProfileGallery />
           <div className="mt-10 text-center">
             <Link
               className="inline-flex h-11 items-center gap-2 rounded-full border border-black/15 bg-white px-5 text-sm font-bold hover:bg-black hover:text-white"

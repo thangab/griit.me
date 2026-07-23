@@ -111,13 +111,13 @@ export function EditorShowcase() {
         </button>
       </div>
 
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.45rem] border border-black/[0.06] bg-[#f4f5f7] sm:aspect-[1900/1307]">
+      <div className="relative aspect-[1900/1307] overflow-hidden rounded-[1.45rem] border border-black/[0.06] bg-[#f4f5f7]">
         {editorSlides.map((slide, index) => (
           <Image
             alt={slide.alt}
             aria-hidden={index !== activeIndex}
             className={cn(
-              'absolute inset-0 h-full w-full object-cover transition-opacity duration-700 sm:object-contain',
+              'absolute inset-0 h-full w-full object-contain transition-opacity duration-700',
               index === activeIndex
                 ? 'opacity-100'
                 : 'pointer-events-none opacity-0',
