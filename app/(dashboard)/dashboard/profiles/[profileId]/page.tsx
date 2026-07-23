@@ -36,23 +36,28 @@ function ProfilePreview({
   profileId: number;
 }) {
   return (
-    <aside className="border-border bg-card flex h-full min-h-0 flex-col overflow-hidden rounded-xl border shadow-sm">
-      <div className="border-border bg-background/70 flex items-center justify-between gap-3 border-b px-5 py-4">
+    <aside className="flex h-full min-h-0 flex-col overflow-hidden rounded-[2rem] border border-black/10 bg-[#151515] shadow-[0_24px_70px_rgba(21,21,21,0.14)]">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-4 text-white">
         <div className="min-w-0">
-          <p className="truncate text-lg font-semibold">
+          <p className="truncate text-lg font-black tracking-[-0.02em]">
             {builder.profile.displayName}
           </p>
-          <p className="text-muted-foreground mt-1 truncate text-sm">
+          <p className="mt-1 truncate text-sm text-white/45">
             griit.me/{builder.profile.username}
           </p>
         </div>
-        <Button asChild size="sm" variant="outline">
+        <Button
+          asChild
+          className="rounded-full border-white/15 bg-white/10 text-white hover:bg-white hover:text-[#151515]"
+          size="sm"
+          variant="outline"
+        >
           <Link href={`/dashboard/profiles/${profileId}/design` as Route}>
             Edit <Pencil className="h-4 w-4" />
           </Link>
         </Button>
       </div>
-      <div className="flex min-h-0 flex-1 justify-center p-4 sm:p-5">
+      <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden bg-[radial-gradient(circle_at_15%_10%,rgba(169,237,53,0.18),transparent_32%),radial-gradient(circle_at_90%_80%,rgba(49,87,255,0.20),transparent_38%)] p-4 sm:p-5">
         <MobileProfileFrame builder={builder} className="h-full" fillHeight />
       </div>
     </aside>
@@ -112,21 +117,28 @@ export default async function ProfileOverviewPage({
   ).length;
 
   return (
-    <div className="grid min-w-0 gap-6 xl:h-[calc(100dvh-3rem)] xl:grid-cols-[minmax(0,1fr)_500px] xl:overflow-hidden">
+    <div className="grid min-w-0 gap-6 xl:h-[calc(100dvh-3.5rem)] xl:grid-cols-[minmax(0,1fr)_minmax(440px,520px)] xl:overflow-hidden">
       <div className="min-w-0 space-y-6 xl:h-full xl:overflow-y-auto xl:pr-1">
-        <div className="border-border bg-card/80 rounded-xl border p-8">
-          <p className="text-muted-foreground text-sm font-medium">
-            Profile overview
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-            {builder.profile.displayName}
-          </h1>
-          <p className="text-muted-foreground mt-3">
-            Manage your content, appearance, and public profile settings.
-          </p>
-          <span className="mt-5 inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold tracking-[0.14em] text-emerald-900 uppercase">
-            {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
-          </span>
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#151515] p-7 text-white shadow-[0_24px_70px_rgba(21,21,21,0.12)] sm:p-9">
+          <div className="pointer-events-none absolute -top-28 -right-20 h-72 w-72 rounded-full border-[44px] border-[#3157ff]/25" />
+          <div className="pointer-events-none absolute right-24 -bottom-28 h-52 w-52 rounded-full bg-[#3157ff]/10 blur-3xl" />
+          <div className="relative">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-[11px] font-black tracking-[0.22em] text-white/45 uppercase">
+                Profile overview
+              </p>
+              <span className="inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white/75 uppercase">
+                {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
+              </span>
+            </div>
+            <h1 className="mt-8 max-w-xl text-4xl font-black tracking-[-0.055em] sm:text-5xl">
+              {builder.profile.displayName}
+            </h1>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-white/55 sm:text-base">
+              Build a page that tells your story, highlights your goals, and
+              grows with your audience.
+            </p>
+          </div>
         </div>
 
         <PublicAddressCard
@@ -135,39 +147,39 @@ export default async function ProfileOverviewPage({
         />
 
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-          <Card>
+          <Card className="rounded-[1.75rem] border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
             <CardHeader>
               <div className="flex items-center justify-between gap-4">
                 <CardTitle>Complete your profile</CardTitle>
-                <span className="text-muted-foreground shrink-0 text-xs font-semibold">
+                <span className="shrink-0 rounded-full bg-[#eef2ff] px-2.5 py-1 text-xs font-black text-[#3157ff]">
                   {completedChecklistItems}/{checklist.length}
                 </span>
               </div>
-              <CardDescription>
+              <CardDescription className="text-black/50">
                 A few quick improvements to make your page ready to share.
               </CardDescription>
             </CardHeader>
-            <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+            <div className="mb-4 h-2 overflow-hidden rounded-full bg-black/[0.06]">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-[width]"
+                className="h-full rounded-full bg-[#3157ff] transition-[width]"
                 style={{
                   width: `${(completedChecklistItems / checklist.length) * 100}%`,
                 }}
               />
             </div>
-            <div className="divide-border overflow-hidden rounded-xl border">
+            <div className="divide-y divide-black/[0.08] overflow-hidden rounded-2xl border border-black/10">
               {checklist.map((item) => {
                 const ItemIcon = item.icon;
 
                 return (
                   <Link
-                    className="hover:bg-muted/40 group flex items-center gap-3 px-4 py-3.5 transition-colors"
+                    className="group flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-[#f7f6f1]"
                     href={`/dashboard/profiles/${profileId}/design` as Route}
                     key={item.label}
                   >
                     {item.complete ? (
                       <CheckCircle
-                        className="h-5 w-5 shrink-0 text-emerald-600"
+                        className="h-5 w-5 shrink-0 text-[#3157ff]"
                         weight="fill"
                       />
                     ) : (
@@ -177,8 +189,8 @@ export default async function ProfileOverviewPage({
                       className={cn(
                         'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
                         item.complete
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-muted text-muted-foreground',
+                          ? 'bg-[#eef2ff] text-[#3157ff]'
+                          : 'bg-[#f2f1eb] text-black/40',
                       )}
                     >
                       <ItemIcon className="h-4 w-4" />
@@ -187,43 +199,54 @@ export default async function ProfileOverviewPage({
                       <span
                         className={cn(
                           'block text-sm font-semibold',
-                          item.complete && 'text-muted-foreground',
+                          item.complete && 'text-black/45',
                         )}
                       >
                         {item.label}
                       </span>
-                      <span className="text-muted-foreground mt-0.5 block text-xs leading-5">
+                      <span className="mt-0.5 block text-xs leading-5 text-black/45">
                         {item.description}
                       </span>
                     </span>
-                    <CaretRight className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                    <CaretRight className="h-4 w-4 shrink-0 text-black/35 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 );
               })}
             </div>
           </Card>
 
-          <Card>
+          <Card className="rounded-[1.75rem] border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
             <CardHeader>
               <CardTitle>Quick actions</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-black/50">
                 Edit, analyze, or configure this profile.
               </CardDescription>
             </CardHeader>
             <div className="space-y-3">
-              <Button asChild className="w-full">
+              <Button
+                asChild
+                className="w-full rounded-full bg-[#151515] text-white hover:bg-[#3157ff]"
+              >
                 <Link href={`/dashboard/profiles/${profileId}/design` as Route}>
                   Open editor
                 </Link>
               </Button>
-              <Button asChild className="w-full" variant="outline">
+              <Button
+                asChild
+                className="w-full rounded-full border-black/15 bg-white/70 hover:bg-white"
+                variant="outline"
+              >
                 <Link
                   href={`/dashboard/profiles/${profileId}/analytics` as Route}
                 >
                   View analytics
                 </Link>
               </Button>
-              <Button asChild className="w-full" variant="ghost">
+              <Button
+                asChild
+                className="w-full rounded-full hover:bg-black/[0.07]"
+                variant="ghost"
+              >
                 <Link
                   href={`/dashboard/profiles/${profileId}/settings` as Route}
                 >

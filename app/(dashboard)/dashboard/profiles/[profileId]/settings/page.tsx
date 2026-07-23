@@ -13,15 +13,15 @@ export default async function ProfileSettingsPage({
   if (!builder) notFound();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-muted-foreground text-sm font-medium">
+    <div className="mx-auto w-full max-w-[1180px] space-y-6">
+      <div className="rounded-[2rem] border border-black/10 bg-white p-7 shadow-[0_18px_50px_rgba(21,21,21,0.05)] sm:p-9">
+        <p className="text-[11px] font-black tracking-[0.22em] text-[#3157ff] uppercase">
           Profile settings
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+        <h1 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
           Settings
         </h1>
-        <p className="text-muted-foreground mt-2 text-sm">
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-black/50">
           Manage your public address, visibility, sharing, and profile data.
         </p>
       </div>

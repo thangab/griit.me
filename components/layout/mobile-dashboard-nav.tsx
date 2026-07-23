@@ -54,24 +54,24 @@ export function MobileDashboardNav({
 
   return (
     <div className="lg:hidden">
-      <header className="border-border bg-background/95 sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-black/10 bg-[#f7f6f1]/95 px-4 backdrop-blur-xl">
         <button
           aria-expanded={isStudioMenuOpen}
           aria-haspopup="menu"
-          className="hover:bg-muted flex items-center gap-3 rounded-xl p-1 pr-2 text-left transition-colors"
+          className="flex items-center gap-3 rounded-xl p-1 pr-2 text-left transition-colors hover:bg-black/[0.05]"
           type="button"
           onClick={() => setIsStudioMenuOpen((current) => !current)}
         >
-          <div className="bg-primary text-primary-foreground flex h-9 w-9 items-center justify-center rounded-xl text-sm font-semibold">
-            G
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#3157ff] text-sm font-black text-white">
+            G.
           </div>
           <div>
-            <p className="text-sm font-semibold">Griit</p>
-            <p className="text-muted-foreground text-xs">Studio</p>
+            <p className="text-sm font-black tracking-[-0.02em]">GRIIT.</p>
+            <p className="text-xs text-black/45">Studio</p>
           </div>
           <ChevronDown
             className={cn(
-              'text-muted-foreground h-4 w-4 transition-transform',
+              'h-4 w-4 text-black/45 transition-transform',
               isStudioMenuOpen && 'rotate-180',
             )}
           />
@@ -86,6 +86,7 @@ export function MobileDashboardNav({
           size="sm"
           type="button"
           variant="outline"
+          className="rounded-full border-black/10 bg-white"
         >
           {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
@@ -100,12 +101,12 @@ export function MobileDashboardNav({
             onClick={() => setIsStudioMenuOpen(false)}
           />
           <div
-            className="border-border bg-background fixed top-14 left-4 z-50 w-56 rounded-xl border p-1.5 shadow-xl"
+            className="fixed top-14 left-4 z-50 w-60 rounded-2xl border border-black/10 bg-white p-1.5 shadow-[0_22px_60px_rgba(0,0,0,0.18)]"
             role="menu"
           >
             {canSwitchProfiles ? (
               <div className="mb-1">
-                <p className="text-muted-foreground px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                <p className="text-muted-foreground px-3 py-1.5 text-[11px] font-semibold tracking-[0.12em] uppercase">
                   Profiles
                 </p>
                 <div className="max-h-64 overflow-y-auto">
@@ -181,18 +182,18 @@ export function MobileDashboardNav({
 
       <aside
         className={cn(
-          'border-border bg-background fixed top-0 right-0 z-50 flex h-dvh w-[min(320px,86vw)] flex-col border-l p-5 shadow-xl transition-transform duration-200',
+          'fixed top-0 right-0 z-50 flex h-dvh w-[min(320px,86vw)] flex-col border-l border-white/10 bg-[#151515] p-5 text-white shadow-2xl transition-transform duration-200',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold">
-              G
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3157ff] text-sm font-black text-white">
+              G.
             </div>
             <div>
-              <p className="text-sm font-semibold">Griit</p>
-              <p className="text-muted-foreground text-xs">Studio</p>
+              <p className="text-sm font-black">GRIIT.</p>
+              <p className="text-xs text-white/45">Studio</p>
             </div>
           </div>
           <Button
@@ -201,6 +202,7 @@ export function MobileDashboardNav({
             size="sm"
             type="button"
             variant="ghost"
+            className="text-white hover:bg-white/10 hover:text-white"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -217,28 +219,37 @@ export function MobileDashboardNav({
                 href={item.href as Route}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  'text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition',
-                  isActive && 'bg-accent text-foreground',
+                  'flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-white/50 transition hover:bg-white/[0.08] hover:text-white',
+                  isActive &&
+                    'bg-white text-[#151515] hover:bg-white hover:text-[#151515]',
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon
+                  className={cn(
+                    'h-[18px] w-[18px]',
+                    isActive && 'text-[#3157ff]',
+                  )}
+                />
                 {item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="border-border bg-card mt-auto rounded-xl border p-4">
+        <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.06] p-4">
           <p className="text-sm font-semibold">
             {isPro ? "You're all set" : 'Unlock more with Pro'}
           </p>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm leading-5 text-white/45">
             {isPro
               ? 'Everything is unlocked. Keep building what comes next.'
               : 'Get multiple profiles, advanced analytics, and more customization.'}
           </p>
           {!isPro ? (
-            <Button asChild className="mt-4 w-full">
+            <Button
+              asChild
+              className="mt-4 w-full bg-white text-[#151515] hover:bg-[#eef2ff] hover:text-[#3157ff]"
+            >
               <Link
                 href="/dashboard/subscribe"
                 onClick={() => setIsOpen(false)}

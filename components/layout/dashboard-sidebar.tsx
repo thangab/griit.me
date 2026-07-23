@@ -75,14 +75,14 @@ export function DashboardSidebar({
     <aside
       className={cn(
         'relative hidden shrink-0 lg:block',
-        isCompact ? 'w-20' : 'w-72',
+        isCompact ? 'w-[5.25rem]' : 'w-72',
       )}
     >
       <div
         className={cn(
-          'group/sidebar border-border bg-card/70 flex h-full min-h-0 flex-col border-r py-6 transition-[width,padding] duration-200',
+          'group/sidebar flex h-full min-h-0 flex-col border-r border-white/10 bg-[#151515] py-6 text-white shadow-[18px_0_45px_rgba(21,21,21,0.08)] transition-[width,padding] duration-200',
           isCompact
-            ? 'absolute top-0 left-0 z-30 w-20 px-3 hover:w-72 hover:px-5'
+            ? 'absolute top-0 left-0 z-30 w-[5.25rem] px-3 hover:w-72 hover:px-5'
             : 'w-72 px-5',
         )}
       >
@@ -90,15 +90,14 @@ export function DashboardSidebar({
           ref={studioMenuRef}
           className={cn(
             'relative px-2 transition-[padding] duration-200',
-            isCompact &&
-              'px-0 group-hover/sidebar:px-2',
+            isCompact && 'px-0 group-hover/sidebar:px-2',
           )}
         >
           <button
             aria-expanded={isStudioMenuOpen}
             aria-haspopup="menu"
             className={cn(
-              'hover:bg-accent flex w-full items-center gap-3 rounded-xl p-1 text-left transition-colors',
+              'flex w-full items-center gap-3 rounded-2xl p-1 text-left transition-colors hover:bg-white/[0.08]',
               isCompact
                 ? 'justify-center group-hover/sidebar:justify-start'
                 : 'justify-start',
@@ -106,8 +105,8 @@ export function DashboardSidebar({
             type="button"
             onClick={() => setIsStudioMenuOpen((current) => !current)}
           >
-            <span className="bg-primary text-primary-foreground flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold">
-              G
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3157ff] text-sm font-black text-white">
+              G.
             </span>
             <span
               className={cn(
@@ -117,12 +116,14 @@ export function DashboardSidebar({
                   : 'w-36 opacity-100',
               )}
             >
-              <span className="block text-sm font-semibold">Griit</span>
-              <span className="text-muted-foreground block text-sm">Studio</span>
+              <span className="block text-sm font-black tracking-[-0.02em]">
+                GRIIT.
+              </span>
+              <span className="block text-xs text-white/45">Studio</span>
             </span>
             <ChevronDown
               className={cn(
-                'h-4 w-4 shrink-0 transition-[transform,opacity] duration-200',
+                'h-4 w-4 shrink-0 text-white/45 transition-[transform,opacity] duration-200',
                 isStudioMenuOpen && 'rotate-180',
                 isCompact &&
                   'w-0 opacity-0 group-hover/sidebar:w-4 group-hover/sidebar:opacity-100',
@@ -132,12 +133,12 @@ export function DashboardSidebar({
 
           {isStudioMenuOpen ? (
             <div
-              className="border-border bg-background absolute top-[calc(100%+0.5rem)] left-0 z-50 w-56 rounded-xl border p-1.5 shadow-xl"
+              className="absolute top-[calc(100%+0.5rem)] left-0 z-50 w-60 rounded-2xl border border-black/10 bg-white p-1.5 text-[#151515] shadow-[0_22px_60px_rgba(0,0,0,0.18)]"
               role="menu"
             >
               {canSwitchProfiles ? (
                 <div className="mb-1">
-                  <p className="text-muted-foreground px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em]">
+                  <p className="px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/40 uppercase">
                     Profiles
                   </p>
                   <div className="max-h-56 overflow-y-auto">
@@ -147,8 +148,8 @@ export function DashboardSidebar({
                         <Link
                           key={profile.id}
                           className={cn(
-                            'hover:bg-accent flex items-center gap-3 rounded-lg px-2 py-2 transition-colors',
-                            isActive && 'bg-accent',
+                            'flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-[#f2f1eb]',
+                            isActive && 'bg-[#eef2ff]',
                           )}
                           href={`/dashboard/profiles/${profile.id}` as Route}
                           role="menuitem"
@@ -156,7 +157,7 @@ export function DashboardSidebar({
                         >
                           <ProfileAvatar
                             avatarUrl={profile.avatarUrl}
-                            className="bg-muted text-muted-foreground"
+                            className="bg-[#f2f1eb] text-black/50"
                             displayName={profile.displayName}
                             size={30}
                           />
@@ -164,22 +165,22 @@ export function DashboardSidebar({
                             <span className="block truncate text-sm font-semibold">
                               {profile.displayName}
                             </span>
-                            <span className="text-muted-foreground block truncate text-xs">
+                            <span className="block truncate text-xs text-black/45">
                               @{profile.username}
                             </span>
                           </span>
                           {isActive ? (
-                            <CheckIcon className="text-primary h-4 w-4 shrink-0" />
+                            <CheckIcon className="h-4 w-4 shrink-0 text-[#3157ff]" />
                           ) : null}
                         </Link>
                       );
                     })}
                   </div>
-                  <div className="bg-border my-1 h-px" />
+                  <div className="my-1 h-px bg-black/10" />
                 </div>
               ) : null}
               <Link
-                className="hover:bg-accent flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+                className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-[#f2f1eb]"
                 href="/dashboard"
                 role="menuitem"
                 onClick={() => setIsStudioMenuOpen(false)}
@@ -187,10 +188,10 @@ export function DashboardSidebar({
                 <LayoutGrid className="h-4 w-4" />
                 Dashboard
               </Link>
-              <div className="bg-border my-1 h-px" />
+              <div className="my-1 h-px bg-black/10" />
               <form action={signOutAction}>
                 <button
-                  className="hover:bg-accent flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors"
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold transition-colors hover:bg-[#f2f1eb]"
                   role="menuitem"
                   type="submit"
                 >
@@ -202,7 +203,7 @@ export function DashboardSidebar({
           ) : null}
         </div>
 
-        <nav className="mt-8 space-y-1">
+        <nav className="mt-8 space-y-1.5">
           {dashboardNavItems.map((item) => {
             const Icon = iconMap[item.icon as keyof typeof iconMap];
             const isActive = pathname === item.href;
@@ -213,13 +214,19 @@ export function DashboardSidebar({
                 href={item.href as Route}
                 title={isCompact ? item.label : undefined}
                 className={cn(
-                  'text-muted-foreground hover:bg-accent hover:text-foreground flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition',
-                  isActive && 'bg-accent text-foreground',
+                  'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-white/50 transition hover:bg-white/[0.08] hover:text-white',
+                  isActive &&
+                    'bg-white text-[#151515] shadow-sm hover:bg-white hover:text-[#151515]',
                   isCompact &&
                     'justify-center px-0 group-hover/sidebar:justify-start group-hover/sidebar:px-3',
                 )}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                <Icon
+                  className={cn(
+                    'h-[18px] w-[18px] shrink-0',
+                    isActive && 'text-[#3157ff]',
+                  )}
+                />
                 <span
                   className={cn(
                     'overflow-hidden whitespace-nowrap transition-[opacity,width] duration-200',
@@ -237,9 +244,9 @@ export function DashboardSidebar({
 
         <div
           className={cn(
-            'border-border bg-background mt-auto overflow-hidden rounded-xl border transition-[padding] duration-200',
+            'mt-auto overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] transition-[padding] duration-200',
             isCompact
-              ? 'border-transparent bg-transparent p-0 opacity-0 group-hover/sidebar:border-border group-hover/sidebar:bg-background group-hover/sidebar:p-4 group-hover/sidebar:opacity-100'
+              ? 'border-transparent bg-transparent p-0 opacity-0 group-hover/sidebar:border-white/10 group-hover/sidebar:bg-white/[0.06] group-hover/sidebar:p-4 group-hover/sidebar:opacity-100'
               : 'p-4',
           )}
         >
@@ -254,7 +261,7 @@ export function DashboardSidebar({
             <p className="text-sm font-semibold">
               {isPro ? "You're all set" : 'Unlock more with Pro'}
             </p>
-            <p className="text-muted-foreground mt-1 text-sm">
+            <p className="mt-1 text-sm leading-5 text-white/45">
               {isPro
                 ? 'Everything is unlocked. Keep building what comes next.'
                 : 'Get multiple profiles, advanced analytics, and more customization.'}
@@ -264,7 +271,7 @@ export function DashboardSidebar({
             <Button
               asChild
               className={cn(
-                'w-full transition-[margin,padding] duration-200',
+                'w-full bg-white text-[#151515] transition-[margin,padding] duration-200 hover:bg-[#eef2ff] hover:text-[#3157ff]',
                 isCompact
                   ? 'mt-0 px-0 group-hover/sidebar:mt-4 group-hover/sidebar:px-4'
                   : 'mt-4',

@@ -66,7 +66,7 @@ export function SubscriptionCard({
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <div className="border-primary/20 bg-card rounded-2xl border p-6 shadow-sm">
+      <div className="rounded-[2rem] border border-black/10 bg-white p-6 shadow-[0_20px_60px_rgba(21,21,21,0.06)] sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-muted-foreground text-sm font-medium">
@@ -82,7 +82,7 @@ export function SubscriptionCard({
               {currentPlanData.description}
             </p>
           </div>
-          <div className="border-primary/20 bg-primary/10 text-primary rounded-full border px-3 py-1 text-sm font-medium">
+          <div className="rounded-full bg-[#eef2ff] px-3 py-1 text-sm font-bold text-[#3157ff]">
             Active
           </div>
         </div>
@@ -90,14 +90,14 @@ export function SubscriptionCard({
         <ul className="text-muted-foreground mt-6 space-y-2 text-sm">
           {currentPlanData.features.map((feature) => (
             <li key={feature} className="flex items-center gap-2">
-              <span className="bg-primary h-2 w-2 rounded-full" />
+              <span className="h-2 w-2 rounded-full bg-[#3157ff]" />
               {feature}
             </li>
           ))}
         </ul>
 
         <Button
-          className="mt-6 w-full"
+          className="mt-6 w-full rounded-full bg-[#151515] hover:bg-[#3157ff]"
           variant={currentPlan === 'pro' ? 'default' : 'outline'}
           onClick={handleCheckout}
           disabled={isLoading || currentPlan === 'pro'}
@@ -113,33 +113,31 @@ export function SubscriptionCard({
         ) : null}
       </div>
 
-      <div className="border-border bg-background rounded-2xl border p-6 shadow-sm">
+      <div className="rounded-[2rem] border border-black/10 bg-white p-6 shadow-[0_20px_60px_rgba(21,21,21,0.06)] sm:p-8">
         <div>
-          <p className="text-muted-foreground text-sm font-medium">
-            Alternative plan
-          </p>
+          <p className="text-sm font-medium text-black/55">Alternative plan</p>
           <div className="mt-1 flex items-baseline gap-3">
             <h3 className="text-2xl font-semibold">{otherPlanData.name}</h3>
-            <span className="text-muted-foreground text-sm font-medium">
+            <span className="text-sm font-medium text-black/55">
               {otherPriceLabel}
             </span>
           </div>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <p className="mt-2 text-sm text-black/55">
             {otherPlanData.description}
           </p>
         </div>
 
-        <ul className="text-muted-foreground mt-6 space-y-2 text-sm">
+        <ul className="mt-6 space-y-2 text-sm text-black/60">
           {otherPlanData.features.map((feature) => (
             <li key={feature} className="flex items-center gap-2">
-              <span className="bg-muted-foreground/50 h-2 w-2 rounded-full" />
+              <span className="h-2 w-2 rounded-full bg-[#151515]/45" />
               {feature}
             </li>
           ))}
         </ul>
 
         <Button
-          className="mt-6 w-full"
+          className="mt-6 w-full rounded-full border-black/15 bg-white/75 hover:bg-white"
           variant={currentPlan === 'pro' ? 'outline' : 'default'}
           onClick={() => router.push('/dashboard/subscribe')}
         >

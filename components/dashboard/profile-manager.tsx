@@ -61,28 +61,34 @@ export function ProfileManager({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-muted-foreground text-sm font-medium">Profiles</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            Your public profiles
-          </h1>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Manage independent pages for athletes, teams, or projects.
-          </p>
+    <div className="mx-auto w-full max-w-[1380px] space-y-6">
+      <div className="relative overflow-hidden rounded-[2rem] bg-[#151515] p-7 text-white sm:p-9">
+        <div className="pointer-events-none absolute -top-24 right-8 h-60 w-60 rounded-full border-[38px] border-[#3157ff]/25" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[11px] font-black tracking-[0.22em] text-white/45 uppercase">
+              Profiles
+            </p>
+            <h1 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
+              Your public profiles
+            </h1>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">
+              Manage independent pages for athletes, teams, or projects.
+            </p>
+          </div>
+          <Button
+            className="rounded-full bg-white text-[#151515] hover:bg-[#eef2ff] hover:text-[#3157ff]"
+            disabled={!canCreate}
+            onClick={() => setShowCreate((current) => !current)}
+            type="button"
+          >
+            <PlusIcon className="h-4 w-4" />
+            New profile
+          </Button>
         </div>
-        <Button
-          disabled={!canCreate}
-          onClick={() => setShowCreate((current) => !current)}
-          type="button"
-        >
-          <PlusIcon className="h-4 w-4" />
-          New profile
-        </Button>
       </div>
 
-      <div className="border-border bg-card/70 flex items-center justify-between rounded-xl border px-4 py-3 text-sm">
+      <div className="flex items-center justify-between rounded-2xl border border-black/10 bg-white px-5 py-4 text-sm shadow-[0_14px_40px_rgba(21,21,21,0.04)]">
         <span className="font-medium">
           {profiles.length} of {limit} profiles used
         </span>
@@ -98,7 +104,7 @@ export function ProfileManager({
       {showCreate && canCreate ? (
         <form
           action={formAction}
-          className="border-border bg-background grid gap-4 rounded-xl border p-5 sm:grid-cols-2"
+          className="grid gap-4 rounded-[1.75rem] border border-black/10 bg-white p-5 shadow-[0_18px_50px_rgba(21,21,21,0.06)] sm:grid-cols-2 sm:p-6"
         >
           <label className="space-y-2 text-sm font-semibold">
             Profile name
@@ -160,11 +166,11 @@ export function ProfileManager({
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {profiles.map((profile) => (
           <article
-            className="border-border bg-card group rounded-xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="group rounded-[1.75rem] border border-black/10 bg-white p-5 shadow-[0_14px_40px_rgba(21,21,21,0.04)] transition hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(21,21,21,0.09)]"
             key={profile.id}
           >
             <div className="flex items-start gap-4">
-              <div className="bg-muted h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-[#eef2ff]">
                 {profile.avatarUrl ? (
                   <img
                     alt=""
@@ -196,7 +202,11 @@ export function ProfileManager({
             </div>
 
             <div className="mt-5 flex items-center gap-2">
-              <Button asChild className="flex-1" size="sm">
+              <Button
+                asChild
+                className="flex-1 rounded-full bg-[#151515] hover:bg-[#3157ff]"
+                size="sm"
+              >
                 <Link href={`/dashboard/profiles/${profile.id}` as Route}>
                   Manage
                 </Link>

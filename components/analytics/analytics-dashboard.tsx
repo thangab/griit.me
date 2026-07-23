@@ -212,7 +212,7 @@ function BreakdownCard({
   const max = Math.max(1, ...items.map((item) => item.value));
 
   return (
-    <section className="border-border bg-card rounded-xl border p-5">
+    <section className="rounded-[1.5rem] border border-black/10 bg-white p-5 shadow-[0_14px_40px_rgba(21,21,21,0.04)]">
       <div className="flex items-center gap-2">
         <Icon className="text-muted-foreground h-4 w-4" />
         <h3 className="font-semibold">{title}</h3>
@@ -260,7 +260,7 @@ function LockedAnalyticsCard({
   return (
     <section
       className={cn(
-        'border-border bg-card overflow-hidden rounded-xl border',
+        'overflow-hidden rounded-[1.5rem] border border-black/10 bg-white shadow-[0_14px_40px_rgba(21,21,21,0.04)]',
         className,
       )}
     >
@@ -300,7 +300,7 @@ function InteractionTable({
   interactions: AnalyticsInteraction[];
 }) {
   return (
-    <section className="border-border bg-card overflow-hidden rounded-xl border">
+    <section className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-white shadow-[0_14px_40px_rgba(21,21,21,0.04)]">
       <div className="border-border flex items-center justify-between gap-4 border-b px-5 py-4">
         <h3 className="font-semibold">{title}</h3>
         <button
@@ -464,24 +464,25 @@ export function AnalyticsDashboard({
     <div
       className={cn('space-y-5 transition-opacity', isPending && 'opacity-65')}
     >
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+      <div className="relative overflow-hidden rounded-[2rem] bg-[#151515] p-6 text-white sm:p-8 xl:flex xl:items-end xl:justify-between xl:gap-6">
+        <div className="pointer-events-none absolute -top-24 -right-10 h-64 w-64 rounded-full border-[40px] border-[#3157ff]/25" />
         <div>
-          <p className="text-muted-foreground text-sm font-medium">
+          <p className="text-[11px] font-black tracking-[0.22em] text-white/45 uppercase">
             Performance
           </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          <h1 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
             Analytics
           </h1>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">
             Understand how visitors discover and interact with @
             {data.profile.username}.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="relative mt-6 flex flex-wrap gap-2 xl:mt-0">
           <label className="relative min-w-40 flex-1 sm:flex-none">
             <span className="sr-only">Date range</span>
             <select
-              className="border-border bg-card h-11 w-full appearance-none rounded-lg border pr-9 pl-3 text-sm font-semibold outline-none"
+              className="h-11 w-full appearance-none rounded-xl border border-white/15 bg-white px-3 pr-9 text-sm font-semibold text-[#151515] outline-none"
               value={filters.range}
               onChange={(event) => {
                 const range = event.target.value;
@@ -504,12 +505,12 @@ export function AnalyticsDashboard({
                 </option>
               ))}
             </select>
-            <ChevronDown className="text-muted-foreground pointer-events-none absolute top-3.5 right-3 h-4 w-4" />
+            <ChevronDown className="pointer-events-none absolute top-3.5 right-3 h-4 w-4 text-black/45" />
           </label>
           <label className="relative min-w-32 flex-1 sm:flex-none">
             <span className="sr-only">Grouping</span>
             <select
-              className="border-border bg-card h-11 w-full appearance-none rounded-lg border pr-9 pl-3 text-sm font-semibold outline-none"
+              className="h-11 w-full appearance-none rounded-xl border border-white/15 bg-white px-3 pr-9 text-sm font-semibold text-[#151515] outline-none"
               value={filters.granularity}
               onChange={(event) =>
                 updateFilters({ granularity: event.target.value })
@@ -518,17 +519,17 @@ export function AnalyticsDashboard({
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
             </select>
-            <ChevronDown className="text-muted-foreground pointer-events-none absolute top-3.5 right-3 h-4 w-4" />
+            <ChevronDown className="pointer-events-none absolute top-3.5 right-3 h-4 w-4 text-black/45" />
           </label>
-          <div className="border-border bg-card grid h-11 grid-cols-2 rounded-lg border p-1">
+          <div className="grid h-11 grid-cols-2 rounded-xl border border-white/15 bg-white p-1 text-[#151515]">
             {(['totals', 'uniques'] as const).map((mode) => (
               <button
                 key={mode}
                 className={cn(
                   'rounded-md px-3 text-xs font-semibold capitalize transition',
                   filters.mode === mode
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground',
+                    ? 'bg-[#3157ff] text-white shadow-sm'
+                    : 'text-black/45 hover:text-black',
                 )}
                 type="button"
                 onClick={() => updateFilters({ mode })}
@@ -541,7 +542,7 @@ export function AnalyticsDashboard({
       </div>
 
       {filters.range === 'custom' ? (
-        <div className="border-border bg-card flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-3 rounded-[1.5rem] border border-black/10 bg-white p-4 shadow-[0_14px_40px_rgba(21,21,21,0.04)] sm:flex-row sm:items-end">
           <label className="flex-1 space-y-1.5">
             <span className="text-xs font-semibold">Start date</span>
             <input
@@ -582,8 +583,9 @@ export function AnalyticsDashboard({
             <div
               key={card.label}
               className={cn(
-                'border-border bg-card rounded-xl border p-4 sm:p-5',
+                'rounded-[1.5rem] border border-black/10 bg-white p-4 shadow-[0_14px_40px_rgba(21,21,21,0.04)] sm:p-5',
                 index === summaryCards.length - 1 && 'col-span-2 xl:col-span-1',
+                index === summaryCards.length - 1 && 'border-[#3157ff]/20',
               )}
             >
               <div className="flex items-center justify-between gap-2">
@@ -602,7 +604,7 @@ export function AnalyticsDashboard({
         })}
       </div>
 
-      <section className="border-border bg-card overflow-hidden rounded-xl border">
+      <section className="overflow-hidden rounded-[1.75rem] border border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
         <div className="border-border flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold">Profile views & clicks</h2>

@@ -11,16 +11,23 @@ export default async function SubscribePage() {
     subscriptionPlans.pro.price;
 
   return (
-    <div className="space-y-6">
-      <div className="border-border bg-background rounded-xl border p-6">
-        <h2 className="text-2xl font-semibold">Billing & subscription</h2>
-        <p className="text-foreground mt-2 text-sm font-semibold">
-          Pro plan price: <span className="text-primary">{proPriceLabel}</span>
-        </p>
-        <p className="text-muted-foreground mt-2 text-sm">
-          The architecture is prepared for Stripe Checkout and future plan
-          expansion.
-        </p>
+    <div className="mx-auto w-full max-w-[1180px] space-y-6">
+      <div className="relative overflow-hidden rounded-[2rem] bg-[#151515] p-7 text-white sm:p-10">
+        <div className="pointer-events-none absolute -top-28 -right-16 h-72 w-72 rounded-full border-[44px] border-[#3157ff]/25" />
+        <div className="relative">
+          <p className="text-[11px] font-black tracking-[0.22em] text-white/45 uppercase">
+            Griit Pro
+          </p>
+          <h1 className="mt-5 max-w-2xl text-4xl font-black tracking-[-0.055em] sm:text-5xl">
+            More profiles. Deeper insights. More freedom.
+          </h1>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/55 sm:text-base">
+            Upgrade when you are ready to grow beyond a single athlete page.
+          </p>
+          <span className="mt-7 inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-white">
+            {proPriceLabel}
+          </span>
+        </div>
       </div>
       <SubscriptionCard
         subscription={subscription}
