@@ -2,6 +2,7 @@
 
 import { revalidatePath, updateTag } from 'next/cache';
 import { z } from 'zod';
+import { achievementTypes } from '@/lib/constants/achievements';
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -251,7 +252,14 @@ const builderSchema = z.object({
       z.object({
         id: persistedIdSchema,
         title: z.string().trim().max(160),
+        result: z.string().trim().max(120).optional(),
+        achievementType: z.enum(achievementTypes),
+        achievementTypeLabel: z.string().trim().max(80).optional(),
+        eventName: z.string().trim().max(160).optional(),
         description: z.string().trim().max(500).optional(),
+        imageUrl: urlSchema,
+        resultUrl: urlSchema,
+        resultLinkLabel: z.string().trim().max(80).optional(),
         achievedAt: dateSchema,
       }),
     )
@@ -496,17 +504,52 @@ function getAchievements(formData: FormData) {
         index,
         id: getPersistedId(formData, `achievementId${index}`),
         title: String(value).trim(),
+        result: getString(formData, `achievementResult${index}`),
+        achievementType:
+          getString(formData, `achievementType${index}`) || 'milestone',
+        achievementTypeLabel: getString(
+          formData,
+          `achievementTypeLabel${index}`,
+        ),
+        eventName: getString(formData, `achievementEventName${index}`),
         description: getString(formData, `achievementDescription${index}`),
+        imageUrl: getString(formData, `achievementImageUrl${index}`),
+        resultUrl: getString(formData, `achievementResultUrl${index}`),
+        resultLinkLabel: getString(
+          formData,
+          `achievementResultLinkLabel${index}`,
+        ),
         achievedAt: getString(formData, `achievementDate${index}`),
       };
     })
     .sort((left, right) => left.index - right.index)
-    .map(({ id, title, description, achievedAt }) => ({
-      id,
-      title,
-      description,
-      achievedAt,
-    }));
+    .map(
+      ({
+        id,
+        title,
+        result,
+        achievementType,
+        achievementTypeLabel,
+        eventName,
+        description,
+        imageUrl,
+        resultUrl,
+        resultLinkLabel,
+        achievedAt,
+      }) => ({
+        id,
+        title,
+        result,
+        achievementType,
+        achievementTypeLabel,
+        eventName,
+        description,
+        imageUrl,
+        resultUrl,
+        resultLinkLabel,
+        achievedAt,
+      }),
+    );
 }
 
 function getActivities(formData: FormData) {
@@ -792,7 +835,17 @@ async function replaceAchievements(
       id: item.id,
       values: {
         title: item.title,
+        result: item.result || null,
+        achievement_type: item.achievementType,
+        achievement_type_label:
+          item.achievementType === 'other'
+            ? item.achievementTypeLabel || null
+            : null,
+        event_name: item.eventName || null,
         description: item.description || null,
+        image_url: item.imageUrl,
+        result_url: item.resultUrl,
+        result_link_label: item.resultLinkLabel || null,
         achieved_at: item.achievedAt,
       },
     }));
@@ -1328,7 +1381,6 @@ export async function saveProfileBuilderAction(
 
   revalidatePath('/dashboard');
   revalidatePath(`/dashboard/profiles/${profileId}`);
-  revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${username}`);
   updateTag(getPublicProfileCacheTag(username));
   updateTag(athleteDirectoryCacheTag);
@@ -2139,7 +2191,6 @@ export async function updateProfileTemplateAction(
 
   revalidatePath('/dashboard');
   revalidatePath(`/dashboard/profiles/${profileId}`);
-  revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/${existingProfile.username}`);
   updateTag(getPublicProfileCacheTag(existingProfile.username));
   updateTag(athleteDirectoryCacheTag);

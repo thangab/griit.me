@@ -586,7 +586,18 @@ function createLivePreviewState(
         id: builder.achievements[sourceIndex]?.id ?? null,
         analyticsKey: builder.achievements[sourceIndex]?.analyticsKey ?? '',
         title: title || 'New achievement',
+        result: getValue(`achievementResult${number}`),
+        achievementType:
+          (getValue(
+            `achievementType${number}`,
+          ) as import('@/lib/constants/achievements').AchievementType) ||
+          'milestone',
+        achievementTypeLabel: getValue(`achievementTypeLabel${number}`),
+        eventName: getValue(`achievementEventName${number}`),
         description: getValue(`achievementDescription${number}`),
+        imageUrl: getValue(`achievementImageUrl${number}`),
+        resultUrl: getValue(`achievementResultUrl${number}`),
+        resultLinkLabel: getValue(`achievementResultLinkLabel${number}`),
         date,
         dateLabel: date ? formatGoalDate(date, 'date') : '',
         sortOrder: index,

@@ -10,6 +10,7 @@ import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
 import { getSocialLinkHref } from '@/lib/constants/social-platforms';
 import { SponsorsPartnershipsBlock } from '@/components/profile/sponsors-partnerships-block';
 import { MediaBlock } from '@/components/profile/media-block';
+import { AchievementShowcase } from '@/components/profile/achievement-showcase';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
 import { ProfileHeader } from '@/components/profile/profile-header';
@@ -333,37 +334,21 @@ export function GoalSpotlightTemplate({
                         {wording.achievementsLabel}
                       </p>
                     ) : null}
-                    {achievements.map((item) => (
-                      <div
-                        key={`${item.title}-${item.sortOrder}`}
-                        className={
-                          wording.achievementsLabel ? 'mt-4' : undefined
-                        }
-                      >
-                        <p
-                          className="font-semibold"
-                          style={{ color: theme.palette.blockTitle }}
-                        >
-                          {item.title}
-                        </p>
-                        {item.description ? (
-                          <p
-                            className="mt-1 text-sm leading-6"
-                            style={{ color: theme.palette.description }}
-                          >
-                            {item.description}
-                          </p>
-                        ) : null}
-                        {item.dateLabel ? (
-                          <p
-                            className="mt-2 text-xs font-medium"
-                            style={{ color: theme.palette.mutedDescription }}
-                          >
-                            {item.dateLabel}
-                          </p>
-                        ) : null}
-                      </div>
-                    ))}
+                    <AchievementShowcase
+                      analyticsKey={block.analyticsKey}
+                      className={wording.achievementsLabel ? 'mt-4' : undefined}
+                      colors={{
+                        accent: theme.palette.accent,
+                        accentText: theme.palette.accentText,
+                        cardBackground: theme.palette.subtle,
+                        border: theme.palette.border,
+                        title: theme.palette.blockTitle,
+                        description: theme.palette.description,
+                        muted: theme.palette.mutedDescription,
+                      }}
+                      imageStyle={theme.blockInnerStyle}
+                      items={achievements}
+                    />
                   </div>
                 ) : null;
               }

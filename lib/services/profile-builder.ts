@@ -7,6 +7,7 @@ import {
 import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import { defaultSports } from '@/lib/constants/sports';
 import type {
+  BuilderAchievementItem,
   BuilderBlock,
   BuilderGalleryItem,
   BuilderGoalItem,
@@ -15,6 +16,10 @@ import type {
   BuilderTimelineItem,
   ProfileBuilderState,
 } from '@/lib/types/profile-builder';
+import {
+  achievementTypes,
+  type AchievementType,
+} from '@/lib/constants/achievements';
 import {
   formatGoalDate,
   goalDateDisplays,
@@ -87,7 +92,14 @@ interface AchievementRow {
   id: number;
   analytics_key: string;
   title: string;
+  result: string | null;
+  achievement_type: string | null;
+  achievement_type_label: string | null;
+  event_name: string | null;
   description: string | null;
+  image_url: string | null;
+  result_url: string | null;
+  result_link_label: string | null;
   achieved_at: string | null;
   sort_order: number;
   is_enabled: boolean;
@@ -219,12 +231,25 @@ function mapSponsor(row: SponsorRow): BuilderSponsor {
   };
 }
 
-function mapAchievement(row: AchievementRow): BuilderTimelineItem {
+function mapAchievement(row: AchievementRow): BuilderAchievementItem {
+  const achievementType = achievementTypes.includes(
+    row.achievement_type as AchievementType,
+  )
+    ? (row.achievement_type as AchievementType)
+    : 'milestone';
+
   return {
     id: row.id,
     analyticsKey: row.analytics_key,
     title: row.title,
+    result: row.result ?? '',
+    achievementType,
+    achievementTypeLabel: row.achievement_type_label ?? '',
+    eventName: row.event_name ?? '',
     description: row.description ?? '',
+    imageUrl: row.image_url ?? '',
+    resultUrl: row.result_url ?? '',
+    resultLinkLabel: row.result_link_label ?? '',
     dateLabel: formatDateLabel(row.achieved_at),
     date: formatDateInput(row.achieved_at),
     sortOrder: row.sort_order,

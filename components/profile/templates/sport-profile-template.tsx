@@ -7,6 +7,7 @@ import {
   TargetIcon as Target,
 } from '@phosphor-icons/react/ssr';
 import { MediaBlock } from '@/components/profile/media-block';
+import { AchievementShowcase } from '@/components/profile/achievement-showcase';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
 import { ProfileGallery } from '@/components/profile/profile-gallery';
@@ -186,24 +187,21 @@ function SportContentBlock({
             </h2>
           </div>
         ) : null}
-        <div className={cn('space-y-4', text.achievementsLabel && 'mt-4')}>
-          {achievements.map((item) => (
-            <div key={`${item.title}-${item.sortOrder}`}>
-              <p className="font-bold">{item.title}</p>
-              {item.description ? (
-                <p
-                  className="mt-1 text-sm leading-6"
-                  style={{ color: visual.mutedText }}
-                >
-                  {item.description}
-                </p>
-              ) : null}
-              {item.dateLabel ? (
-                <p className="mt-1 text-xs opacity-60">{item.dateLabel}</p>
-              ) : null}
-            </div>
-          ))}
-        </div>
+        <AchievementShowcase
+          analyticsKey={block.analyticsKey}
+          className={text.achievementsLabel ? 'mt-4' : undefined}
+          colors={{
+            accent: visual.accent,
+            accentText: visual.accentText,
+            cardBackground: visual.canvas,
+            border: visual.heroMuted,
+            title: visual.text,
+            description: visual.mutedText,
+            muted: visual.mutedText,
+          }}
+          imageStyle={theme.blockInnerStyle}
+          items={achievements}
+        />
       </section>
     ) : null;
   }

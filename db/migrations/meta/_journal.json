@@ -141,6 +141,20 @@
       "when": 1784862000000,
       "tag": "0019_add_profile_branding",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1784865600000,
+      "tag": "0020_expand_profile_achievements",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1784869200000,
+      "tag": "0021_add_achievement_custom_labels",
+      "breakpoints": true
     }
   ]
 }

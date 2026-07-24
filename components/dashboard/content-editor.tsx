@@ -38,6 +38,10 @@ import { socialPlatforms } from '@/lib/constants/social-platforms';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import type { SubscriptionState } from '@/lib/types/billing';
 import { cn } from '@/lib/utils/cn';
+import {
+  achievementTypeOptions,
+  type AchievementType,
+} from '@/lib/constants/achievements';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -217,6 +221,57 @@ function TextareaField({
         onChange={onChange}
       />
     </label>
+  );
+}
+
+function AchievementTypeField({
+  number,
+  defaultType,
+  defaultCustomLabel,
+}: {
+  number: number;
+  defaultType: AchievementType;
+  defaultCustomLabel: string;
+}) {
+  const [type, setType] = useState<AchievementType>(defaultType);
+  const [customLabel, setCustomLabel] = useState(defaultCustomLabel);
+
+  return (
+    <div className="space-y-3">
+      <label className="space-y-1.5">
+        <span className="text-xs font-medium">Type</span>
+        <select
+          className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+          name={`achievementType${number}`}
+          value={type}
+          onChange={(event) => setType(event.target.value as AchievementType)}
+        >
+          {achievementTypeOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      {type === 'other' ? (
+        <label className="space-y-1.5">
+          <span className="text-xs font-medium">Custom type name</span>
+          <input
+            className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
+            name={`achievementTypeLabel${number}`}
+            placeholder="National selection, comeback..."
+            value={customLabel}
+            onChange={(event) => setCustomLabel(event.target.value)}
+          />
+        </label>
+      ) : (
+        <input
+          name={`achievementTypeLabel${number}`}
+          type="hidden"
+          value={customLabel}
+        />
+      )}
+    </div>
   );
 }
 
@@ -1208,11 +1263,20 @@ function ContentBlocksEditor({
                                 defaultValue={achievement?.title ?? ''}
                                 placeholder="Bangkok Marathon finisher"
                               />
-                              <TextareaField
-                                label="Description"
-                                name={`achievementDescription${number}`}
-                                defaultValue={achievement?.description ?? ''}
-                                placeholder="Tell people what this milestone means to you."
+                              <Field
+                                label="Result"
+                                name={`achievementResult${number}`}
+                                defaultValue={achievement?.result ?? ''}
+                                placeholder="2:58:42, 1st place, Qualified..."
+                              />
+                              <AchievementTypeField
+                                defaultCustomLabel={
+                                  achievement?.achievementTypeLabel ?? ''
+                                }
+                                defaultType={
+                                  achievement?.achievementType ?? 'milestone'
+                                }
+                                number={number}
                               />
                               <Field
                                 label="Date"
@@ -1220,6 +1284,60 @@ function ContentBlocksEditor({
                                 defaultValue={achievement?.date ?? ''}
                                 type="date"
                               />
+                              <details
+                                className="border-border group/details overflow-hidden rounded-lg border"
+                                open={Boolean(
+                                  achievement?.eventName ||
+                                  achievement?.description ||
+                                  achievement?.imageUrl ||
+                                  achievement?.resultUrl ||
+                                  achievement?.resultLinkLabel,
+                                )}
+                              >
+                                <summary className="bg-muted/30 hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-xs font-semibold transition-colors [&::-webkit-details-marker]:hidden">
+                                  Add more details
+                                  <ChevronDown className="text-muted-foreground size-3.5 transition-transform group-open/details:rotate-180" />
+                                </summary>
+                                <div className="border-border space-y-3 border-t p-3">
+                                  <Field
+                                    label="Event or organization"
+                                    name={`achievementEventName${number}`}
+                                    defaultValue={achievement?.eventName ?? ''}
+                                    placeholder="Paris Marathon"
+                                  />
+                                  <TextareaField
+                                    label="Description"
+                                    name={`achievementDescription${number}`}
+                                    defaultValue={
+                                      achievement?.description ?? ''
+                                    }
+                                    placeholder="Tell people what this milestone means to you."
+                                  />
+                                  <ImageUploadField
+                                    folder="achievements"
+                                    label="Achievement image"
+                                    name={`achievementImageUrl${number}`}
+                                    previewShape="wide"
+                                    value={achievement?.imageUrl ?? ''}
+                                    onValueChange={onStructureChange}
+                                  />
+                                  <Field
+                                    label="Result link"
+                                    name={`achievementResultUrl${number}`}
+                                    defaultValue={achievement?.resultUrl ?? ''}
+                                    placeholder="https://official-results.com/..."
+                                    type="url"
+                                  />
+                                  <Field
+                                    label="Button label"
+                                    name={`achievementResultLinkLabel${number}`}
+                                    defaultValue={
+                                      achievement?.resultLinkLabel ?? ''
+                                    }
+                                    placeholder="View result"
+                                  />
+                                </div>
+                              </details>
                               <input
                                 name={`achievementId${number}`}
                                 type="hidden"

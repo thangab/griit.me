@@ -75,6 +75,16 @@ export interface BuilderTimelineItem {
   isEnabled: boolean;
 }
 
+export interface BuilderAchievementItem extends BuilderTimelineItem {
+  result: string;
+  achievementType: import('@/lib/constants/achievements').AchievementType;
+  achievementTypeLabel: string;
+  eventName: string;
+  imageUrl: string;
+  resultUrl: string;
+  resultLinkLabel: string;
+}
+
 export interface BuilderGoalItem {
   id: number | null;
   analyticsKey: string;
@@ -96,7 +106,7 @@ export interface ProfileBuilderState {
   socialLinks: BuilderSocialLink[];
   galleryItems: BuilderGalleryItem[];
   sponsors: BuilderSponsor[];
-  achievements: BuilderTimelineItem[];
+  achievements: BuilderAchievementItem[];
   activities: BuilderTimelineItem[];
   goals: BuilderGoalItem[];
   availableSports: BuilderSport[];

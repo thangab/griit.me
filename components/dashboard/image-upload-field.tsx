@@ -24,6 +24,7 @@ type ImageFolder =
   | 'avatars'
   | 'covers'
   | 'gallery'
+  | 'achievements'
   | 'sponsors'
   | 'offers'
   | 'links'
@@ -33,6 +34,7 @@ const maxImageDimension: Record<ImageFolder, number> = {
   avatars: 800,
   covers: 1920,
   gallery: 1400,
+  achievements: 1600,
   sponsors: 800,
   offers: 1400,
   links: 1200,
