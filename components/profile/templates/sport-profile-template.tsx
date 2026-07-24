@@ -6,10 +6,10 @@ import {
   PulseIcon as Activity,
   TargetIcon as Target,
 } from '@phosphor-icons/react/ssr';
-import Image from 'next/image';
 import { MediaBlock } from '@/components/profile/media-block';
 import { OfferBlock } from '@/components/profile/offer-block';
 import { LinkBlock } from '@/components/profile/link-block';
+import { ProfileGallery } from '@/components/profile/profile-gallery';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import {
   GoalDateBadge,
@@ -153,39 +153,16 @@ function SportContentBlock({
             </h2>
           </div>
         ) : null}
-        <div
-          className={cn(
-            'gap-2',
-            theme.galleryLayout === 'carousel'
-              ? 'flex snap-x overflow-x-auto'
-              : 'grid grid-cols-2 sm:grid-cols-3',
+        <ProfileGallery
+          columnsClassName={cn(
+            'grid grid-cols-2 sm:grid-cols-3',
             theme.galleryLayout === 'editorial' && 'sm:grid-cols-2',
           )}
-        >
-          {galleryItems.map((item, index) => (
-            <div
-              key={`${item.imageUrl}-${index}`}
-              className={cn(
-                'relative aspect-square overflow-hidden bg-slate-200',
-                theme.galleryLayout === 'carousel' &&
-                  'w-52 shrink-0 snap-center',
-              )}
-              style={theme.blockInnerStyle}
-            >
-              <Image
-                alt={item.altText || item.caption || ''}
-                className="object-cover"
-                fill
-                sizes={
-                  theme.galleryLayout === 'carousel'
-                    ? '208px'
-                    : '(max-width: 640px) 50vw, 320px'
-                }
-                src={item.imageUrl}
-              />
-            </div>
-          ))}
-        </div>
+          gridImageSizes="(max-width: 640px) 50vw, 320px"
+          imageStyle={theme.blockInnerStyle}
+          items={galleryItems}
+          layout={theme.galleryLayout}
+        />
       </section>
     ) : null;
   }
