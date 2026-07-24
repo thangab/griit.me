@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
 import { signUpAction, type AuthActionState } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
@@ -72,6 +73,23 @@ export function SignUpForm() {
         />
       ) : null}
       <SubmitButton />
+      <p className="px-2 text-center text-xs leading-5 text-black/45">
+        By creating an account, you agree to the{' '}
+        <Link
+          className="font-semibold text-black/70 hover:text-black"
+          href="/terms"
+        >
+          Terms of Service
+        </Link>{' '}
+        and acknowledge the{' '}
+        <Link
+          className="font-semibold text-black/70 hover:text-black"
+          href="/privacy"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </p>
     </form>
   );
 }

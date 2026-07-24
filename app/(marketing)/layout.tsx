@@ -93,25 +93,46 @@ export default async function MarketingLayout({
               and the opportunities ahead.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm text-white/65 sm:grid-cols-3">
-            <Link className="hover:text-white" href="/athletes">
-              Athletes
-            </Link>
-            <Link className="hover:text-white" href="/#features">
-              Features
-            </Link>
-            <Link className="hover:text-white" href="/pricing">
-              Pricing
-            </Link>
-            <Link className="hover:text-white" href="/sign-in">
-              Log in
-            </Link>
-            <Link className="hover:text-white" href="/sign-up">
-              Sign up
-            </Link>
-            <Link className="hover:text-white" href="/forgot-password">
-              Support
-            </Link>
+          <div className="grid grid-cols-2 gap-10 text-sm sm:grid-cols-3 sm:gap-14">
+            <div className="flex flex-col gap-3 text-white/65">
+              <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
+                Product
+              </p>
+              <Link className="hover:text-white" href="/athletes">
+                Athletes
+              </Link>
+              <Link className="hover:text-white" href="/#features">
+                Features
+              </Link>
+              <Link className="hover:text-white" href="/pricing">
+                Pricing
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3 text-white/65">
+              <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
+                Account
+              </p>
+              <Link className="hover:text-white" href="/sign-in">
+                Log in
+              </Link>
+              <Link className="hover:text-white" href="/sign-up">
+                Sign up
+              </Link>
+              <Link className="hover:text-white" href="/support">
+                Support
+              </Link>
+            </div>
+            <div className="flex flex-col gap-3 text-white/65">
+              <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
+                Legal
+              </p>
+              <Link className="hover:text-white" href="/privacy">
+                Privacy
+              </Link>
+              <Link className="hover:text-white" href="/terms">
+                Terms
+              </Link>
+            </div>
           </div>
         </div>
         <div className="border-t border-white/10 px-5 py-5 text-center text-xs text-white/35 sm:px-8">

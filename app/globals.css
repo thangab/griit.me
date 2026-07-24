@@ -1,5 +1,27 @@
 @import 'tailwindcss';
 
+@layer components {
+  .legal-document {
+    @apply text-[15px] leading-7 text-black/65 sm:text-base sm:leading-8;
+  }
+
+  .legal-document h2 {
+    @apply mt-10 text-2xl leading-tight font-black tracking-[-0.04em] text-[#151515] first:mt-0 sm:mt-12 sm:text-3xl;
+  }
+
+  .legal-document p {
+    @apply mt-4;
+  }
+
+  .legal-document ul {
+    @apply mt-4 list-disc space-y-2 pl-6 marker:text-[#3157ff];
+  }
+
+  .legal-document a {
+    @apply font-semibold text-[#3157ff] underline decoration-[#3157ff]/25 underline-offset-4 hover:decoration-[#3157ff];
+  }
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
