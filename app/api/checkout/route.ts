@@ -9,10 +9,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '');
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { priceId } = body;
+  const billingInterval = body.billingInterval === 'year' ? 'year' : 'month';
+  const priceId =
+    billingInterval === 'year'
+      ? process.env.STRIPE_PRICE_ID_PRO_ANNUAL
+      : process.env.STRIPE_PRICE_ID_PRO_MONTHLY;
 
   if (!priceId) {
-    return NextResponse.json({ error: 'Missing priceId' }, { status: 400 });
+    return NextResponse.json(
+      { error: `The ${billingInterval}ly Stripe price is not configured.` },
+      { status: 503 },
+    );
   }
 
   const supabase = await createServerSupabaseClient();
@@ -75,14 +82,16 @@ export async function POST(request: Request) {
       customer: stripeCustomerId,
       metadata: {
         user_id: customerId,
+        billing_interval: billingInterval,
       },
       subscription_data: {
         metadata: {
           user_id: customerId,
+          billing_interval: billingInterval,
         },
       },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard/subscribe`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/dashboard/subscribe`,
     });
 
     return NextResponse.json({ url: session.url });

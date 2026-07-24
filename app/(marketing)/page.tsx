@@ -120,9 +120,19 @@ const faqItems = [
       'Yes. Pro lets you create and manage up to five independent public profiles from the same account, each with its own content, design, URL, and analytics.',
   },
   {
+    question: 'Can I pay for Pro annually?',
+    answer:
+      'Yes. Pro is $5 per month or $48 per year. Annual billing works out to $4 per month and saves $12 every year, which is 20% off.',
+  },
+  {
     question: 'Can I use my own domain?',
     answer:
       'Custom domains and downloadable QR codes are planned for Pro. They are marked as coming soon while we finish making the setup reliable and simple.',
+  },
+  {
+    question: 'What if I manage a club or a group of athletes?',
+    answer:
+      'Griit Teams is designed for clubs, academies, agencies, coaches, and athlete managers. It offers a tailored workspace with multiple members, shared branding, organization analytics, and centralized management.',
   },
 ] as const;
 
@@ -354,16 +364,19 @@ export default function HomePage() {
               Start free. Grow with your goals.
             </h2>
           </div>
-          <div className="mt-14 grid gap-5 md:grid-cols-2">
-            {(['free', 'pro'] as const).map((plan) => {
+          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {(['free', 'pro', 'teams'] as const).map((plan) => {
               const planData = subscriptionPlans[plan];
               const isPro = plan === 'pro';
+              const isTeams = plan === 'teams';
               return (
                 <article
-                  className={`relative rounded-[2rem] border p-7 sm:p-9 ${
+                  className={`relative flex flex-col rounded-[2rem] border p-7 sm:p-9 ${
                     isPro
                       ? 'border-[#151515] bg-[#151515] text-white shadow-2xl'
-                      : 'border-black/10 bg-white'
+                      : isTeams
+                        ? 'border-[#3157ff]/25 bg-[#e8edff]'
+                        : 'border-black/10 bg-white'
                   }`}
                   key={plan}
                 >
@@ -371,17 +384,27 @@ export default function HomePage() {
                     <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
                       Most flexible
                     </span>
+                  ) : isTeams ? (
+                    <span className="absolute top-6 right-6 rounded-full bg-[#3157ff] px-3 py-1 text-[10px] font-black text-white uppercase">
+                      Organizations
+                    </span>
                   ) : null}
                   <p className="text-sm font-black">{planData.name}</p>
                   <p className="mt-4 text-4xl font-black tracking-tight">
                     {planData.price}
                   </p>
+                  {isPro ? (
+                    <p className="mt-2 text-xs font-bold text-[#a9ed35]">
+                      Or {subscriptionPlans.pro.prices.year} ·{' '}
+                      {subscriptionPlans.pro.annualSavings}
+                    </p>
+                  ) : null}
                   <p
                     className={`mt-4 text-sm leading-6 ${isPro ? 'text-white/55' : 'text-black/50'}`}
                   >
                     {planData.description}
                   </p>
-                  <ul className="mt-8 space-y-3">
+                  <ul className="mt-8 flex-1 space-y-3">
                     {planData.features.map((feature) => (
                       <li
                         className="flex items-center gap-3 text-sm"
@@ -397,10 +420,18 @@ export default function HomePage() {
                     ))}
                   </ul>
                   <Link
-                    className={`mt-9 inline-flex h-11 w-full items-center justify-center rounded-full text-sm font-bold ${isPro ? 'bg-white text-black' : 'bg-[#3157ff] text-white'}`}
-                    href="/sign-up"
+                    className={`mt-9 inline-flex h-11 w-full items-center justify-center rounded-full text-sm font-bold ${isPro ? 'bg-white text-black' : isTeams ? 'bg-[#151515] text-white' : 'bg-[#3157ff] text-white'}`}
+                    href={
+                      isTeams
+                        ? 'mailto:hello@griit.me?subject=Griit%20Teams'
+                        : '/sign-up'
+                    }
                   >
-                    {isPro ? 'Start with Pro' : 'Build for free'}
+                    {isTeams
+                      ? 'Talk to us'
+                      : isPro
+                        ? 'Start with Pro'
+                        : 'Build for free'}
                   </Link>
                 </article>
               );

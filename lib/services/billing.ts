@@ -6,6 +6,7 @@ const defaultSubscriptionState: SubscriptionState = {
   plan: 'free',
   status: 'free',
   isActive: false,
+  billingInterval: null,
   features: subscriptionPlans.free.features,
 };
 
@@ -38,6 +39,12 @@ export async function getSubscriptionState(): Promise<SubscriptionState> {
     plan,
     status,
     isActive: plan === 'pro' && status !== 'past_due' && status !== 'cancelled',
+    billingInterval:
+      plan === 'pro' && data.price_id === process.env.STRIPE_PRICE_ID_PRO_ANNUAL
+        ? 'year'
+        : plan === 'pro'
+          ? 'month'
+          : null,
     features:
       plan === 'pro'
         ? subscriptionPlans.pro.features

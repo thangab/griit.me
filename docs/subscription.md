@@ -2,10 +2,11 @@
 
 Griit uses Stripe for subscription management.
 
-The application has two plans:
+The application has three commercial offers:
 
 - Free
 - Pro
+- Teams (tailored rollout)
 
 The billing system must be designed to support future plans without requiring major architectural changes.
 
@@ -37,6 +38,15 @@ Features:
 ## Pro Plan
 
 The Pro plan unlocks all premium features.
+
+Billing options:
+
+- Monthly: $5 per month
+- Annual: $48 per year, equivalent to $4 per month and a $12 (20%) saving
+
+Stripe uses one recurring Price ID per billing interval. The selected interval
+is resolved server-side and never accepted as an arbitrary Price ID from the
+client.
 
 Features:
 
@@ -137,11 +147,8 @@ The UI may display upgrade prompts, but permissions must never rely only on fron
 
 The architecture should support:
 
-- Monthly billing
-- Yearly billing
 - Promo codes
 - Free trial
-- Team accounts
 - Gift subscriptions
 - Enterprise plans
 

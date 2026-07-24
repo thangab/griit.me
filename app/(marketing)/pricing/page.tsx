@@ -11,88 +11,154 @@ import {
   SparkleIcon,
   SquaresFourIcon,
 } from '@phosphor-icons/react/ssr';
-import { subscriptionPlans } from '@/lib/constants/billing';
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import { PricingPlanCards } from './pricing-plan-cards';
 
 export const metadata: Metadata = {
   title: 'Pricing — Griit',
   description:
-    'Compare Griit Free and Pro. Publish an athlete profile for free, then unlock every template, advanced design tools, more content, and detailed analytics.',
+    'Compare Griit Free, Pro, and Teams. Build an athlete profile, unlock advanced tools, or manage a complete athlete organization.',
 };
 
-const plans = [
-  {
-    id: 'free',
-    name: subscriptionPlans.free.name,
-    price: subscriptionPlans.free.price,
-    cadence: 'forever',
-    description:
-      'Everything you need to publish a complete athlete profile and start sharing your story.',
-    eyebrow: 'Start your profile',
-    features: [
-      '1 complete public profile',
-      'Every core content and partnership block',
-      '4 free templates and all quick color palettes',
-      '1 goal plus 3 gallery images, achievements, and activities',
-      'Views, visitors, clicks, and click-through rate',
-    ],
-  },
-  {
-    id: 'pro',
-    name: subscriptionPlans.pro.name,
-    price: subscriptionPlans.pro.price.replace(' / month', ''),
-    cadence: 'per month',
-    description:
-      'For athletes, coaches, teams, and creators who need more profiles, content, and insight.',
-    eyebrow: 'Unlock your full toolkit',
-    features: [
-      'Up to 5 independent public profiles',
-      'All 8 templates and all 4 typography styles',
-      'Custom colors, advanced shapes, textures, and shadows',
-      'Up to 3 goals and 50 gallery, achievement, and activity items',
-      'Audience, campaign, social, and block analytics',
-      'No Griit branding and priority support',
-      'Custom domain and downloadable QR code — coming soon',
-    ],
-  },
-] as const;
-
 const comparisonRows = [
-  { label: 'Public profiles', free: '1', pro: 'Up to 5' },
-  { label: 'Public griit.me address', free: true, pro: true },
+  { label: 'Public profiles', free: '1', pro: 'Up to 5', teams: 'Tailored' },
+  {
+    label: 'Billing frequency',
+    free: 'Free forever',
+    pro: 'Monthly or annual',
+    teams: 'Custom',
+  },
+  { label: 'Public griit.me address', free: true, pro: true, teams: true },
   {
     label: 'Content and partnership blocks',
     free: 'All types',
     pro: 'All types',
+    teams: 'All types',
   },
-  { label: 'Active goals', free: '1', pro: 'Up to 3' },
-  { label: 'Gallery images', free: 'Up to 3', pro: 'Up to 50' },
-  { label: 'Achievements', free: 'Up to 3', pro: 'Up to 50' },
-  { label: 'Activities', free: 'Up to 3', pro: 'Up to 50' },
-  { label: 'Templates', free: '4 core', pro: 'All 8' },
-  { label: 'Typography styles', free: 'Clean', pro: 'All 4' },
-  { label: 'Quick color palettes', free: true, pro: true },
-  { label: 'Custom colors', free: false, pro: true },
+  { label: 'Active goals', free: '1', pro: 'Up to 3', teams: 'Tailored' },
+  {
+    label: 'Gallery images',
+    free: 'Up to 3',
+    pro: 'Up to 50',
+    teams: 'Tailored',
+  },
+  {
+    label: 'Achievements',
+    free: 'Up to 3',
+    pro: 'Up to 50',
+    teams: 'Tailored',
+  },
+  {
+    label: 'Activities',
+    free: 'Up to 3',
+    pro: 'Up to 50',
+    teams: 'Tailored',
+  },
+  { label: 'Templates', free: '4 core', pro: 'All 8', teams: 'All 8' },
+  {
+    label: 'Typography styles',
+    free: 'Clean',
+    pro: 'All 4',
+    teams: 'All 4',
+  },
+  { label: 'Quick color palettes', free: true, pro: true, teams: true },
+  { label: 'Custom colors', free: false, pro: true, teams: true },
   {
     label: 'Header geometry and textures',
     free: 'Core selection',
     pro: 'All options',
+    teams: 'All options',
   },
-  { label: 'Profile picture shapes', free: '2 shapes', pro: 'All 4' },
-  { label: 'Gallery layouts', free: 'Grid', pro: 'Grid, editorial, carousel' },
-  { label: 'Solid shadows and custom border color', free: false, pro: true },
-  { label: 'Views, visitors, clicks, and CTR', free: true, pro: true },
+  {
+    label: 'Profile picture shapes',
+    free: '2 shapes',
+    pro: 'All 4',
+    teams: 'All 4',
+  },
+  {
+    label: 'Gallery layouts',
+    free: 'Grid',
+    pro: 'Grid, editorial, carousel',
+    teams: 'All layouts',
+  },
+  {
+    label: 'Solid shadows and custom border color',
+    free: false,
+    pro: true,
+    teams: true,
+  },
+  {
+    label: 'Views, visitors, clicks, and CTR',
+    free: true,
+    pro: true,
+    teams: true,
+  },
   {
     label: 'Audience, traffic, and campaign analytics',
     free: false,
     pro: true,
+    teams: true,
   },
-  { label: 'Block and social interaction details', free: false, pro: true },
-  { label: 'Profile management and switching', free: false, pro: true },
-  { label: 'Griit branding', free: 'Included', pro: 'Removed' },
-  { label: 'Priority support', free: false, pro: true },
-  { label: 'Custom domain', free: false, pro: 'Coming soon' },
-  { label: 'Downloadable QR code', free: false, pro: 'Coming soon' },
+  {
+    label: 'Block and social interaction details',
+    free: false,
+    pro: true,
+    teams: true,
+  },
+  {
+    label: 'Profile management and switching',
+    free: false,
+    pro: true,
+    teams: true,
+  },
+  {
+    label: 'Organization workspace and member roles',
+    free: false,
+    pro: false,
+    teams: 'Guided rollout',
+  },
+  {
+    label: 'Consolidated analytics and exports',
+    free: false,
+    pro: false,
+    teams: 'Guided rollout',
+  },
+  {
+    label: 'Shared templates and branding',
+    free: false,
+    pro: false,
+    teams: 'Guided rollout',
+  },
+  {
+    label: 'Centralized billing',
+    free: false,
+    pro: false,
+    teams: 'Guided rollout',
+  },
+  {
+    label: 'Griit branding',
+    free: 'Included',
+    pro: 'Removed',
+    teams: 'Removed',
+  },
+  {
+    label: 'Support',
+    free: 'Standard',
+    pro: 'Priority',
+    teams: 'Dedicated priority',
+  },
+  {
+    label: 'Custom domain',
+    free: false,
+    pro: 'Coming soon',
+    teams: 'Coming soon',
+  },
+  {
+    label: 'Downloadable QR code',
+    free: false,
+    pro: 'Coming soon',
+    teams: 'Coming soon',
+  },
 ] as const;
 
 const sharedBenefits = [
@@ -138,6 +204,11 @@ const faqs = [
       'Your existing profile stays exactly as it is. Pro immediately unlocks every template and typography style, custom colors, advanced design controls, higher content limits, multiple profiles, and detailed analytics.',
   },
   {
+    question: 'Can I pay for Pro annually?',
+    answer:
+      'Yes. Pro costs $5 monthly or $48 annually. Annual billing is equivalent to $4 per month, saving you $12 every year or 20% compared with monthly billing.',
+  },
+  {
     question: 'Who needs multiple profiles?',
     answer:
       'They are useful for coaches, teams, managers, multi-discipline creators, or anyone managing separate public identities from one account.',
@@ -157,9 +228,20 @@ const faqs = [
     answer:
       'Yes. Pro members receive priority support, so their requests are reviewed before standard Free plan requests.',
   },
+  {
+    question: 'What is included in Griit Teams?',
+    answer:
+      'Teams is a tailored workspace for clubs, academies, agencies, and managers. It brings athlete profiles, collaborators, shared branding, organization analytics, and centralized management together through a guided rollout.',
+  },
 ] as const;
 
-function ComparisonValue({ value }: { value: boolean | string }) {
+function ComparisonValue({
+  value,
+  inverse = false,
+}: {
+  value: boolean | string;
+  inverse?: boolean;
+}) {
   if (typeof value === 'string') {
     return <span className="text-sm font-semibold">{value}</span>;
   }
@@ -170,7 +252,10 @@ function ComparisonValue({ value }: { value: boolean | string }) {
       <span className="sr-only">Included</span>
     </span>
   ) : (
-    <span className="text-lg text-black/25" aria-label="Not included">
+    <span
+      className={`text-lg ${inverse ? 'text-white/30' : 'text-black/25'}`}
+      aria-label="Not included"
+    >
       —
     </span>
   );
@@ -191,96 +276,21 @@ export default async function PricingPage() {
             Simple plans. No complicated tiers.
           </div>
           <h1 className="mx-auto mt-7 max-w-5xl text-[clamp(3.4rem,8vw,7rem)] leading-[0.88] font-black tracking-[-0.07em]">
-            Start free. Go further with{' '}
-            <span className="text-[#3157ff]">Pro.</span>
+            One profile or a whole{' '}
+            <span className="text-[#3157ff]">roster.</span>
           </h1>
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/55">
-            Build a profile around your next goal today. Upgrade only when you
-            need more profiles, more freedom, and deeper insight.
+            Start around your next goal, unlock more freedom with Pro, or bring
+            your organization into one shared athlete workspace.
           </p>
         </div>
       </section>
 
       <section className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
-        <div className="mx-auto grid max-w-[1080px] gap-5 md:grid-cols-2">
-          {plans.map((plan) => {
-            const isPro = plan.id === 'pro';
-            const href = isAuthenticated
-              ? isPro
-                ? '/dashboard/subscribe'
-                : '/dashboard'
-              : '/sign-up';
-
-            return (
-              <article
-                className={`relative flex flex-col rounded-[2rem] border p-7 sm:p-9 ${
-                  isPro
-                    ? 'border-[#151515] bg-[#151515] text-white shadow-[0_30px_80px_rgba(20,20,20,0.22)]'
-                    : 'border-black/10 bg-white'
-                }`}
-                key={plan.id}
-              >
-                {isPro ? (
-                  <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
-                    Best for growth
-                  </span>
-                ) : null}
-                <p
-                  className={`text-xs font-black tracking-[0.16em] uppercase ${isPro ? 'text-[#a9ed35]' : 'text-[#3157ff]'}`}
-                >
-                  {plan.eyebrow}
-                </p>
-                <h2 className="mt-5 text-3xl font-black">{plan.name}</h2>
-                <div className="mt-5 flex items-end gap-2">
-                  <span className="text-5xl font-black tracking-[-0.055em]">
-                    {plan.price}
-                  </span>
-                  <span
-                    className={`pb-1 text-sm ${isPro ? 'text-white/45' : 'text-black/45'}`}
-                  >
-                    {plan.cadence}
-                  </span>
-                </div>
-                <p
-                  className={`mt-5 max-w-md text-sm leading-6 ${isPro ? 'text-white/55' : 'text-black/50'}`}
-                >
-                  {plan.description}
-                </p>
-                <ul className="mt-8 flex-1 space-y-3.5">
-                  {plan.features.map((feature) => (
-                    <li
-                      className="flex items-start gap-3 text-sm"
-                      key={feature}
-                    >
-                      <span
-                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${isPro ? 'bg-[#a9ed35] text-black' : 'bg-[#e8edff] text-[#3157ff]'}`}
-                      >
-                        <CheckIcon className="h-3 w-3" weight="bold" />
-                      </span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  className={`mt-9 inline-flex h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-bold transition-transform hover:-translate-y-0.5 ${isPro ? 'bg-white text-black' : 'bg-[#3157ff] text-white'}`}
-                  href={href}
-                >
-                  {isAuthenticated
-                    ? isPro
-                      ? 'Upgrade to Pro'
-                      : 'Open dashboard'
-                    : isPro
-                      ? 'Start and upgrade'
-                      : 'Build for free'}
-                  <ArrowRightIcon className="h-4 w-4" weight="bold" />
-                </Link>
-              </article>
-            );
-          })}
-        </div>
+        <PricingPlanCards isAuthenticated={isAuthenticated} />
         <p className="mx-auto mt-5 max-w-xl text-center text-xs leading-5 text-black/40">
           Create your account for free. Pro subscriptions are securely handled
-          through Stripe.
+          through Stripe. Teams is offered through a tailored rollout.
         </p>
       </section>
 
@@ -331,7 +341,7 @@ export default async function PricingPage() {
             </h2>
           </div>
           <div className="mt-12 overflow-x-auto rounded-[1.75rem] border border-black/10 bg-white">
-            <table className="w-full min-w-[680px] border-collapse text-left">
+            <table className="w-full min-w-[860px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-black/10">
                   <th className="p-5 text-sm font-black sm:p-6">Feature</th>
@@ -340,6 +350,9 @@ export default async function PricingPage() {
                   </th>
                   <th className="w-48 bg-[#151515] p-5 text-center text-sm font-black text-white sm:p-6">
                     Pro
+                  </th>
+                  <th className="w-48 bg-[#e8edff] p-5 text-center text-sm font-black text-[#3157ff] sm:p-6">
+                    Teams
                   </th>
                 </tr>
               </thead>
@@ -356,7 +369,10 @@ export default async function PricingPage() {
                       <ComparisonValue value={row.free} />
                     </td>
                     <td className="bg-[#151515] p-5 text-center text-white">
-                      <ComparisonValue value={row.pro} />
+                      <ComparisonValue inverse value={row.pro} />
+                    </td>
+                    <td className="bg-[#e8edff] p-5 text-center text-[#151515]">
+                      <ComparisonValue value={row.teams} />
                     </td>
                   </tr>
                 ))}
