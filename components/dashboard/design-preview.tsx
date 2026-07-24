@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import {
+  ArrowSquareOutIcon as ExternalLink,
   DeviceMobileIcon as Smartphone,
   EyeIcon as Eye,
   EyeSlashIcon as EyeOff,
@@ -13,6 +14,7 @@ import {
   MobileProfileFrame,
 } from '@/components/dashboard/mobile-profile-frame';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
+import { cn } from '@/lib/utils/cn';
 
 const previewStyles = {
   mobile: {
@@ -46,95 +48,131 @@ export function DesignPreview({
     <div className="flex min-h-0 flex-col gap-4 xl:h-full">
       <div className="border-border bg-card flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-xl border p-3">
         <div
-          className="bg-muted flex rounded-lg p-1"
           aria-label="Preview device"
+          className="border-border bg-muted/60 relative hidden h-11 w-[216px] grid-cols-2 rounded-full border p-1 sm:grid"
+          role="group"
         >
+          <span
+            aria-hidden="true"
+            className={cn(
+              'bg-foreground pointer-events-none absolute top-1 bottom-1 left-1 w-[calc(50%-0.25rem)] rounded-full shadow-sm transition-transform duration-300 ease-out',
+              activeDesktop && 'translate-x-full',
+            )}
+          />
           <button
-            className={`flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
+            aria-pressed={activeMobile}
+            className={cn(
+              'relative z-10 flex min-w-0 items-center justify-center gap-2 rounded-full px-3 text-sm font-semibold transition-colors duration-300',
               activeMobile
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+                ? 'text-background'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
             type="button"
             onClick={() => setMode('mobile')}
           >
-            <Smartphone className="h-4 w-4" />
+            <Smartphone
+              className="h-4 w-4"
+              weight={activeMobile ? 'fill' : 'regular'}
+            />
             Mobile
           </button>
           <button
-            className={`flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
+            aria-pressed={activeDesktop}
+            className={cn(
+              'relative z-10 flex min-w-0 items-center justify-center gap-2 rounded-full px-3 text-sm font-semibold transition-colors duration-300',
               activeDesktop
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
+                ? 'text-background'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
             type="button"
             onClick={() => setMode('desktop')}
           >
-            <Monitor className="h-4 w-4" />
+            <Monitor
+              className="h-4 w-4"
+              weight={activeDesktop ? 'fill' : 'regular'}
+            />
             Desktop
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Globe2 className="text-muted-foreground hidden h-4 w-4 shrink-0 sm:block" />
-          <span className="hidden min-w-0 sm:block">
-            <span className="block text-sm font-medium">
-              Profile visibility
-            </span>
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:flex-initial sm:justify-end">
+          <div className="flex min-w-0 items-center gap-2.5">
             <span
-              className="text-muted-foreground block text-xs"
-              title={publishMessage || undefined}
-            >
-              {publishPending
-                ? 'Updating visibility…'
-                : builder.profile.isPublished
-                  ? 'Your page is visible to everyone.'
-                  : 'Make your page visible to everyone.'}
-            </span>
-          </span>
-          <div
-            className={`bg-muted flex rounded-lg p-1 ${publishPending ? 'opacity-60' : ''}`}
-            aria-label="Profile visibility"
-          >
-            <button
-              className={`flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition ${
-                !builder.profile.isPublished
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-              type="button"
-              disabled={publishPending || !builder.profile.isPublished}
-              onClick={() => {
-                if (
-                  !window.confirm(
-                    'Move your profile back to draft? It will no longer be publicly accessible.',
-                  )
-                ) {
-                  return;
-                }
-
-                onPublishChange(false);
-              }}
-            >
-              <EyeOff className="h-3.5 w-3.5" />
-              Draft
-            </button>
-            <button
-              className={`flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition ${
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                 builder.profile.isPublished
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-amber-100 text-amber-700'
               }`}
+            >
+              {builder.profile.isPublished ? (
+                <Globe2 className="h-4 w-4" weight="bold" />
+              ) : (
+                <EyeOff className="h-4 w-4" weight="bold" />
+              )}
+            </span>
+            <span className="min-w-0">
+              <span className="flex items-center gap-1.5 text-sm font-semibold">
+                {builder.profile.isPublished ? 'Profile live' : 'Draft'}
+                {builder.profile.isPublished ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                ) : null}
+              </span>
+              <span
+                className="text-muted-foreground hidden max-w-52 truncate text-xs lg:block"
+                title={publishMessage || undefined}
+              >
+                {publishPending
+                  ? 'Updating visibility…'
+                  : builder.profile.isPublished
+                    ? 'Visible to everyone.'
+                    : 'Only you can see this version.'}
+              </span>
+            </span>
+          </div>
+
+          {builder.profile.isPublished ? (
+            <div className="flex shrink-0 items-center gap-2">
+              <a
+                className="bg-foreground text-background hover:bg-foreground/90 flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors sm:text-sm"
+                href={`/${builder.profile.username}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                View profile
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+              <button
+                aria-label="Move profile back to draft"
+                className="border-border text-muted-foreground hover:bg-muted hover:text-foreground flex h-9 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold transition-colors sm:px-3"
+                type="button"
+                disabled={publishPending}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      'Move your profile back to draft? It will no longer be publicly accessible.',
+                    )
+                  ) {
+                    return;
+                  }
+
+                  onPublishChange(false);
+                }}
+              >
+                <EyeOff className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Unpublish</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-60"
               type="button"
-              disabled={publishPending || builder.profile.isPublished}
+              disabled={publishPending}
               onClick={() => onPublishChange(true)}
             >
-              <Eye className="h-3.5 w-3.5" />
-              {publishPending && !builder.profile.isPublished
-                ? 'Publishing…'
-                : 'Live'}
+              <Eye className="h-3.5 w-3.5" weight="bold" />
+              {publishPending ? 'Publishing…' : 'Publish profile'}
             </button>
-          </div>
+          )}
         </div>
       </div>
 
