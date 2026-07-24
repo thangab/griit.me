@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import {
   ArrowRightIcon,
+  CaretDownIcon,
   ChartLineUpIcon,
   CheckIcon,
   DeviceMobileIcon,
@@ -17,6 +18,7 @@ import {
   TemplateProfileGallery,
 } from './athlete-profile-showcase';
 import { EditorShowcase } from './editor-showcase';
+import { LazyAnalyticsShowcase } from './lazy-analytics-showcase';
 
 const featureCards = [
   {
@@ -83,6 +85,44 @@ const journeyPoints = [
     number: '04',
     title: 'Create opportunities',
     description: 'Turn attention into partnerships and support.',
+  },
+] as const;
+
+const faqItems = [
+  {
+    question: 'Can I build and publish a profile for free?',
+    answer:
+      'Yes. The Free plan includes one public athlete profile, every core block, four templates, essential styles, and the key analytics you need to get started.',
+  },
+  {
+    question: 'Is Griit only for professional athletes?',
+    answer:
+      'Not at all. Griit is built for athletes at every level—from someone preparing for a first race to a professional building a stronger public presence.',
+  },
+  {
+    question: 'Can I use Griit for any sport?',
+    answer:
+      'Yes. You can select from a broad sport directory, combine multiple disciplines, or add your own sport when it is not listed.',
+  },
+  {
+    question: 'How much can I customize my profile?',
+    answer:
+      'Every profile lets you change its content, wording, template, and core visual direction. Pro unlocks every template and typography style, plus custom colors, shapes, textures, gallery layouts, and advanced appearance controls.',
+  },
+  {
+    question: 'What analytics are included?',
+    answer:
+      'Free includes profile views, unique visitors, clicks, and click-through rate. Pro adds deeper audience, campaign, social, and individual block analytics.',
+  },
+  {
+    question: 'Can I manage more than one athlete profile?',
+    answer:
+      'Yes. Pro lets you create and manage up to five independent public profiles from the same account, each with its own content, design, URL, and analytics.',
+  },
+  {
+    question: 'Can I use my own domain?',
+    answer:
+      'Custom domains and downloadable QR codes are planned for Pro. They are marked as coming soon while we finish making the setup reliable and simple.',
   },
 ] as const;
 
@@ -300,43 +340,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-[#f9f9f6] p-5 text-[#151515] shadow-2xl sm:p-7">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-black">Profile performance</p>
-                <p className="mt-1 text-[10px] text-black/40">Last 30 days</p>
-              </div>
-              <span className="rounded-full bg-[#e8edff] px-3 py-1.5 text-[10px] font-bold text-[#3157ff]">
-                Daily
-              </span>
-            </div>
-            <div className="mt-8 flex h-64 items-end gap-2 border-b border-black/10 sm:gap-3">
-              {[28, 38, 32, 48, 44, 62, 55, 72, 65, 84, 76, 94].map(
-                (height, index) => (
-                  <div
-                    className="flex h-full flex-1 items-end"
-                    key={`${height}-${index}`}
-                  >
-                    <div
-                      className={`w-full rounded-t-lg ${index > 8 ? 'bg-[#a9ed35]' : 'bg-[#3157ff]'}`}
-                      style={{ height: `${height}%` }}
-                    />
-                  </div>
-                ),
-              )}
-            </div>
-            <div className="mt-5 flex flex-wrap gap-5 text-[10px] font-bold text-black/45">
-              <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#3157ff]" /> Views
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#a9ed35]" /> Clicks
-              </span>
-              <span className="ml-auto flex items-center gap-1 text-emerald-600">
-                <ChartLineUpIcon className="h-4 w-4" weight="bold" /> +28%
-              </span>
-            </div>
-          </div>
+          <LazyAnalyticsShowcase />
         </div>
       </section>
 
@@ -410,6 +414,53 @@ export default function HomePage() {
               Compare every feature
               <ArrowRightIcon className="h-4 w-4" weight="bold" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="border-t border-black/10 bg-white px-5 py-24 sm:px-8 lg:px-12 lg:py-32"
+        id="faq"
+      >
+        <div className="mx-auto grid max-w-[1180px] gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
+              Questions, answered
+            </p>
+            <h2 className="mt-5 max-w-lg text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
+              Everything before your first rep.
+            </h2>
+            <p className="mt-6 max-w-md text-sm leading-6 text-black/50">
+              The essentials about creating, publishing, and growing your
+              athlete profile.
+            </p>
+          </div>
+
+          <div className="border-t border-black/12">
+            {faqItems.map((item, index) => (
+              <details
+                className="group border-b border-black/12"
+                key={item.question}
+                name="homepage-faq"
+                open={index === 0}
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-left marker:hidden sm:py-7 [&::-webkit-details-marker]:hidden">
+                  <span className="text-base font-black tracking-[-0.02em] sm:text-lg">
+                    {item.question}
+                  </span>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/12 bg-[#f7f6f1] transition-[transform,background-color,color] duration-300 group-open:rotate-180 group-open:bg-[#151515] group-open:text-white">
+                    <CaretDownIcon className="h-4 w-4" weight="bold" />
+                  </span>
+                </summary>
+                <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-open:grid-rows-[1fr]">
+                  <div className="overflow-hidden">
+                    <p className="max-w-2xl pr-12 pb-7 text-sm leading-7 text-black/52 sm:text-base">
+                      {item.answer}
+                    </p>
+                  </div>
+                </div>
+              </details>
+            ))}
           </div>
         </div>
       </section>

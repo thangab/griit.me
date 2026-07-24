@@ -8,6 +8,7 @@ import malikImpact from './profile-screenshots/malik-impact.png';
 import mayaSpotlight from './profile-screenshots/maya-spotlight.png';
 import noahMidnight from './profile-screenshots/noah-midnight.png';
 import sofiaMomentum from './profile-screenshots/sofia-momentum.png';
+import styles from './hero-profile-collage.module.css';
 
 type ProfileScreenshot = {
   image: StaticImageData;
@@ -98,62 +99,73 @@ function ProfileCrop({
   className,
   profile,
   priority = false,
+  slot,
   sizes,
 }: {
   className: string;
   profile: ProfileScreenshot;
   priority?: boolean;
+  slot: 'left' | 'center' | 'right';
   sizes: string;
 }) {
   return (
-    <figure
-      className={`absolute overflow-hidden rounded-[2rem] border-[7px] border-[#151515] bg-[#151515] shadow-[0_28px_65px_rgba(18,18,18,0.24)] transition-[transform,opacity,filter,box-shadow] duration-500 ease-out hover:!z-50 hover:!scale-[1.06] hover:!rotate-0 hover:!opacity-100 hover:shadow-[0_38px_90px_rgba(18,18,18,0.34)] focus-visible:!z-50 focus-visible:!scale-[1.06] focus-visible:!rotate-0 focus-visible:!opacity-100 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#3157ff] ${className}`}
-      tabIndex={0}
-    >
-      <Image
-        alt={`${profile.name}'s ${profile.sport.toLowerCase()} profile built with the ${profile.template} template`}
-        className="object-cover object-top"
-        fill
-        placeholder="blur"
-        priority={priority}
-        quality={88}
-        sizes={sizes}
-        src={profile.image}
-      />
-      <figcaption className="absolute right-3 bottom-3 left-3 flex items-center justify-between gap-2 rounded-full border border-white/15 bg-[#151515]/88 px-3 py-2 text-white shadow-lg backdrop-blur-md">
-        <span className="min-w-0">
-          <span className="block truncate text-[10px] font-black">
-            {profile.name}
-          </span>
-          <span className="block truncate text-[8px] font-semibold text-white/55">
-            {profile.sport}
-          </span>
-        </span>
-        <ArrowRightIcon className="h-3.5 w-3.5 shrink-0" weight="bold" />
-      </figcaption>
-    </figure>
+    <div className={`${styles.profile} ${className}`} data-profile={slot}>
+      <div className={styles.motion}>
+        <figure className={styles.card} tabIndex={0}>
+          <Image
+            alt={`${profile.name}'s ${profile.sport.toLowerCase()} profile built with the ${profile.template} template`}
+            className={styles.image}
+            fill
+            placeholder="blur"
+            priority={priority}
+            quality={88}
+            sizes={sizes}
+            src={profile.image}
+          />
+          <span className={styles.shine} />
+          <figcaption
+            className={`${styles.caption} absolute right-3 bottom-3 left-3 z-10 flex items-center justify-between gap-2 rounded-full border border-white/15 bg-[#151515]/88 px-3 py-2 text-white shadow-lg backdrop-blur-md`}
+          >
+            <span className="min-w-0">
+              <span className="block truncate text-[10px] font-black">
+                {profile.name}
+              </span>
+              <span className="block truncate text-[8px] font-semibold text-white/55">
+                {profile.sport}
+              </span>
+            </span>
+            <ArrowRightIcon className="h-3.5 w-3.5 shrink-0" weight="bold" />
+          </figcaption>
+        </figure>
+      </div>
+    </div>
   );
 }
 
 export function HeroProfileCollage() {
   return (
-    <div className="relative mx-auto h-[540px] w-full max-w-[620px] sm:h-[620px] lg:h-[650px] [&:has(figure:focus-visible)_figure]:opacity-60 [&:has(figure:focus-visible)_figure:focus-visible]:!opacity-100 [&:has(figure:hover)_figure]:opacity-60 [&:has(figure:hover)_figure:hover]:!opacity-100">
+    <div
+      className={`${styles.collage} relative mx-auto h-[540px] w-full max-w-[620px] sm:h-[620px] lg:h-[650px]`}
+    >
       <div className="absolute top-8 left-1/2 h-[82%] w-[64%] -translate-x-1/2 rounded-full bg-[#3157ff]/12 blur-3xl" />
 
       <ProfileCrop
-        className="top-6 left-1/2 z-20 h-[510px] w-[242px] -translate-x-1/2 rotate-[1deg] sm:top-4 sm:h-[590px] sm:w-[280px] lg:h-[620px] lg:w-[294px]"
+        className="top-6 left-1/2 z-20 h-[510px] w-[242px] -translate-x-1/2 sm:top-4 sm:h-[590px] sm:w-[280px] lg:h-[620px] lg:w-[294px]"
         priority
         profile={heroProfiles.malik}
+        slot="center"
         sizes="(min-width: 1024px) 294px, (min-width: 640px) 280px, 242px"
       />
       <ProfileCrop
-        className="top-16 left-2 z-10 hidden h-[505px] w-[238px] -rotate-6 sm:block lg:left-0 lg:h-[535px] lg:w-[252px]"
+        className="top-16 left-2 z-10 hidden h-[505px] w-[238px] sm:block lg:left-0 lg:h-[535px] lg:w-[252px]"
         profile={heroProfiles.sofia}
+        slot="left"
         sizes="(min-width: 1024px) 252px, 238px"
       />
       <ProfileCrop
-        className="top-16 right-2 z-10 hidden h-[505px] w-[238px] rotate-6 sm:block lg:right-0 lg:h-[535px] lg:w-[252px]"
+        className="top-16 right-2 z-10 hidden h-[505px] w-[238px] sm:block lg:right-0 lg:h-[535px] lg:w-[252px]"
         profile={heroProfiles.maya}
+        slot="right"
         sizes="(min-width: 1024px) 252px, 238px"
       />
     </div>
