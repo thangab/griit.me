@@ -105,7 +105,7 @@ export function DashboardSidebar({
             type="button"
             onClick={() => setIsStudioMenuOpen((current) => !current)}
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3157ff] text-sm font-black text-white">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7f6f1] text-sm font-black text-[#151515] shadow-[0_5px_18px_rgba(0,0,0,0.18)]">
               G.
             </span>
             <span

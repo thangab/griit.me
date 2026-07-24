@@ -62,7 +62,7 @@ export function MobileDashboardNav({
           type="button"
           onClick={() => setIsStudioMenuOpen((current) => !current)}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#3157ff] text-sm font-black text-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#151515] text-sm font-black text-[#f7f6f1] shadow-sm">
             G.
           </div>
           <div>
@@ -188,7 +188,7 @@ export function MobileDashboardNav({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#3157ff] text-sm font-black text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f7f6f1] text-sm font-black text-[#151515] shadow-[0_5px_18px_rgba(0,0,0,0.18)]">
               G.
             </div>
             <div>
