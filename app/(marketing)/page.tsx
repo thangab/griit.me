@@ -12,13 +12,14 @@ import {
   SparkleIcon,
   SquaresFourIcon,
 } from '@phosphor-icons/react/ssr';
-import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
+import { launchOffer } from '@/lib/constants/billing';
 import {
   HeroProfileCollage,
   TemplateProfileGallery,
 } from './athlete-profile-showcase';
 import { EditorShowcase } from './editor-showcase';
 import { LazyAnalyticsShowcase } from './lazy-analytics-showcase';
+import { HomePricingCards } from './home-pricing-cards';
 
 const featureCards = [
   {
@@ -394,92 +395,7 @@ export default function HomePage() {
               Pro Monthly.
             </p>
           </div>
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {(['free', 'pro', 'teams'] as const).map((plan) => {
-              const planData = subscriptionPlans[plan];
-              const isPro = plan === 'pro';
-              const isTeams = plan === 'teams';
-              return (
-                <article
-                  className={`relative flex flex-col rounded-[2rem] border p-7 sm:p-9 ${
-                    isPro
-                      ? 'border-[#151515] bg-[#151515] text-white shadow-2xl'
-                      : isTeams
-                        ? 'border-[#3157ff]/25 bg-[#e8edff]'
-                        : 'border-black/10 bg-white'
-                  }`}
-                  key={plan}
-                >
-                  {isPro ? (
-                    <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
-                      Launch offer
-                    </span>
-                  ) : isTeams ? (
-                    <span className="absolute top-6 right-6 rounded-full bg-[#3157ff] px-3 py-1 text-[10px] font-black text-white uppercase">
-                      Organizations
-                    </span>
-                  ) : null}
-                  <p className="text-sm font-black">{planData.name}</p>
-                  <div className="mt-4 flex items-end gap-2">
-                    <p className="text-4xl font-black tracking-tight">
-                      {isPro ? launchOffer.firstYearPrice : planData.price}
-                    </p>
-                    {isPro ? (
-                      <span className="pb-1 text-sm font-bold text-white/35 line-through">
-                        {launchOffer.regularAnnualPrice}
-                      </span>
-                    ) : null}
-                  </div>
-                  {isPro ? (
-                    <div className="mt-2">
-                      <p className="text-xs font-bold text-[#a9ed35]">
-                        First {launchOffer.athleteLimit} athletes ·{' '}
-                        {launchOffer.code}
-                      </p>
-                      <p className="mt-1 text-[11px] text-white/40">
-                        Save {launchOffer.savingsVsMonthly} vs 12 months of Pro
-                        Monthly
-                      </p>
-                    </div>
-                  ) : null}
-                  <p
-                    className={`mt-4 text-sm leading-6 ${isPro ? 'text-white/55' : 'text-black/50'}`}
-                  >
-                    {planData.description}
-                  </p>
-                  <ul className="mt-8 flex-1 space-y-3">
-                    {planData.features.map((feature) => (
-                      <li
-                        className="flex items-center gap-3 text-sm"
-                        key={feature}
-                      >
-                        <span
-                          className={`flex h-5 w-5 items-center justify-center rounded-full ${isPro ? 'bg-[#a9ed35] text-black' : 'bg-[#e8edff] text-[#3157ff]'}`}
-                        >
-                          <CheckIcon className="h-3 w-3" weight="bold" />
-                        </span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    className={`mt-9 inline-flex h-11 w-full items-center justify-center rounded-full text-sm font-bold ${isPro ? 'bg-white text-black' : isTeams ? 'bg-[#151515] text-white' : 'bg-[#3157ff] text-white'}`}
-                    href={
-                      isTeams
-                        ? 'mailto:hello@griit.me?subject=Griit%20Teams'
-                        : '/sign-up'
-                    }
-                  >
-                    {isTeams
-                      ? 'Talk to us'
-                      : isPro
-                        ? 'Claim launch offer'
-                        : 'Build for free'}
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
+          <HomePricingCards />
           <div className="mt-8 text-center">
             <Link
               className="inline-flex h-11 items-center gap-2 rounded-full border border-black/15 bg-white px-5 text-sm font-bold transition-colors hover:bg-black hover:text-white"
