@@ -18,6 +18,7 @@ export const profiles = pgTable('profiles', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   full_name: text('full_name'),
   avatar_url: text('avatar_url'),
+  is_admin: boolean('is_admin').default(false).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -101,6 +102,31 @@ export const public_profiles = pgTable(
       table.is_published,
       table.is_discoverable,
       table.updated_at,
+    ),
+  }),
+);
+
+export const athlete_directory_reviews = pgTable(
+  'athlete_directory_reviews',
+  {
+    profile_id: integer('profile_id')
+      .primaryKey()
+      .references(() => public_profiles.id, { onDelete: 'cascade' }),
+    status: varchar('status', { length: 16 }).default('pending').notNull(),
+    submitted_at: timestamp('submitted_at').defaultNow().notNull(),
+    reviewed_at: timestamp('reviewed_at'),
+    reviewed_by: varchar('reviewed_by', { length: 36 }).references(
+      () => profiles.id,
+      { onDelete: 'set null' },
+    ),
+    rejection_reason: text('rejection_reason'),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    statusIdx: index('athlete_directory_reviews_status_idx').on(
+      table.status,
+      table.submitted_at,
     ),
   }),
 );

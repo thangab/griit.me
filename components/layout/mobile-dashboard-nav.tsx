@@ -13,6 +13,7 @@ import {
   ListIcon as Menu,
   LockSimpleIcon as LockSimple,
   SignOutIcon as LogOut,
+  ShieldCheckIcon,
   SquaresFourIcon as LayoutGrid,
   UserCircleIcon as UserRound,
   XIcon as X,
@@ -31,6 +32,7 @@ const iconMap = {
   BarChart3,
   Settings,
   LockSimple,
+  ShieldCheck: ShieldCheckIcon,
 };
 
 export function MobileDashboardNav({
@@ -38,11 +40,13 @@ export function MobileDashboardNav({
   profiles,
   canSwitchProfiles,
   isPro,
+  isAdmin,
 }: {
   defaultProfileId?: number;
   profiles: OwnedProfileSummary[];
   canSwitchProfiles: boolean;
   isPro: boolean;
+  isAdmin: boolean;
 }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +54,18 @@ export function MobileDashboardNav({
   const routeProfileId = Number(
     pathname.match(/^\/dashboard\/profiles\/(\d+)/)?.[1] ?? defaultProfileId,
   );
-  const dashboardNavItems = getDashboardNavItems(pathname, defaultProfileId);
+  const dashboardNavItems = [
+    ...getDashboardNavItems(pathname, defaultProfileId),
+    ...(isAdmin
+      ? [
+          {
+            href: '/dashboard/admin/athletes',
+            label: 'Athlete reviews',
+            icon: 'ShieldCheck' as const,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="lg:hidden">

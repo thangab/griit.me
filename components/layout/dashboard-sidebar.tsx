@@ -12,6 +12,7 @@ import {
   LayoutIcon as PanelsTopLeft,
   LockSimpleIcon as LockSimple,
   SignOutIcon as LogOut,
+  ShieldCheckIcon,
   SquaresFourIcon as LayoutGrid,
   UserCircleIcon as UserRound,
 } from '@phosphor-icons/react/ssr';
@@ -29,6 +30,7 @@ const iconMap = {
   BarChart3,
   Settings,
   LockSimple,
+  ShieldCheck: ShieldCheckIcon,
 };
 
 export function DashboardSidebar({
@@ -36,11 +38,13 @@ export function DashboardSidebar({
   profiles,
   canSwitchProfiles,
   isPro,
+  isAdmin,
 }: {
   defaultProfileId?: number;
   profiles: OwnedProfileSummary[];
   canSwitchProfiles: boolean;
   isPro: boolean;
+  isAdmin: boolean;
 }) {
   const pathname = usePathname();
   const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
@@ -49,7 +53,18 @@ export function DashboardSidebar({
   const routeProfileId = Number(
     pathname.match(/^\/dashboard\/profiles\/(\d+)/)?.[1] ?? defaultProfileId,
   );
-  const dashboardNavItems = getDashboardNavItems(pathname, defaultProfileId);
+  const dashboardNavItems = [
+    ...getDashboardNavItems(pathname, defaultProfileId),
+    ...(isAdmin
+      ? [
+          {
+            href: '/dashboard/admin/athletes',
+            label: 'Athlete reviews',
+            icon: 'ShieldCheck' as const,
+          },
+        ]
+      : []),
+  ];
 
   useEffect(() => {
     if (!isStudioMenuOpen) return;

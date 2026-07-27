@@ -24,6 +24,10 @@ core model.
   `fontPreset`, `coverType`, `coverColor`, `coverGradientFrom`,
   `coverGradientTo`, `coverOverlayColor`, `coverOverlayOpacity`,
   `radiusPreset` and `galleryLayout`.
+- `athlete_directory_reviews`: moderation state for athlete-directory
+  submissions. A Live, discoverable profile is only listed after an admin has
+  changed its review from `pending` to `approved`; profiles requiring updates
+  retain the team feedback needed before another review.
 - `profile_blocks`: ordered content blocks belonging directly to a public
   profile. One public profile represents one public page.
 - `profile_social_links`: ordered external links and social accounts.

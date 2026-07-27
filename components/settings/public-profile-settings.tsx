@@ -41,11 +41,7 @@ const initialState: ProfileBuilderActionState = {
 };
 
 type AvailabilityStatus =
-  | 'current'
-  | 'checking'
-  | 'available'
-  | 'taken'
-  | 'invalid';
+  'current' | 'checking' | 'available' | 'taken' | 'invalid';
 
 function validateUsername(username: string) {
   if (username.length < 3) return 'Use at least 3 characters.';
@@ -89,7 +85,7 @@ function SettingToggle({
           onChange={onChange}
         />
         <span className="bg-muted peer-focus-visible:ring-ring block h-6 w-11 rounded-full transition-colors peer-checked:bg-emerald-500 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2" />
-        <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" />
+        <span className="absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" />
       </span>
     </label>
   );
@@ -270,11 +266,15 @@ export function PublicProfileSettings({
         </div>
 
         <form action={urlFormAction} className="space-y-3 p-5 sm:p-6">
-          <input name="profileId" type="hidden" value={builder.profile.id ?? ''} />
+          <input
+            name="profileId"
+            type="hidden"
+            value={builder.profile.id ?? ''}
+          />
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <label className="block min-w-0">
               <span className="text-sm font-semibold">Username</span>
-              <div className="border-border mt-2 flex h-12 overflow-hidden rounded-xl border focus-within:ring-2 focus-within:ring-primary/15">
+              <div className="border-border focus-within:ring-primary/15 mt-2 flex h-12 overflow-hidden rounded-xl border focus-within:ring-2">
                 <span className="text-muted-foreground bg-muted/40 border-border flex items-center border-r px-3 text-sm">
                   griit.me/
                 </span>
@@ -286,7 +286,9 @@ export function PublicProfileSettings({
                   name="username"
                   spellCheck={false}
                   value={username}
-                  onChange={(event) => setUsername(event.target.value.toLowerCase())}
+                  onChange={(event) =>
+                    setUsername(event.target.value.toLowerCase())
+                  }
                 />
               </div>
             </label>
@@ -309,16 +311,19 @@ export function PublicProfileSettings({
           </div>
           <div
             className={`flex min-h-5 items-center gap-2 text-xs font-medium ${
-              availabilityStatus === 'available' || availabilityStatus === 'current'
+              availabilityStatus === 'available' ||
+              availabilityStatus === 'current'
                 ? 'text-emerald-700'
-                : availabilityStatus === 'taken' || availabilityStatus === 'invalid'
+                : availabilityStatus === 'taken' ||
+                    availabilityStatus === 'invalid'
                   ? 'text-red-700'
                   : 'text-muted-foreground'
             }`}
           >
             {availabilityStatus === 'checking' ? (
               <CircleNotchIcon className="h-3.5 w-3.5 animate-spin" />
-            ) : availabilityStatus === 'available' || availabilityStatus === 'current' ? (
+            ) : availabilityStatus === 'available' ||
+              availabilityStatus === 'current' ? (
               <CheckIcon className="h-3.5 w-3.5" />
             ) : (
               <WarningCircleIcon className="h-3.5 w-3.5" />
@@ -334,7 +339,11 @@ export function PublicProfileSettings({
         action={visibilityFormAction}
         className="border-border bg-background overflow-hidden rounded-2xl border"
       >
-        <input name="profileId" type="hidden" value={builder.profile.id ?? ''} />
+        <input
+          name="profileId"
+          type="hidden"
+          value={builder.profile.id ?? ''}
+        />
         <section>
           <div className="border-border bg-muted/30 flex items-start gap-3 border-b px-5 py-5 sm:px-6">
             <span className="bg-background border-border flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-sm">
@@ -358,7 +367,7 @@ export function PublicProfileSettings({
             />
             <SettingToggle
               defaultChecked={builder.profile.isDiscoverable}
-              description="Include this page in the public athlete directory and sport filters."
+              description="Submit this live page to the GRIIT team. Once approved, it can appear in the athlete directory and sport filters."
               disabled={visibilityPending}
               name="isDiscoverable"
               title="Show in athlete directory"
@@ -390,7 +399,9 @@ export function PublicProfileSettings({
                 {visibilityState.success ? 'Saved' : visibilityState.message}
               </span>
             ) : (
-              <span className="text-muted-foreground">Changes save automatically</span>
+              <span className="text-muted-foreground">
+                Changes save automatically
+              </span>
             )}
           </div>
         </section>
@@ -400,7 +411,11 @@ export function PublicProfileSettings({
         action={settingsFormAction}
         className="border-border bg-background overflow-hidden rounded-2xl border"
       >
-        <input name="profileId" type="hidden" value={builder.profile.id ?? ''} />
+        <input
+          name="profileId"
+          type="hidden"
+          value={builder.profile.id ?? ''}
+        />
         <section>
           <div className="border-border bg-muted/30 flex items-start gap-3 border-b px-5 py-5 sm:px-6">
             <span className="bg-background border-border flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-sm">
@@ -409,7 +424,8 @@ export function PublicProfileSettings({
             <div>
               <h2 className="text-lg font-semibold">Search & sharing</h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                Control how your profile appears in search results and shared links.
+                Control how your profile appears in search results and shared
+                links.
               </p>
             </div>
           </div>
@@ -423,7 +439,7 @@ export function PublicProfileSettings({
                   </span>
                 </span>
                 <input
-                  className="border-border mt-2 h-11 w-full rounded-xl border bg-transparent px-3 text-sm outline-none focus:ring-2 focus:ring-primary/15"
+                  className="border-border focus:ring-primary/15 mt-2 h-11 w-full rounded-xl border bg-transparent px-3 text-sm outline-none focus:ring-2"
                   maxLength={70}
                   name="seoTitle"
                   placeholder={defaultSeoTitle}
@@ -439,7 +455,7 @@ export function PublicProfileSettings({
                   </span>
                 </span>
                 <textarea
-                  className="border-border mt-2 min-h-28 w-full resize-y rounded-xl border bg-transparent px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/15"
+                  className="border-border focus:ring-primary/15 mt-2 min-h-28 w-full resize-y rounded-xl border bg-transparent px-3 py-3 text-sm outline-none focus:ring-2"
                   maxLength={160}
                   name="seoDescription"
                   placeholder={defaultSeoDescription}
@@ -459,7 +475,7 @@ export function PublicProfileSettings({
             </div>
 
             <div>
-              <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-[0.14em]">
+              <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-[0.14em] uppercase">
                 Link preview
               </p>
               <div className="border-border overflow-hidden rounded-2xl border shadow-sm">
@@ -467,12 +483,14 @@ export function PublicProfileSettings({
                   className="bg-muted aspect-[1.91/1] bg-cover bg-center"
                   style={
                     shareImageUrl
-                      ? { backgroundImage: `url(${JSON.stringify(shareImageUrl)})` }
+                      ? {
+                          backgroundImage: `url(${JSON.stringify(shareImageUrl)})`,
+                        }
                       : undefined
                   }
                 />
                 <div className="space-y-1 p-4">
-                  <p className="text-muted-foreground text-[11px] uppercase tracking-wide">
+                  <p className="text-muted-foreground text-[11px] tracking-wide uppercase">
                     griit.me/{savedUsername}
                   </p>
                   <p className="line-clamp-2 text-sm font-semibold">
@@ -487,7 +505,11 @@ export function PublicProfileSettings({
           </div>
           <div className="border-border flex flex-col gap-3 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <Feedback state={settingsState} />
-            <Button className="sm:ml-auto" disabled={settingsPending} type="submit">
+            <Button
+              className="sm:ml-auto"
+              disabled={settingsPending}
+              type="submit"
+            >
               {settingsPending ? (
                 <CircleNotchIcon className="h-4 w-4 animate-spin" />
               ) : (
@@ -506,13 +528,18 @@ export function PublicProfileSettings({
               <LockKeyIcon className="h-4 w-4" />
             </span>
             <div className="flex gap-2">
-              <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-[11px] font-semibold">Pro</span>
-              <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[11px] font-semibold">Coming soon</span>
+              <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-[11px] font-semibold">
+                Pro
+              </span>
+              <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[11px] font-semibold">
+                Coming soon
+              </span>
             </div>
           </div>
           <h2 className="mt-5 font-semibold">Custom domain</h2>
           <p className="text-muted-foreground mt-2 text-sm leading-6">
-            Connect your own domain while keeping your Griit profile and analytics.
+            Connect your own domain while keeping your Griit profile and
+            analytics.
           </p>
         </div>
         <div className="border-border bg-background rounded-2xl border p-5 sm:p-6">
@@ -520,23 +547,28 @@ export function PublicProfileSettings({
             <span className="bg-muted flex h-10 w-10 items-center justify-center rounded-xl">
               <QrCodeIcon className="h-4 w-4" />
             </span>
-            <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[11px] font-semibold">Coming soon</span>
+            <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[11px] font-semibold">
+              Coming soon
+            </span>
           </div>
           <h2 className="mt-5 font-semibold">QR code</h2>
           <p className="text-muted-foreground mt-2 text-sm leading-6">
-            Generate a downloadable QR code for events, kits, posters, and social posts.
+            Generate a downloadable QR code for events, kits, posters, and
+            social posts.
           </p>
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-red-200 bg-background">
+      <section className="bg-background overflow-hidden rounded-2xl border border-red-200">
         <div className="border-b border-red-100 bg-red-50/60 px-5 py-5 sm:px-6">
           <div className="flex items-start gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-white text-red-600">
               <TrashIcon className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-red-950">Danger zone</h2>
+              <h2 className="text-lg font-semibold text-red-950">
+                Danger zone
+              </h2>
               <p className="mt-1 text-sm text-red-800/75">
                 Manage irreversible profile and account deletion actions.
               </p>

@@ -3,11 +3,13 @@ import { DashboardSidebar } from '@/components/layout/dashboard-sidebar';
 import { MobileDashboardNav } from '@/components/layout/mobile-dashboard-nav';
 import { getOwnedProfiles } from '@/lib/services/profile-builder';
 import { getSubscriptionState } from '@/lib/services/billing';
+import { isCurrentUserAdmin } from '@/lib/services/athlete-directory-review';
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const [profiles, subscription] = await Promise.all([
+  const [profiles, subscription, isAdmin] = await Promise.all([
     getOwnedProfiles(),
     getSubscriptionState(),
+    isCurrentUserAdmin(),
   ]);
   const defaultProfileId = profiles[0]?.id;
   const canSwitchProfiles =
@@ -28,6 +30,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           canSwitchProfiles={canSwitchProfiles}
           defaultProfileId={defaultProfileId}
           isPro={subscription.plan === 'pro' && subscription.isActive}
+          isAdmin={isAdmin}
           profiles={profiles}
         />
         <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
@@ -35,6 +38,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             canSwitchProfiles={canSwitchProfiles}
             defaultProfileId={defaultProfileId}
             isPro={subscription.plan === 'pro' && subscription.isActive}
+            isAdmin={isAdmin}
             profiles={profiles}
           />
           <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 lg:px-7">

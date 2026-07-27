@@ -14,6 +14,7 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
 import { PublicAddressCard } from '@/components/dashboard/public-address-card';
+import { DirectoryReviewStatusCard } from '@/components/dashboard/directory-review-status-card';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,6 +24,7 @@ import {
 } from '@/components/ui/card';
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getProfileBuilderState } from '@/lib/services/profile-builder';
+import { getOwnedProfileDirectoryReview } from '@/lib/services/athlete-directory-review';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
 
@@ -77,9 +79,10 @@ export default async function ProfileOverviewPage({
   const profileId = Number((await params).profileId);
   if (!Number.isInteger(profileId) || profileId <= 0) notFound();
 
-  const [builder, subscription] = await Promise.all([
+  const [builder, subscription, directoryReview] = await Promise.all([
     getProfileBuilderState(profileId),
     getSubscriptionState(),
+    getOwnedProfileDirectoryReview(profileId),
   ]);
   if (!builder) notFound();
 
@@ -151,6 +154,13 @@ export default async function ProfileOverviewPage({
         <PublicAddressCard
           isPublished={builder.profile.isPublished}
           username={builder.profile.username}
+        />
+
+        <DirectoryReviewStatusCard
+          isDiscoverable={builder.profile.isDiscoverable}
+          isPublished={builder.profile.isPublished}
+          profileId={profileId}
+          review={directoryReview}
         />
 
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">

@@ -41,6 +41,7 @@ import {
 import { parseMediaUrl } from '@/lib/utils/media-embed';
 import { goalDateDisplays } from '@/lib/utils/goal-date';
 import { createSportSlug } from '@/lib/constants/sports';
+import { submitProfileForDirectoryReview } from '@/lib/services/athlete-directory-review';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -1882,6 +1883,10 @@ export async function updateProfileVisibilityAction(
     };
   }
 
+  if (parsed.data.isPublished && parsed.data.isDiscoverable) {
+    await submitProfileForDirectoryReview(profileId);
+  }
+
   revalidatePath('/dashboard');
   revalidatePath(`/dashboard/profiles/${profileId}`);
   revalidatePath(`/dashboard/profiles/${profileId}/settings`);
@@ -2233,6 +2238,10 @@ export async function setProfilePublishedAction(
       message:
         error?.message ?? 'Save your profile before changing its visibility.',
     };
+  }
+
+  if (isPublished) {
+    await submitProfileForDirectoryReview(profileId);
   }
 
   revalidatePath('/dashboard');

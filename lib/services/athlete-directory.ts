@@ -55,15 +55,11 @@ type GoalRow = {
 
 async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
   const supabase = createPublicSupabaseClient();
-  const [profilesResult, sportsResult] = await Promise.all([
+  const [reviewsResult, sportsResult] = await Promise.all([
     supabase
-      .from('public_profiles')
-      .select(
-        'id, username, display_name, bio, location, avatar_url, cover_url, theme',
-      )
-      .eq('is_published', true)
-      .eq('is_discoverable', true)
-      .order('updated_at', { ascending: false }),
+      .from('athlete_directory_reviews')
+      .select('profile_id')
+      .eq('status', 'approved'),
     supabase
       .from('sports')
       .select('name, slug')
@@ -71,6 +67,21 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
       .eq('is_custom', false)
       .order('sort_order', { ascending: true }),
   ]);
+
+  const approvedProfileIds = (reviewsResult.data ?? []).map(
+    (review) => review.profile_id as number,
+  );
+  const profilesResult = approvedProfileIds.length
+    ? await supabase
+        .from('public_profiles')
+        .select(
+          'id, username, display_name, bio, location, avatar_url, cover_url, theme',
+        )
+        .in('id', approvedProfileIds)
+        .eq('is_published', true)
+        .eq('is_discoverable', true)
+        .order('updated_at', { ascending: false })
+    : { data: [] };
 
   const profiles = (profilesResult.data ?? []) as ProfileRow[];
   const profileIds = profiles.map((profile) => profile.id);
