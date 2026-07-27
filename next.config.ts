@@ -28,13 +28,23 @@ const legacyUnsplashPattern = {
   hostname: 'images.unsplash.com',
   pathname: '/**',
 };
+const demoAvatarPattern = {
+  protocol: 'https' as const,
+  hostname: 'randomuser.me',
+  pathname: '/api/portraits/**',
+};
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
   images: {
     remotePatterns: supabaseStoragePattern
-      ? [supabaseStoragePattern, googleAvatarPattern, legacyUnsplashPattern]
-      : [googleAvatarPattern, legacyUnsplashPattern],
+      ? [
+          supabaseStoragePattern,
+          googleAvatarPattern,
+          legacyUnsplashPattern,
+          demoAvatarPattern,
+        ]
+      : [googleAvatarPattern, legacyUnsplashPattern, demoAvatarPattern],
   },
 };
 
