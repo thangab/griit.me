@@ -1,6 +1,7 @@
 'use client';
 
 import type { BillingInterval } from '@/lib/types/billing';
+import { launchOffer } from '@/lib/constants/billing';
 
 export function BillingIntervalToggle({
   value,
@@ -35,7 +36,7 @@ export function BillingIntervalToggle({
         <span
           className={`rounded-full px-2 py-1 text-[9px] leading-none font-black whitespace-nowrap uppercase sm:text-[10px] ${value === 'year' ? 'bg-[#a9ed35] text-[#151515]' : 'bg-[#dff5b4] text-[#151515]'}`}
         >
-          Save 20%
+          Launch {launchOffer.firstYearPrice}
         </span>
       </button>
     </div>

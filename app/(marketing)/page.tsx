@@ -12,7 +12,7 @@ import {
   SparkleIcon,
   SquaresFourIcon,
 } from '@phosphor-icons/react/ssr';
-import { subscriptionPlans } from '@/lib/constants/billing';
+import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 import {
   HeroProfileCollage,
   TemplateProfileGallery,
@@ -121,8 +121,7 @@ const faqItems = [
   },
   {
     question: 'Can I pay for Pro annually?',
-    answer:
-      'Yes. Pro is $5 per month or $48 per year. Annual billing works out to $4 per month and saves $12 every year, which is 20% off.',
+    answer: `Yes. Pro is $5 per month or $48 per year. For the first 100 athletes, code ${launchOffer.code} reduces the first annual payment from $48 to $36—$24 less than paying for 12 months of Pro Monthly.`,
   },
   {
     question: 'Can I use my own domain?',
@@ -172,6 +171,21 @@ export default function HomePage() {
                 Explore templates
               </a>
             </div>
+
+            <Link
+              className="mt-5 inline-flex items-center gap-2 text-xs font-black text-[#3157ff] hover:underline"
+              href="/pricing#launch-offer"
+            >
+              <span className="rounded-full bg-[#a9ed35] px-2 py-1 text-[9px] tracking-[0.12em] text-[#151515] uppercase">
+                Launch
+              </span>
+              Pro Annual{' '}
+              <span className="text-black/35 line-through">
+                {launchOffer.regularAnnualPrice}
+              </span>{' '}
+              {launchOffer.firstYearPrice} · first {launchOffer.athleteLimit}{' '}
+              athletes
+            </Link>
 
             <div className="mt-9 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-black/48">
               {[
@@ -363,6 +377,22 @@ export default function HomePage() {
             <h2 className="mt-5 text-4xl font-black tracking-[-0.055em] sm:text-6xl">
               Start free. Grow with your goals.
             </h2>
+            <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-black/50">
+              Launch offer for the first {launchOffer.athleteLimit} athletes:{' '}
+              Pro Annual{' '}
+              <span className="line-through">
+                {launchOffer.regularAnnualPrice}
+              </span>{' '}
+              <strong className="text-black">
+                {launchOffer.firstYearPrice}
+              </strong>{' '}
+              with code{' '}
+              <strong className="font-mono text-[#3157ff]">
+                {launchOffer.code}
+              </strong>
+              . Save {launchOffer.savingsVsMonthly} compared with 12 months of
+              Pro Monthly.
+            </p>
           </div>
           <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {(['free', 'pro', 'teams'] as const).map((plan) => {
@@ -382,7 +412,7 @@ export default function HomePage() {
                 >
                   {isPro ? (
                     <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
-                      Most flexible
+                      Launch offer
                     </span>
                   ) : isTeams ? (
                     <span className="absolute top-6 right-6 rounded-full bg-[#3157ff] px-3 py-1 text-[10px] font-black text-white uppercase">
@@ -390,14 +420,27 @@ export default function HomePage() {
                     </span>
                   ) : null}
                   <p className="text-sm font-black">{planData.name}</p>
-                  <p className="mt-4 text-4xl font-black tracking-tight">
-                    {planData.price}
-                  </p>
-                  {isPro ? (
-                    <p className="mt-2 text-xs font-bold text-[#a9ed35]">
-                      Or {subscriptionPlans.pro.prices.year} ·{' '}
-                      {subscriptionPlans.pro.annualSavings}
+                  <div className="mt-4 flex items-end gap-2">
+                    <p className="text-4xl font-black tracking-tight">
+                      {isPro ? launchOffer.firstYearPrice : planData.price}
                     </p>
+                    {isPro ? (
+                      <span className="pb-1 text-sm font-bold text-white/35 line-through">
+                        {launchOffer.regularAnnualPrice}
+                      </span>
+                    ) : null}
+                  </div>
+                  {isPro ? (
+                    <div className="mt-2">
+                      <p className="text-xs font-bold text-[#a9ed35]">
+                        First {launchOffer.athleteLimit} athletes ·{' '}
+                        {launchOffer.code}
+                      </p>
+                      <p className="mt-1 text-[11px] text-white/40">
+                        Save {launchOffer.savingsVsMonthly} vs 12 months of Pro
+                        Monthly
+                      </p>
+                    </div>
                   ) : null}
                   <p
                     className={`mt-4 text-sm leading-6 ${isPro ? 'text-white/55' : 'text-black/50'}`}
@@ -430,7 +473,7 @@ export default function HomePage() {
                     {isTeams
                       ? 'Talk to us'
                       : isPro
-                        ? 'Start with Pro'
+                        ? 'Claim launch offer'
                         : 'Build for free'}
                   </Link>
                 </article>

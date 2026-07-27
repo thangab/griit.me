@@ -13,6 +13,7 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
 import { PricingPlanCards } from './pricing-plan-cards';
+import { launchOffer } from '@/lib/constants/billing';
 
 export const metadata: Metadata = {
   title: 'Pricing — Griit',
@@ -27,6 +28,12 @@ const comparisonRows = [
     free: 'Free forever',
     pro: 'Monthly or annual',
     teams: 'Custom',
+  },
+  {
+    label: 'Launch offer',
+    free: '—',
+    pro: '$48 → $36 for the first 100 athletes',
+    teams: '—',
   },
   { label: 'Public griit.me address', free: true, pro: true, teams: true },
   {
@@ -205,8 +212,7 @@ const faqs = [
   },
   {
     question: 'Can I pay for Pro annually?',
-    answer:
-      'Yes. Pro costs $5 monthly or $48 annually. Annual billing is equivalent to $4 per month, saving you $12 every year or 20% compared with monthly billing.',
+    answer: `Yes. Pro costs $5 monthly or $48 annually. For the first 100 athletes, code ${launchOffer.code} reduces the first annual payment from $48 to $36. That is $24 less than paying for 12 months of Pro Monthly.`,
   },
   {
     question: 'Who needs multiple profiles?',
@@ -283,6 +289,30 @@ export default async function PricingPage() {
             Start around your next goal, unlock more freedom with Pro, or bring
             your organization into one shared athlete workspace.
           </p>
+          <a
+            className="mx-auto mt-8 grid max-w-2xl gap-3 rounded-[1.5rem] border border-black/10 bg-white/80 p-4 text-left shadow-[0_18px_55px_rgba(21,21,21,0.08)] backdrop-blur transition-transform hover:-translate-y-0.5 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-5"
+            href="#launch-offer"
+          >
+            <span className="w-fit rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black tracking-[0.14em] uppercase">
+              Launch offer
+            </span>
+            <span>
+              <strong className="block text-sm">
+                Pro Annual:{' '}
+                <span className="text-black/35 line-through">
+                  {launchOffer.regularAnnualPrice}
+                </span>{' '}
+                {launchOffer.firstYearPrice}
+              </strong>
+              <span className="mt-0.5 block text-xs text-black/45">
+                Save {launchOffer.savingsVsMonthly} vs Pro Monthly · first{' '}
+                {launchOffer.athleteLimit} athletes
+              </span>
+            </span>
+            <span className="font-mono text-sm font-black text-[#3157ff]">
+              {launchOffer.code} →
+            </span>
+          </a>
         </div>
       </section>
 

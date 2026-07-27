@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
-import { ArrowRightIcon, CheckIcon } from '@phosphor-icons/react';
+import { ArrowRightIcon, CheckIcon, CopyIcon } from '@phosphor-icons/react';
 import { BillingIntervalToggle } from '@/components/billing/billing-interval-toggle';
-import { subscriptionPlans } from '@/lib/constants/billing';
+import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 import type { BillingInterval } from '@/lib/types/billing';
 
 const planDetails = {
@@ -53,16 +53,80 @@ export function PricingPlanCards({
 }) {
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('year');
+  const [codeCopied, setCodeCopied] = useState(false);
 
   return (
     <>
+      <div
+        className="mx-auto mb-8 max-w-[920px] scroll-mt-32 overflow-hidden rounded-[1.75rem] border border-[#a9ed35]/70 bg-[#151515] text-white shadow-[0_24px_70px_rgba(21,21,21,0.16)]"
+        id="launch-offer"
+      >
+        <div className="grid items-center gap-5 p-5 sm:p-6 md:grid-cols-[1fr_auto]">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black tracking-[0.14em] text-[#151515] uppercase">
+                Limited launch offer
+              </span>
+              <span className="text-xs font-bold text-white/45">
+                Reserved for the first {launchOffer.athleteLimit} athletes
+              </span>
+            </div>
+            <div className="mt-4 flex flex-wrap items-end gap-3">
+              <p className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">
+                Pro Annual for {launchOffer.firstYearPrice}
+              </p>
+              <span className="pb-0.5 text-lg font-bold text-white/35 line-through">
+                {launchOffer.regularAnnualPrice}
+              </span>
+            </div>
+            <p className="mt-2 text-sm leading-6 text-white/55">
+              {launchOffer.discount} the annual plan and{' '}
+              <strong className="text-white">
+                {launchOffer.savingsVsMonthly} less than 12 months of Pro
+                Monthly
+              </strong>
+              .
+            </p>
+          </div>
+          <button
+            className="group rounded-2xl border border-white/12 bg-white/8 px-5 py-4 text-center transition-colors hover:bg-white/12"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(launchOffer.code);
+                setCodeCopied(true);
+                window.setTimeout(() => setCodeCopied(false), 1800);
+              } catch {
+                setCodeCopied(false);
+              }
+            }}
+            type="button"
+          >
+            <p className="text-[9px] font-black tracking-[0.16em] text-white/40 uppercase">
+              {codeCopied ? 'Copied to clipboard' : 'Copy for Stripe checkout'}
+            </p>
+            <p className="mt-1 flex items-center justify-center gap-2 font-mono text-lg font-black tracking-[0.12em] text-[#a9ed35]">
+              {launchOffer.code}
+              {codeCopied ? (
+                <CheckIcon className="h-4 w-4" weight="bold" />
+              ) : (
+                <CopyIcon className="h-4 w-4" weight="bold" />
+              )}
+            </p>
+          </button>
+        </div>
+      </div>
       <div className="mb-10 flex flex-col items-center gap-3">
         <BillingIntervalToggle
           value={billingInterval}
           onChange={setBillingInterval}
         />
         <p className="text-xs font-bold text-black/45">
-          Pay annually and keep $12 for your next goal.
+          Annual Pro:{' '}
+          <span className="text-black/30 line-through">
+            {launchOffer.regularAnnualPrice}
+          </span>{' '}
+          → {launchOffer.firstYearPrice} with code {launchOffer.code}. Reserved
+          for the first {launchOffer.athleteLimit} athletes.
         </p>
       </div>
       <div className="mx-auto grid max-w-[1380px] gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -71,14 +135,14 @@ export function PricingPlanCards({
           const isTeams = planId === 'teams';
           const price = isPro
             ? billingInterval === 'year'
-              ? '$48'
+              ? launchOffer.firstYearPrice
               : '$5'
             : isTeams
               ? subscriptionPlans.teams.price
               : subscriptionPlans.free.price;
           const cadence = isPro
             ? billingInterval === 'year'
-              ? 'per year'
+              ? 'for the first year'
               : 'per month'
             : isTeams
               ? 'tailored to your organization'
@@ -105,7 +169,7 @@ export function PricingPlanCards({
               {isPro ? (
                 <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
                   {billingInterval === 'year'
-                    ? 'Best value'
+                    ? 'Launch offer'
                     : 'Best for growth'}
                 </span>
               ) : null}
@@ -119,6 +183,11 @@ export function PricingPlanCards({
                 <span className="text-5xl font-black tracking-[-0.055em]">
                   {price}
                 </span>
+                {isPro && billingInterval === 'year' ? (
+                  <span className="pb-1 text-sm font-bold text-white/35 line-through">
+                    {launchOffer.regularAnnualPrice}
+                  </span>
+                ) : null}
                 <span
                   className={`max-w-36 pb-1 text-xs leading-4 ${isPro ? 'text-white/45' : 'text-black/45'}`}
                 >
@@ -128,10 +197,11 @@ export function PricingPlanCards({
               {isPro && billingInterval === 'year' ? (
                 <div className="mt-4 rounded-2xl border border-[#a9ed35]/25 bg-[#a9ed35]/10 p-4">
                   <p className="text-sm font-black text-[#a9ed35]">
-                    Save $12 every year · 20% off
+                    Save {launchOffer.savingsVsMonthly} vs Pro Monthly
                   </p>
                   <p className="mt-1 text-xs text-white/55">
-                    Just $4/month, billed once annually.
+                    40% less than paying monthly for 12 months. Use{' '}
+                    {launchOffer.code} at checkout.
                   </p>
                 </div>
               ) : isPro ? (
@@ -171,10 +241,14 @@ export function PricingPlanCards({
                 >
                   {isAuthenticated
                     ? isPro
-                      ? `Choose ${billingInterval === 'year' ? 'annual' : 'monthly'} Pro`
+                      ? billingInterval === 'year'
+                        ? 'Claim launch offer'
+                        : 'Choose monthly Pro'
                       : 'Open dashboard'
                     : isPro
-                      ? 'Start and upgrade'
+                      ? billingInterval === 'year'
+                        ? 'Start and claim offer'
+                        : 'Start and upgrade'
                       : 'Build for free'}
                   <ArrowRightIcon className="h-4 w-4" weight="bold" />
                 </Link>

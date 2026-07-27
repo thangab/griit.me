@@ -49,6 +49,16 @@ export const subscriptionPlans = {
   },
 } as const;
 
+export const launchOffer = {
+  code: 'LAUNCH100',
+  discount: '25% off',
+  firstYearPrice: '$36',
+  regularAnnualPrice: '$48',
+  monthlyYearPrice: '$60',
+  savingsVsMonthly: '$24',
+  athleteLimit: 100,
+} as const;
+
 export const premiumFeatureFlags = {
   customDomain: 'customDomain',
   premiumThemes: 'premiumThemes',

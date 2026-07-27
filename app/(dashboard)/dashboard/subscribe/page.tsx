@@ -1,7 +1,7 @@
 import { SubscriptionCard } from '@/components/billing/subscription-card';
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getStripePriceLabel } from '@/lib/services/stripe';
-import { subscriptionPlans } from '@/lib/constants/billing';
+import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 
 export default async function SubscribePage({
   searchParams,
@@ -28,17 +28,24 @@ export default async function SubscribePage({
         <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-[#dce4ff]/80 blur-3xl" />
         <div className="relative">
           <p className="text-[11px] font-black tracking-[0.22em] text-[#3157ff] uppercase">
-            Upgrade to Griit Pro
+            Griit Pro · Launch offer
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-5xl">
             More freedom for every athlete story.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-black/50 sm:text-base">
-            Choose the billing rhythm that works for you. Annual Pro gives you
-            the complete toolkit for $4 per month and saves $12 every year.
+            For the first {launchOffer.athleteLimit} athletes, Annual Pro drops
+            from{' '}
+            <span className="line-through">
+              {launchOffer.regularAnnualPrice}
+            </span>{' '}
+            to <strong>{launchOffer.firstYearPrice}</strong> with code{' '}
+            {launchOffer.code}. That is {launchOffer.savingsVsMonthly} less than
+            12 months of Pro Monthly.
           </p>
           <div className="mt-7 flex flex-wrap gap-2">
             {[
+              `25% off · first ${launchOffer.athleteLimit} athletes`,
               'All premium styles',
               'Advanced analytics',
               'Priority support',

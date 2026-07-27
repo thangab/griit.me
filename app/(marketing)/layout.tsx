@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
+import { launchOffer } from '@/lib/constants/billing';
 
 export const metadata: Metadata = {
   title: 'Griit — The link in bio built for athletes',
@@ -24,6 +25,29 @@ export default async function MarketingLayout({
   return (
     <div className="min-h-screen bg-[#f7f6f1] text-[#151515]">
       <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f6f1]/90 backdrop-blur-xl">
+        <Link
+          className="group flex min-h-9 items-center justify-center gap-2 bg-[#151515] px-4 py-2 text-center text-[10px] font-bold text-white sm:text-xs"
+          href="/pricing#launch-offer"
+        >
+          <span className="rounded-full bg-[#a9ed35] px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-[#151515] uppercase">
+            Launch
+          </span>
+          <span>
+            Pro Annual{' '}
+            <span className="text-white/40 line-through">
+              {launchOffer.regularAnnualPrice}
+            </span>{' '}
+            <strong>{launchOffer.firstYearPrice}</strong> for the first{' '}
+            {launchOffer.athleteLimit} athletes
+            <span className="hidden text-white/55 sm:inline">
+              {' '}
+              · {launchOffer.savingsVsMonthly} less than Pro Monthly
+            </span>
+          </span>
+          <span className="font-black text-[#a9ed35] group-hover:underline">
+            {launchOffer.code} →
+          </span>
+        </Link>
         <div className="mx-auto flex h-18 max-w-[1380px] items-center justify-between px-5 sm:px-8 lg:px-12">
           <Link className="text-xl font-black tracking-[-0.06em]" href="/">
             GRIIT<span className="text-[#3157ff]">.</span>

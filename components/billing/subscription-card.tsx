@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import {
   CheckIcon,
+  CopyIcon,
   LightningIcon,
   ShieldCheckIcon,
 } from '@phosphor-icons/react';
-import { subscriptionPlans } from '@/lib/constants/billing';
+import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 import { Button } from '@/components/ui/button';
 import { BillingIntervalToggle } from './billing-interval-toggle';
 import type { BillingInterval, SubscriptionState } from '@/lib/types/billing';
@@ -24,6 +25,7 @@ export function SubscriptionCard({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [billingInterval, setBillingInterval] = useState<BillingInterval>(
     initialBillingInterval,
   );
@@ -147,14 +149,18 @@ export function SubscriptionCard({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-[10px] font-black tracking-[0.18em] text-[#a9ed35] uppercase">
-                Upgrade your profile
+                {billingInterval === 'year'
+                  ? 'Limited launch offer'
+                  : 'Upgrade your profile'}
               </p>
               <h2 className="mt-3 text-4xl font-black tracking-[-0.055em]">
                 Griit Pro
               </h2>
             </div>
             <span className="rounded-full bg-[#a9ed35] px-3 py-1.5 text-[10px] font-black tracking-[0.1em] text-[#151515] uppercase">
-              Best for growth
+              {billingInterval === 'year'
+                ? `${launchOffer.discount} year one`
+                : 'Best for growth'}
             </span>
           </div>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/55">
@@ -171,26 +177,69 @@ export function SubscriptionCard({
             />
             <div className="flex flex-col justify-between gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-end">
               <div>
-                <p className="text-4xl font-black tracking-[-0.055em] sm:text-5xl">
-                  {selectedPriceLabel}
-                </p>
+                {billingInterval === 'year' ? (
+                  <div className="flex flex-wrap items-end gap-3">
+                    <p className="text-4xl font-black tracking-[-0.055em] sm:text-5xl">
+                      {launchOffer.firstYearPrice}
+                    </p>
+                    <p className="pb-1 text-sm font-bold text-black/35 line-through">
+                      {selectedPriceLabel}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-4xl font-black tracking-[-0.055em] sm:text-5xl">
+                    {selectedPriceLabel}
+                  </p>
+                )}
                 <p className="mt-2 text-xs font-semibold text-black/45">
                   {billingInterval === 'year'
-                    ? `${subscriptionPlans.pro.annualMonthlyEquivalent}, billed annually`
+                    ? `${launchOffer.savingsVsMonthly} less than 12 months of Pro Monthly`
                     : 'Flexible monthly billing · cancel anytime'}
                 </p>
               </div>
               {billingInterval === 'year' ? (
                 <div className="rounded-2xl bg-[#dff5b4] px-4 py-3 sm:text-right">
                   <p className="text-sm font-black">
-                    {subscriptionPlans.pro.annualSavings}
+                    Save {launchOffer.savingsVsMonthly} vs monthly
                   </p>
                   <p className="mt-0.5 text-[10px] font-bold uppercase">
-                    {subscriptionPlans.pro.annualDiscount}
+                    First {launchOffer.athleteLimit} athletes
                   </p>
                 </div>
               ) : null}
             </div>
+            {billingInterval === 'year' ? (
+              <button
+                className="flex w-full items-center justify-between gap-3 rounded-2xl border border-black/10 bg-[#f7f6f1] px-4 py-3 text-left transition-colors hover:bg-[#eef2ff]"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(launchOffer.code);
+                    setCodeCopied(true);
+                    window.setTimeout(() => setCodeCopied(false), 1800);
+                  } catch {
+                    setCodeCopied(false);
+                  }
+                }}
+                type="button"
+              >
+                <span>
+                  <span className="block text-[9px] font-black tracking-[0.13em] text-black/35 uppercase">
+                    Enter at Stripe checkout
+                  </span>
+                  <span className="mt-0.5 block font-mono text-sm font-black tracking-[0.1em]">
+                    {launchOffer.code}
+                  </span>
+                </span>
+                <span className="flex items-center gap-1.5 text-xs font-black text-[#3157ff]">
+                  {codeCopied ? 'Copied' : 'Copy code'}
+                  {codeCopied ? (
+                    <CheckIcon className="h-4 w-4" weight="bold" />
+                  ) : (
+                    <CopyIcon className="h-4 w-4" weight="bold" />
+                  )}
+                </span>
+              </button>
+            ) : null}
           </div>
 
           <ul className="mt-7 grid gap-3 text-sm text-white/75 sm:grid-cols-2">
@@ -212,7 +261,9 @@ export function SubscriptionCard({
             <LightningIcon className="h-4 w-4" weight="fill" />
             {isLoading
               ? 'Redirecting…'
-              : `Get Pro ${billingInterval === 'year' ? 'annually' : 'monthly'}`}
+              : billingInterval === 'year'
+                ? `Claim Pro for ${launchOffer.firstYearPrice}`
+                : 'Get Pro monthly'}
           </Button>
           <p className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] text-white/35">
             <ShieldCheckIcon className="h-4 w-4" weight="bold" />
