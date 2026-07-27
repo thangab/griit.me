@@ -102,6 +102,8 @@ CREATE TEMP TABLE demo_palettes (
   foreground text NOT NULL,
   accent text NOT NULL,
   social text NOT NULL,
+  header_background text NOT NULL,
+  header_gradient_to text NOT NULL,
   header_text text NOT NULL,
   header_muted text NOT NULL,
   description text NOT NULL,
@@ -110,14 +112,14 @@ CREATE TEMP TABLE demo_palettes (
 ) ON COMMIT DROP;
 
 INSERT INTO demo_palettes VALUES
-  (1, '#F4F7FF', '#FFFFFF', '#101828', '#2F6BFF', '#DCE7FF', '#F8FAFF', '#C9D8F0', '#5D6878', '#FFFFFF', '#173B7A'),
-  (2, '#18181B', '#27272A', '#FAFAFA', '#F97316', '#3F3F46', '#FAFAFA', '#D4D4D8', '#A1A1AA', '#18181B', '#FAFAFA'),
-  (3, '#FFF7ED', '#FFFFFF', '#18181B', '#EF4444', '#FEE2E2', '#FFF7ED', '#FED7AA', '#78716C', '#FFFFFF', '#7F1D1D'),
-  (4, '#09090B', '#18181B', '#FAFAFA', '#A3E635', '#27272A', '#F7FEE7', '#D9F99D', '#A1A1AA', '#09090B', '#FAFAFA'),
-  (5, '#071426', '#10233D', '#F8FAFC', '#3B82F6', '#1E3A5F', '#F8FAFC', '#BFDBFE', '#A8B8CC', '#FFFFFF', '#F8FAFC'),
-  (6, '#11102A', '#1C1940', '#FAFAFA', '#A78BFA', '#312E81', '#FAFAFA', '#C4B5FD', '#B8B5D8', '#11102A', '#FAFAFA'),
-  (7, '#102A22', '#173B30', '#F7FEE7', '#6EE7B7', '#245244', '#F7FEE7', '#A7F3D0', '#A7C7B7', '#102A22', '#F7FEE7'),
-  (8, '#F8F2E9', '#FFFDF8', '#172554', '#F97316', '#FFEDD5', '#FFF7ED', '#FED7AA', '#596780', '#FFFFFF', '#172554');
+  (1, '#F4F7FF', '#FFFFFF', '#101828', '#2F6BFF', '#DCE7FF', '#101828', '#173B7A', '#F8FAFF', '#C9D8F0', '#5D6878', '#FFFFFF', '#173B7A'),
+  (2, '#18181B', '#27272A', '#FAFAFA', '#F97316', '#3F3F46', '#18181B', '#7C2D12', '#FAFAFA', '#D4D4D8', '#A1A1AA', '#18181B', '#FAFAFA'),
+  (3, '#FFF7ED', '#FFFFFF', '#18181B', '#EF4444', '#FEE2E2', '#7F1D1D', '#991B1B', '#FFF7ED', '#FED7AA', '#78716C', '#FFFFFF', '#7F1D1D'),
+  (4, '#09090B', '#18181B', '#FAFAFA', '#A3E635', '#27272A', '#09090B', '#365314', '#F7FEE7', '#D9F99D', '#A1A1AA', '#09090B', '#FAFAFA'),
+  (5, '#071426', '#10233D', '#F8FAFC', '#3B82F6', '#1E3A5F', '#071426', '#173B7A', '#F8FAFC', '#BFDBFE', '#A8B8CC', '#FFFFFF', '#F8FAFC'),
+  (6, '#11102A', '#1C1940', '#FAFAFA', '#A78BFA', '#312E81', '#11102A', '#312E81', '#FAFAFA', '#C4B5FD', '#B8B5D8', '#11102A', '#FAFAFA'),
+  (7, '#102A22', '#173B30', '#F7FEE7', '#6EE7B7', '#245244', '#102A22', '#245244', '#F7FEE7', '#A7F3D0', '#A7C7B7', '#102A22', '#F7FEE7'),
+  (8, '#F8F2E9', '#FFFDF8', '#172554', '#F97316', '#FFEDD5', '#172554', '#7C2D12', '#FFF7ED', '#FED7AA', '#596780', '#FFFFFF', '#172554');
 
 -- Cover photographs are intentionally generic editorial sports imagery rather
 -- than evidence that the fictional person performed at a specific event.
@@ -185,15 +187,15 @@ SELECT
     'radiusPreset', (ARRAY['sharp', 'soft', 'rounded'])[((source.seq - 1) % 3) + 1],
     'galleryLayout', (ARRAY['carousel', 'editorial', 'grid'])[((source.seq - 1) % 3) + 1],
     'coverType', (ARRAY['image', 'gradient', 'color'])[((source.seq - 1) % 3) + 1],
-    'coverColor', source.background,
-    'coverGradientFrom', source.background,
-    'coverGradientTo', source.accent,
-    'coverOverlayColor', source.background,
-    'coverOverlayOpacity', 35 + ((source.seq * 7) % 45),
+    'coverColor', source.header_background,
+    'coverGradientFrom', source.header_background,
+    'coverGradientTo', source.header_gradient_to,
+    'coverOverlayColor', source.header_background,
+    'coverOverlayOpacity', 48 + ((source.seq * 7) % 29),
     'headerLayout', (ARRAY['centered', 'split', 'left', 'immersive', 'kinetic'])[((source.seq - 1) % 5) + 1],
     'headerAvatarSize', 78 + ((source.seq * 7) % 42),
     'headerAvatarShape', (ARRAY['circle', 'hexagon', 'diamond', 'shield'])[((source.seq - 1) % 4) + 1],
-    'headerSheetColor', source.surface,
+    'headerSheetColor', source.header_background,
     'headerSheetCoverage', (ARRAY[0, 35, 60, 100])[((source.seq - 1) % 4) + 1],
     'headerGeometry', (ARRAY['none', 'velocity', 'rings', 'chevrons', 'blocks'])[((source.seq - 1) % 5) + 1],
     'headerTexture', (ARRAY['none', 'grid', 'diagonal', 'dots', 'scanlines'])[((source.seq - 1) % 5) + 1],
