@@ -53,6 +53,62 @@ type GoalRow = {
   title: string;
 };
 
+const athleteDirectorySportOrder = [
+  'football',
+  'running',
+  'gym',
+  'basketball',
+  'cycling',
+  'boxing',
+  'mma',
+  'swimming',
+  'tennis',
+  'hyrox',
+  'crossfit',
+  'triathlon',
+  'trail-running',
+  'athletics',
+  'weightlifting',
+  'climbing',
+  'rugby',
+  'padel',
+  'martial-arts',
+  'american-football',
+  'gymnastics',
+  'powerlifting',
+  'surfing',
+  'hiking',
+  'rowing',
+  'handball',
+  'baseball',
+  'badminton',
+  'table-tennis',
+  'ice-hockey',
+  'field-hockey',
+  'skiing',
+  'snowboarding',
+  'skateboarding',
+  'volleyball',
+  'golf',
+  'cricket',
+] as const;
+
+const athleteDirectorySportRank = new Map<string, number>(
+  athleteDirectorySportOrder.map((slug, index) => [slug, index]),
+);
+
+function sortDirectorySports(sports: AthleteDirectorySport[]) {
+  return [...sports].sort((first, second) => {
+    const firstRank =
+      athleteDirectorySportRank.get(first.slug) ?? Number.MAX_SAFE_INTEGER;
+    const secondRank =
+      athleteDirectorySportRank.get(second.slug) ?? Number.MAX_SAFE_INTEGER;
+
+    if (firstRank !== secondRank) return firstRank - secondRank;
+    return first.name.localeCompare(second.name);
+  });
+}
+
 async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
   const supabase = createPublicSupabaseClient();
   const [reviewsResult, sportsResult] = await Promise.all([
@@ -85,9 +141,11 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
 
   const profiles = (profilesResult.data ?? []) as ProfileRow[];
   const profileIds = profiles.map((profile) => profile.id);
-  const sports = (
-    sportsResult.data?.length ? sportsResult.data : defaultSports
-  ) as AthleteDirectorySport[];
+  const sports = sortDirectorySports(
+    (sportsResult.data?.length
+      ? sportsResult.data
+      : defaultSports) as AthleteDirectorySport[],
+  );
 
   if (!profileIds.length) {
     return { athletes: [], sports };
