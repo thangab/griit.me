@@ -143,7 +143,7 @@ function SportContentBlock({
     return galleryItems.length ? (
       <section
         key={blockKey}
-        className="col-span-full p-4"
+        className="col-span-full w-full max-w-full min-w-0 overflow-hidden p-4"
         style={{ backgroundColor: visual.surface, ...theme.blockStyle }}
       >
         {text.galleryLabel ? (
@@ -305,6 +305,7 @@ export function SportProfileTemplate({
   return (
     <main
       className={cn(
+        'w-full max-w-full overflow-x-hidden',
         isPreview ? 'h-full overflow-y-auto overscroll-contain' : 'min-h-dvh',
       )}
       style={{
@@ -316,7 +317,7 @@ export function SportProfileTemplate({
     >
       <div
         className={cn(
-          'relative mx-auto w-full',
+          'relative mx-auto w-full max-w-full min-w-0 overflow-x-hidden',
           isPreview ? 'min-h-full' : 'min-h-dvh',
           isDesktopPreview &&
             'max-w-[780px] border-x shadow-[0_24px_80px_rgba(0,0,0,0.2)]',
@@ -342,12 +343,12 @@ export function SportProfileTemplate({
 
         <section
           className={cn(
-            'mx-auto w-full max-w-[780px]',
+            'mx-auto w-full max-w-[780px] min-w-0 overflow-x-hidden',
             'px-5 py-8',
             !isMobilePreview && 'sm:px-8 lg:px-12',
           )}
         >
-          <div className="grid" style={{ gap: `${theme.blockGap}px` }}>
+          <div className="grid min-w-0" style={{ gap: `${theme.blockGap}px` }}>
             <div
               className={cn(theme.radiusClass, 'border p-5 sm:p-6')}
               style={{
@@ -483,7 +484,7 @@ export function SportProfileTemplate({
 
           {secondaryGoals.length ? (
             <div
-              className="grid"
+              className="grid min-w-0"
               style={{
                 gap: `${theme.blockGap}px`,
                 marginTop: `${theme.blockGap}px`,
@@ -544,7 +545,7 @@ export function SportProfileTemplate({
           ) : null}
 
           <div
-            className="grid"
+            className="grid min-w-0"
             style={{
               gap: `${theme.blockGap}px`,
               marginTop: `${theme.blockGap}px`,

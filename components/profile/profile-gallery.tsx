@@ -27,6 +27,16 @@ export function ProfileGallery({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const activeItem = activeIndex === null ? null : items[activeIndex];
   const currentIndex = activeIndex ?? 0;
+  const gridColumns =
+    layout === 'editorial'
+      ? 'grid-cols-2 sm:grid-cols-2'
+      : items.length === 1
+        ? 'grid-cols-1 sm:grid-cols-1'
+        : items.length === 2 || items.length === 4
+          ? 'grid-cols-2 sm:grid-cols-2'
+          : items.length === 3
+            ? 'grid-cols-3 sm:grid-cols-3'
+            : '';
 
   useEffect(() => {
     if (activeIndex === null) return;
@@ -60,10 +70,10 @@ export function ProfileGallery({
     <>
       <div
         className={cn(
-          'gap-2',
+          'w-full max-w-full min-w-0 gap-2 [contain:inline-size]',
           layout === 'carousel'
-            ? 'flex snap-x overflow-x-auto'
-            : columnsClassName,
+            ? 'flex snap-x overflow-x-auto overscroll-x-contain'
+            : ['grid', columnsClassName, gridColumns],
         )}
       >
         {items.map((item, index) => (
@@ -72,7 +82,7 @@ export function ProfileGallery({
             type="button"
             aria-label={`Open ${item.altText || item.caption || `gallery image ${index + 1}`}`}
             className={cn(
-              'group relative aspect-square overflow-hidden bg-slate-200 text-left',
+              'group relative aspect-square min-w-0 overflow-hidden bg-slate-200 text-left',
               'cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
               layout === 'carousel' && 'w-52 shrink-0 snap-center',
             )}

@@ -85,7 +85,7 @@ export function GoalSpotlightTemplate({
   return (
     <main
       className={cn(
-        '',
+        'w-full max-w-full overflow-x-hidden',
         isPreview ? 'h-full overflow-y-auto overscroll-contain' : 'min-h-dvh',
       )}
       style={{
@@ -97,7 +97,7 @@ export function GoalSpotlightTemplate({
     >
       <div
         className={cn(
-          'relative mx-auto w-full',
+          'relative mx-auto w-full max-w-full min-w-0 overflow-x-hidden',
           isPreview ? 'min-h-full' : 'min-h-dvh',
           isDesktopPreview &&
             'max-w-[780px] border-x shadow-[0_24px_80px_rgba(0,0,0,0.2)]',
@@ -123,12 +123,15 @@ export function GoalSpotlightTemplate({
 
         <section
           className={cn(
-            'mx-auto',
+            'mx-auto min-w-0 overflow-x-hidden',
             'w-full max-w-[780px] px-5 py-8',
             !isMobilePreview && 'sm:px-8 lg:px-12',
           )}
         >
-          <div className="flex flex-col" style={{ gap: `${theme.blockGap}px` }}>
+          <div
+            className="flex min-w-0 flex-col"
+            style={{ gap: `${theme.blockGap}px` }}
+          >
             <div
               className={cn(theme.radiusClass, 'p-6 shadow-sm')}
               style={{
@@ -287,7 +290,7 @@ export function GoalSpotlightTemplate({
                 return galleryItems.length ? (
                   <section
                     key={blockKey}
-                    className="p-4"
+                    className="w-full max-w-full min-w-0 overflow-hidden p-4"
                     style={{
                       backgroundColor: theme.palette.surface,
                       ...theme.blockStyle,
