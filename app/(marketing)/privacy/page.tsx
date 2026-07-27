@@ -63,6 +63,13 @@ export default function PrivacyPage() {
         protect the product, such as request metadata, security events, and
         diagnostic logs.
       </p>
+      <p>
+        On Griit&apos;s marketing pages, and only after you accept analytics
+        cookies, Google Analytics may collect page views, referral information,
+        approximate location, and browser or device information. We use this to
+        understand how the website is used and improve it. Google Analytics is
+        not loaded when you decline.
+      </p>
 
       <h2>4. How we use information</h2>
       <ul>
@@ -90,10 +97,11 @@ export default function PrivacyPage() {
       <p>
         We use specialist providers to operate Griit. These currently include
         Supabase for authentication, database, and storage; Stripe for billing;
-        and our hosting and delivery providers for serving the application and
-        deriving approximate request location. Google processes information if
-        you choose Google sign-in. Those providers process information under
-        their own terms and privacy commitments.
+        Google Analytics for consented marketing-site measurement; and our
+        hosting and delivery providers for serving the application and deriving
+        approximate request location. Google also processes information if you
+        choose Google sign-in. Those providers process information under their
+        own terms and privacy commitments.
       </p>
       <p>
         A profile can contain links or embeds from services such as YouTube,
@@ -133,6 +141,10 @@ export default function PrivacyPage() {
         update most profile information directly in Griit. For any other
         request, email <a href="mailto:support@griit.me">support@griit.me</a>.
         We may need to verify your identity before completing a request.
+      </p>
+      <p>
+        You can decline marketing analytics when prompted. Your choice is saved
+        in your browser and can be reset by clearing Griit&apos;s site data.
       </p>
 
       <h2>10. Children</h2>
