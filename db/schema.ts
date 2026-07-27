@@ -58,6 +58,7 @@ export const subscriptions = pgTable(
     cancel_at_period_end: boolean('cancel_at_period_end')
       .default(false)
       .notNull(),
+    welcome_email_sent_at: timestamp('welcome_email_sent_at'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },

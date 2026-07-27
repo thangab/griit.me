@@ -162,6 +162,13 @@
       "when": 1785121200000,
       "tag": "0022_add_athlete_directory_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1785207600000,
+      "tag": "0023_add_subscription_welcome_email",
+      "breakpoints": true
     }
   ]
 }

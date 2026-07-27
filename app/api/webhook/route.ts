@@ -3,6 +3,8 @@ import { revalidateTag } from 'next/cache';
 import Stripe from 'stripe';
 import { getPublicProfileCacheTag } from '@/lib/cache/profile-cache';
 import { createServiceSupabaseClient } from '@/lib/config/supabase-server';
+import { sendProWelcomeEmail } from '@/lib/emails/pro-welcome-email';
+import { isTransactionalEmailConfigured } from '@/lib/services/transactional-email';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '');
 
@@ -34,6 +36,72 @@ function mapSubscriptionStatus(status: Stripe.Subscription.Status) {
   }
 
   return 'cancelled';
+}
+
+async function sendWelcomeEmailOnce(subscription: Stripe.Subscription) {
+  const userId = subscription.metadata.user_id;
+  const priceId = subscription.items.data[0]?.price.id;
+
+  if (
+    subscription.status !== 'active' ||
+    !userId ||
+    !priceId ||
+    !isTransactionalEmailConfigured()
+  ) {
+    return;
+  }
+
+  const supabase = createServiceSupabaseClient();
+  const claimedAt = new Date().toISOString();
+  const { data: claimedSubscription, error: claimError } = await supabase
+    .from('subscriptions')
+    .update({ welcome_email_sent_at: claimedAt })
+    .eq('stripe_subscription_id', subscription.id)
+    .is('welcome_email_sent_at', null)
+    .select('id')
+    .maybeSingle();
+
+  if (claimError) {
+    console.error('Failed to claim Pro welcome email:', claimError.message);
+    return;
+  }
+
+  if (!claimedSubscription) return;
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('email, full_name')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (profileError || !profile?.email) {
+    await supabase
+      .from('subscriptions')
+      .update({ welcome_email_sent_at: null })
+      .eq('stripe_subscription_id', subscription.id)
+      .eq('welcome_email_sent_at', claimedAt);
+    console.error(
+      'Failed to load the recipient for the Pro welcome email:',
+      profileError?.message ?? 'Missing profile email.',
+    );
+    return;
+  }
+
+  try {
+    await sendProWelcomeEmail({
+      email: profile.email,
+      displayName: profile.full_name,
+      billingInterval:
+        priceId === process.env.STRIPE_PRICE_ID_PRO_ANNUAL ? 'year' : 'month',
+    });
+  } catch (error) {
+    await supabase
+      .from('subscriptions')
+      .update({ welcome_email_sent_at: null })
+      .eq('stripe_subscription_id', subscription.id)
+      .eq('welcome_email_sent_at', claimedAt);
+    console.error('Failed to send Pro welcome email:', error);
+  }
 }
 
 async function upsertSubscription(subscription: Stripe.Subscription) {
@@ -88,12 +156,13 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
 
   if (brandingError) {
     console.error('Failed to sync profile branding:', brandingError.message);
-    return;
+  } else {
+    for (const profile of profiles ?? []) {
+      revalidateTag(getPublicProfileCacheTag(profile.username), { expire: 0 });
+    }
   }
 
-  for (const profile of profiles ?? []) {
-    revalidateTag(getPublicProfileCacheTag(profile.username), { expire: 0 });
-  }
+  await sendWelcomeEmailOnce(subscription);
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
