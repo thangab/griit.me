@@ -469,8 +469,27 @@ const frenchUiCopy: Record<string, string> = {
   'Open visibility settings': 'Ouvrir les paramètres de visibilité',
   'Profile not found or no analytics are available yet.':
     'Profil introuvable ou aucune statistique n’est encore disponible.',
-  Free: 'Free',
-  Teams: 'Teams',
+  Free: 'Gratuit',
+  Teams: 'Équipes',
+  'Custom pricing': 'Sur mesure',
+  'Publish a complete athlete profile with every core tool.':
+    'Publiez un profil sportif complet avec tous les outils essentiels.',
+  'Unlock every design option, deeper analytics, and more profiles.':
+    'Débloquez toutes les options de design, des analytics détaillées et davantage de profils.',
+  'A shared workspace for clubs, academies, agencies, and athlete managers.':
+    'Un espace partagé pour les clubs, académies, agences et managers d’athlètes.',
+  'A tailored number of athlete profiles':
+    'Un nombre de profils sportifs adapté à votre structure',
+  'Multiple workspace members with roles and permissions':
+    'Plusieurs membres avec des rôles et permissions dédiés',
+  'Shared templates, branding, and media resources':
+    'Templates, identité visuelle et médias partagés',
+  'Organization-wide analytics and exports':
+    'Analytics et exports à l’échelle de votre organisation',
+  'Centralized profile management and billing':
+    'Gestion des profils et facturation centralisées',
+  'Guided onboarding and dedicated priority support':
+    'Onboarding accompagné et support prioritaire dédié',
   'Start your profile': 'Prenez le départ',
   'Unlock your full toolkit': 'Passez un cap',
   'Manage your roster': 'Pilotez votre roster',

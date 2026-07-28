@@ -69,7 +69,9 @@ export function HomePricingCards() {
 
               <p className="text-sm font-black">{ui(planData.name)}</p>
               <div className="mt-4 flex flex-wrap items-end gap-2">
-                <p className="text-4xl font-black tracking-tight">{price}</p>
+                <p className="text-4xl font-black tracking-tight">
+                  {ui(price === 'Custom' ? 'Custom pricing' : price)}
+                </p>
                 {annualPro ? (
                   <span className="pb-1 text-sm font-bold text-white/35 line-through">
                     {launchOffer.regularAnnualPrice}

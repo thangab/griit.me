@@ -113,7 +113,7 @@ export default async function MarketingLayout({
                   </Link>
                 </>
               )}
-              <LanguageSwitcher compact />
+              <LanguageSwitcher compact variant="select" />
             </div>
           </div>
         </header>

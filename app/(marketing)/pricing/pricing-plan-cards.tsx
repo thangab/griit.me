@@ -187,7 +187,7 @@ export function PricingPlanCards({
               <h2 className="mt-5 text-3xl font-black">{ui(plan.name)}</h2>
               <div className="mt-5 flex items-end gap-2">
                 <span className="text-5xl font-black tracking-[-0.055em]">
-                  {price}
+                  {ui(price === 'Custom' ? 'Custom pricing' : price)}
                 </span>
                 {isPro && billingInterval === 'year' ? (
                   <span className="pb-1 text-sm font-bold text-white/35 line-through">

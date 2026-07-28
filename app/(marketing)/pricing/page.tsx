@@ -32,7 +32,7 @@ const pricingFr: Record<string, string> = {
   'Up to 3': 'Jusqu’à 3',
   'Gallery images': 'Images de galerie',
   'Up to 50': 'Jusqu’à 50',
-  Achievements: 'Achievements',
+  Achievements: 'Réussites',
   Activities: 'Activités',
   Templates: 'Templates',
   '4 core': '4 essentiels',
@@ -396,7 +396,9 @@ export default async function PricingPage() {
           </div>
           <h1 className="mx-auto mt-7 max-w-5xl text-[clamp(3.4rem,8vw,7rem)] leading-[0.88] font-black tracking-[-0.07em]">
             {isFrench ? 'Un profil ou tout un ' : 'One profile or a whole '}
-            <span className="text-[#3157ff]">roster.</span>
+            <span className="text-[#3157ff]">
+              {isFrench ? 'collectif.' : 'roster.'}
+            </span>
           </h1>
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/55">
             {isFrench
