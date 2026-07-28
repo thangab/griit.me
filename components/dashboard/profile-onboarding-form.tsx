@@ -30,6 +30,8 @@ import {
 } from '@/lib/constants/profile-theme';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
+import { useI18n } from '@/components/i18n/i18n-provider';
+import type { DictionaryKey } from '@/lib/i18n/dictionaries';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -38,24 +40,25 @@ const initialState: ProfileBuilderActionState = {
 
 const stepContent = [
   {
-    eyebrow: 'Profile setup',
-    title: 'Claim your athlete identity.',
-    description:
-      'Choose how your name appears and claim the public URL you’ll share with your audience.',
+    eyebrow: 'onboarding.step1.eyebrow',
+    title: 'onboarding.step1.title',
+    description: 'onboarding.step1.description',
   },
   {
-    eyebrow: 'Your world',
-    title: 'What moves you?',
-    description:
-      'Pick up to three sports so your page starts with the right context.',
+    eyebrow: 'onboarding.step2.eyebrow',
+    title: 'onboarding.step2.title',
+    description: 'onboarding.step2.description',
   },
   {
-    eyebrow: 'Starting style',
-    title: 'Choose your direction.',
-    description:
-      'Start with a visual direction you like. Every detail can be changed later in the editor.',
+    eyebrow: 'onboarding.step3.eyebrow',
+    title: 'onboarding.step3.title',
+    description: 'onboarding.step3.description',
   },
-] as const;
+] as const satisfies readonly {
+  eyebrow: DictionaryKey;
+  title: DictionaryKey;
+  description: DictionaryKey;
+}[];
 
 const featuredTemplates = profileTemplates.filter(
   (template) => !template.proOnly,
@@ -110,6 +113,7 @@ function TemplateThumbnail({ templateId }: { templateId: ProfileTemplateId }) {
 }
 
 export function ProfileOnboardingForm() {
+  const { t } = useI18n();
   const router = useRouter();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [state, formAction, pending] = useActionState(
@@ -125,7 +129,7 @@ export function ProfileOnboardingForm() {
   const [templateId, setTemplateId] = useState<ProfileTemplateId>('spotlight');
   const [availability, setAvailability] = useState<AvailabilityState>({
     status: 'idle',
-    message: 'Use lowercase letters, numbers, or underscores.',
+    message: t('onboarding.usernameHelp'),
   });
 
   useEffect(() => {
@@ -166,7 +170,7 @@ export function ProfileOnboardingForm() {
     if (!normalizedUsername) {
       setAvailability({
         status: 'idle',
-        message: 'Use lowercase letters, numbers, or underscores.',
+        message: t('onboarding.usernameHelp'),
       });
     } else if (normalizedUsername.length < 3) {
       setAvailability({
@@ -292,17 +296,17 @@ export function ProfileOnboardingForm() {
 
         <div className="w-full max-w-[540px]">
           <span className="inline-flex rounded-full border border-[#3157ff]/15 bg-[#3157ff]/8 px-3 py-1.5 text-[11px] font-black tracking-[0.16em] text-[#3157ff] uppercase">
-            {currentStep.eyebrow}
+            {t(currentStep.eyebrow)}
           </span>
           <h1
             className="mt-5 text-4xl leading-[0.95] font-black tracking-[-0.055em] outline-none sm:text-5xl"
             ref={headingRef}
             tabIndex={-1}
           >
-            {currentStep.title}
+            {t(currentStep.title)}
           </h1>
           <p className="mt-4 max-w-md text-sm leading-6 text-black/48 sm:text-base">
-            {currentStep.description}
+            {t(currentStep.description)}
           </p>
 
           <form
@@ -317,7 +321,7 @@ export function ProfileOnboardingForm() {
           >
             <div className={step === 1 ? 'space-y-6' : 'hidden'}>
               <label className="block space-y-2.5 text-sm font-bold">
-                Display name
+                {t('onboarding.displayName')}
                 <input
                   autoComplete="name"
                   autoFocus
@@ -335,7 +339,7 @@ export function ProfileOnboardingForm() {
               </label>
 
               <label className="block space-y-2.5 text-sm font-bold">
-                Public profile URL
+                {t('onboarding.publicUrl')}
                 <div
                   className={cn(
                     'flex h-12 overflow-hidden rounded-xl border bg-white transition focus-within:ring-3',
@@ -485,7 +489,7 @@ export function ProfileOnboardingForm() {
                   variant="outline"
                 >
                   <ArrowLeftIcon className="h-4 w-4" weight="bold" />
-                  Back
+                  {t('onboarding.back')}
                 </Button>
               ) : null}
 
@@ -504,7 +508,7 @@ export function ProfileOnboardingForm() {
                   }}
                   type="button"
                 >
-                  Continue
+                  {t('onboarding.continue')}
                   <ArrowRightIcon className="h-4 w-4" weight="bold" />
                 </Button>
               ) : (
@@ -517,7 +521,9 @@ export function ProfileOnboardingForm() {
                   {pending ? (
                     <CircleNotchIcon className="h-4 w-4 animate-spin" />
                   ) : null}
-                  {pending ? 'Creating your profile…' : 'Create my profile'}
+                  {pending
+                    ? `${t('onboarding.create')}…`
+                    : t('onboarding.create')}
                   {!pending ? (
                     <ArrowRightIcon className="h-4 w-4" weight="bold" />
                   ) : null}

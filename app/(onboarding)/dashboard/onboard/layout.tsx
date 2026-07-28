@@ -1,14 +1,24 @@
 import { ProtectedLayout } from '@/components/layout/protected-layout';
 import { JavaScriptRequired } from '@/components/layout/javascript-required';
+import { I18nProvider } from '@/components/i18n/i18n-provider';
+import { getRequestDictionary } from '@/lib/i18n/server';
 
-export default function OnboardingLayout({
+export default async function OnboardingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { dictionary, locale } = await getRequestDictionary();
+
   return (
-    <JavaScriptRequired id="griit-onboarding-app">
-      <ProtectedLayout>{children}</ProtectedLayout>
-    </JavaScriptRequired>
+    <I18nProvider dictionary={dictionary} locale={locale}>
+      <JavaScriptRequired
+        description={dictionary['auth.javascript.description']}
+        id="griit-onboarding-app"
+        title={dictionary['auth.javascript.title']}
+      >
+        <ProtectedLayout>{children}</ProtectedLayout>
+      </JavaScriptRequired>
+    </I18nProvider>
   );
 }

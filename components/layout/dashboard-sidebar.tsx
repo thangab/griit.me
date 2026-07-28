@@ -22,6 +22,8 @@ import { cn } from '@/lib/utils/cn';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { Button } from '@/components/ui/button';
 import type { OwnedProfileSummary } from '@/lib/services/profile-builder';
+import { useI18n } from '@/components/i18n/i18n-provider';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
 
 const iconMap = {
   LayoutGrid,
@@ -46,6 +48,7 @@ export function DashboardSidebar({
   isPro: boolean;
   isAdmin: boolean;
 }) {
+  const { t } = useI18n();
   const pathname = usePathname();
   const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
   const studioMenuRef = useRef<HTMLDivElement>(null);
@@ -59,7 +62,7 @@ export function DashboardSidebar({
       ? [
           {
             href: '/dashboard/admin/athletes',
-            label: 'Athlete reviews',
+            label: t('dashboard.athleteReviews'),
             icon: 'ShieldCheck' as const,
           },
         ]
@@ -154,7 +157,7 @@ export function DashboardSidebar({
               {canSwitchProfiles ? (
                 <div className="mb-1">
                   <p className="px-3 py-1.5 text-[10px] font-black tracking-[0.18em] text-black/40 uppercase">
-                    Profiles
+                    {t('dashboard.profiles')}
                   </p>
                   <div className="max-h-56 overflow-y-auto">
                     {profiles.map((profile) => {
@@ -201,8 +204,14 @@ export function DashboardSidebar({
                 onClick={() => setIsStudioMenuOpen(false)}
               >
                 <LayoutGrid className="h-4 w-4" />
-                Dashboard
+                {t('common.dashboard')}
               </Link>
+              <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2">
+                <span className="text-xs font-semibold text-black/45">
+                  {t('language.label')}
+                </span>
+                <LanguageSwitcher compact />
+              </div>
               <div className="my-1 h-px bg-black/10" />
               <form action={signOutAction}>
                 <button
@@ -211,7 +220,7 @@ export function DashboardSidebar({
                   type="submit"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign out
+                  {t('dashboard.signOut')}
                 </button>
               </form>
             </div>
@@ -250,7 +259,17 @@ export function DashboardSidebar({
                       : 'w-36 opacity-100',
                   )}
                 >
-                  {item.label}
+                  {item.icon === 'LayoutGrid'
+                    ? t('dashboard.nav.overview')
+                    : item.icon === 'PanelsTopLeft'
+                      ? t('dashboard.nav.design')
+                      : item.icon === 'BarChart3'
+                        ? t('dashboard.nav.analytics')
+                        : item.icon === 'UserRound'
+                          ? t('dashboard.nav.profiles')
+                          : item.icon === 'Settings'
+                            ? t('dashboard.nav.settings')
+                            : t('dashboard.nav.subscribe')}
                 </span>
               </Link>
             );

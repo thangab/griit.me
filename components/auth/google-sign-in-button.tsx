@@ -3,8 +3,10 @@
 import { GoogleLogoIcon } from '@phosphor-icons/react/ssr';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/components/i18n/i18n-provider';
 
 export function GoogleSignInButton() {
+  const { t } = useI18n();
   const handleGoogleSignIn = async () => {
     const supabase = createBrowserSupabaseClient();
     const { error } = await supabase.auth.signInWithOAuth({
@@ -27,7 +29,7 @@ export function GoogleSignInButton() {
       onClick={handleGoogleSignIn}
     >
       <GoogleLogoIcon className="h-5 w-5" weight="bold" />
-      Continue with Google
+      {t('auth.google')}
     </Button>
   );
 }

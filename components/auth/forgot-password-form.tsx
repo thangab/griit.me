@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
 import { AuthFormMessage } from '@/components/auth/auth-form-message';
+import { useI18n } from '@/components/i18n/i18n-provider';
 
 export function ForgotPasswordForm() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<
     'idle' | 'pending' | 'success' | 'error'
@@ -36,7 +38,7 @@ export function ForgotPasswordForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <label htmlFor="forgot-email" className="text-sm font-medium">
-          Email
+          {t('auth.email')}
         </label>
         <input
           id="forgot-email"

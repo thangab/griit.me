@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { AuthVisualCarousel } from '@/components/auth/auth-visual-carousel';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
+import { useI18n } from '@/components/i18n/i18n-provider';
 
 export function AuthShell({
   children,
@@ -10,6 +14,8 @@ export function AuthShell({
   description: string;
   title: string;
 }) {
+  const { t } = useI18n();
+
   return (
     <main className="grid min-h-screen bg-white text-[#151515] lg:grid-cols-2">
       <section className="relative flex min-h-screen items-center justify-center px-6 py-24 sm:px-10 lg:px-14">
@@ -19,11 +25,14 @@ export function AuthShell({
         >
           GRIIT<span className="text-[#3157ff]">.</span>
         </Link>
+        <div className="absolute top-7 right-6 sm:top-9 sm:right-10 lg:right-12">
+          <LanguageSwitcher compact />
+        </div>
 
         <div className="w-full max-w-[430px]">
           <div className="mb-9 text-center">
             <p className="text-[11px] font-black tracking-[0.2em] text-[#3157ff] uppercase">
-              Your athlete identity
+              {t('auth.identity')}
             </p>
             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em]">
               {title}

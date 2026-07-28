@@ -2,12 +2,15 @@ import Link from 'next/link';
 import { ArrowLeftIcon } from '@phosphor-icons/react/ssr';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
+import { getRequestDictionary } from '@/lib/i18n/server';
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const { dictionary } = await getRequestDictionary();
+
   return (
     <AuthShell
-      description="Enter your email and we’ll send you a secure reset link."
-      title="Reset your password"
+      description={dictionary['auth.forgot.description']}
+      title={dictionary['auth.forgot.title']}
     >
       <ForgotPasswordForm />
       <Link
@@ -15,7 +18,7 @@ export default function ForgotPasswordPage() {
         href="/sign-in"
       >
         <ArrowLeftIcon className="h-4 w-4" weight="bold" />
-        Back to sign in
+        {dictionary['auth.forgot.back']}
       </Link>
     </AuthShell>
   );

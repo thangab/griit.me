@@ -1,11 +1,23 @@
 import { JavaScriptRequired } from '@/components/layout/javascript-required';
+import { I18nProvider } from '@/components/i18n/i18n-provider';
+import { getRequestDictionary } from '@/lib/i18n/server';
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { dictionary, locale } = await getRequestDictionary();
+
   return (
-    <JavaScriptRequired id="griit-auth-app">{children}</JavaScriptRequired>
+    <I18nProvider dictionary={dictionary} locale={locale}>
+      <JavaScriptRequired
+        description={dictionary['auth.javascript.description']}
+        id="griit-auth-app"
+        title={dictionary['auth.javascript.title']}
+      >
+        {children}
+      </JavaScriptRequired>
+    </I18nProvider>
   );
 }

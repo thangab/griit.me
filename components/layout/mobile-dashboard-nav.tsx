@@ -22,6 +22,8 @@ import { getDashboardNavItems } from '@/lib/constants/navigation';
 import { signOutAction } from '@/lib/actions/auth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
+import { useI18n } from '@/components/i18n/i18n-provider';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import type { OwnedProfileSummary } from '@/lib/services/profile-builder';
 
@@ -48,6 +50,7 @@ export function MobileDashboardNav({
   isPro: boolean;
   isAdmin: boolean;
 }) {
+  const { t } = useI18n();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
@@ -60,7 +63,7 @@ export function MobileDashboardNav({
       ? [
           {
             href: '/dashboard/admin/athletes',
-            label: 'Athlete reviews',
+            label: t('dashboard.athleteReviews'),
             icon: 'ShieldCheck' as const,
           },
         ]
@@ -122,7 +125,7 @@ export function MobileDashboardNav({
             {canSwitchProfiles ? (
               <div className="mb-1">
                 <p className="text-muted-foreground px-3 py-1.5 text-[11px] font-semibold tracking-[0.12em] uppercase">
-                  Profiles
+                  {t('dashboard.profiles')}
                 </p>
                 <div className="max-h-64 overflow-y-auto">
                   {profiles.map((profile) => {
@@ -169,8 +172,14 @@ export function MobileDashboardNav({
               onClick={() => setIsStudioMenuOpen(false)}
             >
               <LayoutGrid className="h-4 w-4" />
-              Dashboard
+              {t('common.dashboard')}
             </Link>
+            <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2">
+              <span className="text-xs font-semibold text-black/45">
+                {t('language.label')}
+              </span>
+              <LanguageSwitcher compact />
+            </div>
             <div className="bg-border my-1 h-px" />
             <form action={signOutAction}>
               <button
@@ -179,7 +188,7 @@ export function MobileDashboardNav({
                 type="submit"
               >
                 <LogOut className="h-4 w-4" />
-                Sign out
+                {t('dashboard.signOut')}
               </button>
             </form>
           </div>
@@ -245,7 +254,17 @@ export function MobileDashboardNav({
                     isActive && 'text-[#3157ff]',
                   )}
                 />
-                {item.label}
+                {item.icon === 'LayoutGrid'
+                  ? t('dashboard.nav.overview')
+                  : item.icon === 'PanelsTopLeft'
+                    ? t('dashboard.nav.design')
+                    : item.icon === 'BarChart3'
+                      ? t('dashboard.nav.analytics')
+                      : item.icon === 'UserRound'
+                        ? t('dashboard.nav.profiles')
+                        : item.icon === 'Settings'
+                          ? t('dashboard.nav.settings')
+                          : t('dashboard.nav.subscribe')}
               </Link>
             );
           })}

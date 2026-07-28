@@ -2,12 +2,16 @@ type JavaScriptRequiredProps = {
   children: React.ReactNode;
   id: string;
   className?: string;
+  title?: string;
+  description?: string;
 };
 
 export function JavaScriptRequired({
   children,
   id,
   className,
+  title = 'JavaScript is required',
+  description = 'Enable JavaScript in your browser, then reload this page to use GRIIT Studio.',
 }: JavaScriptRequiredProps) {
   return (
     <>
@@ -24,10 +28,9 @@ export function JavaScriptRequired({
             >
               G.
             </span>
-            <p className="mt-6 text-xl font-semibold">JavaScript is required</p>
+            <p className="mt-6 text-xl font-semibold">{title}</p>
             <p className="text-muted-foreground mt-3 text-sm leading-6">
-              Enable JavaScript in your browser, then reload this page to use
-              GRIIT Studio.
+              {description}
             </p>
           </section>
         </main>

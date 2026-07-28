@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useI18n } from '@/components/i18n/i18n-provider';
 
 const slides = [
   {
@@ -40,9 +41,33 @@ const slides = [
   },
 ] as const;
 
+const frenchCopy = [
+  [
+    'Vos objectifs méritent mieux qu’un simple lien.',
+    'Construisez un profil qui montre où vous allez, pas seulement d’où vous venez.',
+  ],
+  [
+    'Chaque séance fait partie de votre histoire.',
+    'Réunissez votre progression, vos réussites, vos contenus et votre prochain défi.',
+  ],
+  [
+    'Rendez votre ambition visible.',
+    'Offrez aux supporters, partenaires et sponsors un espace unique pour comprendre votre parcours.',
+  ],
+  [
+    'Conçu pour chaque discipline et chaque niveau.',
+    'Votre identité d’athlète évolue avec vous, du premier objectif aux plus grandes scènes.',
+  ],
+  [
+    'Un profil. Toute votre identité d’athlète.',
+    'Partagez ce qui compte maintenant et créez les opportunités de demain.',
+  ],
+] as const;
+
 const SLIDE_DURATION = 6000;
 
 export function AuthVisualCarousel() {
+  const { locale } = useI18n();
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
@@ -84,13 +109,15 @@ export function AuthVisualCarousel() {
               key={slide.title}
             >
               <p className="text-xs font-black tracking-[0.22em] text-[#a9ed35] uppercase">
-                Built for athletes
+                {locale === 'fr'
+                  ? 'Conçu pour les athlètes'
+                  : 'Built for athletes'}
               </p>
               <p className="mt-5 text-[clamp(2.5rem,4.2vw,5rem)] leading-[0.94] font-black tracking-[-0.065em] text-balance">
-                {slide.title}
+                {locale === 'fr' ? frenchCopy[index][0] : slide.title}
               </p>
               <p className="mx-auto mt-6 max-w-xl text-base leading-7 text-white/72 xl:text-lg">
-                {slide.description}
+                {locale === 'fr' ? frenchCopy[index][1] : slide.description}
               </p>
             </div>
           ))}
@@ -99,7 +126,7 @@ export function AuthVisualCarousel() {
         <div className="absolute bottom-10 flex items-center gap-2">
           {slides.map((slide, index) => (
             <button
-              aria-label={`Show slide ${index + 1}`}
+              aria-label={`${locale === 'fr' ? 'Afficher la slide' : 'Show slide'} ${index + 1}`}
               className={`h-1.5 rounded-full transition-all duration-500 ${
                 activeSlide === index
                   ? 'w-8 bg-[#a9ed35]'

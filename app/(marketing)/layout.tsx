@@ -4,6 +4,9 @@ import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
 import { launchOffer } from '@/lib/constants/billing';
 import { MarketingAnalytics } from '@/components/marketing/marketing-analytics';
+import { I18nProvider } from '@/components/i18n/i18n-provider';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
+import { getRequestDictionary } from '@/lib/i18n/server';
 
 export const metadata: Metadata = {
   title: 'Griit — The link in bio built for athletes',
@@ -16,6 +19,8 @@ export default async function MarketingLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { dictionary, locale } = await getRequestDictionary();
+  const t = (key: keyof typeof dictionary) => dictionary[key];
   const supabase = await createServerSupabaseClient();
   // This only controls a marketing CTA. Reading the cookie-backed session
   // avoids an Auth API round trip; protected dashboard routes still verify the
@@ -29,7 +34,7 @@ export default async function MarketingLayout({
     : undefined;
 
   return (
-    <>
+    <I18nProvider dictionary={dictionary} locale={locale}>
       <div className="min-h-screen bg-[#f7f6f1] text-[#151515]">
         <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f6f1]/90 backdrop-blur-xl">
           <Link
@@ -37,7 +42,7 @@ export default async function MarketingLayout({
             href="/pricing#launch-offer"
           >
             <span className="rounded-full bg-[#a9ed35] px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-[#151515] uppercase">
-              Launch
+              {t('marketing.launch')}
             </span>
             <span>
               Pro Annual{' '}
@@ -65,19 +70,19 @@ export default async function MarketingLayout({
                 className="transition-opacity hover:opacity-55"
                 href="/athletes"
               >
-                Athletes
+                {t('marketing.athletes')}
               </Link>
               <Link
                 className="transition-opacity hover:opacity-55"
                 href="/#features"
               >
-                Features
+                {t('marketing.features')}
               </Link>
               <Link
                 className="transition-opacity hover:opacity-55"
                 href="/pricing"
               >
-                Pricing
+                {t('marketing.pricing')}
               </Link>
             </nav>
 
@@ -87,7 +92,7 @@ export default async function MarketingLayout({
                   className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
                   href="/dashboard"
                 >
-                  Dashboard
+                  {t('common.dashboard')}
                   <ArrowRightIcon className="h-4 w-4" weight="bold" />
                 </Link>
               ) : (
@@ -96,17 +101,18 @@ export default async function MarketingLayout({
                     className="hidden rounded-full px-4 py-2 text-sm font-semibold transition-colors hover:bg-black/5 sm:inline-flex"
                     href="/sign-in"
                   >
-                    Log in
+                    {t('marketing.login')}
                   </Link>
                   <Link
                     className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
                     href="/sign-up"
                   >
-                    Get started
+                    {t('marketing.getStarted')}
                     <ArrowRightIcon className="h-4 w-4" weight="bold" />
                   </Link>
                 </>
               )}
+              <LanguageSwitcher compact />
             </div>
           </div>
         </header>
@@ -120,59 +126,57 @@ export default async function MarketingLayout({
                 GRIIT<span className="text-[#a9ed35]">.</span>
               </p>
               <p className="mt-3 max-w-sm text-sm leading-6 text-white/55">
-                A beautiful public profile for your next goal, your athlete
-                story, and the opportunities ahead.
+                {t('marketing.footerDescription')}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-10 text-sm sm:grid-cols-3 sm:gap-14">
               <div className="flex flex-col gap-3 text-white/65">
                 <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
-                  Product
+                  {t('marketing.product')}
                 </p>
                 <Link className="hover:text-white" href="/athletes">
-                  Athletes
+                  {t('marketing.athletes')}
                 </Link>
                 <Link className="hover:text-white" href="/#features">
-                  Features
+                  {t('marketing.features')}
                 </Link>
                 <Link className="hover:text-white" href="/pricing">
-                  Pricing
+                  {t('marketing.pricing')}
                 </Link>
               </div>
               <div className="flex flex-col gap-3 text-white/65">
                 <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
-                  Account
+                  {t('marketing.account')}
                 </p>
                 <Link className="hover:text-white" href="/sign-in">
-                  Log in
+                  {t('marketing.login')}
                 </Link>
                 <Link className="hover:text-white" href="/sign-up">
-                  Sign up
+                  {t('marketing.signup')}
                 </Link>
                 <Link className="hover:text-white" href="/support">
-                  Support
+                  {t('marketing.support')}
                 </Link>
               </div>
               <div className="flex flex-col gap-3 text-white/65">
                 <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
-                  Legal
+                  {t('marketing.legal')}
                 </p>
                 <Link className="hover:text-white" href="/privacy">
-                  Privacy
+                  {t('marketing.privacy')}
                 </Link>
                 <Link className="hover:text-white" href="/terms">
-                  Terms
+                  {t('marketing.terms')}
                 </Link>
               </div>
             </div>
           </div>
           <div className="border-t border-white/10 px-5 py-5 text-center text-xs text-white/35 sm:px-8">
-            © {new Date().getFullYear()} Griit. Built for every athlete and
-            every sport.
+            © {new Date().getFullYear()} Griit. {t('marketing.footerCopyright')}
           </div>
         </footer>
       </div>
       <MarketingAnalytics measurementId={measurementId} />
-    </>
+    </I18nProvider>
   );
 }

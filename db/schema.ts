@@ -18,6 +18,9 @@ export const profiles = pgTable('profiles', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   full_name: text('full_name'),
   avatar_url: text('avatar_url'),
+  preferred_locale: varchar('preferred_locale', { length: 5 })
+    .default('en')
+    .notNull(),
   is_admin: boolean('is_admin').default(false).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').defaultNow().notNull(),
