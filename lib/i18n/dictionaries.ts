@@ -87,6 +87,9 @@ const en = {
   'onboarding.objective': 'What are you currently working toward?',
   'onboarding.objectivePlaceholder': 'For example: My first marathon',
   'onboarding.objectiveHelp': 'Optional — this becomes your first goal.',
+  'onboarding.goalSuggestions': 'Ideas for your sports',
+  'onboarding.goalSuggestionsHelp':
+    'Choose a starting point, then make it yours.',
   'onboarding.stylesHelp':
     'More styles and full customization are available in the editor.',
   'onboarding.createError': 'Unable to create your profile',
@@ -207,6 +210,9 @@ const fr: Dictionary = {
   'onboarding.objectivePlaceholder': 'Par exemple : mon premier marathon',
   'onboarding.objectiveHelp':
     'Facultatif — il deviendra votre premier objectif.',
+  'onboarding.goalSuggestions': 'Des idées pour vos sports',
+  'onboarding.goalSuggestionsHelp':
+    'Choisissez un point de départ, puis adaptez-le à votre parcours.',
   'onboarding.stylesHelp':
     'D’autres styles et tous les réglages seront disponibles dans l’éditeur.',
   'onboarding.createError': 'Impossible de créer votre profil',

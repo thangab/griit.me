@@ -1,6 +1,13 @@
 'use client';
 
-import { Fragment, useActionState, useEffect, useRef, useState } from 'react';
+import {
+  Fragment,
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
@@ -43,6 +50,8 @@ import {
   type AchievementType,
 } from '@/lib/constants/achievements';
 import { useUiCopy } from '@/components/i18n/use-ui-copy';
+import { useI18n } from '@/components/i18n/i18n-provider';
+import { getGoalSuggestions } from '@/lib/constants/goal-suggestions';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -283,11 +292,37 @@ function AchievementTypeField({
 function GoalEditor({
   goal,
   number,
+  sportSlugs,
 }: {
   goal: ProfileBuilderState['goals'][number] | undefined;
   number: number;
+  sportSlugs: string[];
 }) {
   const ui = useUiCopy();
+  const { locale } = useI18n();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const suggestions = useMemo(
+    () => getGoalSuggestions({ locale, sportSlugs, limit: 6 }),
+    [locale, sportSlugs],
+  );
+
+  const applySuggestion = (title: string) => {
+    const input = titleInputRef.current;
+    if (!input) return;
+
+    const valueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value',
+    )?.set;
+    if (valueSetter) valueSetter.call(input, title);
+    else input.value = title;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+    input.setSelectionRange(title.length, title.length);
+    setShowSuggestions(false);
+  };
+
   return (
     <div className="space-y-5">
       <input name={`goalId${number}`} type="hidden" value={goal?.id ?? ''} />
@@ -307,11 +342,44 @@ function GoalEditor({
           name={`goalTitle${number}`}
           defaultValue={goal?.title ?? ''}
           placeholder="Run 10K under 40 minutes"
+          ref={titleInputRef}
         />
         <span className="text-muted-foreground block text-xs">
           {ui('Make it specific, measurable, and easy to remember.')}
         </span>
       </label>
+
+      <div className="-mt-2">
+        <button
+          aria-expanded={showSuggestions}
+          className="text-primary hover:text-primary/75 inline-flex items-center gap-1.5 text-xs font-semibold transition-colors"
+          onClick={() => setShowSuggestions((current) => !current)}
+          type="button"
+        >
+          <Target className="h-3.5 w-3.5" />
+          {ui(showSuggestions ? 'Hide suggestions' : 'Need inspiration?')}
+        </button>
+
+        {showSuggestions ? (
+          <div className="border-border bg-muted/25 mt-3 rounded-lg border p-3">
+            <p className="text-muted-foreground text-xs leading-5">
+              {ui('Choose a starting point, then make it yours.')}
+            </p>
+            <div className="mt-2.5 grid gap-2">
+              {suggestions.map((suggestion) => (
+                <button
+                  className="border-border bg-background hover:border-primary/35 hover:text-primary rounded-lg border px-3 py-2.5 text-left text-xs leading-5 font-semibold transition-colors"
+                  key={suggestion.id}
+                  onClick={() => applySuggestion(suggestion.title)}
+                  type="button"
+                >
+                  {suggestion.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <label className="block space-y-2">
         <span className="flex items-center gap-2 text-xs font-semibold">
@@ -394,7 +462,7 @@ function SportsField({
 }: {
   availableSports: ProfileBuilderState['availableSports'];
   selectedSlugs: string[];
-  onSelectionChange: () => void;
+  onSelectionChange: (slugs: string[]) => void;
 }) {
   const ui = useUiCopy();
   const [selected, setSelected] = useState(selectedSlugs);
@@ -409,7 +477,7 @@ function SportsField({
           sports={availableSports}
           onChange={(slugs) => {
             setSelected(slugs);
-            onSelectionChange();
+            onSelectionChange(slugs);
           }}
         />
       </div>
@@ -1949,6 +2017,9 @@ export function ContentEditor({
   );
   const profile = builder.profile;
   const goals = builder.goals.slice(0, 3);
+  const [selectedSportSlugs, setSelectedSportSlugs] = useState(
+    profile.sportSlugs,
+  );
   const [goalCount, setGoalCount] = useState(() =>
     subscription.isActive ? Math.max(1, goals.length) : 1,
   );
@@ -2138,8 +2209,11 @@ export function ContentEditor({
         />
         <SportsField
           availableSports={builder.availableSports}
-          selectedSlugs={profile.sportSlugs}
-          onSelectionChange={() => schedulePreviewUpdate('sports')}
+          selectedSlugs={selectedSportSlugs}
+          onSelectionChange={(slugs) => {
+            setSelectedSportSlugs(slugs);
+            schedulePreviewUpdate('sports');
+          }}
         />
       </EditorSection>
 
@@ -2157,7 +2231,11 @@ export function ContentEditor({
             key={index}
             className={index > 0 ? 'border-border border-t pt-5' : undefined}
           >
-            <GoalEditor goal={goals[index]} number={index + 1} />
+            <GoalEditor
+              goal={goals[index]}
+              number={index + 1}
+              sportSlugs={selectedSportSlugs}
+            />
           </div>
         ))}
 

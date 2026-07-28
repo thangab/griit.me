@@ -20,6 +20,7 @@ import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame'
 import { SportsSelector } from '@/components/dashboard/sports-selector';
 import { Button } from '@/components/ui/button';
 import { defaultSports, type SportOption } from '@/lib/constants/sports';
+import { getGoalSuggestions } from '@/lib/constants/goal-suggestions';
 import {
   profileTemplates,
   type ProfileTemplateId,
@@ -113,7 +114,7 @@ function TemplateThumbnail({ templateId }: { templateId: ProfileTemplateId }) {
 }
 
 export function ProfileOnboardingForm() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const router = useRouter();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [state, formAction, pending] = useActionState(
@@ -200,6 +201,15 @@ export function ProfileOnboardingForm() {
         .filter((sport) => selectedSports.includes(sport.slug))
         .map((sport) => sport.name),
     [onboardingSports, selectedSports],
+  );
+  const goalSuggestions = useMemo(
+    () =>
+      getGoalSuggestions({
+        locale,
+        sportSlugs: selectedSports,
+        limit: 4,
+      }),
+    [locale, selectedSports],
   );
   const currentStep = stepContent[step - 1] ?? stepContent[0];
 
@@ -417,20 +427,53 @@ export function ProfileOnboardingForm() {
                 </div>
               </fieldset>
 
-              <label className="block space-y-2.5 text-sm font-bold">
-                {t('onboarding.objective')}
+              <div className="space-y-2.5">
+                <label
+                  className="block text-sm font-bold"
+                  htmlFor="onboarding-objective"
+                >
+                  {t('onboarding.objective')}
+                </label>
                 <input
                   className="h-12 w-full rounded-xl border border-black/12 bg-white px-4 font-normal transition outline-none placeholder:text-black/28 focus:border-[#3157ff] focus:ring-3 focus:ring-[#3157ff]/10"
+                  id="onboarding-objective"
                   maxLength={160}
                   name="objective"
                   onChange={(event) => setObjective(event.target.value)}
                   placeholder={t('onboarding.objectivePlaceholder')}
                   value={objective}
                 />
-                <span className="block text-xs leading-5 font-normal text-black/42">
+                <span className="block text-xs leading-5 text-black/42">
                   {t('onboarding.objectiveHelp')}
                 </span>
-              </label>
+                {selectedSports.length ? (
+                  <div className="rounded-xl border border-[#3157ff]/12 bg-[#3157ff]/[0.035] p-3.5">
+                    <p className="text-xs font-bold text-black/70">
+                      {t('onboarding.goalSuggestions')}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-black/42">
+                      {t('onboarding.goalSuggestionsHelp')}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {goalSuggestions.map((suggestion) => (
+                        <button
+                          className={cn(
+                            'rounded-full border px-3 py-2 text-left text-xs font-semibold transition',
+                            objective === suggestion.title
+                              ? 'border-[#3157ff] bg-[#3157ff] text-white'
+                              : 'border-black/10 bg-white text-black/70 hover:border-[#3157ff]/35 hover:text-[#3157ff]',
+                          )}
+                          key={suggestion.id}
+                          onClick={() => setObjective(suggestion.title)}
+                          type="button"
+                        >
+                          {suggestion.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <div className={step === 3 ? 'space-y-4' : 'hidden'}>

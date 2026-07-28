@@ -152,6 +152,10 @@ const frenchUiCopy: Record<string, string> = {
   'Goal link': 'Lien de l’objectif',
   'Target date': 'Date cible',
   'What are you chasing?': 'Quel est votre objectif ?',
+  'Need inspiration?': 'Besoin d’inspiration ?',
+  'Hide suggestions': 'Masquer les suggestions',
+  'Choose a starting point, then make it yours.':
+    'Choisissez un point de départ, puis adaptez-le à votre parcours.',
   'Your motivation': 'Votre motivation',
   Network: 'Réseau',
   'Profile URL': 'URL du profil',
