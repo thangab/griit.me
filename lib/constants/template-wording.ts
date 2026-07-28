@@ -101,10 +101,6 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
   },
 };
 
-function getText(value: unknown) {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
 const templateWordingKeys = [
   'discipline',
   'badge',
@@ -172,17 +168,18 @@ export function getTemplateWordingOverrides(
     templateWordingKeys.flatMap((key) => {
       if (!Object.prototype.hasOwnProperty.call(saved, key)) return [];
 
-      const value = getText(saved[key]);
+      const value = typeof saved[key] === 'string' ? saved[key] : '';
+      const normalizedValue = value.trim();
 
       // Older saves contained every default. Ignore those untouched legacy
       // values once, then persist only explicit overrides going forward.
       const isKnownDefault = Object.values(templateWordingDefaults).some(
-        (wording) => wording[key] === value,
+        (wording) => wording[key] === normalizedValue,
       );
 
       if (
         !hasExplicitOverrides &&
-        (value === defaults[key] || isKnownDefault)
+        (normalizedValue === defaults[key] || isKnownDefault)
       ) {
         return [];
       }
