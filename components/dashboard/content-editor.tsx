@@ -41,7 +41,10 @@ import {
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import { SportsSelector } from '@/components/dashboard/sports-selector';
 import { SocialPlatformIcon } from '@/components/profile/social-platform-icon';
-import { socialPlatforms } from '@/lib/constants/social-platforms';
+import {
+  getSocialInputValue,
+  socialPlatforms,
+} from '@/lib/constants/social-platforms';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import type { SubscriptionState } from '@/lib/types/billing';
 import { cn } from '@/lib/utils/cn';
@@ -536,16 +539,11 @@ function SocialLinkFields({
     ? (link?.platform ?? 'instagram')
     : 'website';
   const [platform, setPlatform] = useState(initialPlatform);
+  const [profileValue, setProfileValue] = useState(() =>
+    getSocialInputValue(initialPlatform, link?.url ?? ''),
+  );
   const platformDefinition =
     socialPlatforms.find((item) => item.id === platform) ?? socialPlatforms[0];
-  const valueLabel =
-    platform === 'email'
-      ? 'Email address'
-      : platform === 'phone'
-        ? 'Phone number'
-        : 'Profile URL';
-  const valueType =
-    platform === 'email' ? 'email' : platform === 'phone' ? 'tel' : 'url';
 
   return (
     <div className="border-border bg-background overflow-hidden rounded-lg border">
@@ -571,7 +569,19 @@ function SocialLinkFields({
             className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
             name={`socialPlatform${number}`}
             value={platform}
-            onChange={(event) => setPlatform(event.target.value)}
+            onChange={(event) => {
+              const nextPlatform = event.target.value;
+              const nextDefinition =
+                socialPlatforms.find((item) => item.id === nextPlatform) ??
+                socialPlatforms[0];
+              setProfileValue((current) =>
+                platformDefinition.inputType === 'text' &&
+                nextDefinition.inputType === 'text'
+                  ? current
+                  : '',
+              );
+              setPlatform(nextPlatform);
+            }}
           >
             {socialPlatforms.map((item) => (
               <option key={item.id} value={item.id}>
@@ -581,11 +591,12 @@ function SocialLinkFields({
           </select>
         </label>
         <Field
-          label={valueLabel}
+          label={platformDefinition.inputLabel}
           name={`socialUrl${number}`}
-          defaultValue={link?.url ?? ''}
           placeholder={platformDefinition.placeholder}
-          type={valueType}
+          type={platformDefinition.inputType}
+          value={profileValue}
+          onChange={(event) => setProfileValue(event.target.value)}
         />
         <Field
           label="Label (optional)"

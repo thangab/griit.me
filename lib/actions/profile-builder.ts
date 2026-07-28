@@ -35,6 +35,7 @@ import {
   resolveProfileThemeSettings,
 } from '@/lib/constants/profile-theme';
 import {
+  buildSocialProfileUrl,
   isSocialPlatformId,
   socialPlatforms,
 } from '@/lib/constants/social-platforms';
@@ -480,7 +481,12 @@ function getSocialLinks(formData: FormData) {
       };
     })
     .sort((left, right) => left.index - right.index)
-    .map(({ id, platform, label, url }) => ({ id, platform, label, url }));
+    .map(({ id, platform, label, url }) => ({
+      id,
+      platform,
+      label,
+      url: buildSocialProfileUrl(platform, url),
+    }));
 }
 
 function getGoals(formData: FormData) {

@@ -159,6 +159,10 @@ const frenchUiCopy: Record<string, string> = {
   'Your motivation': 'Votre motivation',
   Network: 'Réseau',
   'Profile URL': 'URL du profil',
+  'Channel handle': 'Identifiant de la chaîne',
+  'Athlete ID': 'Identifiant de l’athlète',
+  'Email address': 'Adresse e-mail',
+  'Phone number': 'Numéro de téléphone',
   'Label (optional)': 'Libellé (facultatif)',
   'Add social link': 'Ajouter un réseau social',
   'Tell the story in a few lines.':
