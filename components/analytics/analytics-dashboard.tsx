@@ -26,6 +26,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 import type {
   AnalyticsBreakdownItem,
   AnalyticsDashboardData,
@@ -80,6 +81,7 @@ function AnalyticsChart({
   points: AnalyticsSeriesPoint[];
   granularity: AnalyticsFilters['granularity'];
 }) {
+  const ui = useUiCopy();
   const maxValue = Math.max(
     4,
     ...points.flatMap((point) => [
@@ -100,7 +102,7 @@ function AnalyticsChart({
       <div
         className="h-80 min-w-[680px]"
         role="img"
-        aria-label="Profile views and clicks chart"
+        aria-label={ui('Profile views and clicks chart')}
       >
         <ResponsiveContainer height="100%" width="100%">
           <LineChart
@@ -159,7 +161,7 @@ function AnalyticsChart({
                   : false
               }
               isAnimationActive={points.length <= 60}
-              name="Profile views"
+              name={ui('Profile views')}
               stroke="#10b981"
               strokeWidth={3}
               type="monotone"
@@ -173,7 +175,7 @@ function AnalyticsChart({
                   : false
               }
               isAnimationActive={points.length <= 60}
-              name="Block clicks"
+              name={ui('Block clicks')}
               stroke="#f59e0b"
               strokeWidth={3}
               type="monotone"
@@ -187,7 +189,7 @@ function AnalyticsChart({
                   : false
               }
               isAnimationActive={points.length <= 60}
-              name="Social clicks"
+              name={ui('Social clicks')}
               stroke="#2563eb"
               strokeWidth={3}
               type="monotone"
@@ -208,6 +210,7 @@ function BreakdownCard({
   icon: typeof Globe2;
   items: AnalyticsBreakdownItem[];
 }) {
+  const ui = useUiCopy();
   const total = items.reduce((sum, item) => sum + item.value, 0);
   const max = Math.max(1, ...items.map((item) => item.value));
 
@@ -215,7 +218,7 @@ function BreakdownCard({
     <section className="rounded-[1.5rem] border border-black/10 bg-white p-5 shadow-[0_14px_40px_rgba(21,21,21,0.04)]">
       <div className="flex items-center gap-2">
         <Icon className="text-muted-foreground h-4 w-4" />
-        <h3 className="font-semibold">{title}</h3>
+        <h3 className="font-semibold">{ui(title)}</h3>
       </div>
       {items.length ? (
         <div className="mt-5 space-y-4">
@@ -239,7 +242,7 @@ function BreakdownCard({
         </div>
       ) : (
         <div className="text-muted-foreground flex min-h-32 items-center justify-center text-sm">
-          No data for this range yet.
+          {ui('No data for this range yet.')}
         </div>
       )}
     </section>
@@ -257,6 +260,7 @@ function LockedAnalyticsCard({
   description: string;
   className?: string;
 }) {
+  const ui = useUiCopy();
   return (
     <section
       className={cn(
@@ -267,7 +271,7 @@ function LockedAnalyticsCard({
       <div className="border-border flex items-center justify-between gap-3 border-b px-5 py-4">
         <div className="flex min-w-0 items-center gap-2">
           <Icon className="text-muted-foreground h-4 w-4 shrink-0" />
-          <h3 className="truncate font-semibold">{title}</h3>
+          <h3 className="truncate font-semibold">{ui(title)}</h3>
         </div>
         <span className="bg-primary/10 text-primary inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold tracking-wider uppercase">
           <LockKeyhole className="h-3 w-3" />
@@ -279,13 +283,13 @@ function LockedAnalyticsCard({
           <LockKeyhole className="h-4 w-4" />
         </span>
         <p className="text-muted-foreground mt-3 max-w-sm text-xs leading-5">
-          {description}
+          {ui(description)}
         </p>
         <Link
           className="text-primary mt-3 text-xs font-semibold hover:underline"
           href="/dashboard/subscribe"
         >
-          Unlock with Pro
+          {ui('Unlock with Pro')}
         </Link>
       </div>
     </section>
@@ -299,10 +303,11 @@ function InteractionTable({
   title: string;
   interactions: AnalyticsInteraction[];
 }) {
+  const ui = useUiCopy();
   return (
     <section className="overflow-hidden rounded-[1.5rem] border border-black/10 bg-white shadow-[0_14px_40px_rgba(21,21,21,0.04)]">
       <div className="border-border flex items-center justify-between gap-4 border-b px-5 py-4">
-        <h3 className="font-semibold">{title}</h3>
+        <h3 className="font-semibold">{ui(title)}</h3>
         <button
           className="border-border hover:bg-muted flex h-9 items-center gap-2 rounded-lg border px-3 text-xs font-semibold"
           type="button"
@@ -319,7 +324,7 @@ function InteractionTable({
           }
         >
           <ArrowDownToLine className="h-3.5 w-3.5" />
-          Export
+          {ui('Export')}
         </button>
       </div>
       {interactions.length ? (
@@ -340,7 +345,7 @@ function InteractionTable({
                     </p>
                   </div>
                   <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs font-bold">
-                    {item.clicks} clicks
+                    {item.clicks} {ui('clicks')}
                   </span>
                 </div>
               </div>
@@ -350,11 +355,13 @@ function InteractionTable({
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="bg-muted/40 text-muted-foreground text-xs uppercase">
                 <tr>
-                  <th className="px-5 py-3 font-semibold">Type</th>
-                  <th className="px-5 py-3 font-semibold">Name</th>
-                  <th className="px-5 py-3 text-right font-semibold">Clicks</th>
+                  <th className="px-5 py-3 font-semibold">{ui('Type')}</th>
+                  <th className="px-5 py-3 font-semibold">{ui('Name')}</th>
                   <th className="px-5 py-3 text-right font-semibold">
-                    Last activity
+                    {ui('Clicks')}
+                  </th>
+                  <th className="px-5 py-3 text-right font-semibold">
+                    {ui('Last activity')}
                   </th>
                 </tr>
               </thead>
@@ -387,7 +394,7 @@ function InteractionTable({
         </>
       ) : (
         <div className="text-muted-foreground flex min-h-36 items-center justify-center p-6 text-sm">
-          No interactions for this range yet.
+          {ui('No interactions for this range yet.')}
         </div>
       )}
     </section>
@@ -403,6 +410,7 @@ export function AnalyticsDashboard({
   filters: AnalyticsFilters;
   hasAdvancedAnalytics: boolean;
 }) {
+  const ui = useUiCopy();
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -471,16 +479,16 @@ export function AnalyticsDashboard({
             Performance
           </p>
           <h1 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
-            Analytics
+            {ui('Analytics')}
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">
-            Understand how visitors discover and interact with @
+            {ui('Understand how visitors discover and interact with')} @
             {data.profile.username}.
           </p>
         </div>
         <div className="relative mt-6 flex flex-wrap gap-2 xl:mt-0">
           <label className="relative min-w-40 flex-1 sm:flex-none">
-            <span className="sr-only">Date range</span>
+            <span className="sr-only">{ui('Date range')}</span>
             <select
               className="h-11 w-full appearance-none rounded-xl border border-white/15 bg-white px-3 pr-9 text-sm font-semibold text-[#151515] outline-none"
               value={filters.range}
@@ -501,14 +509,14 @@ export function AnalyticsDashboard({
             >
               {rangeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {ui(option.label)}
                 </option>
               ))}
             </select>
             <ChevronDown className="pointer-events-none absolute top-3.5 right-3 h-4 w-4 text-black/45" />
           </label>
           <label className="relative min-w-32 flex-1 sm:flex-none">
-            <span className="sr-only">Grouping</span>
+            <span className="sr-only">{ui('Grouping')}</span>
             <select
               className="h-11 w-full appearance-none rounded-xl border border-white/15 bg-white px-3 pr-9 text-sm font-semibold text-[#151515] outline-none"
               value={filters.granularity}
@@ -516,8 +524,8 @@ export function AnalyticsDashboard({
                 updateFilters({ granularity: event.target.value })
               }
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
+              <option value="daily">{ui('Daily')}</option>
+              <option value="weekly">{ui('Weekly')}</option>
             </select>
             <ChevronDown className="pointer-events-none absolute top-3.5 right-3 h-4 w-4 text-black/45" />
           </label>
@@ -534,7 +542,7 @@ export function AnalyticsDashboard({
                 type="button"
                 onClick={() => updateFilters({ mode })}
               >
-                {mode}
+                {ui(mode)}
               </button>
             ))}
           </div>
@@ -544,7 +552,7 @@ export function AnalyticsDashboard({
       {filters.range === 'custom' ? (
         <div className="flex flex-col gap-3 rounded-[1.5rem] border border-black/10 bg-white p-4 shadow-[0_14px_40px_rgba(21,21,21,0.04)] sm:flex-row sm:items-end">
           <label className="flex-1 space-y-1.5">
-            <span className="text-xs font-semibold">Start date</span>
+            <span className="text-xs font-semibold">{ui('Start date')}</span>
             <input
               className="border-border bg-background h-10 w-full rounded-lg border px-3 text-sm"
               max={customEnd || undefined}
@@ -554,7 +562,7 @@ export function AnalyticsDashboard({
             />
           </label>
           <label className="flex-1 space-y-1.5">
-            <span className="text-xs font-semibold">End date</span>
+            <span className="text-xs font-semibold">{ui('End date')}</span>
             <input
               className="border-border bg-background h-10 w-full rounded-lg border px-3 text-sm"
               min={customStart || undefined}
@@ -571,7 +579,7 @@ export function AnalyticsDashboard({
               updateFilters({ start: customStart, end: customEnd })
             }
           >
-            Apply
+            {ui('Apply')}
           </button>
         </div>
       ) : null}
@@ -590,7 +598,7 @@ export function AnalyticsDashboard({
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-muted-foreground text-xs font-medium">
-                  {card.label}
+                  {ui(card.label)}
                 </p>
                 <Icon className="text-muted-foreground h-4 w-4" />
               </div>
@@ -607,7 +615,7 @@ export function AnalyticsDashboard({
       <section className="overflow-hidden rounded-[1.75rem] border border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
         <div className="border-border flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-semibold">Profile views & clicks</h2>
+            <h2 className="font-semibold">{ui('Profile views & clicks')}</h2>
             <p className="text-muted-foreground mt-1 text-xs">
               {filters.mode === 'uniques' ? 'Unique visitors' : 'All events'}{' '}
               grouped {filters.granularity}.
@@ -629,7 +637,7 @@ export function AnalyticsDashboard({
             }
           >
             <ArrowDownToLine className="h-3.5 w-3.5" />
-            Export
+            {ui('Export')}
           </button>
         </div>
         <div className="p-3 sm:p-5">
@@ -655,9 +663,9 @@ export function AnalyticsDashboard({
 
       <section>
         <div className="mb-3">
-          <h2 className="text-lg font-semibold">Audience</h2>
+          <h2 className="text-lg font-semibold">{ui('Audience')}</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Where your visitors come from and how they browse.
+            {ui('Where your visitors come from and how they browse.')}
           </p>
         </div>
         <div className="grid gap-3 lg:grid-cols-2">

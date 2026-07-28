@@ -13,6 +13,7 @@ import {
   DesktopProfileFrame,
   MobileProfileFrame,
 } from '@/components/dashboard/mobile-profile-frame';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
 
@@ -40,6 +41,7 @@ export function DesignPreview({
   publishMessage: string;
   publishPending: boolean;
 }) {
+  const ui = useUiCopy();
   const [mode, setMode] = useState<'mobile' | 'desktop'>('mobile');
   const activeMobile = mode === 'mobile';
   const activeDesktop = mode === 'desktop';
@@ -74,7 +76,7 @@ export function DesignPreview({
               className="h-4 w-4"
               weight={activeMobile ? 'fill' : 'regular'}
             />
-            Mobile
+            {ui('Mobile')}
           </button>
           <button
             aria-pressed={activeDesktop}
@@ -91,7 +93,7 @@ export function DesignPreview({
               className="h-4 w-4"
               weight={activeDesktop ? 'fill' : 'regular'}
             />
-            Desktop
+            {ui('Desktop')}
           </button>
         </div>
 
@@ -112,7 +114,7 @@ export function DesignPreview({
             </span>
             <span className="min-w-0">
               <span className="flex items-center gap-1.5 text-sm font-semibold">
-                {builder.profile.isPublished ? 'Profile live' : 'Draft'}
+                {builder.profile.isPublished ? ui('Profile live') : ui('Draft')}
                 {builder.profile.isPublished ? (
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                 ) : null}
@@ -122,10 +124,10 @@ export function DesignPreview({
                 title={publishMessage || undefined}
               >
                 {publishPending
-                  ? 'Updating visibility…'
+                  ? ui('Updating visibility…')
                   : builder.profile.isPublished
-                    ? 'Visible to everyone.'
-                    : 'Only you can see this version.'}
+                    ? ui('Visible to everyone.')
+                    : ui('Only you can see this version.')}
               </span>
             </span>
           </div>
@@ -138,7 +140,7 @@ export function DesignPreview({
                 rel="noreferrer"
                 target="_blank"
               >
-                View profile
+                {ui('View profile')}
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
               <button
@@ -149,7 +151,9 @@ export function DesignPreview({
                 onClick={() => {
                   if (
                     !window.confirm(
-                      'Move your profile back to draft? It will no longer be publicly accessible.',
+                      ui(
+                        'Move your profile back to draft? It will no longer be publicly accessible.',
+                      ),
                     )
                   ) {
                     return;
@@ -159,7 +163,7 @@ export function DesignPreview({
                 }}
               >
                 <EyeOff className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Unpublish</span>
+                <span className="hidden sm:inline">{ui('Unpublish')}</span>
               </button>
             </div>
           ) : (
@@ -170,7 +174,7 @@ export function DesignPreview({
               onClick={() => onPublishChange(true)}
             >
               <Eye className="h-3.5 w-3.5" weight="bold" />
-              {publishPending ? 'Publishing…' : 'Publish profile'}
+              {publishPending ? ui('Publishing…') : ui('Publish profile')}
             </button>
           )}
         </div>

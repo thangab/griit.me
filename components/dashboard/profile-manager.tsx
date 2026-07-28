@@ -17,6 +17,7 @@ import {
 } from '@/lib/actions/profile-builder';
 import type { OwnedProfileSummary } from '@/lib/services/profile-builder';
 import { Button } from '@/components/ui/button';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -30,6 +31,7 @@ export function ProfileManager({
   profiles: OwnedProfileSummary[];
   limit: number;
 }) {
+  const ui = useUiCopy();
   const router = useRouter();
   const [showCreate, setShowCreate] = useState(profiles.length === 0);
   const [state, formAction, pending] = useActionState(
@@ -48,7 +50,12 @@ export function ProfileManager({
   }, [router, state]);
 
   const removeProfile = (profile: OwnedProfileSummary) => {
-    if (!window.confirm(`Delete “${profile.displayName}” permanently?`)) return;
+    if (
+      !window.confirm(
+        `${ui('Delete')} “${profile.displayName}” ${ui('permanently?')}`,
+      )
+    )
+      return;
 
     setDeletingId(profile.id);
     setDeleteMessage('');
@@ -67,13 +74,13 @@ export function ProfileManager({
         <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[11px] font-black tracking-[0.22em] text-white/45 uppercase">
-              Profiles
+              {ui('Profiles')}
             </p>
             <h1 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
-              Your public profiles
+              {ui('Your public profiles')}
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">
-              Manage independent pages for athletes, teams, or projects.
+              {ui('Manage independent pages for athletes, teams, or projects.')}
             </p>
           </div>
           <Button
@@ -83,14 +90,14 @@ export function ProfileManager({
             type="button"
           >
             <PlusIcon className="h-4 w-4" />
-            New profile
+            {ui('New profile')}
           </Button>
         </div>
       </div>
 
       <div className="flex items-center justify-between rounded-2xl border border-black/10 bg-white px-5 py-4 text-sm shadow-[0_14px_40px_rgba(21,21,21,0.04)]">
         <span className="font-medium">
-          {profiles.length} of {limit} profiles used
+          {profiles.length} {ui('of')} {limit} {ui('profiles used')}
         </span>
         {!canCreate ? (
           <span className="text-muted-foreground">
@@ -107,18 +114,18 @@ export function ProfileManager({
           className="grid gap-4 rounded-[1.75rem] border border-black/10 bg-white p-5 shadow-[0_18px_50px_rgba(21,21,21,0.06)] sm:grid-cols-2 sm:p-6"
         >
           <label className="space-y-2 text-sm font-semibold">
-            Profile name
+            {ui('Profile name')}
             <input
               autoFocus
               className="border-border bg-background focus:ring-primary/20 h-11 w-full rounded-lg border px-3 font-normal outline-none focus:ring-2"
               maxLength={120}
               name="displayName"
-              placeholder="Alex Morgan"
+              placeholder={ui('Athlete name')}
               required
             />
           </label>
           <label className="space-y-2 text-sm font-semibold">
-            Public address
+            {ui('Public address')}
             <div className="border-border focus-within:ring-primary/20 flex h-11 overflow-hidden rounded-lg border focus-within:ring-2">
               <span className="bg-muted/40 text-muted-foreground flex items-center border-r px-3 font-normal">
                 griit.me/
@@ -129,7 +136,7 @@ export function ProfileManager({
                 maxLength={32}
                 name="username"
                 pattern="[a-z0-9_]+"
-                placeholder="alex_morgan"
+                placeholder="athlete_username"
                 required
               />
             </div>
@@ -139,14 +146,14 @@ export function ProfileManager({
               {pending ? (
                 <CircleNotchIcon className="h-4 w-4 animate-spin" />
               ) : null}
-              {pending ? 'Creating…' : 'Create profile'}
+              {pending ? ui('Creating…') : ui('Create profile')}
             </Button>
             <Button
               onClick={() => setShowCreate(false)}
               type="button"
               variant="ghost"
             >
-              Cancel
+              {ui('Cancel')}
             </Button>
             {state.message ? (
               <p
@@ -208,20 +215,20 @@ export function ProfileManager({
                 size="sm"
               >
                 <Link href={`/dashboard/profiles/${profile.id}` as Route}>
-                  Manage
+                  {ui('Manage')}
                 </Link>
               </Button>
               <Button asChild size="sm" variant="outline">
                 <Link
                   href={`/${profile.username}`}
                   target="_blank"
-                  title="Open public page"
+                  title={ui('Open public page')}
                 >
                   <ArrowSquareOutIcon className="h-4 w-4" />
                 </Link>
               </Button>
               <Button
-                aria-label="Delete profile"
+                aria-label={ui('Delete profile')}
                 disabled={deletePending && deletingId === profile.id}
                 onClick={() => removeProfile(profile)}
                 size="sm"

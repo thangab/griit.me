@@ -7,6 +7,7 @@ import { ArrowRightIcon, CheckIcon, CopyIcon } from '@phosphor-icons/react';
 import { BillingIntervalToggle } from '@/components/billing/billing-interval-toggle';
 import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 import type { BillingInterval } from '@/lib/types/billing';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const planDetails = {
   free: {
@@ -51,6 +52,7 @@ export function PricingPlanCards({
 }: {
   isAuthenticated: boolean;
 }) {
+  const ui = useUiCopy();
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('year');
   const [codeCopied, setCodeCopied] = useState(false);
@@ -65,25 +67,26 @@ export function PricingPlanCards({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black tracking-[0.14em] text-[#151515] uppercase">
-                Limited launch offer
+                {ui('Limited launch offer')}
               </span>
               <span className="text-xs font-bold text-white/45">
-                Reserved for the first {launchOffer.athleteLimit} athletes
+                {ui('Reserved for the first')} {launchOffer.athleteLimit}{' '}
+                {ui('athletes')}
               </span>
             </div>
             <div className="mt-4 flex flex-wrap items-end gap-3">
               <p className="text-2xl font-black tracking-[-0.04em] sm:text-3xl">
-                Pro Annual for {launchOffer.firstYearPrice}
+                {ui('Pro Annual for')} {launchOffer.firstYearPrice}
               </p>
               <span className="pb-0.5 text-lg font-bold text-white/35 line-through">
                 {launchOffer.regularAnnualPrice}
               </span>
             </div>
             <p className="mt-2 text-sm leading-6 text-white/55">
-              {launchOffer.discount} the annual plan and{' '}
+              {launchOffer.discount} {ui('the annual plan and')}{' '}
               <strong className="text-white">
-                {launchOffer.savingsVsMonthly} less than 12 months of Pro
-                Monthly
+                {launchOffer.savingsVsMonthly}{' '}
+                {ui('less than 12 months of Pro Monthly')}
               </strong>
               .
             </p>
@@ -102,7 +105,9 @@ export function PricingPlanCards({
             type="button"
           >
             <p className="text-[9px] font-black tracking-[0.16em] text-white/40 uppercase">
-              {codeCopied ? 'Copied to clipboard' : 'Copy for Stripe checkout'}
+              {codeCopied
+                ? ui('Copied to clipboard')
+                : ui('Copy for Stripe checkout')}
             </p>
             <p className="mt-1 flex items-center justify-center gap-2 font-mono text-lg font-black tracking-[0.12em] text-[#a9ed35]">
               {launchOffer.code}
@@ -121,12 +126,13 @@ export function PricingPlanCards({
           onChange={setBillingInterval}
         />
         <p className="text-xs font-bold text-black/45">
-          Annual Pro:{' '}
+          {ui('Annual Pro:')}{' '}
           <span className="text-black/30 line-through">
             {launchOffer.regularAnnualPrice}
           </span>{' '}
-          → {launchOffer.firstYearPrice} with code {launchOffer.code}. Reserved
-          for the first {launchOffer.athleteLimit} athletes.
+          → {launchOffer.firstYearPrice} {ui('with code')} {launchOffer.code}.{' '}
+          {ui('Reserved for the first')} {launchOffer.athleteLimit}{' '}
+          {ui('athletes')}.
         </p>
       </div>
       <div className="mx-auto grid max-w-[1380px] gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -142,11 +148,11 @@ export function PricingPlanCards({
               : subscriptionPlans.free.price;
           const cadence = isPro
             ? billingInterval === 'year'
-              ? 'for the first year'
-              : 'per month'
+              ? ui('for the first year')
+              : ui('per month')
             : isTeams
-              ? 'tailored to your organization'
-              : 'forever';
+              ? ui('tailored to your organization')
+              : ui('forever');
           const internalHref = (
             isAuthenticated
               ? isPro
@@ -169,16 +175,16 @@ export function PricingPlanCards({
               {isPro ? (
                 <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
                   {billingInterval === 'year'
-                    ? 'Launch offer'
-                    : 'Best for growth'}
+                    ? ui('Launch offer')
+                    : ui('Best for growth')}
                 </span>
               ) : null}
               <p
                 className={`text-xs font-black tracking-[0.16em] uppercase ${isPro ? 'text-[#a9ed35]' : 'text-[#3157ff]'}`}
               >
-                {plan.eyebrow}
+                {ui(plan.eyebrow)}
               </p>
-              <h2 className="mt-5 text-3xl font-black">{plan.name}</h2>
+              <h2 className="mt-5 text-3xl font-black">{ui(plan.name)}</h2>
               <div className="mt-5 flex items-end gap-2">
                 <span className="text-5xl font-black tracking-[-0.055em]">
                   {price}
@@ -197,22 +203,23 @@ export function PricingPlanCards({
               {isPro && billingInterval === 'year' ? (
                 <div className="mt-4 rounded-2xl border border-[#a9ed35]/25 bg-[#a9ed35]/10 p-4">
                   <p className="text-sm font-black text-[#a9ed35]">
-                    Save {launchOffer.savingsVsMonthly} vs Pro Monthly
+                    {ui('Save')} {launchOffer.savingsVsMonthly}{' '}
+                    {ui('vs Pro Monthly')}
                   </p>
                   <p className="mt-1 text-xs text-white/55">
-                    40% less than paying monthly for 12 months. Use{' '}
-                    {launchOffer.code} at checkout.
+                    {ui('40% less than paying monthly for 12 months. Use')}{' '}
+                    {launchOffer.code} {ui('at checkout.')}
                   </p>
                 </div>
               ) : isPro ? (
                 <p className="mt-3 text-xs font-semibold text-white/45">
-                  Flexible monthly billing. Cancel anytime.
+                  {ui('Flexible monthly billing. Cancel anytime.')}
                 </p>
               ) : null}
               <p
                 className={`mt-5 max-w-md text-sm leading-6 ${isPro ? 'text-white/55' : 'text-black/50'}`}
               >
-                {plan.description}
+                {ui(plan.description)}
               </p>
               <ul className="mt-8 flex-1 space-y-3.5">
                 {plan.features.map((feature) => (
@@ -222,7 +229,7 @@ export function PricingPlanCards({
                     >
                       <CheckIcon className="h-3 w-3" weight="bold" />
                     </span>
-                    <span>{feature}</span>
+                    <span>{ui(feature)}</span>
                   </li>
                 ))}
               </ul>
@@ -231,7 +238,7 @@ export function PricingPlanCards({
                   className="mt-9 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#151515] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
                   href="mailto:hello@griit.me?subject=Griit%20Teams"
                 >
-                  Talk to our team
+                  {ui('Talk to our team')}
                   <ArrowRightIcon className="h-4 w-4" weight="bold" />
                 </a>
               ) : (
@@ -242,14 +249,14 @@ export function PricingPlanCards({
                   {isAuthenticated
                     ? isPro
                       ? billingInterval === 'year'
-                        ? 'Claim launch offer'
-                        : 'Choose monthly Pro'
-                      : 'Open dashboard'
+                        ? ui('Claim launch offer')
+                        : ui('Choose monthly Pro')
+                      : ui('Open dashboard')
                     : isPro
                       ? billingInterval === 'year'
-                        ? 'Start and claim offer'
-                        : 'Start and upgrade'
-                      : 'Build for free'}
+                        ? ui('Start and claim offer')
+                        : ui('Start and upgrade')
+                      : ui('Build for free')}
                   <ArrowRightIcon className="h-4 w-4" weight="bold" />
                 </Link>
               )}

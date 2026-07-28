@@ -62,7 +62,7 @@ export function DashboardSidebar({
       ? [
           {
             href: '/dashboard/admin/athletes',
-            label: t('dashboard.athleteReviews'),
+            labelKey: 'dashboard.nav.athleteReviews' as const,
             icon: 'ShieldCheck' as const,
           },
         ]
@@ -236,7 +236,7 @@ export function DashboardSidebar({
               <Link
                 key={item.href}
                 href={item.href as Route}
-                title={isCompact ? item.label : undefined}
+                title={isCompact ? t(item.labelKey) : undefined}
                 className={cn(
                   'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-white/50 transition hover:bg-white/[0.08] hover:text-white',
                   isActive &&
@@ -259,17 +259,7 @@ export function DashboardSidebar({
                       : 'w-36 opacity-100',
                   )}
                 >
-                  {item.icon === 'LayoutGrid'
-                    ? t('dashboard.nav.overview')
-                    : item.icon === 'PanelsTopLeft'
-                      ? t('dashboard.nav.design')
-                      : item.icon === 'BarChart3'
-                        ? t('dashboard.nav.analytics')
-                        : item.icon === 'UserRound'
-                          ? t('dashboard.nav.profiles')
-                          : item.icon === 'Settings'
-                            ? t('dashboard.nav.settings')
-                            : t('dashboard.nav.subscribe')}
+                  {t(item.labelKey)}
                 </span>
               </Link>
             );
@@ -293,12 +283,14 @@ export function DashboardSidebar({
             )}
           >
             <p className="text-sm font-semibold">
-              {isPro ? "You're all set" : 'Unlock more with Pro'}
+              {isPro
+                ? t('dashboard.pro.readyTitle')
+                : t('dashboard.pro.upgradeTitle')}
             </p>
             <p className="mt-1 text-sm leading-5 text-white/45">
               {isPro
-                ? 'Everything is unlocked. Keep building what comes next.'
-                : 'Unlock every template, advanced styles, deeper analytics, and up to 5 profiles.'}
+                ? t('dashboard.pro.readyDescription')
+                : t('dashboard.pro.upgradeDescription')}
             </p>
           </div>
           {!isPro ? (
@@ -321,7 +313,7 @@ export function DashboardSidebar({
                       : 'w-auto opacity-100',
                   )}
                 >
-                  Upgrade to Pro
+                  {t('dashboard.pro.upgradeAction')}
                 </span>
               </Link>
             </Button>

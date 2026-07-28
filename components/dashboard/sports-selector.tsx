@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { createSportSlug, type SportOption } from '@/lib/constants/sports';
 import { cn } from '@/lib/utils/cn';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 type SportsSelectorProps = {
   sports: readonly SportOption[];
@@ -27,6 +28,7 @@ export function SportsSelector({
   maxSelections,
   onChange,
 }: SportsSelectorProps) {
+  const ui = useUiCopy();
   const [query, setQuery] = useState('');
   const [customSports, setCustomSports] = useState<SportOption[]>([]);
   const allSports = useMemo(() => {
@@ -106,7 +108,7 @@ export function SportsSelector({
                 {sport.name}
                 {sport.isCustom ? (
                   <span className="border-primary/20 bg-background/70 rounded px-1 py-0.5 text-[8px] font-bold tracking-wide uppercase">
-                    Custom
+                    {ui('Custom')}
                   </span>
                 ) : null}
               </span>
@@ -131,9 +133,9 @@ export function SportsSelector({
       <div className="border-border bg-background focus-within:border-primary focus-within:ring-primary/10 flex h-11 items-center gap-2 rounded-lg border px-3 transition focus-within:ring-3">
         <MagnifyingGlassIcon className="text-muted-foreground h-4 w-4 shrink-0" />
         <input
-          aria-label="Search sports"
+          aria-label={ui('Search sports')}
           className="placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
-          placeholder="Search for a sport…"
+          placeholder={ui('Search for a sport…')}
           maxLength={32}
           type="search"
           value={query}
@@ -148,20 +150,20 @@ export function SportsSelector({
         <div className="mb-2 flex items-center justify-between gap-3">
           <div>
             <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.08em] uppercase">
-              {normalizedQuery ? 'Search results' : 'All sports'}
+              {normalizedQuery ? ui('Search results') : ui('All sports')}
             </p>
             {!normalizedQuery ? (
               <p className="text-muted-foreground mt-0.5 text-[11px]">
-                Most popular first
+                {ui('Most popular first')}
               </p>
             ) : null}
           </div>
           <div className="text-muted-foreground text-right text-[11px]">
             <p>
               {matchingSports.length}{' '}
-              {matchingSports.length === 1 ? 'sport' : 'sports'}
+              {matchingSports.length === 1 ? ui('sport') : ui('sports')}
             </p>
-            {reachedLimit ? <p>Selection limit reached</p> : null}
+            {reachedLimit ? <p>{ui('Selection limit reached')}</p> : null}
           </div>
         </div>
 
@@ -192,7 +194,7 @@ export function SportsSelector({
                       <span>{sport.name}</span>
                       {sport.isCustom ? (
                         <span className="border-border bg-muted text-muted-foreground rounded border px-1 py-0.5 text-[8px] font-bold tracking-wide uppercase">
-                          Custom
+                          {ui('Custom')}
                         </span>
                       ) : null}
                     </span>
@@ -208,7 +210,7 @@ export function SportsSelector({
             </div>
           ) : (
             <div className="border-border text-muted-foreground rounded-lg border border-dashed px-4 py-5 text-center text-xs">
-              No sport found for “{query.trim()}”.
+              {ui('No sport found for')} “{query.trim()}”.
             </div>
           )}
         </div>
@@ -226,10 +228,10 @@ export function SportsSelector({
           </span>
           <span className="min-w-0">
             <span className="block truncate text-xs font-semibold">
-              Add “{query.trim()}”
+              {ui('Add')} “{query.trim()}”
             </span>
             <span className="text-muted-foreground mt-0.5 block text-[11px]">
-              Create it as a new sport
+              {ui('Create it as a new sport')}
             </span>
           </span>
         </button>

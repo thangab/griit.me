@@ -118,7 +118,7 @@ export default async function HomePage() {
               href="/pricing#launch-offer"
             >
               <span className="rounded-full bg-[#a9ed35] px-2 py-1 text-[9px] tracking-[0.12em] text-[#151515] uppercase">
-                {locale === 'fr' ? 'Lancement' : 'Launch'}
+                Launch
               </span>
               {content.launchAnnual}{' '}
               <span className="text-black/35 line-through">

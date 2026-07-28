@@ -1,19 +1,23 @@
+'use client';
+
 import Link from 'next/link';
 import { LockSimpleIcon, UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import { Button } from '@/components/ui/button';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 export function ProfilesProGate() {
+  const ui = useUiCopy();
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 py-2 sm:py-6">
       <div className="text-center">
         <p className="text-[11px] font-black tracking-[0.22em] text-[#3157ff] uppercase">
-          Profiles
+          {ui('Profiles')}
         </p>
         <h1 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">
-          Manage multiple profiles
+          {ui('Manage multiple profiles')}
         </h1>
         <p className="text-muted-foreground mt-3">
-          Create and switch between independent public pages with Pro.
+          {ui('Create and switch between independent public pages with Pro.')}
         </p>
       </div>
 
@@ -22,11 +26,12 @@ export function ProfilesProGate() {
           <UsersThreeIcon className="h-9 w-9" weight="thin" />
         </span>
         <h2 className="mt-7 text-2xl font-semibold">
-          Multiple profiles are available on Pro
+          {ui('Multiple profiles are available on Pro')}
         </h2>
         <p className="text-muted-foreground mt-3 max-w-lg text-sm leading-6">
-          Your current profile remains fully accessible. Upgrade when you need
-          separate pages for other athletes, teams, or projects.
+          {ui(
+            'Your current profile remains fully accessible. Upgrade when you need separate pages for other athletes, teams, or projects.',
+          )}
         </p>
 
         <Button
@@ -36,7 +41,7 @@ export function ProfilesProGate() {
         >
           <Link href="/dashboard/subscribe">
             <LockSimpleIcon className="h-4 w-4" />
-            Upgrade to Pro
+            {ui('Upgrade to Pro')}
           </Link>
         </Button>
       </section>

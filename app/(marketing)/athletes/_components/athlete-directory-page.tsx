@@ -18,6 +18,8 @@ import {
   getAthleteDirectory,
   type AthleteDirectoryEntry,
 } from '@/lib/services/athlete-directory';
+import { getRequestLocale } from '@/lib/i18n/server';
+import type { Locale } from '@/lib/i18n/config';
 
 function withoutUnsplash(url: string) {
   if (!url) return '';
@@ -109,7 +111,13 @@ function HeaderDecoration({
   );
 }
 
-function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
+function AthleteCard({
+  athlete,
+  locale,
+}: {
+  athlete: AthleteDirectoryEntry;
+  locale: Locale;
+}) {
   const theme = getThemeRuntime(athlete.theme);
   const visibleSports = athlete.sports.slice(0, 3);
   const avatarUrl = withoutUnsplash(athlete.avatarUrl);
@@ -259,7 +267,9 @@ function AthleteCard({ athlete }: { athlete: AthleteDirectoryEntry }) {
                 color: theme.palette.accentText,
               }}
             >
-              <span className="truncate">View profile</span>
+              <span className="truncate">
+                {locale === 'fr' ? 'Voir le profil' : 'View profile'}
+              </span>
               {athlete.location ? (
                 <span className="flex min-w-0 items-center gap-1 opacity-75">
                   <MapPinIcon className="h-3.5 w-3.5 shrink-0" />
@@ -281,6 +291,8 @@ export async function AthleteDirectoryPage({
 }: {
   sportSlug?: string;
 }) {
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
   const directory = await getAthleteDirectory();
   const selectedSport = directory.sports.find(
     (sport) => sport.slug === sportSlug,
@@ -304,17 +316,25 @@ export async function AthleteDirectoryPage({
             href="/sign-up"
           >
             <SparkleIcon className="h-4 w-4 text-[#3157ff]" weight="fill" />
-            Create your own
+            {isFrench ? 'Créer mon profil' : 'Create your own'}
             <ArrowUpRightIcon className="h-3.5 w-3.5" weight="bold" />
           </Link>
           <h1 className="mt-7 text-[clamp(3.5rem,8vw,6.8rem)] leading-[0.88] font-black tracking-[-0.07em]">
-            {selectedSport ? selectedSport.name : 'Meet the athletes'}
+            {selectedSport
+              ? selectedSport.name
+              : isFrench
+                ? 'Athlètes à suivre'
+                : 'Meet the athletes'}
             <span className="text-[#3157ff]">.</span>
           </h1>
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-8 text-black/52">
             {selectedSport
-              ? `Discover ${selectedSport.name.toLowerCase()} profiles, current goals, and athlete stories on Griit.`
-              : 'Browse public athlete profiles for inspiration. Filter by sport and discover what everyone is working toward.'}
+              ? isFrench
+                ? `Découvrez les athlètes en ${selectedSport.name.toLowerCase()}, leurs prochains objectifs et le travail derrière leurs performances.`
+                : `Discover ${selectedSport.name.toLowerCase()} profiles, current goals, and athlete stories on Griit.`
+              : isFrench
+                ? 'Des parcours, des ambitions et des disciplines différentes. Filtrez par sport et découvrez ce que chaque athlète poursuit en ce moment.'
+                : 'Browse public athlete profiles for inspiration. Filter by sport and discover what everyone is working toward.'}
           </p>
 
           <AthleteSportFilter
@@ -329,12 +349,22 @@ export async function AthleteDirectoryPage({
           <div className="mb-8 flex items-end justify-between gap-5">
             <div>
               <p className="text-xs font-black tracking-[0.16em] text-[#3157ff] uppercase">
-                Public profiles
+                {isFrench ? 'Athlètes en mouvement' : 'Public profiles'}
               </p>
               <p className="mt-2 text-sm text-black/45">
                 {athletes.length}{' '}
-                {athletes.length === 1 ? 'athlete' : 'athletes'}
-                {selectedSport ? ` in ${selectedSport.name}` : ''}
+                {athletes.length === 1
+                  ? isFrench
+                    ? 'athlète'
+                    : 'athlete'
+                  : isFrench
+                    ? 'athlètes'
+                    : 'athletes'}
+                {selectedSport
+                  ? isFrench
+                    ? ` en ${selectedSport.name}`
+                    : ` in ${selectedSport.name}`
+                  : ''}
               </p>
             </div>
           </div>
@@ -342,7 +372,11 @@ export async function AthleteDirectoryPage({
           {athletes.length ? (
             <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
               {athletes.map((athlete) => (
-                <AthleteCard athlete={athlete} key={athlete.id} />
+                <AthleteCard
+                  athlete={athlete}
+                  locale={locale}
+                  key={athlete.id}
+                />
               ))}
             </div>
           ) : (
@@ -351,15 +385,21 @@ export async function AthleteDirectoryPage({
                 className="mx-auto h-10 w-10 text-[#3157ff]"
                 weight="duotone"
               />
-              <h2 className="mt-5 text-2xl font-black">No athlete here yet.</h2>
+              <h2 className="mt-5 text-2xl font-black">
+                {isFrench
+                  ? 'La ligne de départ est encore libre.'
+                  : 'No athlete here yet.'}
+              </h2>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-black/45">
-                Be the first athlete to publish a profile in this sport.
+                {isFrench
+                  ? 'Soyez le premier à partager votre parcours dans cette discipline.'
+                  : 'Be the first athlete to publish a profile in this sport.'}
               </p>
               <Link
                 className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-[#151515] px-5 text-sm font-bold text-white"
                 href="/sign-up"
               >
-                Create your profile
+                {isFrench ? 'Prendre le départ' : 'Create your profile'}
                 <ArrowRightIcon className="h-4 w-4" weight="bold" />
               </Link>
             </div>
@@ -371,17 +411,19 @@ export async function AthleteDirectoryPage({
         <div className="mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <div>
             <p className="text-xs font-black tracking-[0.18em] uppercase">
-              Join the directory
+              {isFrench ? 'Entrez dans le roster' : 'Join the directory'}
             </p>
             <h2 className="mt-5 max-w-4xl text-5xl leading-[0.9] font-black tracking-[-0.065em] sm:text-7xl">
-              Your story belongs here too.
+              {isFrench
+                ? 'Votre prochain objectif a sa place ici.'
+                : 'Your story belongs here too.'}
             </h2>
           </div>
           <Link
             className="inline-flex h-13 shrink-0 items-center gap-2 rounded-full bg-[#151515] px-7 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
             href="/sign-up"
           >
-            Build your athlete profile
+            {isFrench ? 'Créer mon profil' : 'Build your athlete profile'}
             <ArrowRightIcon className="h-4 w-4" weight="bold" />
           </Link>
         </div>

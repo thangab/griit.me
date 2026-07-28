@@ -25,6 +25,7 @@ import {
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getProfileBuilderState } from '@/lib/services/profile-builder';
 import { getOwnedProfileDirectoryReview } from '@/lib/services/athlete-directory-review';
+import { getRequestLocale } from '@/lib/i18n/server';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
 
@@ -34,10 +35,12 @@ function ProfilePreview({
   builder,
   profileId,
   showBranding,
+  locale,
 }: {
   builder: ProfileBuilderState;
   profileId: number;
   showBranding: boolean;
+  locale: 'en' | 'fr';
 }) {
   return (
     <aside className="flex h-full min-h-0 flex-col overflow-hidden rounded-[2rem] border border-black/10 bg-[#151515] shadow-[0_24px_70px_rgba(21,21,21,0.14)]">
@@ -57,7 +60,8 @@ function ProfilePreview({
           variant="outline"
         >
           <Link href={`/dashboard/profiles/${profileId}/design` as Route}>
-            Edit <Pencil className="h-4 w-4" />
+            {locale === 'fr' ? 'Modifier' : 'Edit'}{' '}
+            <Pencil className="h-4 w-4" />
           </Link>
         </Button>
       </div>
@@ -79,43 +83,61 @@ export default async function ProfileOverviewPage({
   const profileId = Number((await params).profileId);
   if (!Number.isInteger(profileId) || profileId <= 0) notFound();
 
-  const [builder, subscription, directoryReview] = await Promise.all([
+  const [builder, subscription, directoryReview, locale] = await Promise.all([
     getProfileBuilderState(profileId),
     getSubscriptionState(),
     getOwnedProfileDirectoryReview(profileId),
+    getRequestLocale(),
   ]);
   if (!builder) notFound();
+  const t = (english: string, french: string) =>
+    locale === 'fr' ? french : english;
 
   const checklist = [
     {
-      label: 'Add a profile picture',
-      description: 'Make your page immediately recognizable.',
+      label: t('Add a profile picture', 'Ajoutez une photo de profil'),
+      description: t(
+        'Make your page immediately recognizable.',
+        'Rendez votre page immédiatement reconnaissable.',
+      ),
       complete: Boolean(builder.profile.avatarUrl),
       icon: Image,
     },
     {
-      label: 'Write your bio',
-      description: 'Give visitors a quick introduction.',
+      label: t('Write your bio', 'Rédigez votre bio'),
+      description: t(
+        'Give visitors a quick introduction.',
+        'Présentez-vous rapidement à vos visiteurs.',
+      ),
       complete: Boolean(builder.profile.bio.trim()),
       icon: FileText,
     },
     {
-      label: 'Add your first block',
-      description: 'Add any content block to start building your page.',
+      label: t('Add your first block', 'Ajoutez votre premier bloc'),
+      description: t(
+        'Add any content block to start building your page.',
+        'Ajoutez un bloc de contenu pour commencer votre page.',
+      ),
       complete: builder.blocks.some((block) => block.isEnabled),
       icon: SquaresFour,
     },
     {
-      label: 'Add your first goal',
-      description: 'Show your audience what you are working toward.',
+      label: t('Add your first goal', 'Ajoutez votre premier objectif'),
+      description: t(
+        'Show your audience what you are working toward.',
+        'Montrez à votre audience ce que vous préparez.',
+      ),
       complete: builder.goals.some(
         (goal) => goal.isEnabled && Boolean(goal.title.trim()),
       ),
       icon: Target,
     },
     {
-      label: 'Add a social media',
-      description: 'Connect one of your main social profiles.',
+      label: t('Add a social media', 'Ajoutez un réseau social'),
+      description: t(
+        'Connect one of your main social profiles.',
+        'Connectez l’un de vos principaux réseaux.',
+      ),
       complete: builder.socialLinks.some(
         (social) => social.isEnabled && Boolean(social.url.trim()),
       ),
@@ -135,18 +157,22 @@ export default async function ProfileOverviewPage({
           <div className="relative">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-[11px] font-black tracking-[0.22em] text-white/45 uppercase">
-                Profile overview
+                {t('Profile overview', 'Vue d’ensemble du profil')}
               </p>
               <span className="inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[10px] font-black tracking-[0.14em] text-white/75 uppercase">
-                {subscription.plan === 'pro' ? 'Pro plan' : 'Free plan'}
+                {subscription.plan === 'pro'
+                  ? t('Pro plan', 'Plan Pro')
+                  : t('Free plan', 'Plan gratuit')}
               </span>
             </div>
             <h1 className="mt-8 max-w-xl text-4xl font-black tracking-[-0.055em] sm:text-5xl">
               {builder.profile.displayName}
             </h1>
             <p className="mt-4 max-w-lg text-sm leading-6 text-white/55 sm:text-base">
-              Build a page that tells your story, highlights your goals, and
-              grows with your audience.
+              {t(
+                'Build a page that tells your story, highlights your goals, and grows with your audience.',
+                'Créez une page qui raconte votre histoire, met en valeur vos objectifs et évolue avec votre audience.',
+              )}
             </p>
           </div>
         </div>
@@ -167,13 +193,18 @@ export default async function ProfileOverviewPage({
           <Card className="rounded-[1.75rem] border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
             <CardHeader>
               <div className="flex items-center justify-between gap-4">
-                <CardTitle>Complete your profile</CardTitle>
+                <CardTitle>
+                  {t('Complete your profile', 'Complétez votre profil')}
+                </CardTitle>
                 <span className="shrink-0 rounded-full bg-[#eef2ff] px-2.5 py-1 text-xs font-black text-[#3157ff]">
                   {completedChecklistItems}/{checklist.length}
                 </span>
               </div>
               <CardDescription className="text-black/50">
-                A few quick improvements to make your page ready to share.
+                {t(
+                  'A few quick improvements to make your page ready to share.',
+                  'Quelques améliorations rapides avant de partager votre page.',
+                )}
               </CardDescription>
             </CardHeader>
             <div className="mb-4 h-2 overflow-hidden rounded-full bg-black/[0.06]">
@@ -234,9 +265,12 @@ export default async function ProfileOverviewPage({
 
           <Card className="rounded-[1.75rem] border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
             <CardHeader>
-              <CardTitle>Quick actions</CardTitle>
+              <CardTitle>{t('Quick actions', 'Actions rapides')}</CardTitle>
               <CardDescription className="text-black/50">
-                Edit, analyze, or configure this profile.
+                {t(
+                  'Edit, analyze, or configure this profile.',
+                  'Modifiez, analysez ou configurez ce profil.',
+                )}
               </CardDescription>
             </CardHeader>
             <div className="space-y-3">
@@ -245,7 +279,7 @@ export default async function ProfileOverviewPage({
                 className="w-full rounded-full bg-[#151515] text-white hover:bg-[#3157ff]"
               >
                 <Link href={`/dashboard/profiles/${profileId}/design` as Route}>
-                  Open editor
+                  {t('Open editor', 'Ouvrir l’éditeur')}
                 </Link>
               </Button>
               <Button
@@ -256,7 +290,7 @@ export default async function ProfileOverviewPage({
                 <Link
                   href={`/dashboard/profiles/${profileId}/analytics` as Route}
                 >
-                  View analytics
+                  {t('View analytics', 'Voir les statistiques')}
                 </Link>
               </Button>
               <Button
@@ -267,7 +301,7 @@ export default async function ProfileOverviewPage({
                 <Link
                   href={`/dashboard/profiles/${profileId}/settings` as Route}
                 >
-                  Profile settings
+                  {t('Profile settings', 'Réglages du profil')}
                 </Link>
               </Button>
             </div>
@@ -279,6 +313,7 @@ export default async function ProfileOverviewPage({
           builder={builder}
           profileId={profileId}
           showBranding={!subscription.isActive}
+          locale={locale}
         />
       </div>
     </div>

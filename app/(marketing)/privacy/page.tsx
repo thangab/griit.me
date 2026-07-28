@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalDocument } from '../_components/legal-document';
+import { getRequestLocale } from '@/lib/i18n/server';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — Griit',
@@ -8,7 +9,188 @@ export const metadata: Metadata = {
     'Learn what information Griit collects, why we use it, and the choices available to you.',
 };
 
-export default function PrivacyPage() {
+function FrenchPrivacyContent() {
+  return (
+    <>
+      <h2>1. Qui sommes-nous ?</h2>
+      <p>
+        Griit fournit des outils pour créer et gérer des profils publics
+        d’athlètes. Dans cette politique, « Griit », « nous » et « notre »
+        désignent le service Griit. Vous pouvez nous contacter à l’adresse{' '}
+        <a href="mailto:support@griit.me">support@griit.me</a>.
+      </p>
+
+      <h2>2. Informations que vous nous transmettez</h2>
+      <p>Nous traitons les informations que vous choisissez de fournir :</p>
+      <ul>
+        <li>
+          adresse email, données d’authentification et paramètres du compte ;
+        </li>
+        <li>
+          noms, identifiants, biographies, lieux, sports, objectifs, réussites,
+          activités, liens et comptes sociaux ;
+        </li>
+        <li>
+          images, vidéos, sponsors, partenariats et autres contenus importés ou
+          liés à un profil ;
+        </li>
+        <li>messages et informations envoyés au support ;</li>
+        <li>
+          statut d’abonnement et références de facturation. Les coordonnées
+          bancaires complètes sont traitées par Stripe et ne sont pas stockées
+          par Griit.
+        </li>
+      </ul>
+
+      <h2>3. Informations collectées automatiquement</h2>
+      <p>
+        Lorsqu’une personne consulte ou utilise un profil public, nous pouvons
+        collecter les vues, clics sur les liens et blocs, horodatages, site
+        référent, campagnes UTM, localisation approximative, navigateur, système
+        d’exploitation et type d’appareil.
+      </p>
+      <p>
+        Griit utilise un identifiant visiteur aléatoire conservé jusqu’à un an
+        dans un cookie HTTP-only. Avant stockage, cet identifiant est transformé
+        en empreinte irréversible. Il sert à compter les visiteurs uniques et
+        limiter les doublons ; les propriétaires de profils n’ont accès ni à cet
+        identifiant ni à l’identité directe du visiteur.
+      </p>
+      <p>
+        Nous recevons aussi les informations techniques nécessaires à la
+        sécurité et au fonctionnement du produit, comme les métadonnées de
+        requêtes, événements de sécurité et journaux de diagnostic.
+      </p>
+      <p>
+        Sur le site vitrine, Google Analytics ne collecte des données de
+        navigation qu’après votre accord. Il n’est pas chargé si vous refusez.
+      </p>
+
+      <h2>4. Utilisation des informations</h2>
+      <ul>
+        <li>fournir, sécuriser et maintenir Griit ;</li>
+        <li>authentifier les comptes et enregistrer les modifications ;</li>
+        <li>publier les profils selon leurs paramètres de visibilité ;</li>
+        <li>
+          afficher des statistiques agrégées aux propriétaires de profils ;
+        </li>
+        <li>gérer les abonnements et fournir le support client ;</li>
+        <li>détecter les abus, fraudes et problèmes techniques ;</li>
+        <li>améliorer le produit et communiquer les changements importants.</li>
+      </ul>
+
+      <h2>5. Profils publics et annuaire</h2>
+      <p>
+        Un profil publié est public par nature. Son identifiant, son contenu,
+        ses images, ses liens et ses objectifs peuvent être consultés, partagés
+        ou indexés par des moteurs de recherche. Si l’annuaire est activé, le
+        profil peut aussi apparaître dans l’annuaire des athlètes Griit. Vous
+        pouvez modifier ces réglages depuis le tableau de bord.
+      </p>
+
+      <h2>6. Prestataires</h2>
+      <p>
+        Nous utilisons notamment Supabase pour l’authentification, la base de
+        données et le stockage ; Stripe pour la facturation ; Google Analytics
+        pour la mesure consentie du site vitrine ; ainsi que nos prestataires
+        d’hébergement et de diffusion. Google traite également des informations
+        si vous choisissez la connexion Google. Chaque prestataire applique ses
+        propres engagements de confidentialité.
+      </p>
+      <p>
+        Un profil peut contenir des liens ou intégrations YouTube, Vimeo,
+        TikTok, Instagram ou Strava. Leur chargement peut permettre à ces
+        services de collecter des informations selon leur propre politique.
+      </p>
+
+      <h2>7. Partage des informations</h2>
+      <p>
+        Nous ne vendons pas vos informations personnelles. Nous les partageons
+        uniquement pour exploiter le service, traiter les paiements, suivre vos
+        instructions, protéger Griit et ses utilisateurs ou respecter une
+        obligation légale valable. Elles peuvent être transférées dans le cadre
+        d’une fusion, acquisition, levée de fonds ou cession.
+      </p>
+
+      <h2>8. Conservation et suppression</h2>
+      <p>
+        Nous conservons les données du compte et des profils tant que le compte
+        est actif, puis pendant la durée raisonnablement nécessaire au service,
+        aux obligations légales, à la résolution des litiges et à la prévention
+        des abus. Certaines informations peuvent subsister temporairement dans
+        des sauvegardes chiffrées.
+      </p>
+      <p>
+        Vous pouvez supprimer un profil ou votre compte complet depuis les
+        paramètres. La suppression du compte retire les profils publics et lance
+        la suppression des données et médias associés, sous réserve des durées
+        de conservation légales et opérationnelles.
+      </p>
+
+      <h2>9. Vos choix et vos droits</h2>
+      <p>
+        Selon votre lieu de résidence, vous pouvez demander l’accès, la
+        rectification, l’export, la limitation ou la suppression de vos données,
+        ou vous opposer à certains traitements. Pour toute demande, écrivez à{' '}
+        <a href="mailto:support@griit.me">support@griit.me</a>. Une vérification
+        d’identité peut être nécessaire.
+      </p>
+      <p>
+        Vous pouvez refuser la mesure d’audience du site vitrine. Ce choix est
+        enregistré dans votre navigateur et peut être réinitialisé en effaçant
+        les données du site Griit.
+      </p>
+
+      <h2>10. Mineurs</h2>
+      <p>
+        Si vous n’avez pas l’âge requis pour consentir seul à un service en
+        ligne, un parent ou représentant légal doit autoriser votre utilisation
+        de Griit. Il peut nous contacter pour consulter ou supprimer les
+        informations d’un jeune athlète.
+      </p>
+
+      <h2>11. Sécurité et transferts internationaux</h2>
+      <p>
+        Nous appliquons des mesures techniques et organisationnelles
+        raisonnables, sans qu’aucun service en ligne puisse garantir une
+        sécurité absolue. Griit et ses prestataires peuvent traiter des données
+        dans d’autres pays, avec les garanties prévues par la loi applicable.
+      </p>
+
+      <h2>12. Modifications de cette politique</h2>
+      <p>
+        Cette politique peut évoluer avec Griit. Nous publierons la nouvelle
+        version ici et modifierons la date ci-dessus. Une information
+        supplémentaire sera fournie si un changement affecte sensiblement vos
+        droits.
+      </p>
+
+      <h2>13. Contact</h2>
+      <p>
+        Envoyez vos questions ou demandes à{' '}
+        <a href="mailto:support@griit.me">support@griit.me</a>, ou utilisez
+        notre <Link href="/support">page de support</Link>.
+      </p>
+    </>
+  );
+}
+
+export default async function PrivacyPage() {
+  const locale = await getRequestLocale();
+
+  if (locale === 'fr') {
+    return (
+      <LegalDocument
+        locale="fr"
+        eyebrow="Informations légales"
+        title="La confidentialité, en toute clarté."
+        description="Cette politique explique les informations traitées par Griit lorsque vous créez, publiez ou consultez un profil d’athlète, ainsi que leur utilisation."
+      >
+        <FrenchPrivacyContent />
+      </LegalDocument>
+    );
+  }
+
   return (
     <LegalDocument
       eyebrow="Legal"

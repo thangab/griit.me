@@ -45,15 +45,16 @@ export default async function MarketingLayout({
               {t('marketing.launch')}
             </span>
             <span>
-              Pro Annual{' '}
+              {t('marketing.launchAnnual')}{' '}
               <span className="text-white/40 line-through">
                 {launchOffer.regularAnnualPrice}
               </span>{' '}
-              <strong>{launchOffer.firstYearPrice}</strong> for the first{' '}
-              {launchOffer.athleteLimit} athletes
+              <strong>{launchOffer.firstYearPrice}</strong>{' '}
+              {t('marketing.launchForFirst')} {launchOffer.athleteLimit}{' '}
+              {t('marketing.launchAthletes')}
               <span className="hidden text-white/55 sm:inline">
                 {' '}
-                · {launchOffer.savingsVsMonthly} less than Pro Monthly
+                · {launchOffer.savingsVsMonthly} {t('marketing.launchSavings')}
               </span>
             </span>
             <span className="font-black text-[#a9ed35] group-hover:underline">

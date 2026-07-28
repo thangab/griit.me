@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 interface LegalDocumentProps {
+  locale?: 'en' | 'fr';
   eyebrow: string;
   title: string;
   description: string;
@@ -9,11 +10,13 @@ interface LegalDocumentProps {
 }
 
 export function LegalDocument({
+  locale = 'en',
   eyebrow,
   title,
   description,
   children,
 }: LegalDocumentProps) {
+  const isFrench = locale === 'fr';
   return (
     <main className="px-5 py-16 sm:px-8 sm:py-24 lg:px-12">
       <div className="mx-auto max-w-4xl">
@@ -28,7 +31,9 @@ export function LegalDocument({
             {description}
           </p>
           <p className="mt-5 text-xs font-semibold tracking-[0.08em] text-black/40 uppercase">
-            Last updated July 24, 2026
+            {isFrench
+              ? 'Dernière mise à jour : 24 juillet 2026'
+              : 'Last updated July 24, 2026'}
           </p>
         </div>
 
@@ -37,17 +42,19 @@ export function LegalDocument({
         <div className="flex flex-col gap-4 rounded-[2rem] bg-[#151515] p-7 text-white sm:flex-row sm:items-center sm:justify-between sm:p-9">
           <div>
             <p className="text-lg font-black tracking-[-0.03em]">
-              Still have a question?
+              {isFrench ? 'Une question ?' : 'Still have a question?'}
             </p>
             <p className="mt-1 text-sm leading-6 text-white/55">
-              We are here to help with privacy, account, and product questions.
+              {isFrench
+                ? 'Nous sommes disponibles pour vos questions sur la confidentialité, votre compte et le produit.'
+                : 'We are here to help with privacy, account, and product questions.'}
             </p>
           </div>
           <Link
             className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-white px-6 text-sm font-bold text-[#151515] transition-transform hover:-translate-y-0.5"
             href="/support"
           >
-            Contact support
+            {isFrench ? 'Contacter le support' : 'Contact support'}
           </Link>
         </div>
       </div>

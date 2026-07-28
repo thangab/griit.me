@@ -78,6 +78,7 @@ import {
   goalDateDisplays,
   type GoalDateDisplay,
 } from '@/lib/utils/goal-date';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const mobilePanels = [
   { id: 'content', label: 'Content', icon: FileText },
@@ -739,6 +740,7 @@ function StyleSection({
   className?: string;
   children: React.ReactNode;
 }) {
+  const ui = useUiCopy();
   return (
     <details
       className={cn(
@@ -752,9 +754,9 @@ function StyleSection({
           <Icon className="h-4 w-4" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold">{title}</span>
+          <span className="block text-sm font-semibold">{ui(title)}</span>
           <span className="text-muted-foreground block truncate text-xs">
-            {description}
+            {ui(description)}
           </span>
         </span>
         <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
@@ -775,11 +777,12 @@ function AppearanceRange({
   onValueChange: (value: number) => void;
   onCommit: () => void;
 }) {
+  const ui = useUiCopy();
   return (
     <label className="border-border bg-muted/30 flex items-center gap-3 rounded-lg border px-3 py-2.5">
-      <span className="min-w-0 flex-1 text-xs font-medium">{label}</span>
+      <span className="min-w-0 flex-1 text-xs font-medium">{ui(label)}</span>
       <input
-        aria-label={label}
+        aria-label={ui(label)}
         className="accent-primary w-24 sm:w-28"
         max="100"
         min="0"
@@ -852,17 +855,19 @@ function HeaderBackgroundControls({
   onCoverChange: (coverUrl: string) => void;
   onThemeChange: (settings: ProfileThemeSettings) => void;
 }) {
+  const ui = useUiCopy();
+
   return (
     <div className="border-border bg-muted/20 space-y-3 rounded-lg border p-3">
       <div>
-        <p className="text-xs font-semibold">Background</p>
+        <p className="text-xs font-semibold">{ui('Background')}</p>
         <p className="text-muted-foreground mt-0.5 text-[11px]">
-          Choose what appears behind your profile header.
+          {ui('Choose what appears behind your profile header.')}
         </p>
       </div>
 
       <div
-        aria-label="Header background type"
+        aria-label={ui('Header background type')}
         className="bg-muted grid grid-cols-3 gap-1 rounded-lg p-1"
       >
         {headerBackgroundOptions.map((option) => (
@@ -887,7 +892,7 @@ function HeaderBackgroundControls({
               })
             }
           >
-            {option.label}
+            {ui(option.label)}
           </button>
         ))}
       </div>
@@ -911,16 +916,18 @@ function HeaderBackgroundControls({
       {themeSettings.coverType === 'image' ? (
         <div className="border-border bg-background space-y-3 rounded-lg border p-3">
           <div>
-            <p className="text-xs font-semibold">Photo overlay</p>
+            <p className="text-xs font-semibold">{ui('Photo overlay')}</p>
             <p className="text-muted-foreground mt-0.5 text-[11px]">
-              Choose the overlay color and its intensity for readable text.
+              {ui(
+                'Choose the overlay color and its intensity for readable text.',
+              )}
             </p>
           </div>
           <label className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium">Overlay color</span>
+            <span className="text-xs font-medium">{ui('Overlay color')}</span>
             <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
               <input
-                aria-label="Photo overlay color"
+                aria-label={ui('Photo overlay color')}
                 className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
                 type="color"
                 value={themeSettings.coverOverlayColor}
@@ -938,13 +945,13 @@ function HeaderBackgroundControls({
           </label>
           <label className="block">
             <span className="flex items-center justify-between gap-3 text-xs font-medium">
-              <span>Overlay intensity</span>
+              <span>{ui('Overlay intensity')}</span>
               <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-[11px]">
                 {Math.round(themeSettings.coverOverlayOpacity)}%
               </span>
             </span>
             <input
-              aria-label="Photo overlay intensity"
+              aria-label={ui('Photo overlay intensity')}
               className="accent-primary mt-2 w-full"
               max="100"
               min="0"
@@ -963,10 +970,10 @@ function HeaderBackgroundControls({
 
       {themeSettings.coverType === 'color' ? (
         <label className="border-border bg-background flex items-center justify-between gap-3 rounded-lg border p-3">
-          <span className="text-xs font-medium">Background color</span>
+          <span className="text-xs font-medium">{ui('Background color')}</span>
           <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
             <input
-              aria-label="Header background color"
+              aria-label={ui('Header background color')}
               className="h-6 w-7 cursor-pointer border-0 bg-transparent p-0"
               type="color"
               value={themeSettings.coverColor}
@@ -994,7 +1001,7 @@ function HeaderBackgroundControls({
               className="flex items-center justify-between gap-3"
               key={color.key}
             >
-              <span className="text-xs font-medium">{color.label}</span>
+              <span className="text-xs font-medium">{ui(color.label)}</span>
               <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
                 <input
                   aria-label={color.label}
@@ -1028,29 +1035,30 @@ function HeaderBackgroundControls({
         <summary className="hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
           <span className="min-w-0">
             <span className="block text-xs font-semibold">
-              Background transition
+              {ui('Background transition')}
             </span>
             <span className="text-muted-foreground mt-0.5 block text-[11px]">
-              Transition color covers {themeSettings.headerSheetCoverage}% of
-              the header
+              {ui('Transition color covers')}{' '}
+              {themeSettings.headerSheetCoverage}% {ui('of the header')}
             </span>
           </span>
           <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/transition:rotate-180" />
         </summary>
         <div className="border-border space-y-3 border-t p-3">
           <p className="text-muted-foreground text-[11px] leading-4">
-            This is separate from photo darkness. It controls the color at the
-            bottom of the header.
+            {ui(
+              'This is separate from photo darkness. It controls the color at the bottom of the header.',
+            )}
           </p>
           <label className="block">
             <span className="flex items-center justify-between gap-3 text-xs font-medium">
-              <span>Color coverage</span>
+              <span>{ui('Color coverage')}</span>
               <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-[11px]">
                 {Math.round(themeSettings.headerSheetCoverage)}%
               </span>
             </span>
             <input
-              aria-label="Header transition color coverage"
+              aria-label={ui('Header transition color coverage')}
               className="accent-primary mt-2 w-full"
               max="100"
               min="0"
@@ -1064,13 +1072,15 @@ function HeaderBackgroundControls({
               }
             />
             <span className="text-muted-foreground mt-1 flex justify-between text-[10px]">
-              <span>None</span>
-              <span>Half</span>
-              <span>Full</span>
+              <span>{ui('None')}</span>
+              <span>{ui('Half')}</span>
+              <span>{ui('Full')}</span>
             </span>
           </label>
           <label className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium">Transition color</span>
+            <span className="text-xs font-medium">
+              {ui('Transition color')}
+            </span>
             <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1.5">
               <input
                 aria-label="Header content background color"
@@ -1132,6 +1142,7 @@ function TemplateSelector({
   onUndo: () => void;
   onRedo: () => void;
 }) {
+  const ui = useUiCopy();
   const [state, formAction, pending] = useActionState(
     updateProfileTemplateAction,
     initialTemplateState,
@@ -1270,26 +1281,26 @@ function TemplateSelector({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
-            Styles
+            {ui('Styles')}
           </p>
-          <p className="mt-2 font-semibold">Visual settings</p>
+          <p className="mt-2 font-semibold">{ui('Visual settings')}</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button
-            aria-label="Undo style change"
+            aria-label={ui('Undo style change')}
             className="border-border text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
             disabled={!canUndo}
-            title="Undo"
+            title={ui('Undo')}
             type="button"
             onClick={onUndo}
           >
             <Undo className="h-4 w-4" />
           </button>
           <button
-            aria-label="Redo style change"
+            aria-label={ui('Redo style change')}
             className="border-border text-muted-foreground hover:bg-muted hover:text-foreground flex h-8 w-8 items-center justify-center rounded-md border transition-colors disabled:cursor-not-allowed disabled:opacity-40"
             disabled={!canRedo}
-            title="Redo"
+            title={ui('Redo')}
             type="button"
             onClick={onRedo}
           >
@@ -1471,8 +1482,9 @@ function TemplateSelector({
           defaultOpen
         >
           <p className="text-muted-foreground text-xs leading-5">
-            Selecting a template replaces the current visual settings. Your
-            content and customized wording stay in place.
+            {ui(
+              'Selecting a template replaces the current visual settings. Your content and customized wording stay in place.',
+            )}
           </p>
           <button
             className="border-primary/30 bg-muted/20 hover:border-primary/60 grid w-full grid-cols-[92px_minmax(0,1fr)] items-center gap-3 rounded-xl border p-2 text-left transition-colors"
@@ -1489,7 +1501,7 @@ function TemplateSelector({
                 {selectedTemplate.description}
               </span>
               <span className="text-primary mt-2 block text-xs font-semibold">
-                Change template
+                {ui('Change template')}
               </span>
             </span>
           </button>
@@ -1498,10 +1510,10 @@ function TemplateSelector({
             <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
               <span className="min-w-0 flex-1">
                 <span className="block text-xs font-semibold">
-                  Template wording
+                  {ui('Template wording')}
                 </span>
                 <span className="text-muted-foreground mt-0.5 block text-[11px]">
-                  Customize every visible label
+                  {ui('Customize every visible label')}
                 </span>
               </span>
               <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
@@ -1509,7 +1521,7 @@ function TemplateSelector({
             <div className="border-primary/20 space-y-3 border-t p-3">
               {templateWordingFields.map((field) => (
                 <label key={field.key} className="block space-y-1.5">
-                  <span className="text-xs font-medium">{field.label}</span>
+                  <span className="text-xs font-medium">{ui(field.label)}</span>
                   <input
                     className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
                     maxLength={field.maxLength}
@@ -1529,7 +1541,7 @@ function TemplateSelector({
           ? createPortal(
               <div className="fixed inset-0 z-[70]">
                 <button
-                  aria-label="Close template gallery"
+                  aria-label={ui('Close template gallery')}
                   className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]"
                   type="button"
                   onClick={() => setShowTemplatePicker(false)}
@@ -1537,13 +1549,17 @@ function TemplateSelector({
                 <aside className="border-border bg-background absolute inset-y-0 right-0 w-full max-w-2xl overflow-y-auto border-l shadow-2xl">
                   <div className="bg-background/95 sticky top-0 z-10 flex items-start justify-between gap-4 border-b p-5 backdrop-blur">
                     <div>
-                      <p className="text-lg font-semibold">Choose a template</p>
+                      <p className="text-lg font-semibold">
+                        {ui('Choose a template')}
+                      </p>
                       <p className="text-muted-foreground mt-1 text-sm">
-                        Your content and customized wording stay in place.
+                        {ui(
+                          'Your content and customized wording stay in place.',
+                        )}
                       </p>
                     </div>
                     <button
-                      aria-label="Close"
+                      aria-label={ui('Close')}
                       className="text-muted-foreground hover:bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
                       type="button"
                       onClick={() => setShowTemplatePicker(false)}
@@ -1593,7 +1609,7 @@ function TemplateSelector({
                           </span>
                           <span className="text-muted-foreground mt-1 line-clamp-2 px-1 text-[10px] leading-4 sm:text-xs">
                             {template.description}
-                            {isLocked ? ' Preview only on Free.' : ''}
+                            {isLocked ? ` ${ui('Preview only on Free.')}` : ''}
                           </span>
                         </button>
                       );
@@ -1612,9 +1628,9 @@ function TemplateSelector({
           defaultOpen
         >
           <div>
-            <p className="text-xs font-semibold">Layout</p>
+            <p className="text-xs font-semibold">{ui('Layout')}</p>
             <p className="text-muted-foreground mt-0.5 text-[11px]">
-              Choose how your identity is arranged.
+              {ui('Choose how your identity is arranged.')}
             </p>
           </div>
           <div className="grid grid-cols-5 gap-1.5">
@@ -1712,9 +1728,11 @@ function TemplateSelector({
           <details className="border-border bg-muted/20 group/effects overflow-hidden rounded-lg border">
             <summary className="hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-3 p-3 transition-colors [&::-webkit-details-marker]:hidden">
               <span className="min-w-0">
-                <span className="block text-xs font-semibold">Decorations</span>
+                <span className="block text-xs font-semibold">
+                  {ui('Decorations')}
+                </span>
                 <span className="text-muted-foreground mt-0.5 block text-[11px]">
-                  Optional shapes and textures
+                  {ui('Optional shapes and textures')}
                 </span>
               </span>
               <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open/effects:rotate-180" />
@@ -1722,9 +1740,9 @@ function TemplateSelector({
 
             <div className="border-border space-y-4 border-t p-3">
               <div>
-                <p className="text-xs font-semibold">Geometry</p>
+                <p className="text-xs font-semibold">{ui('Geometry')}</p>
                 <p className="text-muted-foreground mt-0.5 text-[11px]">
-                  Choose a graphic shape or keep it clean.
+                  {ui('Choose a graphic shape or keep it clean.')}
                 </p>
                 <div
                   className={cn(
@@ -1792,9 +1810,9 @@ function TemplateSelector({
               </div>
 
               <div>
-                <p className="text-xs font-semibold">Texture</p>
+                <p className="text-xs font-semibold">{ui('Texture')}</p>
                 <p className="text-muted-foreground mt-0.5 text-[11px]">
-                  Add depth behind the profile content.
+                  {ui('Add depth behind the profile content.')}
                 </p>
                 <div
                   className={cn(
@@ -1857,7 +1875,7 @@ function TemplateSelector({
           </details>
 
           <div className="border-border bg-muted/30 rounded-lg border p-3">
-            <p className="text-xs font-medium">Profile picture shape</p>
+            <p className="text-xs font-medium">{ui('Profile picture shape')}</p>
             <div className="mt-3 grid grid-cols-4 gap-1.5">
               {avatarShapes.map((shape) => {
                 const option = avatarShapeOptions.find(
@@ -1908,13 +1926,13 @@ function TemplateSelector({
 
           <label className="border-border bg-muted/30 block rounded-lg border p-3">
             <span className="flex items-center justify-between gap-3 text-xs font-medium">
-              <span>Profile picture size</span>
+              <span>{ui('Profile picture size')}</span>
               <span className="text-muted-foreground font-mono">
                 {themeSettings.headerAvatarSize}px
               </span>
             </span>
             <input
-              aria-label="Profile picture size"
+              aria-label={ui('Profile picture size')}
               className="accent-primary mt-3 w-full"
               max="144"
               min="56"
@@ -1945,8 +1963,9 @@ function TemplateSelector({
             <div className="border-primary/20 bg-primary/5 text-primary flex items-start gap-2 rounded-lg border p-3 text-xs leading-5">
               <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <span>
-                Custom colors are available on Pro. You can still use every
-                quick preset below.
+                {ui(
+                  'Custom colors are available on Pro. You can still use every quick preset below.',
+                )}
               </span>
             </div>
           ) : null}
@@ -1963,9 +1982,9 @@ function TemplateSelector({
                 className="border-border rounded-lg border p-3"
               >
                 <div className="mb-2.5">
-                  <p className="text-xs font-semibold">{group.title}</p>
+                  <p className="text-xs font-semibold">{ui(group.title)}</p>
                   <p className="text-muted-foreground mt-0.5 text-[11px]">
-                    {group.description}
+                    {ui(group.description)}
                   </p>
                 </div>
                 <div className="space-y-1.5">
@@ -1974,7 +1993,9 @@ function TemplateSelector({
                       key={color.key}
                       className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2"
                     >
-                      <span className="text-xs font-medium">{color.label}</span>
+                      <span className="text-xs font-medium">
+                        {ui(color.label)}
+                      </span>
                       <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
                         <input
                           aria-label={`${group.title} ${color.label} color`}
@@ -2004,14 +2025,16 @@ function TemplateSelector({
 
             <div className="border-border order-first rounded-lg border p-3">
               <div className="mb-2.5">
-                <p className="text-xs font-semibold">Header</p>
+                <p className="text-xs font-semibold">{ui('Header')}</p>
                 <p className="text-muted-foreground mt-0.5 text-[11px]">
-                  Independent from the text colors used on the rest of the page
+                  {ui(
+                    'Independent from the text colors used on the rest of the page',
+                  )}
                 </p>
               </div>
               <div className="space-y-1.5">
                 <label className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2">
-                  <span className="text-xs font-medium">Text</span>
+                  <span className="text-xs font-medium">{ui('Text')}</span>
                   <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
                     <input
                       aria-label="Header text color"
@@ -2035,7 +2058,9 @@ function TemplateSelector({
                   </span>
                 </label>
                 <label className="bg-muted/45 flex items-center justify-between gap-3 rounded-md px-2.5 py-2">
-                  <span className="text-xs font-medium">Secondary text</span>
+                  <span className="text-xs font-medium">
+                    {ui('Secondary text')}
+                  </span>
                   <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
                     <input
                       aria-label="Header secondary text color"
@@ -2066,12 +2091,12 @@ function TemplateSelector({
             <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
               <span className="min-w-0 flex-1">
                 <span className="block text-xs font-semibold">
-                  Quick presets
+                  {ui('Quick presets')}
                 </span>
                 <span className="text-muted-foreground block text-[11px]">
                   {colorPresets.find(
                     (preset) => preset.id === themeSettings.colorPreset,
-                  )?.name ?? 'Custom colors'}
+                  )?.name ?? ui('Custom colors')}
                 </span>
               </span>
               <ChevronDown className="text-muted-foreground h-4 w-4 transition-transform group-open/presets:rotate-180" />
@@ -2116,7 +2141,7 @@ function TemplateSelector({
                     ))}
                   </span>
                   <span className="mt-2 block text-xs font-medium">
-                    {preset.name}
+                    {ui(preset.name)}
                   </span>
                 </button>
               ))}
@@ -2147,10 +2172,10 @@ function TemplateSelector({
               >
                 <span>
                   <span className="block text-sm font-semibold">
-                    {preset.name}
+                    {ui(preset.name)}
                   </span>
                   <span className="text-muted-foreground text-xs">
-                    {preset.sample}
+                    {ui(preset.sample)}
                   </span>
                 </span>
                 {preset.proOnly ? <Lock className="h-3.5 w-3.5" /> : null}
@@ -2187,7 +2212,7 @@ function TemplateSelector({
             )}
           >
             <span className="flex items-center gap-1.5 text-xs font-medium">
-              Block border color
+              {ui('Block border color')}
               {!hasProStyles ? <Lock className="h-3 w-3" /> : null}
             </span>
             <span className="border-border bg-background flex items-center gap-2 rounded-md border px-2 py-1">
@@ -2238,7 +2263,7 @@ function TemplateSelector({
                       handleThemeChange({ ...themeSettings, blockShadowStyle })
                     }
                   >
-                    {blockShadowStyle} shadow
+                    {ui(`${blockShadowStyle} shadow`)}
                     {isLocked ? <Lock className="h-3 w-3" /> : null}
                   </button>
                 );
@@ -2255,7 +2280,7 @@ function TemplateSelector({
           />
 
           <div className="border-border border-t pt-3">
-            <p className="text-xs font-semibold">Gallery layout</p>
+            <p className="text-xs font-semibold">{ui('Gallery layout')}</p>
             <div className="bg-muted mt-2 grid grid-cols-3 gap-1 rounded-lg p-1">
               {galleryLayouts.map((galleryLayout) => {
                 const isLocked = !hasProStyles && galleryLayout !== 'grid';
@@ -2275,7 +2300,7 @@ function TemplateSelector({
                       handleThemeChange({ ...themeSettings, galleryLayout })
                     }
                   >
-                    {galleryLayout}
+                    {ui(galleryLayout)}
                     {galleryLayout !== 'grid' ? ' · Pro' : ''}
                   </button>
                 );
@@ -2325,6 +2350,8 @@ function StylesPanel({
   onUndo: () => void;
   onRedo: () => void;
 }) {
+  const ui = useUiCopy();
+
   return (
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:overscroll-contain xl:[contain:size]">
       <TemplateSelector
@@ -2348,10 +2375,11 @@ function StylesPanel({
       />
 
       <div className="border-border bg-card rounded-xl border p-4">
-        <p className="text-sm font-semibold">Need more?</p>
+        <p className="text-sm font-semibold">{ui('Need more?')}</p>
         <p className="text-muted-foreground mt-2 text-sm">
-          Pro unlocks every template, font, custom color, decoration, profile
-          picture shape, gallery layout, and solid shadow.
+          {ui(
+            'Pro unlocks every template, font, custom color, decoration, profile picture shape, gallery layout, and solid shadow.',
+          )}
         </p>
       </div>
     </aside>
@@ -2365,6 +2393,8 @@ function MobilePanelBar({
   activePanel: MobilePanel;
   onSelect: (panel: MobilePanel) => void;
 }) {
+  const ui = useUiCopy();
+
   return (
     <div className="border-border bg-background/95 sticky top-0 z-30 -mx-4 mb-4 border-b px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 xl:hidden">
       <div className="bg-muted grid grid-cols-3 gap-1 rounded-xl p-1">
@@ -2385,7 +2415,7 @@ function MobilePanelBar({
               onClick={() => onSelect(panel.id)}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="truncate">{panel.label}</span>
+              <span className="truncate">{ui(panel.label)}</span>
             </button>
           );
         })}
@@ -2399,6 +2429,7 @@ function AutosaveIndicator({
 }: {
   states: Record<AutosaveSource, AutosaveState>;
 }) {
+  const ui = useUiCopy();
   const values = Object.values(states);
   const error = values.find((state) => state.status === 'error');
   const status: AutosaveStatus = values.some(
@@ -2434,12 +2465,12 @@ function AutosaveIndicator({
       )}
       <span className="truncate">
         {status === 'waiting'
-          ? 'Unsaved changes…'
+          ? ui('Unsaved changes…')
           : status === 'saving'
-            ? 'Saving…'
+            ? ui('Saving…')
             : status === 'error'
-              ? error?.message || 'Save failed. Edit to retry.'
-              : 'Saved'}
+              ? error?.message || ui('Save failed. Edit to retry.')
+              : ui('Saved')}
       </span>
     </div>
   );

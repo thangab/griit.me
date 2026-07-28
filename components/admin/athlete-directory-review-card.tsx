@@ -17,6 +17,7 @@ import {
 import type { AdminDirectoryReview } from '@/lib/services/athlete-directory-review';
 import { Button } from '@/components/ui/button';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const initialState: DirectoryReviewActionState = {
   success: false,
@@ -28,6 +29,7 @@ export function AthleteDirectoryReviewCard({
 }: {
   review: AdminDirectoryReview;
 }) {
+  const ui = useUiCopy();
   const router = useRouter();
   const [state, action, pending] = useActionState(
     moderateAthleteDirectoryAction,
@@ -46,10 +48,10 @@ export function AthleteDirectoryReviewCard({
         : ClockCountdownIcon;
   const statusLabel =
     review.status === 'approved'
-      ? 'Approved'
+      ? ui('Approved')
       : review.status === 'rejected'
-        ? 'Updates needed'
-        : 'Awaiting review';
+        ? ui('Updates needed')
+        : ui('Awaiting review');
 
   return (
     <article className="overflow-hidden rounded-[1.75rem] border border-black/10 bg-white shadow-[0_18px_50px_rgba(21,21,21,0.05)]">
@@ -83,22 +85,23 @@ export function AthleteDirectoryReviewCard({
               griit.me/{review.username}
             </p>
             <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold text-black/45">
-              <span>{review.isPublished ? 'Live' : 'Draft'}</span>
+              <span>{review.isPublished ? ui('Live') : ui('Draft')}</span>
               <span aria-hidden="true">·</span>
               <span>
                 {review.isDiscoverable
-                  ? 'Discovery enabled'
-                  : 'Discovery disabled'}
+                  ? ui('Discovery enabled')
+                  : ui('Discovery disabled')}
               </span>
               <span aria-hidden="true">·</span>
               <span>
-                Submitted {new Date(review.submittedAt).toLocaleDateString()}
+                {ui('Submitted')}{' '}
+                {new Date(review.submittedAt).toLocaleDateString()}
               </span>
             </div>
           </div>
           <Button
             asChild
-            aria-label="Open public profile"
+            aria-label={ui('Open public profile')}
             size="sm"
             variant="outline"
           >
@@ -118,13 +121,15 @@ export function AthleteDirectoryReviewCard({
           <input name="profileId" type="hidden" value={review.profileId} />
           <label className="block">
             <span className="text-xs font-bold text-black/55">
-              Feedback if changes are required
+              {ui('Feedback if changes are required')}
             </span>
             <textarea
               className="mt-2 min-h-20 w-full resize-y rounded-xl border border-black/10 bg-[#fafaf8] px-3 py-2.5 text-sm transition outline-none focus:border-[#3157ff] focus:ring-2 focus:ring-[#3157ff]/10"
               maxLength={500}
               name="rejectionReason"
-              placeholder="Explain what should be updated before another review."
+              placeholder={ui(
+                'Explain what should be updated before another review.',
+              )}
             />
           </label>
           <div className="flex flex-wrap gap-2">
@@ -143,7 +148,7 @@ export function AthleteDirectoryReviewCard({
               ) : (
                 <CheckCircleIcon className="h-4 w-4" />
               )}
-              Approve
+              {ui('Approve')}
             </Button>
             <Button
               className="rounded-full"
@@ -155,7 +160,7 @@ export function AthleteDirectoryReviewCard({
               variant="outline"
             >
               <XCircleIcon className="h-4 w-4" />
-              Request changes
+              {ui('Request changes')}
             </Button>
           </div>
           {state.message ? (

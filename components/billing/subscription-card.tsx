@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react';
 import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 import { Button } from '@/components/ui/button';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 import { BillingIntervalToggle } from './billing-interval-toggle';
 import type { BillingInterval, SubscriptionState } from '@/lib/types/billing';
 
@@ -23,6 +24,7 @@ export function SubscriptionCard({
   annualCheckoutAvailable: boolean;
   initialBillingInterval?: BillingInterval;
 }) {
+  const ui = useUiCopy();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
@@ -41,7 +43,7 @@ export function SubscriptionCard({
   const handleCheckout = async () => {
     setError(null);
     if (billingInterval === 'year' && !annualCheckoutAvailable) {
-      setError('The annual Stripe price is not configured yet.');
+      setError(ui('The annual Stripe price is not configured yet.'));
       return;
     }
 
@@ -57,13 +59,13 @@ export function SubscriptionCard({
     try {
       data = await response.json();
     } catch {
-      setError('Unable to parse server response.');
+      setError(ui('Unable to parse server response.'));
       setIsLoading(false);
       return;
     }
 
     if (!response.ok || !data.url) {
-      setError(data?.error || 'Unable to start checkout.');
+      setError(data?.error || ui('Unable to start checkout.'));
       setIsLoading(false);
       return;
     }
@@ -79,28 +81,31 @@ export function SubscriptionCard({
           <div className="max-w-xl">
             <div className="flex flex-wrap items-center gap-3">
               <span className="rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#151515] uppercase">
-                Active plan
+                {ui('Active plan')}
               </span>
               <span className="text-xs font-semibold text-white/45">
                 {subscription.billingInterval === 'year'
-                  ? 'Annual billing'
-                  : 'Monthly billing'}
+                  ? ui('Annual billing')
+                  : ui('Monthly billing')}
               </span>
             </div>
             <h2 className="mt-5 text-4xl font-black tracking-[-0.055em]">
-              You&apos;re on Griit Pro.
+              {ui("You're on Griit Pro.")}
             </h2>
             <p className="mt-3 text-sm leading-6 text-white/55">
-              Every premium template, design control, advanced insight, and
-              priority support tool is ready for your profiles.
+              {ui(
+                'Every premium template, design control, advanced insight, and priority support tool is ready for your profiles.',
+              )}
             </p>
           </div>
           <div className="min-w-52 rounded-2xl border border-white/10 bg-white/8 p-5">
-            <p className="text-xs font-bold text-white/45">Your subscription</p>
+            <p className="text-xs font-bold text-white/45">
+              {ui('Your subscription')}
+            </p>
             <p className="mt-2 text-2xl font-black">{currentPriceLabel}</p>
             <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-[#a9ed35]">
               <ShieldCheckIcon className="h-4 w-4" weight="fill" />
-              Pro access enabled
+              {ui('Pro access enabled')}
             </p>
           </div>
         </div>
@@ -114,18 +119,21 @@ export function SubscriptionCard({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-black tracking-[0.16em] text-black/40 uppercase">
-              Your current plan
+              {ui('Your current plan')}
             </p>
-            <h2 className="mt-3 text-3xl font-black">Free</h2>
-            <p className="mt-1 text-sm font-semibold text-black/45">Forever</p>
+            <h2 className="mt-3 text-3xl font-black">{ui('Free')}</h2>
+            <p className="mt-1 text-sm font-semibold text-black/45">
+              {ui('Forever')}
+            </p>
           </div>
           <div className="rounded-full bg-[#eef2ff] px-3 py-1 text-xs font-bold text-[#3157ff]">
-            Active
+            {ui('Active')}
           </div>
         </div>
         <p className="mt-5 text-sm leading-6 text-black/50">
-          A complete public profile with the essentials to start sharing your
-          athlete story.
+          {ui(
+            'A complete public profile with the essentials to start sharing your athlete story.',
+          )}
         </p>
         <ul className="mt-7 flex-1 space-y-3 text-sm text-black/60">
           {currentPlanData.features.map((feature) => (
@@ -134,12 +142,12 @@ export function SubscriptionCard({
                 className="mt-0.5 h-4 w-4 shrink-0 text-[#3157ff]"
                 weight="bold"
               />
-              {feature}
+              {ui(feature)}
             </li>
           ))}
         </ul>
         <p className="mt-7 text-xs leading-5 text-black/35">
-          You can keep using Free for as long as you want.
+          {ui('You can keep using Free for as long as you want.')}
         </p>
       </section>
 
@@ -150,8 +158,8 @@ export function SubscriptionCard({
             <div>
               <p className="text-[10px] font-black tracking-[0.18em] text-[#a9ed35] uppercase">
                 {billingInterval === 'year'
-                  ? 'Limited launch offer'
-                  : 'Upgrade your profile'}
+                  ? ui('Limited launch offer')
+                  : ui('Upgrade your profile')}
               </p>
               <h2 className="mt-3 text-4xl font-black tracking-[-0.055em]">
                 Griit Pro
@@ -159,13 +167,14 @@ export function SubscriptionCard({
             </div>
             <span className="rounded-full bg-[#a9ed35] px-3 py-1.5 text-[10px] font-black tracking-[0.1em] text-[#151515] uppercase">
               {billingInterval === 'year'
-                ? `${launchOffer.discount} year one`
-                : 'Best for growth'}
+                ? `${launchOffer.discount} ${ui('year one')}`
+                : ui('Best for growth')}
             </span>
           </div>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/55">
-            Build more profiles, unlock every visual option, and understand
-            exactly what turns visitors into opportunities.
+            {ui(
+              'Build more profiles, unlock every visual option, and understand exactly what turns visitors into opportunities.',
+            )}
           </p>
           <div className="mt-7 rounded-[1.5rem] bg-white p-2 text-[#151515]">
             <BillingIntervalToggle
@@ -193,8 +202,8 @@ export function SubscriptionCard({
                 )}
                 <p className="mt-2 text-xs font-semibold text-black/45">
                   {billingInterval === 'year'
-                    ? `${launchOffer.savingsVsMonthly} less than 12 months of Pro Monthly`
-                    : 'Flexible monthly billing · cancel anytime'}
+                    ? `${launchOffer.savingsVsMonthly} ${ui('less than 12 months of Pro Monthly')}`
+                    : ui('Flexible monthly billing · cancel anytime')}
                 </p>
               </div>
               {billingInterval === 'year' ? (
@@ -203,7 +212,7 @@ export function SubscriptionCard({
                     Save {launchOffer.savingsVsMonthly} vs monthly
                   </p>
                   <p className="mt-0.5 text-[10px] font-bold uppercase">
-                    First {launchOffer.athleteLimit} athletes
+                    {ui('First')} {launchOffer.athleteLimit} {ui('athletes')}
                   </p>
                 </div>
               ) : null}
@@ -224,14 +233,14 @@ export function SubscriptionCard({
               >
                 <span>
                   <span className="block text-[9px] font-black tracking-[0.13em] text-black/35 uppercase">
-                    Enter at Stripe checkout
+                    {ui('Enter at Stripe checkout')}
                   </span>
                   <span className="mt-0.5 block font-mono text-sm font-black tracking-[0.1em]">
                     {launchOffer.code}
                   </span>
                 </span>
                 <span className="flex items-center gap-1.5 text-xs font-black text-[#3157ff]">
-                  {codeCopied ? 'Copied' : 'Copy code'}
+                  {codeCopied ? ui('Copied') : ui('Copy code')}
                   {codeCopied ? (
                     <CheckIcon className="h-4 w-4" weight="bold" />
                   ) : (
@@ -248,7 +257,7 @@ export function SubscriptionCard({
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#a9ed35] text-[#151515]">
                   <CheckIcon className="h-3 w-3" weight="bold" />
                 </span>
-                {feature}
+                {ui(feature)}
               </li>
             ))}
           </ul>
@@ -260,14 +269,14 @@ export function SubscriptionCard({
           >
             <LightningIcon className="h-4 w-4" weight="fill" />
             {isLoading
-              ? 'Redirecting…'
+              ? ui('Redirecting…')
               : billingInterval === 'year'
                 ? `Claim Pro for ${launchOffer.firstYearPrice}`
-                : 'Get Pro monthly'}
+                : ui('Get Pro monthly')}
           </Button>
           <p className="mt-3 flex items-center justify-center gap-2 text-center text-[11px] text-white/35">
             <ShieldCheckIcon className="h-4 w-4" weight="bold" />
-            Secure checkout powered by Stripe
+            {ui('Secure checkout powered by Stripe')}
           </p>
           {error ? (
             <p className="mt-3 text-center text-sm font-semibold text-[#ff8c8c]">

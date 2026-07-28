@@ -125,105 +125,109 @@ const en = {
 } as const;
 
 const fr = {
-  badge: 'Le link in bio conçu pour les athlètes',
+  badge: 'Le lien en bio des sportifs.',
   heroLine1: 'Votre prochain objectif.',
-  heroLine2: "Votre parcours d'athlète",
-  heroAccent: 'mérite sa page.',
+  heroLine2: 'Votre parcours',
+  heroAccent: 'sportif.',
   heroDescription:
-    'Créez un profil public puissant autour de vos objectifs, de vos réussites et de la suite de votre parcours.',
-  createProfile: "Créer mon profil d'athlète",
-  exploreTemplates: 'Découvrir les templates',
-  launchAnnual: 'Pro annuel',
+    'Objectifs, résultats, entraînements, sponsors : réunissez tout votre parcours sur un profil qui vous ressemble et donne envie de suivre la suite.',
+  createProfile: 'Créer mon profil',
+  exploreTemplates: 'Voir les templates',
+  launchAnnual: 'Pro Annual',
   firstAthletes: 'premiers athlètes',
   benefits: [
-    'Gratuit pour commencer',
-    'Pour tous les sports',
-    'Pensé pour mobile',
-    'Sans code',
+    '0 $ pour se lancer',
+    'Tous sports, tous niveaux',
+    'Mobile-first',
+    'Zéro code',
   ],
   journey: [
     [
-      "Mettez l'objectif en avant",
-      'Donnez une vraie raison de suivre votre parcours.',
+      'Annoncez votre prochain objectif',
+      'Donnez à votre audience une raison de suivre la progression.',
     ],
     [
-      'Affirmez votre identité',
-      'Construisez un profil qui ne ressemble qu’à vous.',
+      'Posez votre identité',
+      'Créez un profil reconnaissable au premier regard.',
     ],
-    ['Montrez le travail', 'Réunissez résultats, entraînements et contenus.'],
     [
-      'Créez des opportunités',
-      "Transformez l'attention en partenariats et en soutien.",
+      'Montrez le travail derrière le résultat',
+      'Rassemblez entraînements, performances et contenus au même endroit.',
+    ],
+    [
+      'Ouvrez le jeu',
+      'Transformez votre visibilité en contacts, soutien et partenariats.',
     ],
   ],
-  editorEyebrow: 'Construit autour de votre histoire',
-  editorTitle1: 'Tout ce qu’il vous faut.',
-  editorTitle2: 'Un éditeur clair.',
+  editorEyebrow: 'Votre parcours, votre espace',
+  editorTitle1: 'Tout votre profil.',
+  editorTitle2: 'Un seul studio.',
   editorDescription:
-    'Structurez votre profil, organisez vos contenus et visualisez chaque changement en direct. Sans code, sans outils dispersés et sans mauvaise surprise.',
-  editorCta: "Créer mon profil d'athlète",
-  featuresEyebrow: "Bien plus qu'un link in bio",
-  featuresTitle: "Tout ce qu'il faut pour raconter votre parcours d'athlète.",
+    'Ajoutez vos contenus, construisez votre identité visuelle et voyez chaque changement en live. Aucun code, aucun outil dispersé, juste votre parcours au bon format.',
+  editorCta: 'Lancer mon profil',
+  featuresEyebrow: "Plus qu'un link in bio",
+  featuresTitle:
+    'Tout le nécessaire pour montrer l’athlète derrière la performance.',
   features: [
     [
-      'Votre prochain objectif en premier',
-      'Affichez clairement ce que vous visez dès le premier écran, avec une date, un compte à rebours et un lien dédié.',
+      'Votre prochain objectif, dès le premier écran',
+      'Affichez clairement la performance que vous visez avec une date, un countdown et un lien dédié.',
     ],
     [
-      "Construisez votre identité d'athlète",
-      'Choisissez une direction visuelle complète, puis adaptez chaque détail à votre personnalité et à votre discipline.',
+      'Un personal branding qui vous ressemble',
+      'Choisissez un template fort, puis adaptez chaque détail à votre personnalité, votre discipline et votre énergie.',
     ],
     [
-      'Racontez toute votre histoire',
-      'Réunissez réussites, activités, photos, vidéos, liens et coulisses de votre progression.',
+      'Montrez plus que le résultat final',
+      'Réunissez achievements, activités, photos, vidéos et coulisses de votre progression.',
     ],
     [
-      'Mesurez votre impact',
-      'Suivez les vues, les clics, les sources de trafic, votre audience et l’engagement de chaque bloc.',
+      'Pilotez votre progression avec les analytics',
+      'Suivez les vues, les clics, les sources de trafic et les contenus qui font vraiment réagir votre audience.',
     ],
     [
-      "Transformez l'attention en opportunités",
-      'Présentez vos sponsors, partagez vos offres affiliées et montrez clairement que vous êtes ouvert aux partenariats.',
+      'Transformez l’attention en opportunités',
+      'Mettez vos sponsors en avant, partagez vos offres et indiquez clairement que vous êtes ouvert aux collaborations.',
     ],
     [
-      'Conçu pour tous les sports',
-      'Running, HYROX, musculation, cyclisme, sports de combat, sports collectifs, coaching et bien plus.',
+      'Tous sports. Tous niveaux. Une seule ambition.',
+      'Running, HYROX, gym, cycling, sports de combat, sports collectifs, coaching et tout ce qui vous fait bouger.',
     ],
   ],
-  templatesEyebrow: 'Chaque athlète est différent',
-  templatesTitle: 'Un profil à la hauteur de votre ambition.',
+  templatesEyebrow: 'Votre énergie, votre direction',
+  templatesTitle: 'Un template aussi fort que votre ambition.',
   templatesDescription:
-    'Partez d’une direction visuelle complète, puis adaptez chaque mot, chaque couleur et chaque bloc à votre histoire.',
-  templatesCta: 'Voir tous les templates',
-  analyticsEyebrow: 'Développez votre présence',
-  analyticsTitle: 'Comprenez ce qui engage votre audience.',
+    'Choisissez une base qui donne le ton, puis personnalisez chaque mot, couleur et bloc pour construire un profil vraiment à vous.',
+  templatesCta: 'Explorer les templates',
+  analyticsEyebrow: 'Pilotez votre présence',
+  analyticsTitle: 'Voyez ce qui fait bouger votre audience.',
   analyticsDescription:
-    'Suivez les vues, les clics, les sources de trafic et le comportement de votre audience. Identifiez les objectifs et contenus qui génèrent un véritable engagement.',
+    'Suivez les vues, les clics et les sources de trafic. Repérez les objectifs, contenus et partenariats qui créent le plus d’engagement.',
   analyticsStats: [
     'Vues du profil',
     'Taux de clic',
     'Visiteurs uniques',
     'Clics sur les blocs',
   ],
-  pricingEyebrow: 'Des tarifs simples',
-  pricingTitle: 'Commencez gratuitement. Évoluez avec vos objectifs.',
+  pricingEyebrow: 'Des offres sans prise de tête',
+  pricingTitle: 'Start free. Passez Pro quand votre ambition grandit.',
   launchOffer: 'Offre de lancement pour les',
   withCode: 'avec le code',
   saveCompared: 'Économisez',
   comparedMonthly: 'par rapport à 12 mois de Pro mensuel.',
-  compareFeatures: 'Comparer toutes les fonctionnalités',
-  faqEyebrow: 'Vos questions, nos réponses',
-  faqTitle: 'Tout savoir avant de commencer.',
+  compareFeatures: 'Comparer toutes les offres',
+  faqEyebrow: 'Avant le départ',
+  faqTitle: 'Les réponses avant votre première rep.',
   faqDescription:
-    "L'essentiel pour créer, publier et développer votre profil d'athlète.",
+    'Tout ce qu’il faut savoir pour créer, publier et faire grandir votre profil.',
   faq: [
     [
       'Puis-je créer et publier un profil gratuitement ?',
-      'Oui. Le plan Free inclut un profil public, tous les blocs essentiels, quatre templates, les styles de base et les statistiques nécessaires pour démarrer.',
+      'Oui. Le plan Free inclut un profil public, tous les blocs essentiels, quatre templates, les styles de base et les analytics nécessaires pour prendre le départ.',
     ],
     [
       'Griit est-il réservé aux athlètes professionnels ?',
-      'Non. Griit accompagne tous les niveaux, de la première compétition au développement d’une présence professionnelle.',
+      'Non. Griit est fait pour tous les niveaux : du premier dossard au circuit pro, tant qu’il y a un objectif à poursuivre et une histoire à partager.',
     ],
     [
       'Puis-je utiliser Griit pour n’importe quel sport ?',
@@ -231,11 +235,11 @@ const fr = {
     ],
     [
       'Jusqu’où puis-je personnaliser mon profil ?',
-      'Vous pouvez modifier le contenu, les textes, le template et la direction visuelle. Pro débloque tous les templates, typographies, couleurs, formes, textures et réglages avancés.',
+      'Vous pouvez modifier le contenu, les textes, le template et toute la direction visuelle. Pro débloque l’ensemble des templates, typographies, couleurs, formes, textures et réglages avancés.',
     ],
     [
       'Quelles statistiques sont incluses ?',
-      'Free inclut les vues, visiteurs uniques, clics et taux de clic. Pro ajoute les analyses détaillées de l’audience, des campagnes, réseaux sociaux et blocs.',
+      'Free inclut les vues, visiteurs uniques, clics et taux de clic. Pro ajoute des analytics détaillées sur l’audience, les campagnes, les réseaux et chaque bloc.',
     ],
     [
       'Puis-je gérer plusieurs profils ?',
@@ -254,7 +258,8 @@ const fr = {
       'Griit Teams est pensé pour les clubs, académies, agences, coachs et managers avec un espace collaboratif sur mesure.',
     ],
   ],
-  finalTitle: 'Donnez une vraie place à votre prochain objectif.',
+  finalTitle:
+    'Votre prochain objectif mérite plus qu’une ligne dans votre bio.',
 } as const;
 
 export function getMarketingHomeContent(locale: Locale) {

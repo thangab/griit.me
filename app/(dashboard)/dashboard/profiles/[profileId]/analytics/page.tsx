@@ -14,6 +14,7 @@ import {
   type AnalyticsFilters,
 } from '@/lib/services/analytics';
 import { canAccessFeature, getSubscriptionState } from '@/lib/services/billing';
+import { getRequestLocale } from '@/lib/i18n/server';
 
 type Props = {
   params: Promise<{ profileId: string }>;
@@ -64,14 +65,17 @@ export default async function ProfileAnalyticsPage({
     getAnalyticsDashboardData(profileId, filters),
     getSubscriptionState(),
   ]);
+  const isFrench = (await getRequestLocale()) === 'fr';
 
   if (!data) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Analytics</CardTitle>
+          <CardTitle>{isFrench ? 'Statistiques' : 'Analytics'}</CardTitle>
           <CardDescription>
-            Profile not found or no analytics are available yet.
+            {isFrench
+              ? 'Profil introuvable ou aucune statistique n’est encore disponible.'
+              : 'Profile not found or no analytics are available yet.'}
           </CardDescription>
         </CardHeader>
       </Card>

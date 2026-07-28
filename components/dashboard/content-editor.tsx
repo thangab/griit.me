@@ -42,6 +42,7 @@ import {
   achievementTypeOptions,
   type AchievementType,
 } from '@/lib/constants/achievements';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -139,6 +140,7 @@ function EditorSection({
   defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
+  const ui = useUiCopy();
   return (
     <details
       className="border-border bg-card group overflow-hidden rounded-xl border"
@@ -149,9 +151,9 @@ function EditorSection({
           <Icon className="h-4 w-4" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold">{title}</span>
+          <span className="block text-sm font-semibold">{ui(title)}</span>
           <span className="text-muted-foreground block truncate text-xs">
-            {description}
+            {ui(description)}
           </span>
         </span>
         <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
@@ -178,15 +180,16 @@ function Field({
   value?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }) {
+  const ui = useUiCopy();
   return (
     <label className="space-y-1.5">
-      <span className="text-xs font-medium">{label}</span>
+      <span className="text-xs font-medium">{ui(label)}</span>
       <input
         className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
         name={name}
         type={type}
         defaultValue={defaultValue}
-        placeholder={placeholder}
+        placeholder={placeholder ? ui(placeholder) : undefined}
         value={value}
         onChange={onChange}
       />
@@ -209,14 +212,15 @@ function TextareaField({
   value?: string;
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 }) {
+  const ui = useUiCopy();
   return (
     <label className="space-y-1.5">
-      <span className="text-xs font-medium">{label}</span>
+      <span className="text-xs font-medium">{ui(label)}</span>
       <textarea
         className="border-border bg-background focus:border-primary min-h-20 w-full resize-none rounded-md border px-3 py-2 text-sm transition outline-none"
         name={name}
         defaultValue={defaultValue}
-        placeholder={placeholder}
+        placeholder={placeholder ? ui(placeholder) : undefined}
         value={value}
         onChange={onChange}
       />
@@ -233,13 +237,14 @@ function AchievementTypeField({
   defaultType: AchievementType;
   defaultCustomLabel: string;
 }) {
+  const ui = useUiCopy();
   const [type, setType] = useState<AchievementType>(defaultType);
   const [customLabel, setCustomLabel] = useState(defaultCustomLabel);
 
   return (
     <div className="space-y-3">
       <label className="space-y-1.5">
-        <span className="text-xs font-medium">Type</span>
+        <span className="text-xs font-medium">{ui('Type')}</span>
         <select
           className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
           name={`achievementType${number}`}
@@ -248,14 +253,14 @@ function AchievementTypeField({
         >
           {achievementTypeOptions.map((option) => (
             <option key={option.value} value={option.value}>
-              {option.label}
+              {ui(option.label)}
             </option>
           ))}
         </select>
       </label>
       {type === 'other' ? (
         <label className="space-y-1.5">
-          <span className="text-xs font-medium">Custom type name</span>
+          <span className="text-xs font-medium">{ui('Custom type name')}</span>
           <input
             className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
             name={`achievementTypeLabel${number}`}
@@ -282,6 +287,7 @@ function GoalEditor({
   goal: ProfileBuilderState['goals'][number] | undefined;
   number: number;
 }) {
+  const ui = useUiCopy();
   return (
     <div className="space-y-5">
       <input name={`goalId${number}`} type="hidden" value={goal?.id ?? ''} />
@@ -292,7 +298,9 @@ function GoalEditor({
           <span className="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold">
             {number}
           </span>
-          <span className="text-sm font-semibold">What are you chasing?</span>
+          <span className="text-sm font-semibold">
+            {ui('What are you chasing?')}
+          </span>
         </span>
         <input
           className="border-border bg-background focus:border-primary h-12 w-full rounded-lg border px-3.5 text-base font-semibold transition outline-none placeholder:font-normal"
@@ -301,27 +309,29 @@ function GoalEditor({
           placeholder="Run 10K under 40 minutes"
         />
         <span className="text-muted-foreground block text-xs">
-          Make it specific, measurable, and easy to remember.
+          {ui('Make it specific, measurable, and easy to remember.')}
         </span>
       </label>
 
       <label className="block space-y-2">
         <span className="flex items-center gap-2 text-xs font-semibold">
           <Flag className="text-muted-foreground h-3.5 w-3.5" />
-          Your motivation
+          {ui('Your motivation')}
         </span>
         <textarea
           className="border-border bg-background focus:border-primary min-h-24 w-full resize-none rounded-lg border px-3.5 py-3 text-sm leading-6 transition outline-none"
           name={`goalDescription${number}`}
           defaultValue={goal?.description ?? ''}
-          placeholder="Why does this goal matter to you?"
+          placeholder={ui('Why does this goal matter to you?')}
         />
       </label>
 
       <label className="block space-y-2">
         <span className="flex items-center gap-2 text-xs font-semibold">
-          Goal link
-          <span className="text-muted-foreground font-normal">Optional</span>
+          {ui('Goal link')}
+          <span className="text-muted-foreground font-normal">
+            {ui('Optional')}
+          </span>
         </span>
         <input
           className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
@@ -331,7 +341,7 @@ function GoalEditor({
           type="url"
         />
         <span className="text-muted-foreground block text-xs">
-          Link to a race, fundraiser, event, or more details.
+          {ui('Link to a race, fundraiser, event, or more details.')}
         </span>
       </label>
 
@@ -339,8 +349,10 @@ function GoalEditor({
         <label className="block min-w-0 space-y-2">
           <span className="flex items-center gap-2 text-xs font-semibold">
             <CalendarDays className="text-muted-foreground h-3.5 w-3.5" />
-            Target date
-            <span className="text-muted-foreground font-normal">Optional</span>
+            {ui('Target date')}
+            <span className="text-muted-foreground font-normal">
+              {ui('Optional')}
+            </span>
           </span>
           <input
             className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
@@ -364,7 +376,7 @@ function GoalEditor({
                   value={option.value}
                 />
                 <span className="text-muted-foreground peer-checked:bg-background peer-checked:text-foreground peer-focus-visible:ring-ring flex h-9 items-center justify-center rounded-md px-3 text-xs font-semibold transition peer-checked:shadow-sm peer-focus-visible:ring-2">
-                  {option.label}
+                  {ui(option.label)}
                 </span>
               </label>
             ))}
@@ -384,11 +396,12 @@ function SportsField({
   selectedSlugs: string[];
   onSelectionChange: () => void;
 }) {
+  const ui = useUiCopy();
   const [selected, setSelected] = useState(selectedSlugs);
 
   return (
     <div className="space-y-1.5">
-      <p className="text-xs font-medium">Sports</p>
+      <p className="text-xs font-medium">{ui('Sports')}</p>
       <div className="border-border bg-muted/20 rounded-lg border p-3">
         <SportsSelector
           maxSelections={8}
@@ -448,6 +461,7 @@ function SocialLinkFields({
   number: number;
   onRemove: () => void;
 }) {
+  const ui = useUiCopy();
   const initialPlatform = socialPlatforms.some(
     (platform) => platform.id === link?.platform,
   )
@@ -474,7 +488,7 @@ function SocialLinkFields({
           {platformDefinition.label}
         </span>
         <button
-          aria-label={`Remove ${platformDefinition.label}`}
+          aria-label={`${ui('Remove')} ${platformDefinition.label}`}
           className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
           type="button"
           onClick={onRemove}
@@ -484,7 +498,7 @@ function SocialLinkFields({
       </div>
       <div className="space-y-3 p-3">
         <label className="block space-y-1.5">
-          <span className="text-xs font-medium">Network</span>
+          <span className="text-xs font-medium">{ui('Network')}</span>
           <select
             className="border-border bg-background focus:border-primary h-10 w-full rounded-md border px-3 text-sm transition outline-none"
             name={`socialPlatform${number}`}
@@ -523,6 +537,7 @@ function SocialLinksEditor({
   links: ProfileBuilderState['socialLinks'];
   onStructureChange: () => void;
 }) {
+  const ui = useUiCopy();
   const [slots, setSlots] = useState(() => links.map((_, index) => index));
 
   return (
@@ -550,7 +565,7 @@ function SocialLinksEditor({
           }}
         >
           <Plus className="h-4 w-4" />
-          Add social link
+          {ui('Add social link')}
         </button>
       ) : null}
     </div>
@@ -611,6 +626,7 @@ function OfferEditorFields({
   slot: number;
   onStructureChange: () => void;
 }) {
+  const ui = useUiCopy();
   const getInitialValue = (key: string, fallback = '') =>
     typeof block?.content[key] === 'string'
       ? (block.content[key] as string)
@@ -650,7 +666,7 @@ function OfferEditorFields({
   const loadPreview = async () => {
     if (!url.trim()) {
       setStatus('error');
-      setMessage('Add a product URL first.');
+      setMessage(ui('Add a product URL first.'));
       return;
     }
 
@@ -670,19 +686,21 @@ function OfferEditorFields({
         error?: string;
       };
       if (!response.ok)
-        throw new Error(result.error || 'Unable to preview this link.');
+        throw new Error(result.error || ui('Unable to preview this link.'));
 
       setTitle(result.title || title);
       setDescription(result.description || description);
       setImageUrl(result.imageUrl || imageUrl);
       setSiteName(result.siteName || siteName);
       setStatus('idle');
-      setMessage('Preview loaded. You can edit every field below.');
+      setMessage(ui('Preview loaded. You can edit every field below.'));
       updatePreview();
     } catch (error) {
       setStatus('error');
       setMessage(
-        error instanceof Error ? error.message : 'Unable to preview this link.',
+        error instanceof Error
+          ? error.message
+          : ui('Unable to preview this link.'),
       );
     }
   };
@@ -690,7 +708,9 @@ function OfferEditorFields({
   return (
     <div className="space-y-3">
       <label className="block space-y-1.5">
-        <span className="text-xs font-medium">Product or affiliate URL</span>
+        <span className="text-xs font-medium">
+          {ui('Product or affiliate URL')}
+        </span>
         <div className="flex gap-2">
           <input
             className="border-border bg-background focus:border-primary h-10 min-w-0 flex-1 rounded-md border px-3 text-sm outline-none"
@@ -711,7 +731,7 @@ function OfferEditorFields({
             ) : (
               <ShoppingBag className="h-3.5 w-3.5" />
             )}
-            Preview
+            {ui('Preview')}
           </button>
         </div>
       </label>
@@ -748,7 +768,9 @@ function OfferEditorFields({
               {siteName}
             </p>
           ) : null}
-          <p className="text-sm font-semibold">{title || 'Product preview'}</p>
+          <p className="text-sm font-semibold">
+            {title || ui('Product preview')}
+          </p>
           {description ? (
             <p className="text-muted-foreground line-clamp-2 text-xs leading-5">
               {description}
@@ -776,7 +798,7 @@ function OfferEditorFields({
         }}
       />
       <div>
-        <p className="text-xs font-medium">Display size</p>
+        <p className="text-xs font-medium">{ui('Display size')}</p>
         <div className="bg-muted mt-1.5 grid grid-cols-3 gap-1 rounded-lg p-1">
           {(['small', 'medium', 'large'] as const).map((size) => (
             <button
@@ -793,7 +815,7 @@ function OfferEditorFields({
                 updatePreview();
               }}
             >
-              {size}
+              {ui(size)}
             </button>
           ))}
         </div>
@@ -848,9 +870,11 @@ function OfferEditorFields({
           onChange={(event) => setIsAffiliate(event.target.checked)}
         />
         <span>
-          <span className="block text-xs font-semibold">Affiliate link</span>
+          <span className="block text-xs font-semibold">
+            {ui('Affiliate link')}
+          </span>
           <span className="text-muted-foreground mt-0.5 block text-[11px] leading-4">
-            Displays a transparent affiliate disclosure on the card.
+            {ui('Displays a transparent affiliate disclosure on the card.')}
           </span>
         </span>
       </label>
@@ -867,6 +891,7 @@ function ContentBlocksEditor({
   subscription: SubscriptionState;
   onStructureChange: () => void;
 }) {
+  const ui = useUiCopy();
   const [showPicker, setShowPicker] = useState(false);
   const [pendingFocusKey, setPendingFocusKey] = useState<string | null>(null);
   const blockRefs = useRef(new Map<string, HTMLDetailsElement>());
@@ -1041,9 +1066,9 @@ function ContentBlocksEditor({
             <Blocks className="h-4 w-4" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold">Blocks</span>
+            <span className="block text-sm font-semibold">{ui('Blocks')}</span>
             <span className="text-muted-foreground block truncate text-xs">
-              Gallery, achievements, activities and sponsors
+              {ui('Gallery, achievements, activities and more')}
             </span>
           </span>
           <button
@@ -1053,7 +1078,7 @@ function ContentBlocksEditor({
             onClick={() => setShowPicker(true)}
           >
             <Plus className="h-3.5 w-3.5" />
-            {choices.length ? 'Add' : 'Full'}
+            {choices.length ? ui('Add') : ui('Full')}
           </button>
         </div>
 
@@ -1097,10 +1122,10 @@ function ContentBlocksEditor({
                   <summary className="bg-muted/30 hover:bg-muted/50 flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
                     <Icon className="text-muted-foreground h-4 w-4" />
                     <span className="min-w-0 flex-1 text-sm font-semibold">
-                      {definition?.label}
+                      {definition ? ui(definition.label) : ''}
                     </span>
                     <button
-                      aria-label={`Move ${definition?.label} up`}
+                      aria-label={`${ui('Move')} ${definition ? ui(definition.label) : ''} ${ui('up')}`}
                       className="text-muted-foreground hover:bg-background flex h-7 w-7 items-center justify-center rounded-md disabled:opacity-30"
                       disabled={blockIndex === 0}
                       type="button"
@@ -1112,7 +1137,7 @@ function ContentBlocksEditor({
                       <ArrowUp className="h-3.5 w-3.5" />
                     </button>
                     <button
-                      aria-label={`Move ${definition?.label} down`}
+                      aria-label={`${ui('Move')} ${definition ? ui(definition.label) : ''} ${ui('down')}`}
                       className="text-muted-foreground hover:bg-background flex h-7 w-7 items-center justify-center rounded-md disabled:opacity-30"
                       disabled={blockIndex === activeBlocks.length - 1}
                       type="button"
@@ -1124,7 +1149,7 @@ function ContentBlocksEditor({
                       <ArrowDown className="h-3.5 w-3.5" />
                     </button>
                     <button
-                      aria-label={`Remove ${definition?.label}`}
+                      aria-label={`${ui('Remove')} ${definition ? ui(definition.label) : ''}`}
                       className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex h-7 w-7 items-center justify-center rounded-md transition-colors"
                       type="button"
                       onClick={(event) => {
@@ -1154,7 +1179,7 @@ function ContentBlocksEditor({
                           >
                             <div className="flex items-center justify-between gap-3">
                               <p className="text-xs font-semibold">
-                                Image {position + 1}
+                                {ui('Image')} {position + 1}
                               </p>
                               {imageSlots.length > 1 ? (
                                 <button
@@ -1204,7 +1229,7 @@ function ContentBlocksEditor({
                             }}
                           >
                             <Plus className="h-3.5 w-3.5" />
-                            Add image
+                            {ui('Add image')}
                           </button>
                         ) : (
                           <Link
@@ -1213,7 +1238,7 @@ function ContentBlocksEditor({
                           >
                             <span className="flex items-center gap-2 text-xs font-semibold">
                               <Plus className="h-3.5 w-3.5" />
-                              Add more images
+                              {ui('Add more images')}
                             </span>
                             <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
                               <Lock className="h-3 w-3" />
@@ -1239,7 +1264,7 @@ function ContentBlocksEditor({
                             >
                               <div className="flex items-center justify-between gap-3">
                                 <p className="text-xs font-semibold">
-                                  Achievement {position + 1}
+                                  {ui('Achievement')} {position + 1}
                                 </p>
                                 {achievementSlots.length > 1 ? (
                                   <button
@@ -1295,7 +1320,7 @@ function ContentBlocksEditor({
                                 )}
                               >
                                 <summary className="bg-muted/30 hover:bg-muted/50 flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-xs font-semibold transition-colors [&::-webkit-details-marker]:hidden">
-                                  Add more details
+                                  {ui('Add more details')}
                                   <ChevronDown className="text-muted-foreground size-3.5 transition-transform group-open/details:rotate-180" />
                                 </summary>
                                 <div className="border-border space-y-3 border-t p-3">
@@ -1373,7 +1398,7 @@ function ContentBlocksEditor({
                           >
                             <span className="flex items-center gap-2 text-xs font-semibold">
                               <Plus className="h-3.5 w-3.5" />
-                              Add more achievements
+                              {ui('Add more achievements')}
                             </span>
                             <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold">
                               <Lock className="h-3 w-3" />
@@ -1387,10 +1412,12 @@ function ContentBlocksEditor({
                         <div className="space-y-2">
                           <div>
                             <p className="text-xs font-semibold">
-                              Partnership status
+                              {ui('Partnership status')}
                             </p>
                             <p className="text-muted-foreground mt-1 text-xs leading-5">
-                              Choose what brands and visitors should see.
+                              {ui(
+                                'Choose what brands and visitors should see.',
+                              )}
                             </p>
                           </div>
                           <div className="grid gap-2">
@@ -1419,10 +1446,10 @@ function ContentBlocksEditor({
                                     />
                                     <span>
                                       <span className="block text-xs font-semibold">
-                                        {mode.label}
+                                        {ui(mode.label)}
                                       </span>
                                       <span className="text-muted-foreground mt-1 block text-xs leading-5">
-                                        {mode.description}
+                                        {ui(mode.description)}
                                       </span>
                                     </span>
                                   </span>
@@ -1439,10 +1466,12 @@ function ContentBlocksEditor({
                         >
                           <div>
                             <p className="text-xs font-semibold">
-                              Current sponsors
+                              {ui('Current sponsors')}
                             </p>
                             <p className="text-muted-foreground mt-1 text-xs leading-5">
-                              Add a logo and an optional link for each partner.
+                              {ui(
+                                'Add a logo and an optional link for each partner.',
+                              )}
                             </p>
                           </div>
                           {sponsorSlots.map((slot, position) => {
@@ -1460,7 +1489,7 @@ function ContentBlocksEditor({
                               >
                                 <div className="flex items-center justify-between gap-3">
                                   <p className="text-xs font-semibold">
-                                    Sponsor {position + 1}
+                                    {ui('Sponsor')} {position + 1}
                                   </p>
                                   {sponsorSlots.length > 1 ? (
                                     <button
@@ -1525,7 +1554,7 @@ function ContentBlocksEditor({
                               }}
                             >
                               <Plus className="h-3.5 w-3.5" />
-                              Add sponsor
+                              {ui('Add sponsor')}
                             </button>
                           ) : null}
                         </div>
@@ -1537,10 +1566,12 @@ function ContentBlocksEditor({
                         >
                           <div>
                             <p className="text-xs font-semibold">
-                              Partnership callout
+                              {ui('Partnership callout')}
                             </p>
                             <p className="text-muted-foreground mt-1 text-xs leading-5">
-                              Turn profile visitors into real opportunities.
+                              {ui(
+                                'Turn profile visitors into real opportunities.',
+                              )}
                             </p>
                           </div>
                           <Field
@@ -1796,7 +1827,7 @@ function ContentBlocksEditor({
           </div>
         ) : (
           <div className="border-border text-muted-foreground border-t px-4 py-5 text-center text-xs">
-            No blocks added yet.
+            {ui('No blocks added yet.')}
           </div>
         )}
       </div>
@@ -1805,7 +1836,7 @@ function ContentBlocksEditor({
         ? createPortal(
             <div className="fixed inset-0 z-[70]">
               <button
-                aria-label="Close block picker"
+                aria-label={ui('Close block picker')}
                 className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px]"
                 type="button"
                 onClick={() => setShowPicker(false)}
@@ -1813,13 +1844,13 @@ function ContentBlocksEditor({
               <aside className="border-border bg-background absolute inset-y-0 left-0 w-full max-w-sm overflow-y-auto border-r p-5 shadow-2xl">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-semibold">Add a block</p>
+                    <p className="font-semibold">{ui('Add a block')}</p>
                     <p className="text-muted-foreground mt-1 text-sm">
-                      Choose what you want to add to your profile.
+                      {ui('Choose what you want to add to your profile.')}
                     </p>
                   </div>
                   <button
-                    aria-label="Close"
+                    aria-label={ui('Close')}
                     className="text-muted-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-lg"
                     type="button"
                     onClick={() => setShowPicker(false)}
@@ -1881,10 +1912,10 @@ function ContentBlocksEditor({
                         </span>
                         <span>
                           <span className="block text-sm font-semibold">
-                            {block.label}
+                            {ui(block.label)}
                           </span>
                           <span className="text-muted-foreground mt-1 block text-xs leading-5">
-                            {block.description}
+                            {ui(block.description)}
                           </span>
                         </span>
                       </button>
@@ -1911,6 +1942,7 @@ export function ContentEditor({
   onPreviewChange?: (form: HTMLFormElement) => void;
   onAutosaveStatusChange?: (status: AutosaveStatus, message?: string) => void;
 }) {
+  const ui = useUiCopy();
   const [state, formAction, pending] = useActionState(
     saveProfileBuilderAction,
     initialState,
@@ -2066,9 +2098,9 @@ export function ContentEditor({
       <div>
         <div>
           <p className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
-            Content
+            {ui('Content')}
           </p>
-          <p className="mt-2 font-semibold">Profile details</p>
+          <p className="mt-2 font-semibold">{ui('Profile details')}</p>
         </div>
       </div>
 
@@ -2115,7 +2147,7 @@ export function ContentEditor({
         title="Goal"
         description={
           goalCount > 1
-            ? `${goalCount} active objectives`
+            ? `${goalCount} ${ui('active objectives')}`
             : 'Your next objective'
         }
         icon={Target}
@@ -2140,11 +2172,11 @@ export function ContentEditor({
               }}
             >
               <Plus className="h-4 w-4" />
-              Add another goal
+              {ui('Add another goal')}
             </button>
           ) : (
             <p className="text-muted-foreground text-center text-xs">
-              You reached the limit of 3 active goals.
+              {ui('You reached the limit of 3 active goals.')}
             </p>
           )
         ) : (
@@ -2154,7 +2186,7 @@ export function ContentEditor({
           >
             <span className="flex min-w-0 items-center gap-2 text-sm font-semibold">
               <Plus className="h-4 w-4" />
-              Add more goals
+              {ui('Add more goals')}
             </span>
             <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold">
               <Lock className="h-3 w-3" />

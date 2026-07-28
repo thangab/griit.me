@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { Button } from '@/components/ui/button';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 type AuthWithSessionFromUrl = {
   getSessionFromUrl?: () => Promise<unknown>;
 };
 
 export function ResetPasswordForm() {
+  const ui = useUiCopy();
   const router = useRouter();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -33,7 +35,9 @@ export function ResetPasswordForm() {
       if (error || !data.session) {
         setStatus('error');
         setMessage(
-          'Unable to validate password reset session. Please retry from the email link.',
+          ui(
+            'Unable to validate password reset session. Please retry from the email link.',
+          ),
         );
         return;
       }
@@ -42,38 +46,38 @@ export function ResetPasswordForm() {
     }
 
     handleSession();
-  }, []);
+  }, [ui]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (newPassword.length < 8) {
       setStatus('error');
-      setMessage('Password must be at least 8 characters long.');
+      setMessage(ui('Password must be at least 8 characters long.'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
       setStatus('error');
-      setMessage('Passwords do not match.');
+      setMessage(ui('Passwords do not match.'));
       return;
     }
 
     setStatus('pending');
-    setMessage('Updating password...');
+    setMessage(ui('Updating password...'));
 
     const supabase = createBrowserSupabaseClient();
     const { error } = await supabase.auth.updateUser({ password: newPassword });
 
     if (error) {
       setStatus('error');
-      setMessage(error.message || 'Unable to update password.');
+      setMessage(error.message || ui('Unable to update password.'));
       return;
     }
 
     setStatus('success');
     setMessage(
-      'Password updated successfully. Redirecting to your dashboard...',
+      ui('Password updated successfully. Redirecting to your dashboard...'),
     );
 
     window.setTimeout(() => {
@@ -84,9 +88,9 @@ export function ResetPasswordForm() {
   return (
     <div className="space-y-6">
       <div className="border-border bg-background rounded-2xl border p-6">
-        <h1 className="text-2xl font-semibold">Reset your password</h1>
+        <h1 className="text-2xl font-semibold">{ui('Reset your password')}</h1>
         <p className="text-muted-foreground mt-2 text-sm">
-          Enter a new password to complete the reset process.
+          {ui('Enter a new password to complete the reset process.')}
         </p>
       </div>
 
@@ -100,8 +104,10 @@ export function ResetPasswordForm() {
         <div className="border-border bg-background text-muted-foreground space-y-4 rounded-2xl border p-6 text-sm">
           <p>
             {status === 'error'
-              ? 'Failed to validate the reset session. Please return to the link in your email or request a new reset.'
-              : 'Validating reset link...'}
+              ? ui(
+                  'Failed to validate the reset session. Please return to the link in your email or request a new reset.',
+                )
+              : ui('Validating reset link...')}
           </p>
           {status === 'error' ? (
             <Button
@@ -109,7 +115,7 @@ export function ResetPasswordForm() {
               className="w-full"
               onClick={() => router.push('/forgot-password')}
             >
-              Request a new reset link
+              {ui('Request a new reset link')}
             </Button>
           ) : null}
         </div>
@@ -121,7 +127,7 @@ export function ResetPasswordForm() {
               className="w-full"
               onClick={() => router.replace('/dashboard')}
             >
-              Continue to dashboard
+              {ui('Continue to dashboard')}
             </Button>
           </div>
         </div>
@@ -129,7 +135,7 @@ export function ResetPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="new-password" className="text-sm font-medium">
-              New password
+              {ui('New password')}
             </label>
             <input
               id="new-password"
@@ -144,7 +150,7 @@ export function ResetPasswordForm() {
           </div>
           <div className="space-y-2">
             <label htmlFor="confirm-password" className="text-sm font-medium">
-              Confirm password
+              {ui('Confirm password')}
             </label>
             <input
               id="confirm-password"
@@ -167,7 +173,9 @@ export function ResetPasswordForm() {
             className="w-full"
             disabled={status === 'pending'}
           >
-            {status === 'pending' ? 'Updating password…' : 'Update password'}
+            {status === 'pending'
+              ? ui('Updating password…')
+              : ui('Update password')}
           </Button>
         </form>
       )}

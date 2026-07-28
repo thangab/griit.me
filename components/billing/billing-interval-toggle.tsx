@@ -2,6 +2,7 @@
 
 import type { BillingInterval } from '@/lib/types/billing';
 import { launchOffer } from '@/lib/constants/billing';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 export function BillingIntervalToggle({
   value,
@@ -12,9 +13,10 @@ export function BillingIntervalToggle({
   onChange: (value: BillingInterval) => void;
   compact?: boolean;
 }) {
+  const ui = useUiCopy();
   return (
     <div
-      aria-label="Billing frequency"
+      aria-label={ui('Billing frequency')}
       className={`grid w-full grid-cols-2 rounded-full border border-black/10 bg-white p-1.5 shadow-[0_12px_35px_rgba(21,21,21,0.09)] ${compact ? 'max-w-[360px] text-xs' : 'max-w-[620px] text-sm sm:text-base'}`}
       role="group"
     >
@@ -24,7 +26,7 @@ export function BillingIntervalToggle({
         onClick={() => onChange('month')}
         type="button"
       >
-        Monthly
+        {ui('Monthly')}
       </button>
       <button
         aria-pressed={value === 'year'}
@@ -32,11 +34,11 @@ export function BillingIntervalToggle({
         onClick={() => onChange('year')}
         type="button"
       >
-        <span>Annual</span>
+        <span>{ui('Annual')}</span>
         <span
           className={`rounded-full px-2 py-1 text-[9px] leading-none font-black whitespace-nowrap uppercase sm:text-[10px] ${value === 'year' ? 'bg-[#a9ed35] text-[#151515]' : 'bg-[#dff5b4] text-[#151515]'}`}
         >
-          Launch {launchOffer.firstYearPrice}
+          {ui('Launch')} {launchOffer.firstYearPrice}
         </span>
       </button>
     </div>

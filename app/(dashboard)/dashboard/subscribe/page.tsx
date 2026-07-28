@@ -2,13 +2,18 @@ import { SubscriptionCard } from '@/components/billing/subscription-card';
 import { getSubscriptionState } from '@/lib/services/billing';
 import { getStripePriceLabel } from '@/lib/services/stripe';
 import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
+import { getRequestLocale } from '@/lib/i18n/server';
 
 export default async function SubscribePage({
   searchParams,
 }: {
   searchParams: Promise<{ billing?: string }>;
 }) {
-  const subscription = await getSubscriptionState();
+  const [subscription, locale] = await Promise.all([
+    getSubscriptionState(),
+    getRequestLocale(),
+  ]);
+  const fr = locale === 'fr';
   const params = await searchParams;
   const monthlyPriceId = process.env.STRIPE_PRICE_ID_PRO_MONTHLY;
   const annualPriceId = process.env.STRIPE_PRICE_ID_PRO_ANNUAL;
@@ -28,27 +33,36 @@ export default async function SubscribePage({
         <div className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-[#dce4ff]/80 blur-3xl" />
         <div className="relative">
           <p className="text-[11px] font-black tracking-[0.22em] text-[#3157ff] uppercase">
-            Griit Pro · Launch offer
+            {fr ? 'Griit Pro · Offre de lancement' : 'Griit Pro · Launch offer'}
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-5xl">
-            More freedom for every athlete story.
+            {fr
+              ? 'Plus de liberté pour chaque parcours.'
+              : 'More freedom for every athlete story.'}
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-black/50 sm:text-base">
-            For the first {launchOffer.athleteLimit} athletes, Annual Pro drops
-            from{' '}
+            {fr ? 'Pour les ' : 'For the first '}
+            {launchOffer.athleteLimit}
+            {fr
+              ? ' premiers athlètes, Pro annuel passe de '
+              : ' athletes, Annual Pro drops from '}
             <span className="line-through">
               {launchOffer.regularAnnualPrice}
             </span>{' '}
-            to <strong>{launchOffer.firstYearPrice}</strong> with code{' '}
-            {launchOffer.code}. That is {launchOffer.savingsVsMonthly} less than
-            12 months of Pro Monthly.
+            {fr ? 'à ' : 'to '}
+            <strong>{launchOffer.firstYearPrice}</strong>
+            {fr ? ' avec le code ' : ' with code '}
+            {launchOffer.code}.{' '}
+            {fr
+              ? `Soit ${launchOffer.savingsVsMonthly} de moins que 12 mois de Pro mensuel.`
+              : `That is ${launchOffer.savingsVsMonthly} less than 12 months of Pro Monthly.`}
           </p>
           <div className="mt-7 flex flex-wrap gap-2">
             {[
               `25% off · first ${launchOffer.athleteLimit} athletes`,
-              'All premium styles',
-              'Advanced analytics',
-              'Priority support',
+              fr ? 'Tous les styles premium' : 'All premium styles',
+              fr ? 'Statistiques avancées' : 'Advanced analytics',
+              fr ? 'Support prioritaire' : 'Priority support',
             ].map((benefit) => (
               <span
                 className="rounded-full border border-black/8 bg-white/75 px-3 py-1.5 text-xs font-bold text-black/65"
@@ -80,18 +94,21 @@ export default async function SubscribePage({
               Griit Teams
             </p>
             <h2 className="mt-4 max-w-2xl text-3xl font-black tracking-[-0.04em]">
-              Managing a club, agency, academy, or athlete roster?
+              {fr
+                ? 'Vous gérez un club, une agence, une académie ou plusieurs athlètes ?'
+                : 'Managing a club, agency, academy, or athlete roster?'}
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-black/55">
-              Bring profiles, collaborators, shared branding, analytics, and
-              centralized management into one tailored workspace.
+              {fr
+                ? 'Réunissez profils, collaborateurs, branding, statistiques et gestion centralisée dans un espace adapté.'
+                : 'Bring profiles, collaborators, shared branding, analytics, and centralized management into one tailored workspace.'}
             </p>
           </div>
           <a
             className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-[#151515] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
             href="mailto:hello@griit.me?subject=Griit%20Teams"
           >
-            Talk to us
+            {fr ? 'Nous contacter' : 'Talk to us'}
           </a>
         </div>
       </section>

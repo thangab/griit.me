@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { createBrowserSupabaseClient } from '@/lib/config/supabase-client';
 import { cn } from '@/lib/utils/cn';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const profileMediaBucket = 'profile-media';
 const maxImageSize = 5 * 1024 * 1024;
@@ -116,6 +117,7 @@ export function ImageUploadField({
   previewShape = 'wide',
   onValueChange,
 }: ImageUploadFieldProps) {
+  const ui = useUiCopy();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentValue, setCurrentValue] = useState(value);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'error'>('idle');
@@ -224,7 +226,7 @@ export function ImageUploadField({
     <div className="space-y-2">
       <input name={name} type="hidden" value={currentValue} />
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium">{label}</p>
+        <p className="text-xs font-medium">{ui(label)}</p>
         {currentValue ? (
           <button
             className="text-muted-foreground hover:text-destructive inline-flex items-center gap-1 text-xs font-medium transition-colors"
@@ -233,7 +235,7 @@ export function ImageUploadField({
             onClick={() => void removeCurrentImage()}
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Remove
+            {ui('Remove')}
           </button>
         ) : null}
       </div>
@@ -302,18 +304,18 @@ export function ImageUploadField({
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2 text-sm font-semibold">
             {status === 'uploading' ? (
-              'Uploading…'
+              ui('Uploading…')
             ) : (
               <>
                 <Upload className="h-4 w-4 shrink-0" />
-                {currentValue ? 'Replace image' : 'Choose an image'}
+                {currentValue ? ui('Replace image') : ui('Choose an image')}
               </>
             )}
           </span>
           <span className="text-muted-foreground mt-1 block text-xs leading-5">
             {isDragging
-              ? 'Drop the image here'
-              : 'Click or drag and drop · 5 MB max'}
+              ? ui('Drop the image here')
+              : ui('Click or drag and drop · 5 MB max')}
           </span>
           <span className="text-muted-foreground/70 mt-0.5 block text-[11px]">
             JPG, PNG, WebP, GIF or AVIF
@@ -322,7 +324,9 @@ export function ImageUploadField({
       </button>
 
       {helpText ? (
-        <p className="text-muted-foreground text-xs leading-5">{helpText}</p>
+        <p className="text-muted-foreground text-xs leading-5">
+          {ui(helpText)}
+        </p>
       ) : null}
       {message ? (
         <p className="text-destructive text-xs leading-5" role="alert">

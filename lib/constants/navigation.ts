@@ -1,6 +1,8 @@
+import type { DictionaryKey } from '@/lib/i18n/dictionaries';
+
 export type DashboardNavItem = {
   href: string;
-  label: string;
+  labelKey: DictionaryKey;
   icon:
     | 'LayoutGrid'
     | 'UserRound'
@@ -23,32 +25,40 @@ export function getDashboardNavItems(
   return [
     ...(profileBase
       ? ([
-          { href: profileBase, label: 'Overview', icon: 'LayoutGrid' },
+          {
+            href: profileBase,
+            labelKey: 'dashboard.nav.overview',
+            icon: 'LayoutGrid',
+          },
           {
             href: `${profileBase}/design`,
-            label: 'Design',
+            labelKey: 'dashboard.nav.design',
             icon: 'PanelsTopLeft',
           },
           {
             href: `${profileBase}/analytics`,
-            label: 'Analytics',
+            labelKey: 'dashboard.nav.analytics',
             icon: 'BarChart3',
           },
         ] satisfies DashboardNavItem[])
       : []),
-    { href: '/dashboard/profiles', label: 'Profiles', icon: 'UserRound' },
+    {
+      href: '/dashboard/profiles',
+      labelKey: 'dashboard.nav.profiles',
+      icon: 'UserRound',
+    },
     ...(profileBase
       ? ([
           {
             href: `${profileBase}/settings`,
-            label: 'Settings',
+            labelKey: 'dashboard.nav.settings',
             icon: 'Settings',
           },
         ] satisfies DashboardNavItem[])
       : []),
     {
       href: '/dashboard/subscribe',
-      label: 'Subscribe',
+      labelKey: 'dashboard.nav.subscribe',
       icon: 'LockSimple',
     },
   ];

@@ -63,7 +63,7 @@ export function MobileDashboardNav({
       ? [
           {
             href: '/dashboard/admin/athletes',
-            label: t('dashboard.athleteReviews'),
+            labelKey: 'dashboard.nav.athleteReviews' as const,
             icon: 'ShieldCheck' as const,
           },
         ]
@@ -96,7 +96,9 @@ export function MobileDashboardNav({
         </button>
         <Button
           aria-expanded={isOpen}
-          aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          aria-label={
+            isOpen ? t('dashboard.menu.close') : t('dashboard.menu.open')
+          }
           onClick={() => {
             setIsStudioMenuOpen(false);
             setIsOpen((current) => !current);
@@ -113,7 +115,7 @@ export function MobileDashboardNav({
       {isStudioMenuOpen ? (
         <>
           <button
-            aria-label="Close studio menu"
+            aria-label={t('dashboard.menu.closeStudio')}
             className="fixed inset-0 z-40"
             type="button"
             onClick={() => setIsStudioMenuOpen(false)}
@@ -197,7 +199,7 @@ export function MobileDashboardNav({
 
       {isOpen ? (
         <button
-          aria-label="Close menu"
+          aria-label={t('dashboard.menu.close')}
           className="fixed inset-0 z-40 bg-black/30"
           onClick={() => setIsOpen(false)}
           type="button"
@@ -221,7 +223,7 @@ export function MobileDashboardNav({
             </div>
           </div>
           <Button
-            aria-label="Close menu"
+            aria-label={t('dashboard.menu.close')}
             onClick={() => setIsOpen(false)}
             size="sm"
             type="button"
@@ -254,17 +256,7 @@ export function MobileDashboardNav({
                     isActive && 'text-[#3157ff]',
                   )}
                 />
-                {item.icon === 'LayoutGrid'
-                  ? t('dashboard.nav.overview')
-                  : item.icon === 'PanelsTopLeft'
-                    ? t('dashboard.nav.design')
-                    : item.icon === 'BarChart3'
-                      ? t('dashboard.nav.analytics')
-                      : item.icon === 'UserRound'
-                        ? t('dashboard.nav.profiles')
-                        : item.icon === 'Settings'
-                          ? t('dashboard.nav.settings')
-                          : t('dashboard.nav.subscribe')}
+                {t(item.labelKey)}
               </Link>
             );
           })}
@@ -272,12 +264,14 @@ export function MobileDashboardNav({
 
         <div className="mt-auto rounded-2xl border border-white/10 bg-white/[0.06] p-4">
           <p className="text-sm font-semibold">
-            {isPro ? "You're all set" : 'Unlock more with Pro'}
+            {isPro
+              ? t('dashboard.pro.readyTitle')
+              : t('dashboard.pro.upgradeTitle')}
           </p>
           <p className="mt-1 text-sm leading-5 text-white/45">
             {isPro
-              ? 'Everything is unlocked. Keep building what comes next.'
-              : 'Unlock every template, advanced styles, deeper analytics, and up to 5 profiles.'}
+              ? t('dashboard.pro.readyDescription')
+              : t('dashboard.pro.upgradeDescription')}
           </p>
           {!isPro ? (
             <Button
@@ -289,7 +283,7 @@ export function MobileDashboardNav({
                 onClick={() => setIsOpen(false)}
               >
                 <LockSimple className="h-4 w-4" />
-                Upgrade to Pro
+                {t('dashboard.pro.upgradeAction')}
               </Link>
             </Button>
           ) : null}

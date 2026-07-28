@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalDocument } from '../_components/legal-document';
+import { getRequestLocale } from '@/lib/i18n/server';
 
 export const metadata: Metadata = {
   title: 'Terms of Service — Griit',
@@ -8,7 +9,177 @@ export const metadata: Metadata = {
     'The terms that apply when creating, publishing, and managing a Griit athlete profile.',
 };
 
-export default function TermsPage() {
+function FrenchTermsContent() {
+  return (
+    <>
+      <h2>1. Acceptation</h2>
+      <p>
+        En créant un compte ou en utilisant Griit, vous acceptez les présentes
+        Conditions d’utilisation et notre{' '}
+        <Link href="/privacy">Politique de confidentialité</Link>. Si vous
+        utilisez Griit pour un athlète, une équipe ou une organisation, vous
+        confirmez être autorisé à accepter ces conditions en son nom.
+      </p>
+
+      <h2>2. Comptes et éligibilité</h2>
+      <p>
+        Vous devez fournir des informations exactes, protéger vos identifiants
+        et nous signaler rapidement toute utilisation non autorisée. Vous êtes
+        responsable de l’activité réalisée depuis votre compte. Si vous ne
+        pouvez pas accepter légalement ces conditions, un parent, tuteur ou
+        représentant autorisé doit le faire pour vous.
+      </p>
+
+      <h2>3. Profils publics</h2>
+      <p>
+        Griit vous permet de publier du contenu à une adresse publique. Vous
+        contrôlez sa publication et son apparition dans l’annuaire des athlètes.
+        Le contenu public peut être consulté, partagé, capturé ou indexé par des
+        tiers. Ne publiez aucune information que vous souhaitez garder privée.
+      </p>
+      <p>
+        Les noms d’utilisateur sont attribués selon leur disponibilité. Nous
+        pouvons en récupérer ou modifier un s’il enfreint des droits, usurpe une
+        identité ou crée un risque pour le service.
+      </p>
+
+      <h2>4. Votre contenu</h2>
+      <p>
+        Vous restez propriétaire de votre contenu. Vous accordez à Griit une
+        licence non exclusive et mondiale pour l’héberger, le stocker, le
+        reproduire, l’adapter et l’afficher uniquement afin d’exploiter et
+        sécuriser les fonctionnalités utilisées. Elle prend fin à la
+        suppression, sous réserve des sauvegardes temporaires et obligations
+        légales.
+      </p>
+      <p>
+        Vous garantissez disposer des droits nécessaires sur les images, logos,
+        musiques, contenus de sponsors et liens. Vous êtes responsable des
+        mentions requises pour les partenariats, affiliations et contenus
+        sponsorisés.
+      </p>
+
+      <h2>5. Utilisation acceptable</h2>
+      <p>Vous ne pouvez pas utiliser Griit pour :</p>
+      <ul>
+        <li>enfreindre la loi ou les droits d’une autre personne ;</li>
+        <li>usurper une identité, harceler, menacer, exploiter ou tromper ;</li>
+        <li>publier du contenu illégal, haineux, abusif ou dangereux ;</li>
+        <li>envoyer un logiciel malveillant ou perturber le service ;</li>
+        <li>
+          extraire les données, contourner les accès ou limitations de plan ;
+        </li>
+        <li>
+          générer artificiellement des statistiques ou manipuler l’engagement ;
+        </li>
+        <li>envoyer du spam ou faciliter une offre frauduleuse.</li>
+      </ul>
+      <p>
+        Nous pouvons retirer du contenu ou limiter un compte lorsque cela est
+        raisonnablement nécessaire pour appliquer ces règles, protéger les
+        utilisateurs ou respecter la loi.
+      </p>
+
+      <h2>6. Services et liens tiers</h2>
+      <p>
+        Les profils peuvent contenir des liens ou services tiers que Griit ne
+        contrôle pas. Nous ne sommes pas responsables de leur disponibilité,
+        contenu, produits, transactions ou pratiques de confidentialité. Leur
+        utilisation est régie par leurs propres conditions.
+      </p>
+
+      <h2>7. Plans Gratuit, Pro et fonctionnalités futures</h2>
+      <p>
+        Les fonctionnalités et limites sont décrites sur notre{' '}
+        <Link href="/pricing">page Tarifs</Link>. Elles peuvent évoluer. Les
+        fonctionnalités indiquées comme « bientôt disponibles », en aperçu, bêta
+        ou en déploiement progressif ne sont pas garanties à une date précise.
+      </p>
+
+      <h2>8. Abonnements, facturation et résiliation</h2>
+      <p>
+        Les abonnements payants sont facturés à l’avance par Stripe, chaque mois
+        ou chaque année selon votre choix. Sauf résiliation, ils sont renouvelés
+        automatiquement. Les prix et taxes applicables sont affichés avant le
+        paiement.
+      </p>
+      <p>
+        Vous pouvez résilier depuis les options du compte ou en contactant le
+        support. La résiliation prend effet à la fin de la période payée. Les
+        paiements ne sont pas remboursables, sauf obligation légale ou offre
+        expresse de Griit. En cas d’échec de paiement, les fonctions payantes
+        peuvent être suspendues ou rétrogradées.
+      </p>
+
+      <h2>9. Suspension et fermeture</h2>
+      <p>
+        Vous pouvez cesser d’utiliser Griit et supprimer votre compte depuis les
+        paramètres. Nous pouvons suspendre ou fermer un accès en cas de
+        violation importante, de risque, de dommage, d’impayé ou d’obligation
+        légale. Dans la mesure du raisonnable, nous vous informerons et vous
+        laisserons la possibilité de corriger le problème.
+      </p>
+
+      <h2>10. Propriété intellectuelle de Griit</h2>
+      <p>
+        Le logiciel, les modèles, la marque, l’interface et les contenus
+        originaux de Griit appartiennent à Griit ou à ses concédants. Ces
+        conditions vous accordent uniquement un droit d’utilisation limité et
+        révocable.
+      </p>
+
+      <h2>11. Disponibilité et garanties</h2>
+      <p>
+        Nous cherchons à rendre Griit fiable, mais le service est fourni selon
+        sa disponibilité. Des changements ou interruptions peuvent survenir.
+        Griit ne garantit aucun sponsoring, croissance d’audience, résultat
+        sportif ou revenu. Le service ne constitue pas un conseil médical,
+        juridique, financier ou d’entraînement professionnel.
+      </p>
+
+      <h2>12. Responsabilité</h2>
+      <p>
+        Dans les limites autorisées par la loi, Griit n’est pas responsable des
+        dommages indirects, accessoires, spéciaux, consécutifs ou pertes de
+        profits liés au service. La responsabilité totale de Griit ne dépassera
+        pas le montant payé au cours des douze mois précédant l’événement, sauf
+        lorsque la loi interdit cette limitation.
+      </p>
+
+      <h2>13. Modifications</h2>
+      <p>
+        Nous pouvons mettre à jour ces conditions avec le produit et les règles
+        applicables. Nous publierons la nouvelle version et actualiserons la
+        date. Si un changement important requiert un consentement
+        supplémentaire, nous vous le demanderons.
+      </p>
+
+      <h2>14. Contact</h2>
+      <p>
+        Envoyez vos questions à{' '}
+        <a href="mailto:support@griit.me">support@griit.me</a> ou utilisez notre{' '}
+        <Link href="/support">page de support</Link>.
+      </p>
+    </>
+  );
+}
+
+export default async function TermsPage() {
+  const locale = await getRequestLocale();
+
+  if (locale === 'fr') {
+    return (
+      <LegalDocument
+        locale="fr"
+        eyebrow="Informations légales"
+        title="Des conditions claires pour raconter votre parcours."
+        description="Ces conditions encadrent votre accès à Griit, notamment les profils publics, abonnements, statistiques et outils de contenu."
+      >
+        <FrenchTermsContent />
+      </LegalDocument>
+    );
+  }
+
   return (
     <LegalDocument
       eyebrow="Legal"

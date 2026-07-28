@@ -69,7 +69,7 @@ export function SignInForm() {
       {state.message ? (
         <AuthFormMessage
           message={state.message}
-          title="Unable to sign in"
+          title={t('auth.signInError')}
           type="error"
         />
       ) : null}

@@ -6,8 +6,10 @@ import { CheckIcon } from '@phosphor-icons/react';
 import { BillingIntervalToggle } from '@/components/billing/billing-interval-toggle';
 import { launchOffer, subscriptionPlans } from '@/lib/constants/billing';
 import type { BillingInterval } from '@/lib/types/billing';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 export function HomePricingCards() {
+  const ui = useUiCopy();
   const [billingInterval, setBillingInterval] =
     useState<BillingInterval>('year');
 
@@ -22,11 +24,12 @@ export function HomePricingCards() {
         <p className="text-center text-xs font-bold text-black/45">
           {billingInterval === 'year' ? (
             <>
-              Save {launchOffer.savingsVsMonthly} compared with 12 months of Pro
-              Monthly · first {launchOffer.athleteLimit} athletes
+              {ui('Save')} {launchOffer.savingsVsMonthly}{' '}
+              {ui('compared with 12 months of Pro Monthly')} · {ui('first')}{' '}
+              {launchOffer.athleteLimit} {ui('athletes')}
             </>
           ) : (
-            'Flexible monthly billing · cancel anytime'
+            ui('Flexible monthly billing · cancel anytime')
           )}
         </p>
       </div>
@@ -56,15 +59,15 @@ export function HomePricingCards() {
             >
               {isPro ? (
                 <span className="absolute top-6 right-6 rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black text-[#151515] uppercase">
-                  {annualPro ? 'Launch offer' : 'Flexible monthly'}
+                  {annualPro ? ui('Launch offer') : ui('Flexible monthly')}
                 </span>
               ) : isTeams ? (
                 <span className="absolute top-6 right-6 rounded-full bg-[#3157ff] px-3 py-1 text-[10px] font-black text-white uppercase">
-                  Organizations
+                  {ui('Organizations')}
                 </span>
               ) : null}
 
-              <p className="text-sm font-black">{planData.name}</p>
+              <p className="text-sm font-black">{ui(planData.name)}</p>
               <div className="mt-4 flex flex-wrap items-end gap-2">
                 <p className="text-4xl font-black tracking-tight">{price}</p>
                 {annualPro ? (
@@ -74,7 +77,7 @@ export function HomePricingCards() {
                 ) : null}
                 {isPro ? (
                   <span className="pb-1 text-xs font-semibold text-white/45">
-                    {annualPro ? 'first year' : 'per month'}
+                    {annualPro ? ui('first year') : ui('per month')}
                   </span>
                 ) : null}
               </div>
@@ -82,17 +85,17 @@ export function HomePricingCards() {
               {annualPro ? (
                 <div className="mt-3 rounded-2xl border border-[#a9ed35]/25 bg-[#a9ed35]/10 p-3.5">
                   <p className="text-xs font-black text-[#a9ed35]">
-                    First {launchOffer.athleteLimit} athletes ·{' '}
+                    {ui('First')} {launchOffer.athleteLimit} {ui('athletes')} ·{' '}
                     {launchOffer.code}
                   </p>
                   <p className="mt-1 text-[11px] leading-5 text-white/45">
-                    Save {launchOffer.savingsVsMonthly} vs 12 months of Pro
-                    Monthly.
+                    {ui('Save')} {launchOffer.savingsVsMonthly}{' '}
+                    {ui('vs 12 months of Pro Monthly')}.
                   </p>
                 </div>
               ) : isPro ? (
                 <p className="mt-3 text-xs font-semibold text-white/45">
-                  $60 over 12 months. Switch to Annual to save.
+                  {ui('$60 over 12 months. Switch to Annual to save.')}
                 </p>
               ) : null}
 
@@ -101,7 +104,7 @@ export function HomePricingCards() {
                   isPro ? 'text-white/55' : 'text-black/50'
                 }`}
               >
-                {planData.description}
+                {ui(planData.description)}
               </p>
               <ul className="mt-8 flex-1 space-y-3">
                 {planData.features.map((feature) => (
@@ -115,7 +118,7 @@ export function HomePricingCards() {
                     >
                       <CheckIcon className="h-3 w-3" weight="bold" />
                     </span>
-                    {feature}
+                    {ui(feature)}
                   </li>
                 ))}
               </ul>
@@ -134,12 +137,12 @@ export function HomePricingCards() {
                 }
               >
                 {isTeams
-                  ? 'Talk to us'
+                  ? ui('Talk to us')
                   : isPro
                     ? annualPro
-                      ? 'Claim launch offer'
-                      : 'Choose monthly Pro'
-                    : 'Build for free'}
+                      ? ui('Claim launch offer')
+                      : ui('Choose monthly Pro')
+                    : ui('Build for free')}
               </Link>
             </article>
           );

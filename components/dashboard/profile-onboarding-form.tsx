@@ -175,12 +175,12 @@ export function ProfileOnboardingForm() {
     } else if (normalizedUsername.length < 3) {
       setAvailability({
         status: 'unavailable',
-        message: 'Username must be at least 3 characters.',
+        message: t('onboarding.usernameMin'),
       });
     } else {
       setAvailability({
         status: 'checking',
-        message: 'Checking availability…',
+        message: t('onboarding.checking'),
       });
     }
   };
@@ -329,12 +329,12 @@ export function ProfileOnboardingForm() {
                   maxLength={120}
                   name="displayName"
                   onChange={(event) => setDisplayName(event.target.value)}
-                  placeholder="Your display name"
+                  placeholder={t('onboarding.displayNamePlaceholder')}
                   required
                   value={displayName}
                 />
                 <span className="block text-xs leading-5 font-normal text-black/42">
-                  This is the name visitors will see on your profile.
+                  {t('onboarding.displayNameHelp')}
                 </span>
               </label>
 
@@ -398,9 +398,11 @@ export function ProfileOnboardingForm() {
 
             <div className={step === 2 ? 'space-y-7' : 'hidden'}>
               <fieldset>
-                <legend className="text-sm font-bold">Your sports</legend>
+                <legend className="text-sm font-bold">
+                  {t('onboarding.sports')}
+                </legend>
                 <p className="mt-1.5 text-xs leading-5 text-black/42">
-                  Select between one and three. You can change this later.
+                  {t('onboarding.sportsHelp')}
                 </p>
                 <div className="mt-4">
                   <SportsSelector
@@ -416,17 +418,17 @@ export function ProfileOnboardingForm() {
               </fieldset>
 
               <label className="block space-y-2.5 text-sm font-bold">
-                What are you currently working toward?
+                {t('onboarding.objective')}
                 <input
                   className="h-12 w-full rounded-xl border border-black/12 bg-white px-4 font-normal transition outline-none placeholder:text-black/28 focus:border-[#3157ff] focus:ring-3 focus:ring-[#3157ff]/10"
                   maxLength={160}
                   name="objective"
                   onChange={(event) => setObjective(event.target.value)}
-                  placeholder="For example: My first marathon"
+                  placeholder={t('onboarding.objectivePlaceholder')}
                   value={objective}
                 />
                 <span className="block text-xs leading-5 font-normal text-black/42">
-                  Optional — this becomes your first goal.
+                  {t('onboarding.objectiveHelp')}
                 </span>
               </label>
             </div>
@@ -465,7 +467,7 @@ export function ProfileOnboardingForm() {
                 })}
               </div>
               <p className="text-xs leading-5 text-black/42">
-                More styles and full customization are available in the editor.
+                {t('onboarding.stylesHelp')}
               </p>
             </div>
 
@@ -473,7 +475,7 @@ export function ProfileOnboardingForm() {
               <div className="mt-6">
                 <AuthFormMessage
                   message={state.message}
-                  title="Unable to create your profile"
+                  title={t('onboarding.createError')}
                   type="error"
                 />
               </div>
@@ -538,7 +540,7 @@ export function ProfileOnboardingForm() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(169,237,53,0.34),transparent_28%),radial-gradient(circle_at_82%_78%,rgba(49,87,255,0.24),transparent_32%)]" />
         <div className="relative flex w-full flex-col items-center">
           <p className="mb-5 text-center text-[10px] font-black tracking-[0.2em] text-black/35 uppercase">
-            Live preview
+            {t('onboarding.livePreview')}
           </p>
           <MobileProfileFrame
             builder={previewBuilder}

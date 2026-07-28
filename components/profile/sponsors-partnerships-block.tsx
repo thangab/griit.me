@@ -27,9 +27,11 @@ function getContactHref(contact: string) {
 function SponsorCard({
   sponsor,
   theme,
+  visitLabel,
 }: {
   sponsor: BuilderSponsor;
   theme: ReturnType<typeof getThemeRuntime>;
+  visitLabel: string;
 }) {
   const content = (
     <>
@@ -75,7 +77,7 @@ function SponsorCard({
       data-analytics-event="sponsor_click"
       data-analytics-target-key={sponsor.analyticsKey}
       data-analytics-target-type="sponsor"
-      aria-label={`Visit ${sponsor.name}`}
+      aria-label={`${visitLabel} ${sponsor.name}`}
       className={className}
       href={sponsor.websiteUrl}
       rel="noreferrer"
@@ -160,6 +162,7 @@ export function SponsorsPartnershipsBlock({
                 key={`${sponsor.name}-${sponsor.sortOrder}`}
                 sponsor={sponsor}
                 theme={theme}
+                visitLabel="Visit"
               />
             ))}
           </div>

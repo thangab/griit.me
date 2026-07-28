@@ -69,27 +69,25 @@ export function SignUpForm() {
       {state.message ? (
         <AuthFormMessage
           message={state.message}
-          title={
-            state.success ? 'Check your inbox' : 'Unable to create account'
-          }
+          title={state.success ? t('auth.checkInbox') : t('auth.createError')}
           type={state.success ? 'success' : 'error'}
         />
       ) : null}
       <SubmitButton />
       <p className="px-2 text-center text-xs leading-5 text-black/45">
-        By creating an account, you agree to the{' '}
+        {t('auth.legalPrefix')}{' '}
         <Link
           className="font-semibold text-black/70 hover:text-black"
           href="/terms"
         >
-          Terms of Service
+          {t('auth.terms')}
         </Link>{' '}
-        and acknowledge the{' '}
+        {t('auth.legalJoin')}{' '}
         <Link
           className="font-semibold text-black/70 hover:text-black"
           href="/privacy"
         >
-          Privacy Policy
+          {t('auth.privacy')}
         </Link>
         .
       </p>

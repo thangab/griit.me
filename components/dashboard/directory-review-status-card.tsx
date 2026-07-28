@@ -17,6 +17,7 @@ import {
 } from '@/lib/actions/athlete-directory-review';
 import type { DirectoryReview } from '@/lib/services/athlete-directory-review';
 import { Button } from '@/components/ui/button';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 const initialState: DirectoryReviewActionState = {
   success: false,
@@ -34,6 +35,7 @@ export function DirectoryReviewStatusCard({
   isDiscoverable: boolean;
   review: DirectoryReview | null;
 }) {
+  const ui = useUiCopy();
   const [state, action, pending] = useActionState(
     resubmitAthleteDirectoryReviewAction,
     initialState,
@@ -57,29 +59,39 @@ export function DirectoryReviewStatusCard({
           : EyeSlashIcon;
 
   const title = approved
-    ? 'Approved for the athlete directory'
+    ? ui('Approved for the athlete directory')
     : rejected
-      ? 'A few updates are needed'
+      ? ui('A few updates are needed')
       : awaitingReview
-        ? 'Your profile is being reviewed'
+        ? ui('Your profile is being reviewed')
         : isPublished && !isDiscoverable
-          ? 'Athlete directory is disabled'
+          ? ui('Athlete directory is disabled')
           : isPublished
-            ? 'Ready to request a review'
-            : 'Publish your profile when it is ready';
+            ? ui('Ready to request a review')
+            : ui('Publish your profile when it is ready');
 
   const description = approved
-    ? 'Your profile can now appear on the Athletes page and in its sport filters. You stay in control and can remove it from the directory at any time from Settings.'
+    ? ui(
+        'Your profile can now appear on the Athletes page and in its sport filters. You stay in control and can remove it from the directory at any time from Settings.',
+      )
     : rejected
       ? review?.rejectionReason ||
-        'Update your profile, then send it back when it is ready.'
+        ui('Update your profile, then send it back when it is ready.')
       : awaitingReview
-        ? 'The GRIIT team will check that it is complete and compliant before adding it to the Athletes page. Your public page remains live during the review.'
+        ? ui(
+            'The GRIIT team will check that it is complete and compliant before adding it to the Athletes page. Your public page remains live during the review.',
+          )
         : isPublished && !isDiscoverable
-          ? 'Enable “Show in athlete directory” in Settings to submit this profile.'
+          ? ui(
+              'Enable “Show in athlete directory” in Settings to submit this profile.',
+            )
           : isPublished
-            ? 'Send this live profile to the GRIIT team for directory approval.'
-            : 'Once it is Live and directory discovery is enabled, it will be sent to the GRIIT team for approval.';
+            ? ui(
+                'Send this live profile to the GRIIT team for directory approval.',
+              )
+            : ui(
+                'Once it is Live and directory discovery is enabled, it will be sent to the GRIIT team for approval.',
+              );
 
   return (
     <section
@@ -99,7 +111,7 @@ export function DirectoryReviewStatusCard({
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-black tracking-[0.18em] text-black/40 uppercase">
-            Athlete directory
+            {ui('Athlete directory')}
           </p>
           <h2 className="mt-2 text-lg font-black tracking-[-0.025em]">
             {title}
@@ -123,7 +135,9 @@ export function DirectoryReviewStatusCard({
                   ) : (
                     <ShieldCheckIcon className="h-4 w-4" />
                   )}
-                  {rejected ? 'Send updated profile' : 'Send for review'}
+                  {rejected
+                    ? ui('Send updated profile')
+                    : ui('Send for review')}
                 </Button>
               </form>
             ) : null}
@@ -137,7 +151,7 @@ export function DirectoryReviewStatusCard({
                 <Link
                   href={`/dashboard/profiles/${profileId}/settings` as Route}
                 >
-                  Open visibility settings
+                  {ui('Open visibility settings')}
                 </Link>
               </Button>
             ) : null}

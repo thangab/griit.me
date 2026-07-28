@@ -2,11 +2,15 @@ import type { Locale } from '@/lib/i18n/config';
 
 const en = {
   'language.english': 'English',
-  'language.french': 'Français',
+  'language.french': 'French',
   'language.label': 'Language',
   'common.dashboard': 'Dashboard',
   'common.loading': 'Loading…',
   'marketing.launch': 'Launch',
+  'marketing.launchAnnual': 'Pro Annual',
+  'marketing.launchForFirst': 'for the first',
+  'marketing.launchAthletes': 'athletes',
+  'marketing.launchSavings': 'less than Pro Monthly',
   'marketing.athletes': 'Athletes',
   'marketing.features': 'Features',
   'marketing.pricing': 'Pricing',
@@ -44,6 +48,13 @@ const en = {
   'auth.google': 'Continue with Google',
   'auth.or': 'or',
   'auth.forgotPassword': 'Forgot your password?',
+  'auth.checkInbox': 'Check your inbox',
+  'auth.createError': 'Unable to create account',
+  'auth.signInError': 'Unable to sign in',
+  'auth.legalPrefix': 'By creating an account, you agree to the',
+  'auth.terms': 'Terms of Service',
+  'auth.legalJoin': 'and acknowledge the',
+  'auth.privacy': 'Privacy Policy',
   'auth.javascript.title': 'JavaScript is required',
   'auth.javascript.description':
     'Enable JavaScript in your browser, then reload this page to use GRIIT Studio.',
@@ -65,6 +76,21 @@ const en = {
   'onboarding.back': 'Back',
   'onboarding.create': 'Create my profile',
   'onboarding.usernameHelp': 'Use lowercase letters, numbers, or underscores.',
+  'onboarding.usernameMin': 'Username must be at least 3 characters.',
+  'onboarding.checking': 'Checking availability…',
+  'onboarding.displayNamePlaceholder': 'Your display name',
+  'onboarding.displayNameHelp':
+    'This is the name visitors will see on your profile.',
+  'onboarding.sports': 'Your sports',
+  'onboarding.sportsHelp':
+    'Select between one and three. You can change this later.',
+  'onboarding.objective': 'What are you currently working toward?',
+  'onboarding.objectivePlaceholder': 'For example: My first marathon',
+  'onboarding.objectiveHelp': 'Optional — this becomes your first goal.',
+  'onboarding.stylesHelp':
+    'More styles and full customization are available in the editor.',
+  'onboarding.createError': 'Unable to create your profile',
+  'onboarding.livePreview': 'Live preview',
   'dashboard.studio': 'Studio',
   'dashboard.profiles': 'Profiles',
   'dashboard.signOut': 'Sign out',
@@ -75,6 +101,17 @@ const en = {
   'dashboard.nav.profiles': 'Profiles',
   'dashboard.nav.settings': 'Settings',
   'dashboard.nav.subscribe': 'Subscribe',
+  'dashboard.nav.athleteReviews': 'Athlete reviews',
+  'dashboard.menu.open': 'Open menu',
+  'dashboard.menu.close': 'Close menu',
+  'dashboard.menu.closeStudio': 'Close studio menu',
+  'dashboard.pro.readyTitle': "You're all set",
+  'dashboard.pro.readyDescription':
+    'Everything is unlocked. Keep building what comes next.',
+  'dashboard.pro.upgradeTitle': 'Unlock more with Pro',
+  'dashboard.pro.upgradeDescription':
+    'Unlock every template, advanced style, deeper analytics, and up to 5 profiles.',
+  'dashboard.pro.upgradeAction': 'Upgrade to Pro',
 } as const;
 
 export type DictionaryKey = keyof typeof en;
@@ -86,23 +123,27 @@ const fr: Dictionary = {
   'language.label': 'Langue',
   'common.dashboard': 'Tableau de bord',
   'common.loading': 'Chargement…',
-  'marketing.launch': 'Lancement',
+  'marketing.launch': 'Launch',
+  'marketing.launchAnnual': 'Pro Annual',
+  'marketing.launchForFirst': 'réservé aux',
+  'marketing.launchAthletes': 'premiers athlètes',
+  'marketing.launchSavings': 'd’économies par rapport à Pro mensuel',
   'marketing.athletes': 'Athlètes',
-  'marketing.features': 'Fonctionnalités',
-  'marketing.pricing': 'Tarifs',
+  'marketing.features': 'Pourquoi Griit',
+  'marketing.pricing': 'Offres',
   'marketing.login': 'Se connecter',
-  'marketing.getStarted': 'Commencer',
+  'marketing.getStarted': 'Créer mon profil',
   'marketing.product': 'Produit',
   'marketing.account': 'Compte',
-  'marketing.legal': 'Légal',
+  'marketing.legal': 'Informations légales',
   'marketing.signup': "S'inscrire",
   'marketing.support': 'Support',
   'marketing.privacy': 'Confidentialité',
   'marketing.terms': "Conditions d'utilisation",
   'marketing.footerDescription':
-    "Un profil public pensé pour votre prochain objectif, votre parcours d'athlète et les opportunités à venir.",
+    'Objectifs, résultats, entraînements et sponsors réunis sur un profil qui raconte vraiment votre parcours.',
   'marketing.footerCopyright':
-    'Conçu pour tous les athlètes et tous les sports.',
+    'Pensé pour tous les sports, construit pour chaque ambition.',
   'auth.identity': "Votre identité d'athlète",
   'auth.signIn.title': 'Bon retour',
   'auth.signIn.description': "Continuez à construire votre profil d'athlète.",
@@ -124,6 +165,13 @@ const fr: Dictionary = {
   'auth.google': 'Continuer avec Google',
   'auth.or': 'ou',
   'auth.forgotPassword': 'Mot de passe oublié ?',
+  'auth.checkInbox': 'Consultez votre boîte de réception',
+  'auth.createError': 'Impossible de créer le compte',
+  'auth.signInError': 'Impossible de vous connecter',
+  'auth.legalPrefix': 'En créant un compte, vous acceptez les',
+  'auth.terms': 'Conditions d’utilisation',
+  'auth.legalJoin': 'et reconnaissez avoir lu la',
+  'auth.privacy': 'Politique de confidentialité',
   'auth.javascript.title': 'JavaScript est requis',
   'auth.javascript.description':
     'Activez JavaScript dans votre navigateur, puis rechargez cette page pour utiliser GRIIT Studio.',
@@ -145,7 +193,24 @@ const fr: Dictionary = {
   'onboarding.back': 'Retour',
   'onboarding.create': 'Créer mon profil',
   'onboarding.usernameHelp':
-    'Utilisez des lettres minuscules, des chiffres ou des underscores.',
+    'Utilisez des lettres minuscules, des chiffres ou des tirets bas.',
+  'onboarding.usernameMin':
+    'Le nom d’utilisateur doit contenir au moins 3 caractères.',
+  'onboarding.checking': 'Vérification de la disponibilité…',
+  'onboarding.displayNamePlaceholder': 'Votre nom affiché',
+  'onboarding.displayNameHelp':
+    'C’est le nom que les visiteurs verront sur votre profil.',
+  'onboarding.sports': 'Vos sports',
+  'onboarding.sportsHelp':
+    'Sélectionnez entre un et trois sports. Vous pourrez les modifier plus tard.',
+  'onboarding.objective': 'Quel est votre objectif actuel ?',
+  'onboarding.objectivePlaceholder': 'Par exemple : mon premier marathon',
+  'onboarding.objectiveHelp':
+    'Facultatif — il deviendra votre premier objectif.',
+  'onboarding.stylesHelp':
+    'D’autres styles et tous les réglages seront disponibles dans l’éditeur.',
+  'onboarding.createError': 'Impossible de créer votre profil',
+  'onboarding.livePreview': 'Aperçu en direct',
   'dashboard.studio': 'Studio',
   'dashboard.profiles': 'Profils',
   'dashboard.signOut': 'Se déconnecter',
@@ -156,6 +221,17 @@ const fr: Dictionary = {
   'dashboard.nav.profiles': 'Profils',
   'dashboard.nav.settings': 'Paramètres',
   'dashboard.nav.subscribe': 'Abonnement',
+  'dashboard.nav.athleteReviews': 'Validation des athlètes',
+  'dashboard.menu.open': 'Ouvrir le menu',
+  'dashboard.menu.close': 'Fermer le menu',
+  'dashboard.menu.closeStudio': 'Fermer le menu Studio',
+  'dashboard.pro.readyTitle': 'Tout est prêt',
+  'dashboard.pro.readyDescription':
+    'Toutes les fonctionnalités sont débloquées. Continuez à construire la suite.',
+  'dashboard.pro.upgradeTitle': 'Débloquez plus avec Pro',
+  'dashboard.pro.upgradeDescription':
+    'Débloquez tous les modèles, les styles avancés, des statistiques détaillées et jusqu’à 5 profils.',
+  'dashboard.pro.upgradeAction': 'Passer à Pro',
 };
 
 export const dictionaries: Record<Locale, Dictionary> = { en, fr };

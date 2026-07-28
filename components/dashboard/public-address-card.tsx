@@ -8,6 +8,7 @@ import {
   GlobeIcon as Globe2,
 } from '@phosphor-icons/react/ssr';
 import { Button } from '@/components/ui/button';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 
 export function PublicAddressCard({
   username,
@@ -16,6 +17,7 @@ export function PublicAddressCard({
   username: string;
   isPublished: boolean;
 }) {
+  const ui = useUiCopy();
   const [copied, setCopied] = useState(false);
   const displayUrl = `griit.me/${username}`;
   const publicUrl = `https://${displayUrl}`;
@@ -39,14 +41,16 @@ export function PublicAddressCard({
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-bold tracking-[-0.01em]">Public profile</h2>
+              <h2 className="font-bold tracking-[-0.01em]">
+                {ui('Public profile')}
+              </h2>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-[#f7f6f1] px-2 py-0.5 text-[10px] font-black tracking-wider uppercase">
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
                     isPublished ? 'bg-emerald-500' : 'bg-amber-500'
                   }`}
                 />
-                {isPublished ? 'Published' : 'Draft'}
+                {isPublished ? ui('Published') : ui('Draft')}
               </span>
             </div>
             <p className="mt-2 truncate text-lg font-black tracking-[-0.03em] sm:text-xl">
@@ -54,8 +58,8 @@ export function PublicAddressCard({
             </p>
             <p className="mt-1 text-xs text-black/50">
               {isPublished
-                ? 'Ready to share anywhere.'
-                : 'Publish your profile when you are ready to share it.'}
+                ? ui('Ready to share anywhere.')
+                : ui('Publish your profile when you are ready to share it.')}
             </p>
           </div>
         </div>
@@ -74,7 +78,7 @@ export function PublicAddressCard({
             ) : (
               <Copy className="h-4 w-4" />
             )}
-            {copied ? 'Copied' : 'Copy URL'}
+            {copied ? ui('Copied') : ui('Copy URL')}
           </Button>
           {isPublished ? (
             <Button
@@ -83,7 +87,7 @@ export function PublicAddressCard({
               size="sm"
             >
               <a href={`/${username}`} rel="noreferrer" target="_blank">
-                Open
+                {ui('Open')}
                 <ArrowUpRight className="h-4 w-4" />
               </a>
             </Button>

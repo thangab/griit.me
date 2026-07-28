@@ -19,6 +19,7 @@ import {
   MagnifyingGlassIcon,
   QrCodeIcon,
   ShareNetworkIcon,
+  TranslateIcon,
   TrashIcon,
   WarningCircleIcon,
 } from '@phosphor-icons/react/ssr';
@@ -32,6 +33,8 @@ import {
 } from '@/lib/actions/profile-builder';
 import { deleteAccountAction } from '@/lib/actions/auth';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
+import { LanguageSwitcher } from '@/components/i18n/language-switcher';
+import { useUiCopy } from '@/components/i18n/use-ui-copy';
 import { Button } from '@/components/ui/button';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
@@ -67,12 +70,13 @@ function SettingToggle({
   disabled?: boolean;
   onChange?: () => void;
 }) {
+  const ui = useUiCopy();
   return (
     <label className="border-border flex cursor-pointer items-center justify-between gap-5 border-b py-4 last:border-b-0">
       <span className="min-w-0">
-        <span className="block text-sm font-semibold">{title}</span>
+        <span className="block text-sm font-semibold">{ui(title)}</span>
         <span className="text-muted-foreground mt-1 block text-xs leading-5">
-          {description}
+          {ui(description)}
         </span>
       </span>
       <span className="relative shrink-0">
@@ -111,6 +115,7 @@ export function PublicProfileSettings({
 }: {
   builder: ProfileBuilderState;
 }) {
+  const ui = useUiCopy();
   const router = useRouter();
   const [urlState, urlFormAction, urlPending] = useActionState(
     updateProfileUrlAction,
@@ -248,9 +253,9 @@ export function PublicProfileSettings({
               <GlobeIcon className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold">Public address</h2>
+              <h2 className="text-lg font-semibold">{ui('Public address')}</h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                The permanent link you share with your audience.
+                {ui('The permanent link you share with your audience.')}
               </p>
             </div>
           </div>
@@ -260,7 +265,7 @@ export function PublicProfileSettings({
             rel="noreferrer"
             target="_blank"
           >
-            Open profile
+            {ui('Open profile')}
             <ArrowSquareOutIcon className="h-4 w-4" />
           </a>
         </div>
@@ -273,7 +278,7 @@ export function PublicProfileSettings({
           />
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <label className="block min-w-0">
-              <span className="text-sm font-semibold">Username</span>
+              <span className="text-sm font-semibold">{ui('Username')}</span>
               <div className="border-border focus-within:ring-primary/15 mt-2 flex h-12 overflow-hidden rounded-xl border focus-within:ring-2">
                 <span className="text-muted-foreground bg-muted/40 border-border flex items-center border-r px-3 text-sm">
                   griit.me/
@@ -306,7 +311,7 @@ export function PublicProfileSettings({
               ) : (
                 <FloppyDiskIcon className="h-4 w-4" />
               )}
-              Update URL
+              {ui('Update URL')}
             </Button>
           </div>
           <div
@@ -328,10 +333,34 @@ export function PublicProfileSettings({
             ) : (
               <WarningCircleIcon className="h-3.5 w-3.5" />
             )}
-            {availabilityMessage}
+            {ui(availabilityMessage)}
           </div>
           <Feedback state={urlState} />
         </form>
+      </section>
+
+      <section className="border-border bg-background overflow-hidden rounded-2xl border">
+        <div className="border-border bg-muted/30 flex flex-col gap-4 border-b px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex items-start gap-3">
+            <span className="bg-background border-border flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-sm">
+              <TranslateIcon className="h-4 w-4" />
+            </span>
+            <div>
+              <h2 className="text-lg font-semibold">
+                {ui('Interface language')}
+              </h2>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {ui('Choose the language used across GRIIT Studio.')}
+              </p>
+            </div>
+          </div>
+          <LanguageSwitcher />
+        </div>
+        <p className="text-muted-foreground px-5 py-4 text-xs leading-5 sm:px-6">
+          {ui(
+            'Your choice is saved automatically and applies to the dashboard, editor, and marketing pages.',
+          )}
+        </p>
       </section>
 
       <form
@@ -350,9 +379,11 @@ export function PublicProfileSettings({
               <MagnifyingGlassIcon className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold">Visibility & discovery</h2>
+              <h2 className="text-lg font-semibold">
+                {ui('Visibility & discovery')}
+              </h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                Choose where people can find this profile.
+                {ui('Choose where people can find this profile.')}
               </p>
             </div>
           </div>
@@ -386,21 +417,25 @@ export function PublicProfileSettings({
             {visibilityPending ? (
               <span className="text-muted-foreground inline-flex items-center gap-2">
                 <CircleNotchIcon className="h-3.5 w-3.5 animate-spin" />
-                Saving…
+                {ui('Saving…')}
               </span>
             ) : visibilityDirty ? (
-              <span className="text-muted-foreground">Saving shortly…</span>
+              <span className="text-muted-foreground">
+                {ui('Saving shortly…')}
+              </span>
             ) : visibilityState.message ? (
               <span
                 className={
                   visibilityState.success ? 'text-emerald-700' : 'text-red-700'
                 }
               >
-                {visibilityState.success ? 'Saved' : visibilityState.message}
+                {visibilityState.success
+                  ? ui('Saved')
+                  : visibilityState.message}
               </span>
             ) : (
               <span className="text-muted-foreground">
-                Changes save automatically
+                {ui('Changes save automatically')}
               </span>
             )}
           </div>
@@ -422,10 +457,13 @@ export function PublicProfileSettings({
               <ShareNetworkIcon className="h-4 w-4" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold">Search & sharing</h2>
+              <h2 className="text-lg font-semibold">
+                {ui('Search & sharing')}
+              </h2>
               <p className="text-muted-foreground mt-1 text-sm">
-                Control how your profile appears in search results and shared
-                links.
+                {ui(
+                  'Control how your profile appears in search results and shared links.',
+                )}
               </p>
             </div>
           </div>
@@ -433,7 +471,7 @@ export function PublicProfileSettings({
             <div className="space-y-5">
               <label className="block">
                 <span className="flex items-center justify-between gap-3 text-sm font-semibold">
-                  Page title
+                  {ui('Page title')}
                   <span className="text-muted-foreground text-xs font-normal">
                     {seoTitle.length}/70
                   </span>
@@ -449,7 +487,7 @@ export function PublicProfileSettings({
               </label>
               <label className="block">
                 <span className="flex items-center justify-between gap-3 text-sm font-semibold">
-                  Description
+                  {ui('Description')}
                   <span className="text-muted-foreground text-xs font-normal">
                     {seoDescription.length}/160
                   </span>
@@ -476,7 +514,7 @@ export function PublicProfileSettings({
 
             <div>
               <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-[0.14em] uppercase">
-                Link preview
+                {ui('Link preview')}
               </p>
               <div className="border-border overflow-hidden rounded-2xl border shadow-sm">
                 <div
@@ -515,7 +553,7 @@ export function PublicProfileSettings({
               ) : (
                 <FloppyDiskIcon className="h-4 w-4" />
               )}
-              {settingsPending ? 'Saving…' : 'Save settings'}
+              {settingsPending ? ui('Saving…') : ui('Save settings')}
             </Button>
           </div>
         </section>
@@ -532,14 +570,15 @@ export function PublicProfileSettings({
                 Pro
               </span>
               <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[11px] font-semibold">
-                Coming soon
+                {ui('Coming soon')}
               </span>
             </div>
           </div>
-          <h2 className="mt-5 font-semibold">Custom domain</h2>
+          <h2 className="mt-5 font-semibold">{ui('Custom domain')}</h2>
           <p className="text-muted-foreground mt-2 text-sm leading-6">
-            Connect your own domain while keeping your Griit profile and
-            analytics.
+            {ui(
+              'Connect your own domain while keeping your Griit profile and analytics.',
+            )}
           </p>
         </div>
         <div className="border-border bg-background rounded-2xl border p-5 sm:p-6">
@@ -548,13 +587,14 @@ export function PublicProfileSettings({
               <QrCodeIcon className="h-4 w-4" />
             </span>
             <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-1 text-[11px] font-semibold">
-              Coming soon
+              {ui('Coming soon')}
             </span>
           </div>
-          <h2 className="mt-5 font-semibold">QR code</h2>
+          <h2 className="mt-5 font-semibold">{ui('QR code')}</h2>
           <p className="text-muted-foreground mt-2 text-sm leading-6">
-            Generate a downloadable QR code for events, kits, posters, and
-            social posts.
+            {ui(
+              'Generate a downloadable QR code for events, kits, posters, and social posts.',
+            )}
           </p>
         </div>
       </section>
@@ -567,23 +607,29 @@ export function PublicProfileSettings({
             </span>
             <div>
               <h2 className="text-lg font-semibold text-red-950">
-                Danger zone
+                {ui('Danger zone')}
               </h2>
               <p className="mt-1 text-sm text-red-800/75">
-                Manage irreversible profile and account deletion actions.
+                {ui(
+                  'Manage irreversible profile and account deletion actions.',
+                )}
               </p>
             </div>
           </div>
         </div>
         <div className="p-5 sm:p-6">
-          <h3 className="text-sm font-semibold">Delete this profile</h3>
+          <h3 className="text-sm font-semibold">{ui('Delete this profile')}</h3>
           <p className="text-muted-foreground mt-1 max-w-2xl text-xs leading-5">
-            This removes only <strong>{builder.profile.displayName}</strong> and
-            its content. Your account and other profiles remain available.
+            {ui('This removes only')}{' '}
+            <strong>{builder.profile.displayName}</strong>{' '}
+            {ui(
+              'and its content. Your account and other profiles remain available.',
+            )}
           </p>
           <label className="block max-w-xl">
             <span className="mt-4 block text-sm font-semibold">
-              Type <strong>{savedUsername}</strong> to confirm
+              {ui('Type the value below to confirm:')}{' '}
+              <strong>{savedUsername}</strong>
             </span>
             <input
               className="border-border mt-2 h-11 w-full rounded-xl border bg-transparent px-3 text-sm outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
@@ -603,7 +649,7 @@ export function PublicProfileSettings({
               ) : (
                 <TrashIcon className="h-4 w-4" />
               )}
-              Delete profile
+              {ui('Delete profile')}
             </Button>
             {deleteMessage ? (
               <p className="text-sm text-red-700">{deleteMessage}</p>
@@ -616,16 +662,17 @@ export function PublicProfileSettings({
           className="border-t border-red-100 p-5 sm:p-6"
         >
           <h3 className="text-sm font-semibold text-red-950">
-            Delete your entire account
+            {ui('Delete your entire account')}
           </h3>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-red-800/75">
-            This cancels your active subscription and permanently removes every
-            profile, block, uploaded image, and analytics event linked to your
-            account. This cannot be undone.
+            {ui(
+              'This cancels your active subscription and permanently removes every profile, block, uploaded image, and analytics event linked to your account. This cannot be undone.',
+            )}
           </p>
           <label className="mt-4 block max-w-xl">
             <span className="text-sm font-semibold">
-              Type <strong>DELETE MY ACCOUNT</strong> to confirm
+              {ui('Type the phrase below to confirm:')}{' '}
+              <strong>DELETE MY ACCOUNT</strong>
             </span>
             <input
               className="border-border mt-2 h-11 w-full rounded-xl border bg-transparent px-3 text-sm outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
@@ -647,7 +694,9 @@ export function PublicProfileSettings({
               ) : (
                 <WarningCircleIcon className="h-4 w-4" />
               )}
-              {accountPending ? 'Deleting account…' : 'Delete my account'}
+              {accountPending
+                ? ui('Deleting account…')
+                : ui('Delete my account')}
             </Button>
             {accountState.message && !accountState.success ? (
               <p className="text-sm text-red-700">{accountState.message}</p>

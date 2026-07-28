@@ -12,6 +12,7 @@ import {
 } from '@phosphor-icons/react/ssr';
 import type { AthleteDirectorySport } from '@/lib/services/athlete-directory';
 import { cn } from '@/lib/utils/cn';
+import { useI18n } from '@/components/i18n/i18n-provider';
 
 type AthleteSportFilterProps = {
   sports: AthleteDirectorySport[];
@@ -24,6 +25,8 @@ export function AthleteSportFilter({
   sports,
   selectedSlug,
 }: AthleteSportFilterProps) {
+  const { locale } = useI18n();
+  const isFrench = locale === 'fr';
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const selectedSport = sports.find((sport) => sport.slug === selectedSlug);
@@ -58,7 +61,7 @@ export function AthleteSportFilter({
         <div className="flex min-w-0 flex-1 [scrollbar-width:none] items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
           <Link className={linkClass(!selectedSlug)} href="/athletes">
             <SquaresFourIcon className="h-3.5 w-3.5" weight="bold" />
-            All
+            {isFrench ? 'Tous' : 'All'}
           </Link>
           {quickSports.map((sport) => (
             <Link
@@ -82,8 +85,10 @@ export function AthleteSportFilter({
           type="button"
           onClick={() => setOpen((current) => !current)}
         >
-          <span className="hidden sm:inline">Browse sports</span>
-          <span className="sm:hidden">Browse</span>
+          <span className="hidden sm:inline">
+            {isFrench ? 'Toutes les disciplines' : 'Browse sports'}
+          </span>
+          <span className="sm:hidden">{isFrench ? 'Sports' : 'Browse'}</span>
           <span className="rounded-md bg-current/10 px-1.5 py-0.5 text-[10px]">
             {sports.length}
           </span>
@@ -101,13 +106,17 @@ export function AthleteSportFilter({
         <div className="absolute top-[calc(100%+0.65rem)] right-0 left-0 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
           <div className="flex items-start justify-between gap-4 border-b border-black/8 px-4 py-3.5 sm:px-5">
             <div>
-              <p className="text-sm font-black">Find your sport</p>
+              <p className="text-sm font-black">
+                {isFrench ? 'Trouvez votre discipline' : 'Find your sport'}
+              </p>
               <p className="mt-0.5 text-xs text-black/42">
-                All sports, with the most popular first.
+                {isFrench
+                  ? 'Tous les sports, classés pour aller droit à l’essentiel.'
+                  : 'All sports, with the most popular first.'}
               </p>
             </div>
             <button
-              aria-label="Close sports"
+              aria-label={isFrench ? 'Fermer les sports' : 'Close sports'}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black/[0.04] text-black/45 hover:bg-black/[0.08] hover:text-black"
               type="button"
               onClick={() => setOpen(false)}
@@ -122,7 +131,9 @@ export function AthleteSportFilter({
               <input
                 autoFocus
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-black/32"
-                placeholder="Search all sports…"
+                placeholder={
+                  isFrench ? 'Rechercher un sport…' : 'Search all sports…'
+                }
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -162,7 +173,9 @@ export function AthleteSportFilter({
                 </div>
               ) : (
                 <div className="rounded-xl border border-dashed border-black/10 px-4 py-8 text-center text-sm text-black/40">
-                  No sport matches “{query.trim()}”.
+                  {isFrench
+                    ? `Aucun sport ne correspond à « ${query.trim()} ».`
+                    : `No sport matches “${query.trim()}”.`}
                 </div>
               )}
             </div>
