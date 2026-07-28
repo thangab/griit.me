@@ -41,15 +41,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [directory, profilesResult] = await Promise.all([
+    const supabase = createPublicSupabaseClient();
+    const [directory, reviewsResult] = await Promise.all([
       getAthleteDirectory(),
-      createPublicSupabaseClient()
-        .from('public_profiles')
-        .select('username, updated_at')
-        .eq('is_published', true)
-        .eq('allow_indexing', true)
-        .order('updated_at', { ascending: false }),
+      supabase
+        .from('athlete_directory_reviews')
+        .select('profile_id')
+        .eq('status', 'approved'),
     ]);
+    if (reviewsResult.error) throw reviewsResult.error;
+
+    const approvedProfileIds = (reviewsResult.data ?? []).map(
+      (review) => review.profile_id as number,
+    );
+    const profilesResult = approvedProfileIds.length
+      ? await supabase
+          .from('public_profiles')
+          .select('username, updated_at')
+          .in('id', approvedProfileIds)
+          .eq('is_published', true)
+          .eq('allow_indexing', true)
+          .order('updated_at', { ascending: false })
+      : { data: [] as IndexedProfileRow[], error: null };
+    if (profilesResult.error) throw profilesResult.error;
 
     const sportsWithAthletes = new Set(
       directory.athletes.flatMap((athlete) =>
