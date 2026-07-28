@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 import { GriitBranding } from '@/components/profile/griit-branding';
 import { PublicProfileView } from '@/components/profile/public-profile-view';
 import { ProfileAnalyticsTracker } from '@/components/profile/profile-analytics-tracker';
+import { JsonLd } from '@/components/seo/json-ld';
 import { getPublicProfileBuilderState } from '@/lib/services/profile-builder';
+import { getAbsoluteUrl } from '@/lib/seo/metadata';
 
 type PublicProfilePageProps = {
   params: Promise<{
@@ -19,7 +21,8 @@ export async function generateMetadata({
 
   if (!builder) {
     return {
-      title: 'Profile not found · Griit',
+      title: { absolute: 'Profile not found · Griit' },
+      robots: { index: false, follow: false },
     };
   }
 
@@ -33,13 +36,10 @@ export async function generateMetadata({
     'Athlete profile on Griit';
   const shareImage =
     builder.profile.shareImageUrl || builder.profile.avatarUrl || undefined;
-  const appUrl = (
-    process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-  ).replace(/\/$/, '');
-  const publicUrl = `${appUrl}/${builder.profile.username}`;
+  const publicUrl = getAbsoluteUrl(`/${builder.profile.username}`);
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: publicUrl },
     robots: builder.profile.allowIndexing
@@ -73,6 +73,28 @@ export default async function PublicProfilePage({
 
   return (
     <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'ProfilePage',
+          url: getAbsoluteUrl(`/${builder.profile.username}`),
+          mainEntity: {
+            '@type': 'Person',
+            name: builder.profile.displayName,
+            description: builder.profile.bio || undefined,
+            image: builder.profile.avatarUrl || undefined,
+            homeLocation: builder.profile.location
+              ? {
+                  '@type': 'Place',
+                  name: builder.profile.location,
+                }
+              : undefined,
+            knowsAbout: builder.profile.sports.length
+              ? builder.profile.sports
+              : undefined,
+          },
+        }}
+      />
       {builder.profile.id ? (
         <ProfileAnalyticsTracker profileId={builder.profile.id} />
       ) : null}

@@ -15,6 +15,8 @@ import { createServerSupabaseClient } from '@/lib/config/supabase-server';
 import { PricingPlanCards } from './pricing-plan-cards';
 import { launchOffer } from '@/lib/constants/billing';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { JsonLd } from '@/components/seo/json-ld';
+import { createMarketingMetadata, getSiteUrl } from '@/lib/seo/metadata';
 
 const pricingFr: Record<string, string> = {
   'Public profiles': 'Profils athlètes',
@@ -122,11 +124,21 @@ const pricingFr: Record<string, string> = {
     'Support prioritaire, avec les domaines personnalisés et codes QR téléchargeables bientôt disponibles.',
 };
 
-export const metadata: Metadata = {
-  title: 'Pricing — Griit',
-  description:
-    'Compare Griit Free, Pro, and Teams. Build an athlete profile, unlock advanced tools, or manage a complete athlete organization.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
+
+  return createMarketingMetadata({
+    title: isFrench
+      ? 'Tarifs Griit — Gratuit, Pro et Équipes'
+      : 'Griit pricing — Free, Pro, and Teams',
+    description: isFrench
+      ? 'Comparez les offres Griit Gratuit, Pro et Équipes pour créer votre profil sportif ou piloter plusieurs athlètes.'
+      : 'Compare Griit Free, Pro, and Teams to build an athlete profile, unlock advanced tools, or manage an athlete organization.',
+    path: '/pricing',
+    locale,
+  });
+}
 
 const comparisonRows = [
   { label: 'Public profiles', free: '1', pro: 'Up to 5', teams: 'Tailored' },
@@ -377,7 +389,8 @@ function ComparisonValue({
 }
 
 export default async function PricingPage() {
-  const isFrench = (await getRequestLocale()) === 'fr';
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
   const t = (text: string) => (isFrench ? (pricingFr[text] ?? text) : text);
   const supabase = await createServerSupabaseClient();
   const { data } = await supabase.auth.getSession();
@@ -385,6 +398,36 @@ export default async function PricingPage() {
 
   return (
     <main className="overflow-hidden">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: 'Griit',
+          description: isFrench
+            ? 'Une plateforme pour créer et gérer des profils publics de sportifs.'
+            : 'A platform for building and managing public athlete profiles.',
+          brand: { '@type': 'Brand', name: 'Griit' },
+          url: `${getSiteUrl()}/pricing`,
+          offers: [
+            {
+              '@type': 'Offer',
+              name: 'Griit Free',
+              price: '0',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+              url: `${getSiteUrl()}/sign-up`,
+            },
+            {
+              '@type': 'Offer',
+              name: 'Griit Pro Monthly',
+              price: '5',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+              url: `${getSiteUrl()}/pricing#launch-offer`,
+            },
+          ],
+        }}
+      />
       <section className="relative border-b border-black/10 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(169,237,53,0.4),transparent_24%),radial-gradient(circle_at_82%_28%,rgba(49,87,255,0.2),transparent_26%)]" />
         <div className="relative mx-auto max-w-[1180px] text-center">

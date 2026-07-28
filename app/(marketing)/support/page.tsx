@@ -9,12 +9,21 @@ import {
   QuestionIcon,
 } from '@phosphor-icons/react/ssr';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { createMarketingMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Support — Griit',
-  description:
-    'Get help with your Griit account, athlete profile, subscription, privacy, or public page.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
+
+  return createMarketingMetadata({
+    title: isFrench ? 'Support Griit' : 'Griit support',
+    description: isFrench
+      ? 'Obtenez de l’aide pour votre compte, votre profil sportif, votre abonnement ou votre page publique Griit.'
+      : 'Get help with your Griit account, athlete profile, subscription, privacy, or public page.',
+    path: '/support',
+    locale,
+  });
+}
 
 const helpTopics = [
   {

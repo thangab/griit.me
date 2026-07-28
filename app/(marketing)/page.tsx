@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
   ArrowRightIcon,
@@ -22,6 +23,24 @@ import {
 import { EditorShowcase } from './editor-showcase';
 import { LazyAnalyticsShowcase } from './lazy-analytics-showcase';
 import { HomePricingCards } from './home-pricing-cards';
+import { JsonLd } from '@/components/seo/json-ld';
+import { createMarketingMetadata, getSiteUrl } from '@/lib/seo/metadata';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
+
+  return createMarketingMetadata({
+    title: isFrench
+      ? 'Griit — Le lien en bio des sportifs'
+      : 'Griit — The link in bio built for athletes',
+    description: isFrench
+      ? 'Créez un profil sportif public autour de vos objectifs, réussites, contenus, sponsors et prochaines opportunités.'
+      : 'Build a public athlete profile around your goals, achievements, content, sponsors, and next opportunities.',
+    path: '/',
+    locale,
+  });
+}
 
 const featureCards = [
   {
@@ -71,6 +90,7 @@ const featureCards = [
 export default async function HomePage() {
   const locale = await getRequestLocale();
   const content = getMarketingHomeContent(locale);
+  const siteUrl = getSiteUrl();
   const localizedFeatures = featureCards.map((feature, index) => ({
     ...feature,
     title: content.features[index][0],
@@ -79,6 +99,59 @@ export default async function HomePage() {
 
   return (
     <main className="overflow-hidden">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'Organization',
+              '@id': `${siteUrl}/#organization`,
+              name: 'Griit',
+              url: siteUrl,
+              logo: `${siteUrl}/favicon.ico`,
+              email: 'support@griit.me',
+            },
+            {
+              '@type': 'WebSite',
+              '@id': `${siteUrl}/#website`,
+              url: siteUrl,
+              name: 'Griit',
+              publisher: { '@id': `${siteUrl}/#organization` },
+              inLanguage: locale,
+            },
+            {
+              '@type': 'SoftwareApplication',
+              name: 'Griit',
+              applicationCategory: 'SocialNetworkingApplication',
+              operatingSystem: 'Web',
+              url: siteUrl,
+              description: content.heroDescription,
+              offers: [
+                {
+                  '@type': 'Offer',
+                  name: 'Griit Free',
+                  price: '0',
+                  priceCurrency: 'USD',
+                },
+                {
+                  '@type': 'Offer',
+                  name: 'Griit Pro Monthly',
+                  price: '5',
+                  priceCurrency: 'USD',
+                },
+              ],
+            },
+            {
+              '@type': 'FAQPage',
+              mainEntity: content.faq.map(([question, answer]) => ({
+                '@type': 'Question',
+                name: question,
+                acceptedAnswer: { '@type': 'Answer', text: answer },
+              })),
+            },
+          ],
+        }}
+      />
       <section className="relative border-b border-black/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_16%,rgba(169,237,53,0.35),transparent_25%),radial-gradient(circle_at_85%_30%,rgba(49,87,255,0.18),transparent_28%)]" />
         <div className="relative mx-auto grid min-h-[calc(100svh-4.5rem)] max-w-[1380px] items-center gap-14 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-12 lg:py-20">

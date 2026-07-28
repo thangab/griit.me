@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
@@ -7,12 +6,6 @@ import { MarketingAnalytics } from '@/components/marketing/marketing-analytics';
 import { I18nProvider } from '@/components/i18n/i18n-provider';
 import { LanguageSwitcher } from '@/components/i18n/language-switcher';
 import { getRequestDictionary } from '@/lib/i18n/server';
-
-export const metadata: Metadata = {
-  title: 'Griit — The link in bio built for athletes',
-  description:
-    'Build your athlete identity around your next goal, achievements, content, sponsors, and partnership opportunities.',
-};
 
 export default async function MarketingLayout({
   children,

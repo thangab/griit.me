@@ -2,12 +2,23 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalDocument } from '../_components/legal-document';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { createMarketingMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Terms of Service — Griit',
-  description:
-    'The terms that apply when creating, publishing, and managing a Griit athlete profile.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
+
+  return createMarketingMetadata({
+    title: isFrench
+      ? 'Conditions d’utilisation — Griit'
+      : 'Terms of Service — Griit',
+    description: isFrench
+      ? 'Les conditions applicables à la création, la publication et la gestion d’un profil sportif Griit.'
+      : 'The terms that apply when creating, publishing, and managing a Griit athlete profile.',
+    path: '/terms',
+    locale,
+  });
+}
 
 function FrenchTermsContent() {
   return (

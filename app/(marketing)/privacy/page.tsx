@@ -2,12 +2,23 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalDocument } from '../_components/legal-document';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { createMarketingMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy — Griit',
-  description:
-    'Learn what information Griit collects, why we use it, and the choices available to you.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const isFrench = locale === 'fr';
+
+  return createMarketingMetadata({
+    title: isFrench
+      ? 'Politique de confidentialité — Griit'
+      : 'Privacy Policy — Griit',
+    description: isFrench
+      ? 'Découvrez quelles informations Griit collecte, pourquoi elles sont utilisées et les choix dont vous disposez.'
+      : 'Learn what information Griit collects, why we use it, and the choices available to you.',
+    path: '/privacy',
+    locale,
+  });
+}
 
 function FrenchPrivacyContent() {
   return (
