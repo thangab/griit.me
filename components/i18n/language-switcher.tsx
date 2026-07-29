@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { setLocaleAction } from '@/lib/actions/locale';
 import { useI18n } from '@/components/i18n/i18n-provider';
+import { type Locale } from '@/lib/i18n/config';
 import { cn } from '@/lib/utils/cn';
 
 export function LanguageSwitcher({
@@ -14,14 +17,34 @@ export function LanguageSwitcher({
   variant?: 'buttons' | 'select';
 }) {
   const { locale, t } = useI18n();
+  const router = useRouter();
+  const [selectedLocale, setSelectedLocale] = useState(locale);
+  const [isPending, startTransition] = useTransition();
+
+  const changeLocale = (nextLocale: Locale) => {
+    setSelectedLocale(nextLocale);
+
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set('locale', nextLocale);
+
+      try {
+        await setLocaleAction(formData);
+        router.refresh();
+      } catch {
+        setSelectedLocale(locale);
+      }
+    });
+  };
 
   if (variant === 'select') {
     return (
-      <form action={setLocaleAction} aria-label={t('language.label')}>
+      <div aria-label={t('language.label')}>
         <label className="sr-only" htmlFor="marketing-language">
           {t('language.label')}
         </label>
         <select
+          aria-busy={isPending}
           className={cn(
             'cursor-pointer rounded-full border font-bold transition-colors outline-none focus:ring-2 focus:ring-[#3157ff]/25',
             compact ? 'h-9 px-3 text-xs' : 'h-10 px-4 text-sm',
@@ -29,15 +52,15 @@ export function LanguageSwitcher({
               ? 'border-white/15 bg-white/[0.06] text-white'
               : 'border-black/10 bg-white text-[#151515] hover:border-black/20',
           )}
+          disabled={isPending}
           id="marketing-language"
-          name="locale"
-          value={locale}
-          onChange={(event) => event.currentTarget.form?.requestSubmit()}
+          value={selectedLocale}
+          onChange={(event) => changeLocale(event.target.value as Locale)}
         >
           <option value="en">{t('language.english')}</option>
           <option value="fr">{t('language.french')}</option>
         </select>
-      </form>
+      </div>
     );
   }
 
