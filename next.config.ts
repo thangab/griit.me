@@ -36,6 +36,12 @@ const demoAvatarPattern = {
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
+  experimental: {
+    // This project changes frequently during development. Turbopack's
+    // persistent dev cache can grow to several gigabytes and exhaust Node's
+    // heap, so keep dev compilation incremental only for the active session.
+    turbopackFileSystemCacheForDev: false,
+  },
   images: {
     remotePatterns: supabaseStoragePattern
       ? [
