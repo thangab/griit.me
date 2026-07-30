@@ -10,7 +10,9 @@ export type TemplateWording = {
   secondaryGoalLabel: string;
 };
 
-const templateWordingDefaults: Record<string, TemplateWording> = {
+export type TemplateWordingLocale = 'en' | 'fr';
+
+const englishTemplateWordingDefaults: Record<string, TemplateWording> = {
   spotlight: {
     discipline: 'Built for what’s next',
     badge: 'FOCUS',
@@ -101,6 +103,102 @@ const templateWordingDefaults: Record<string, TemplateWording> = {
   },
 };
 
+const frenchTemplateWordingDefaults: Record<string, TemplateWording> = {
+  spotlight: {
+    discipline: 'Cap sur la suite',
+    badge: 'EN VUE',
+    eyebrow: 'Le prochain cap',
+    profileLabel: 'À propos',
+    targetLabel: 'Objectif',
+    galleryLabel: 'Moments',
+    achievementsLabel: 'Réussites',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'À suivre',
+  },
+  momentum: {
+    discipline: 'Toujours en mouvement',
+    badge: 'ÉLAN',
+    eyebrow: 'Continuer d’avancer',
+    profileLabel: 'Le parcours',
+    targetLabel: 'Prochain cap',
+    galleryLabel: 'En action',
+    achievementsLabel: 'Temps forts',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'Prochaine étape',
+  },
+  impact: {
+    discipline: 'Prêt à marquer les esprits',
+    badge: 'IMPACT',
+    eyebrow: 'Faire la différence',
+    profileLabel: 'À propos',
+    targetLabel: 'Objectif majeur',
+    galleryLabel: 'Temps forts',
+    achievementsLabel: 'Réussites',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'Prochain défi',
+  },
+  obsidian: {
+    discipline: 'Focus total',
+    badge: 'FOCUS',
+    eyebrow: 'Le travail parle',
+    profileLabel: 'Mon histoire',
+    targetLabel: 'Mission actuelle',
+    galleryLabel: 'Dans les coulisses',
+    achievementsLabel: 'Réussites',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'Prochains défis',
+  },
+  midnight: {
+    discipline: 'Cap sur la progression',
+    badge: 'PROGRÈS',
+    eyebrow: 'La régularité fait la différence',
+    profileLabel: 'Mon profil',
+    targetLabel: 'Objectif actuel',
+    galleryLabel: 'La préparation',
+    achievementsLabel: 'Moments clés',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'Prochains caps',
+  },
+  pulse: {
+    discipline: 'À pleine intensité',
+    badge: 'ÉNERGIE',
+    eyebrow: 'Tout commence maintenant',
+    profileLabel: 'À propos',
+    targetLabel: 'Défi actuel',
+    galleryLabel: 'Temps forts',
+    achievementsLabel: 'Victoires',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'Prochain défi',
+  },
+  evergreen: {
+    discipline: 'Grandir à chaque étape',
+    badge: 'ÉVOLUTION',
+    eyebrow: 'Le chemin compte autant que l’arrivée',
+    profileLabel: 'Mon parcours',
+    targetLabel: 'Cap actuel',
+    galleryLabel: 'Moments',
+    achievementsLabel: 'Fiertés',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'La suite',
+  },
+  horizon: {
+    discipline: 'Toujours plus loin',
+    badge: 'AVENTURE',
+    eyebrow: 'Vers un nouveau chapitre',
+    profileLabel: 'À propos',
+    targetLabel: 'Prochain objectif',
+    galleryLabel: 'Carnet de route',
+    achievementsLabel: 'Temps forts',
+    activityLabel: 'Dernière activité',
+    secondaryGoalLabel: 'À l’horizon',
+  },
+};
+
+const templateWordingDefaults = {
+  en: englishTemplateWordingDefaults,
+  fr: frenchTemplateWordingDefaults,
+} satisfies Record<TemplateWordingLocale, Record<string, TemplateWording>>;
+
 const templateWordingKeys = [
   'discipline',
   'badge',
@@ -113,29 +211,51 @@ const templateWordingKeys = [
   'secondaryGoalLabel',
 ] as const satisfies readonly (keyof TemplateWording)[];
 
-export function getDefaultTemplateWording(templateId: string): TemplateWording {
-  const defaults = templateWordingDefaults[templateId];
+export function getDefaultTemplateWording(
+  templateId: string,
+  locale: TemplateWordingLocale = 'en',
+): TemplateWording {
+  const defaults = templateWordingDefaults[locale][templateId];
   if (defaults) return { ...defaults };
 
-  return {
-    discipline: 'Personal profile',
-    badge: 'FOCUS',
-    eyebrow: 'Built for the next challenge',
-    profileLabel: 'The story',
-    targetLabel: 'Next objective',
-    galleryLabel: 'Highlights',
-    achievementsLabel: 'Milestones',
-    activityLabel: 'Latest updates',
-    secondaryGoalLabel: "What's next",
-  };
+  return locale === 'fr'
+    ? {
+        discipline: 'Profil sportif',
+        badge: 'OBJECTIF',
+        eyebrow: 'Prêt pour le prochain défi',
+        profileLabel: 'Le parcours',
+        targetLabel: 'Prochain objectif',
+        galleryLabel: 'Temps forts',
+        achievementsLabel: 'Étapes franchies',
+        activityLabel: 'Dernières actualités',
+        secondaryGoalLabel: 'La suite',
+      }
+    : {
+        discipline: 'Personal profile',
+        badge: 'FOCUS',
+        eyebrow: 'Built for the next challenge',
+        profileLabel: 'The story',
+        targetLabel: 'Next objective',
+        galleryLabel: 'Highlights',
+        achievementsLabel: 'Milestones',
+        activityLabel: 'Latest updates',
+        secondaryGoalLabel: "What's next",
+      };
 }
 
 export function resolveTemplateWording(
   theme: Record<string, unknown>,
   templateId = '',
+  locale?: TemplateWordingLocale,
 ): TemplateWording {
-  const defaults = getDefaultTemplateWording(templateId);
-  const overrides = getTemplateWordingOverrides(theme, templateId);
+  const resolvedLocale =
+    locale ?? (theme.templateWordingLocale === 'fr' ? 'fr' : 'en');
+  const defaults = getDefaultTemplateWording(templateId, resolvedLocale);
+  const overrides = getTemplateWordingOverrides(
+    theme,
+    templateId,
+    resolvedLocale,
+  );
 
   return Object.fromEntries(
     Object.entries(defaults).map(([key, fallback]) => [
@@ -150,6 +270,7 @@ export function resolveTemplateWording(
 export function getTemplateWordingOverrides(
   theme: Record<string, unknown>,
   templateId = '',
+  locale?: TemplateWordingLocale,
 ): Partial<TemplateWording> {
   const hasExplicitOverrides = Object.prototype.hasOwnProperty.call(
     theme,
@@ -162,7 +283,9 @@ export function getTemplateWordingOverrides(
     source && typeof source === 'object'
       ? (source as Record<string, unknown>)
       : {};
-  const defaults = getDefaultTemplateWording(templateId);
+  const resolvedLocale =
+    locale ?? (theme.templateWordingLocale === 'fr' ? 'fr' : 'en');
+  const defaults = getDefaultTemplateWording(templateId, resolvedLocale);
 
   return Object.fromEntries(
     templateWordingKeys.flatMap((key) => {
@@ -174,7 +297,10 @@ export function getTemplateWordingOverrides(
       // Older saves contained every default. Ignore those untouched legacy
       // values once, then persist only explicit overrides going forward.
       const isKnownDefault = Object.values(templateWordingDefaults).some(
-        (wording) => wording[key] === normalizedValue,
+        (localizedDefaults) =>
+          Object.values(localizedDefaults).some(
+            (wording) => wording[key] === normalizedValue,
+          ),
       );
 
       if (

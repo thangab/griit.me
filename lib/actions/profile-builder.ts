@@ -43,6 +43,7 @@ import { parseMediaUrl } from '@/lib/utils/media-embed';
 import { goalDateDisplays } from '@/lib/utils/goal-date';
 import { createSportSlug } from '@/lib/constants/sports';
 import { submitProfileForDirectoryReview } from '@/lib/services/athlete-directory-review';
+import { getRequestLocale } from '@/lib/i18n/server';
 
 export interface ProfileBuilderActionState {
   success: boolean;
@@ -330,6 +331,7 @@ const profileVisibilitySchema = z.object({
 
 const templateSchema = z.object({
   templateId: z.string().refine(isProfileTemplateId, 'Invalid template.'),
+  templateWordingLocale: z.enum(['en', 'fr']),
   coverUrl: urlSchema,
   colorPreset: z
     .string()
@@ -1536,7 +1538,10 @@ export async function createProfileAction(
       username: parsed.data.username,
       display_name: parsed.data.displayName,
       avatar_url: null,
-      theme: { templateId: parsed.data.templateId },
+      theme: {
+        templateId: parsed.data.templateId,
+        templateWordingLocale: await getRequestLocale(),
+      },
       is_published: false,
       show_branding: !subscription.isActive,
     })
@@ -1936,6 +1941,7 @@ export async function updateProfileTemplateAction(
 
   const parsed = templateSchema.safeParse({
     templateId: getString(formData, 'templateId'),
+    templateWordingLocale: getString(formData, 'templateWordingLocale'),
     coverUrl: getString(formData, 'coverUrl'),
     colorPreset: getString(formData, 'colorPreset'),
     fontPreset: getString(formData, 'fontPreset'),
@@ -2160,6 +2166,7 @@ export async function updateProfileTemplateAction(
       theme: {
         ...existingTheme,
         templateId,
+        templateWordingLocale: parsed.data.templateWordingLocale,
         coverImageUrl: parsed.data.coverUrl,
         colorPreset: parsed.data.colorPreset,
         customColors: {

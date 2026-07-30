@@ -79,6 +79,7 @@ import {
   type GoalDateDisplay,
 } from '@/lib/utils/goal-date';
 import { useUiCopy } from '@/components/i18n/use-ui-copy';
+import { useI18n } from '@/components/i18n/i18n-provider';
 
 const mobilePanels = [
   { id: 'content', label: 'Content', icon: FileText },
@@ -1107,6 +1108,7 @@ function HeaderBackgroundControls({
 
 function TemplateSelector({
   profileId,
+  initialTemplateWordingLocale,
   subscription,
   selectedTemplateId,
   coverUrl,
@@ -1125,6 +1127,7 @@ function TemplateSelector({
   onRedo,
 }: {
   profileId: number;
+  initialTemplateWordingLocale: 'en' | 'fr';
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
   coverUrl: string;
@@ -1143,6 +1146,7 @@ function TemplateSelector({
   onRedo: () => void;
 }) {
   const ui = useUiCopy();
+  const { locale } = useI18n();
   const [state, formAction, pending] = useActionState(
     updateProfileTemplateAction,
     initialTemplateState,
@@ -1211,6 +1215,15 @@ function TemplateSelector({
       lastSavedFingerprintRef.current = getFormFingerprint(formRef.current);
     }
   }, []);
+
+  useEffect(() => {
+    if (initialTemplateWordingLocale === locale) return;
+
+    // Persist the content language once so the public profile uses the same
+    // localized defaults as the editor preview, without storing every label.
+    lastSavedFingerprintRef.current = '';
+    scheduleAutosaveRef.current(120);
+  }, [initialTemplateWordingLocale, locale]);
 
   useEffect(
     () => () => {
@@ -1310,6 +1323,7 @@ function TemplateSelector({
       </div>
 
       <input name="templateId" type="hidden" value={selectedTemplateId} />
+      <input name="templateWordingLocale" type="hidden" value={locale} />
       <input
         name="colorPreset"
         type="hidden"
@@ -1959,6 +1973,67 @@ function TemplateSelector({
           description="Organized by profile element"
           icon={Palette}
         >
+          <details className="border-border group/presets overflow-hidden rounded-lg border">
+            <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-semibold">
+                  {ui('Quick presets')}
+                </span>
+                <span className="text-muted-foreground block text-[11px]">
+                  {colorPresets.find(
+                    (preset) => preset.id === themeSettings.colorPreset,
+                  )?.name ?? ui('Custom colors')}
+                </span>
+              </span>
+              <ChevronDown className="text-muted-foreground h-4 w-4 transition-transform group-open/presets:rotate-180" />
+            </summary>
+            <div className="border-border grid grid-cols-2 gap-2 border-t p-3">
+              {colorPresets.map((preset) => (
+                <button
+                  type="button"
+                  key={preset.id}
+                  onClick={() =>
+                    handleThemeChange({
+                      ...themeSettings,
+                      colorPreset: preset.id,
+                      customColors: {
+                        background: preset.colors[0],
+                        surface: preset.colors[1],
+                        foreground: preset.colors[2],
+                        accent: preset.colors[3],
+                        social: preset.colors[4],
+                        headerText: preset.colors[5],
+                        headerMutedText: preset.colors[10],
+                        blockTitle: preset.colors[6],
+                        description: preset.colors[7],
+                        accentText: preset.colors[8],
+                        socialText: preset.colors[9],
+                      },
+                    })
+                  }
+                  className={cn(
+                    'border-border cursor-pointer rounded-lg border p-2.5 text-left',
+                    themeSettings.colorPreset === preset.id &&
+                      'border-primary/60 ring-primary/10 ring-2',
+                  )}
+                >
+                  <span className="flex gap-1">
+                    {[0, 1, 3, 4].map((index) => (
+                      <span
+                        key={`${preset.colors[index]}-${index}`}
+                        className="h-4 flex-1 rounded-sm"
+                        style={{ backgroundColor: preset.colors[index] }}
+                      />
+                    ))}
+                  </span>
+                  <span className="mt-2 block text-xs font-medium">
+                    {ui(preset.name)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </details>
+
           {!hasProStyles ? (
             <div className="border-primary/20 bg-primary/5 text-primary flex items-start gap-2 rounded-lg border p-3 text-xs leading-5">
               <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -2086,67 +2161,6 @@ function TemplateSelector({
               </div>
             </div>
           </fieldset>
-
-          <details className="border-border group/presets overflow-hidden rounded-lg border">
-            <summary className="hover:bg-muted/60 flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 transition-colors [&::-webkit-details-marker]:hidden">
-              <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold">
-                  {ui('Quick presets')}
-                </span>
-                <span className="text-muted-foreground block text-[11px]">
-                  {colorPresets.find(
-                    (preset) => preset.id === themeSettings.colorPreset,
-                  )?.name ?? ui('Custom colors')}
-                </span>
-              </span>
-              <ChevronDown className="text-muted-foreground h-4 w-4 transition-transform group-open/presets:rotate-180" />
-            </summary>
-            <div className="border-border grid grid-cols-2 gap-2 border-t p-3">
-              {colorPresets.map((preset) => (
-                <button
-                  type="button"
-                  key={preset.id}
-                  onClick={() =>
-                    handleThemeChange({
-                      ...themeSettings,
-                      colorPreset: preset.id,
-                      customColors: {
-                        background: preset.colors[0],
-                        surface: preset.colors[1],
-                        foreground: preset.colors[2],
-                        accent: preset.colors[3],
-                        social: preset.colors[4],
-                        headerText: preset.colors[5],
-                        headerMutedText: preset.colors[10],
-                        blockTitle: preset.colors[6],
-                        description: preset.colors[7],
-                        accentText: preset.colors[8],
-                        socialText: preset.colors[9],
-                      },
-                    })
-                  }
-                  className={cn(
-                    'border-border cursor-pointer rounded-lg border p-2.5 text-left',
-                    themeSettings.colorPreset === preset.id &&
-                      'border-primary/60 ring-primary/10 ring-2',
-                  )}
-                >
-                  <span className="flex gap-1">
-                    {[0, 1, 3, 4].map((index) => (
-                      <span
-                        key={`${preset.colors[index]}-${index}`}
-                        className="h-4 flex-1 rounded-sm"
-                        style={{ backgroundColor: preset.colors[index] }}
-                      />
-                    ))}
-                  </span>
-                  <span className="mt-2 block text-xs font-medium">
-                    {ui(preset.name)}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </details>
         </StyleSection>
 
         <StyleSection
@@ -2315,6 +2329,7 @@ function TemplateSelector({
 
 function StylesPanel({
   profileId,
+  initialTemplateWordingLocale,
   subscription,
   selectedTemplateId,
   coverUrl,
@@ -2333,6 +2348,7 @@ function StylesPanel({
   onRedo,
 }: {
   profileId: number;
+  initialTemplateWordingLocale: 'en' | 'fr';
   subscription: SubscriptionState;
   selectedTemplateId: ProfileTemplateId;
   coverUrl: string;
@@ -2356,6 +2372,7 @@ function StylesPanel({
     <aside className="border-border bg-background/80 min-h-0 min-w-0 space-y-5 rounded-xl border p-4 sm:p-5 xl:h-full xl:overflow-y-auto xl:overscroll-contain xl:[contain:size]">
       <TemplateSelector
         profileId={profileId}
+        initialTemplateWordingLocale={initialTemplateWordingLocale}
         subscription={subscription}
         selectedTemplateId={selectedTemplateId}
         coverUrl={coverUrl}
@@ -2483,6 +2500,7 @@ export function DesignWorkspace({
   builder: ProfileBuilderState;
   subscription: SubscriptionState;
 }) {
+  const { locale } = useI18n();
   const [activePanel, setActivePanel] = useState<MobilePanel>('preview');
   const [publishPending, startPublishTransition] = useTransition();
   const [publishMessage, setPublishMessage] = useState('');
@@ -2508,12 +2526,17 @@ export function DesignWorkspace({
     getTemplateWordingOverrides(
       builder.profile.theme,
       resolveProfileTemplateId(builder.profile.theme),
+      locale,
     ),
   );
   const templateWording = useMemo(
     () =>
-      resolveTemplateWording({ templateWordingOverrides }, selectedTemplateId),
-    [selectedTemplateId, templateWordingOverrides],
+      resolveTemplateWording(
+        { templateWordingOverrides },
+        selectedTemplateId,
+        locale,
+      ),
+    [locale, selectedTemplateId, templateWordingOverrides],
   );
   const currentStyleSnapshot = useMemo<StyleSnapshot>(
     () => ({
@@ -2628,12 +2651,14 @@ export function DesignWorkspace({
           ...deferredThemeSettings,
           templateWordingOverrides,
           templateWording,
+          templateWordingLocale: locale,
         },
       },
     }),
     [
       deferredThemeSettings,
       draftBuilder,
+      locale,
       selectedTemplateId,
       templateWording,
       templateWordingOverrides,
@@ -2753,6 +2778,9 @@ export function DesignWorkspace({
         >
           <StylesPanel
             profileId={builder.profile.id ?? 0}
+            initialTemplateWordingLocale={
+              builder.profile.theme.templateWordingLocale === 'fr' ? 'fr' : 'en'
+            }
             subscription={subscription}
             selectedTemplateId={selectedTemplateId}
             coverUrl={draftBuilder.profile.coverUrl}
