@@ -652,6 +652,10 @@ const frenchUiCopy: Record<string, string> = {
     'Expliquez ce qui doit être modifié avant une nouvelle vérification.',
   Approve: 'Valider',
   'Request changes': 'Demander des ajustements',
+  'Profile preview screenshot': 'Screenshot du profil',
+  'Upload the screenshot used on the homepage, inspiration page, and athlete directory.':
+    'Importez le screenshot utilisé sur l’accueil, la page Inspiration et l’annuaire des athlètes.',
+  'Save preview image': 'Enregistrer l’aperçu',
   'Supported by': 'Soutenu par',
   Visit: 'Visiter',
   'Partnership opportunities': 'Opportunités de partenariat',

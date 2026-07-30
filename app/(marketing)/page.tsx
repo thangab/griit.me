@@ -16,10 +16,9 @@ import {
 import { launchOffer } from '@/lib/constants/billing';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { getMarketingHomeContent } from '@/lib/i18n/marketing-home';
-import {
-  HeroProfileCollage,
-  TemplateProfileGallery,
-} from './athlete-profile-showcase';
+import { HeroProfileCollage } from './athlete-profile-showcase';
+import { PublicProfilePreviewCard } from '@/components/marketing/public-profile-preview-card';
+import { getInspirationProfiles } from '@/lib/services/inspiration-gallery';
 import { EditorShowcase } from './editor-showcase';
 import { LazyAnalyticsShowcase } from './lazy-analytics-showcase';
 import { HomePricingCards } from './home-pricing-cards';
@@ -89,6 +88,7 @@ const featureCards = [
 
 export default async function HomePage() {
   const locale = await getRequestLocale();
+  const inspirationProfiles = (await getInspirationProfiles()).slice(0, 3);
   const content = getMarketingHomeContent(locale);
   const siteUrl = getSiteUrl();
   const localizedFeatures = featureCards.map((feature, index) => ({
@@ -314,23 +314,40 @@ export default async function HomePage() {
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div className="max-w-3xl">
               <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
-                {content.templatesEyebrow}
+                {locale === 'fr' ? 'Inspiration' : 'Built with Griit'}
               </p>
               <h2 className="mt-5 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
-                {content.templatesTitle}
+                {locale === 'fr'
+                  ? 'Chaque parcours mérite sa propre direction.'
+                  : 'Every athlete. A different way to stand out.'}
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-6 text-black/50">
-              {content.templatesDescription}
+              {locale === 'fr'
+                ? 'Explorez des profils complets, des identités visuelles et des façons concrètes de raconter un objectif sportif.'
+                : 'Explore complete profiles, visual identities, and real ways to turn an athletic goal into a memorable story.'}
             </p>
           </div>
-          <TemplateProfileGallery />
-          <div className="mt-10 text-center">
+          <div className="-mx-5 mt-14 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pt-2 pb-8 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+            {inspirationProfiles.map((athlete, index) => (
+              <div
+                className={`w-[82vw] max-w-[340px] shrink-0 snap-center sm:w-auto sm:max-w-none ${
+                  index === 1 ? 'sm:translate-y-8' : ''
+                }`}
+                key={athlete.id}
+              >
+                <PublicProfilePreviewCard athlete={athlete} locale={locale} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-14 text-center sm:mt-20">
             <Link
-              className="inline-flex h-11 items-center gap-2 rounded-full border border-black/15 bg-white px-5 text-sm font-bold hover:bg-black hover:text-white"
-              href="/sign-up"
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-[#151515] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              href="/inspiration"
             >
-              {content.templatesCta}
+              {locale === 'fr'
+                ? 'Explorer la galerie d’inspiration'
+                : 'Explore the inspiration gallery'}
               <ArrowRightIcon className="h-4 w-4" weight="bold" />
             </Link>
           </div>

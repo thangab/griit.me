@@ -29,12 +29,72 @@ async function userIsAdmin(userId: string) {
   return data?.is_admin === true;
 }
 
-function refreshDirectoryReviewPages(profileId: number) {
+function refreshPreviewSurfaces() {
+  revalidatePath('/');
   revalidatePath('/athletes');
+  revalidatePath('/inspiration');
   revalidatePath('/dashboard/admin/athletes');
+  updateTag(athleteDirectoryCacheTag);
+}
+
+function refreshDirectoryReviewPages(profileId: number) {
+  refreshPreviewSurfaces();
   revalidatePath(`/dashboard/profiles/${profileId}`);
   revalidatePath(`/dashboard/profiles/${profileId}/settings`);
-  updateTag(athleteDirectoryCacheTag);
+}
+
+export async function saveAthletePreviewImageAction(
+  _previousState: DirectoryReviewActionState,
+  formData: FormData,
+): Promise<DirectoryReviewActionState> {
+  const user = await getAuthenticatedUser();
+  if (!user || !(await userIsAdmin(user.id))) {
+    return { success: false, message: 'Administrator access required.' };
+  }
+
+  const profileId = Number(formData.get('profileId'));
+  const rawPreviewImageUrl = String(
+    formData.get('previewImageUrl') ?? '',
+  ).trim();
+  if (!Number.isInteger(profileId) || profileId <= 0) {
+    return { success: false, message: 'Invalid profile.' };
+  }
+
+  let previewImageUrl: string | null = null;
+  if (rawPreviewImageUrl) {
+    try {
+      const parsedUrl = new URL(rawPreviewImageUrl);
+      if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
+        throw new Error('Unsupported protocol.');
+      }
+      previewImageUrl = parsedUrl.toString();
+    } catch {
+      return { success: false, message: 'Invalid preview image URL.' };
+    }
+  }
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data: updatedProfile, error } = await serviceSupabase
+    .from('public_profiles')
+    .update({ preview_image_url: previewImageUrl })
+    .eq('id', profileId)
+    .select('id')
+    .maybeSingle();
+
+  if (error || !updatedProfile) {
+    return {
+      success: false,
+      message: error?.message ?? 'Profile not found.',
+    };
+  }
+
+  refreshDirectoryReviewPages(profileId);
+  return {
+    success: true,
+    message: previewImageUrl
+      ? 'Preview image saved.'
+      : 'Preview image removed.',
+  };
 }
 
 export async function moderateAthleteDirectoryAction(

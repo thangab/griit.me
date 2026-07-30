@@ -94,6 +94,7 @@ export const public_profiles = pgTable(
     seo_title: varchar('seo_title', { length: 70 }),
     seo_description: varchar('seo_description', { length: 160 }),
     share_image_url: text('share_image_url'),
+    preview_image_url: text('preview_image_url'),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().notNull(),
   },

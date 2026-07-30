@@ -1,12 +1,19 @@
 import { notFound } from 'next/navigation';
 import { ShieldCheckIcon } from '@phosphor-icons/react/ssr';
 import { AthleteDirectoryReviewCard } from '@/components/admin/athlete-directory-review-card';
-import { getAdminDirectoryReviews } from '@/lib/services/athlete-directory-review';
+import { DemoProfilePreviewManager } from '@/components/admin/demo-profile-preview-manager';
+import {
+  getAdminDemoProfiles,
+  getAdminDirectoryReviews,
+} from '@/lib/services/athlete-directory-review';
 import { getRequestLocale } from '@/lib/i18n/server';
 
 export default async function AthleteDirectoryAdminPage() {
-  const reviews = await getAdminDirectoryReviews();
-  if (!reviews) notFound();
+  const [reviews, demoProfiles] = await Promise.all([
+    getAdminDirectoryReviews(),
+    getAdminDemoProfiles(),
+  ]);
+  if (!reviews || !demoProfiles) notFound();
   const locale = await getRequestLocale();
   const fr = locale === 'fr';
 
@@ -55,6 +62,7 @@ export default async function AthleteDirectoryAdminPage() {
             {pending.map((review) => (
               <AthleteDirectoryReviewCard
                 key={review.profileId}
+                locale={locale}
                 review={review}
               />
             ))}
@@ -90,12 +98,15 @@ export default async function AthleteDirectoryAdminPage() {
             {reviewed.map((review) => (
               <AthleteDirectoryReviewCard
                 key={review.profileId}
+                locale={locale}
                 review={review}
               />
             ))}
           </div>
         </section>
       ) : null}
+
+      <DemoProfilePreviewManager fr={fr} profiles={demoProfiles} />
     </div>
   );
 }

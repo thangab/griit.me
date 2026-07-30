@@ -19,6 +19,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: getAbsoluteUrl('/inspiration'),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: getAbsoluteUrl('/pricing'),
       changeFrequency: 'weekly',
       priority: 0.8,

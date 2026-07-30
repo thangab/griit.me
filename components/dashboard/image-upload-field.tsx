@@ -29,7 +29,8 @@ type ImageFolder =
   | 'sponsors'
   | 'offers'
   | 'links'
-  | 'sharing';
+  | 'sharing'
+  | 'previews';
 
 const maxImageDimension: Record<ImageFolder, number> = {
   avatars: 800,
@@ -40,6 +41,7 @@ const maxImageDimension: Record<ImageFolder, number> = {
   offers: 1400,
   links: 1200,
   sharing: 1600,
+  previews: 1600,
 };
 
 async function optimizeImage(file: File, folder: ImageFolder) {
@@ -104,7 +106,7 @@ type ImageUploadFieldProps = {
   value: string;
   folder: ImageFolder;
   helpText?: string;
-  previewShape?: 'square' | 'wide' | 'logo';
+  previewShape?: 'square' | 'wide' | 'logo' | 'portrait';
   onValueChange?: (url: string) => void;
 };
 
@@ -282,6 +284,7 @@ export function ImageUploadField({
             'bg-muted relative flex h-20 shrink-0 items-center justify-center overflow-hidden border bg-cover bg-center',
             previewShape === 'square' && 'w-20 rounded-full',
             previewShape === 'wide' && 'w-28 rounded-lg',
+            previewShape === 'portrait' && 'w-16 rounded-lg',
             previewShape === 'logo' &&
               'w-28 rounded-lg bg-contain bg-no-repeat',
           )}

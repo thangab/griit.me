@@ -8,16 +8,20 @@ import {
   CheckCircleIcon,
   CircleNotchIcon,
   ClockCountdownIcon,
+  FloppyDiskIcon,
   XCircleIcon,
 } from '@phosphor-icons/react/ssr';
 import {
   moderateAthleteDirectoryAction,
+  saveAthletePreviewImageAction,
   type DirectoryReviewActionState,
 } from '@/lib/actions/athlete-directory-review';
 import type { AdminDirectoryReview } from '@/lib/services/athlete-directory-review';
 import { Button } from '@/components/ui/button';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { useUiCopy } from '@/components/i18n/use-ui-copy';
+import { ImageUploadField } from '@/components/dashboard/image-upload-field';
+import type { Locale } from '@/lib/i18n/config';
 
 const initialState: DirectoryReviewActionState = {
   success: false,
@@ -26,8 +30,10 @@ const initialState: DirectoryReviewActionState = {
 
 export function AthleteDirectoryReviewCard({
   review,
+  locale,
 }: {
   review: AdminDirectoryReview;
+  locale: Locale;
 }) {
   const ui = useUiCopy();
   const router = useRouter();
@@ -35,10 +41,23 @@ export function AthleteDirectoryReviewCard({
     moderateAthleteDirectoryAction,
     initialState,
   );
+  const [previewState, previewAction, previewPending] = useActionState(
+    saveAthletePreviewImageAction,
+    initialState,
+  );
+  const submittedDate = new Intl.DateTimeFormat(
+    locale === 'fr' ? 'fr-FR' : 'en-US',
+    {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      timeZone: 'UTC',
+    },
+  ).format(new Date(review.submittedAt));
 
   useEffect(() => {
-    if (state.success) router.refresh();
-  }, [router, state.success]);
+    if (state.success || previewState.success) router.refresh();
+  }, [previewState.success, router, state.success]);
 
   const StatusIcon =
     review.status === 'approved'
@@ -94,8 +113,7 @@ export function AthleteDirectoryReviewCard({
               </span>
               <span aria-hidden="true">·</span>
               <span>
-                {ui('Submitted')}{' '}
-                {new Date(review.submittedAt).toLocaleDateString()}
+                {ui('Submitted')} {submittedDate}
               </span>
             </div>
           </div>
@@ -116,6 +134,43 @@ export function AthleteDirectoryReviewCard({
             {review.rejectionReason}
           </p>
         ) : null}
+
+        <form
+          action={previewAction}
+          className="space-y-3 rounded-2xl border border-black/8 bg-[#fafaf8] p-4"
+        >
+          <input name="profileId" type="hidden" value={review.profileId} />
+          <ImageUploadField
+            folder="previews"
+            helpText="Upload the screenshot used on the homepage, inspiration page, and athlete directory."
+            label="Profile preview screenshot"
+            name="previewImageUrl"
+            previewShape="portrait"
+            value={review.previewImageUrl}
+          />
+          <Button
+            className="rounded-full bg-[#3157ff] text-white hover:bg-[#2447dc]"
+            disabled={previewPending}
+            size="sm"
+            type="submit"
+          >
+            {previewPending ? (
+              <CircleNotchIcon className="h-4 w-4 animate-spin" />
+            ) : (
+              <FloppyDiskIcon className="h-4 w-4" />
+            )}
+            {ui('Save preview image')}
+          </Button>
+          {previewState.message ? (
+            <p
+              className={`text-xs font-semibold ${
+                previewState.success ? 'text-emerald-700' : 'text-red-700'
+              }`}
+            >
+              {previewState.message}
+            </p>
+          ) : null}
+        </form>
 
         <form action={action} className="space-y-3">
           <input name="profileId" type="hidden" value={review.profileId} />

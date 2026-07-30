@@ -11,6 +11,9 @@ type PublicProfilePageProps = {
   params: Promise<{
     username: string;
   }>;
+  searchParams: Promise<{
+    preview?: string;
+  }>;
 };
 
 export async function generateMetadata({
@@ -63,8 +66,10 @@ export async function generateMetadata({
 
 export default async function PublicProfilePage({
   params,
+  searchParams,
 }: PublicProfilePageProps) {
   const { username } = await params;
+  const { preview } = await searchParams;
   const builder = await getPublicProfileBuilderState(username);
 
   if (!builder) {
@@ -95,7 +100,7 @@ export default async function PublicProfilePage({
           },
         }}
       />
-      {builder.profile.id ? (
+      {builder.profile.id && preview !== '1' ? (
         <ProfileAnalyticsTracker profileId={builder.profile.id} />
       ) : null}
       <PublicProfileView builder={builder} />

@@ -28,6 +28,15 @@ export type AdminDirectoryReview = DirectoryReview & {
   avatarUrl: string;
   isPublished: boolean;
   isDiscoverable: boolean;
+  previewImageUrl: string;
+};
+
+export type AdminDemoProfile = {
+  profileId: number;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+  previewImageUrl: string;
 };
 
 type ReviewRow = {
@@ -148,7 +157,7 @@ export async function getAdminDirectoryReviews(): Promise<
   const { data: profiles } = await serviceSupabase
     .from('public_profiles')
     .select(
-      'id, username, display_name, avatar_url, is_published, is_discoverable',
+      'id, username, display_name, avatar_url, is_published, is_discoverable, preview_image_url',
     )
     .in(
       'id',
@@ -171,7 +180,34 @@ export async function getAdminDirectoryReviews(): Promise<
         avatarUrl: profile.avatar_url ?? '',
         isPublished: profile.is_published,
         isDiscoverable: profile.is_discoverable,
+        previewImageUrl: profile.preview_image_url ?? '',
       },
     ];
   });
+}
+
+export async function getAdminDemoProfiles(): Promise<
+  AdminDemoProfile[] | null
+> {
+  if (!(await isCurrentUserAdmin())) return null;
+
+  const serviceSupabase = createServiceSupabaseClient();
+  const { data, error } = await serviceSupabase
+    .from('public_profiles')
+    .select('id, username, display_name, avatar_url, preview_image_url')
+    .like('username', 'demo\\_%')
+    .order('display_name', { ascending: true });
+
+  if (error) {
+    console.error('Unable to load admin demo profiles:', error.message);
+    return [];
+  }
+
+  return (data ?? []).map((profile) => ({
+    profileId: profile.id,
+    username: profile.username,
+    displayName: profile.display_name,
+    avatarUrl: profile.avatar_url ?? '',
+    previewImageUrl: profile.preview_image_url ?? '',
+  }));
 }

@@ -9,6 +9,7 @@ import {
   TargetIcon,
 } from '@phosphor-icons/react/ssr';
 import { AthleteSportFilter } from '@/app/(marketing)/athletes/_components/athlete-sport-filter';
+import { PublicProfilePreviewCard } from '@/components/marketing/public-profile-preview-card';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import {
   getHeaderSheetBackground,
@@ -111,6 +112,8 @@ function HeaderDecoration({
   );
 }
 
+// Kept as the lightweight fallback design reference for future card variants.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function AthleteCard({
   athlete,
   locale,
@@ -372,7 +375,7 @@ export async function AthleteDirectoryPage({
           {athletes.length ? (
             <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
               {athletes.map((athlete) => (
-                <AthleteCard
+                <PublicProfilePreviewCard
                   athlete={athlete}
                   locale={locale}
                   key={athlete.id}

@@ -1376,6 +1376,17 @@ export async function saveProfileBuilderAction(
       updates.push(replaceSports(profileId, input));
 
     await Promise.all(updates);
+
+    if (dirtySections.size > 0) {
+      const { error: previewError } = await serviceSupabase
+        .from('public_profiles')
+        .update({
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', profileId)
+        .eq('user_id', userData.user.id);
+      if (previewError) throw new Error(previewError.message);
+    }
   } catch (error) {
     return {
       success: false,

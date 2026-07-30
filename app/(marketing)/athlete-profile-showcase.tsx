@@ -1,4 +1,5 @@
 import Image, { type StaticImageData } from 'next/image';
+import Link from 'next/link';
 import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
 import amaraPulse from './profile-screenshots/amara-pulse.png';
 import diegoEvergreen from './profile-screenshots/diego-evergreen.png';
@@ -172,45 +173,58 @@ export function HeroProfileCollage() {
   );
 }
 
-export function TemplateProfileGallery() {
+const inspirationProfiles = [
+  templateProfiles[3],
+  templateProfiles[5],
+  templateProfiles[7],
+];
+
+export function InspirationProfileGallery() {
   return (
-    <div className="-mx-5 mt-14 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pt-1 pb-5 [-ms-overflow-style:none] sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-x-5 sm:gap-y-8 sm:overflow-visible sm:px-0 sm:pt-0 sm:pb-0 lg:gap-x-7 lg:gap-y-12 [&::-webkit-scrollbar]:hidden">
-      {templateProfiles.map((profile, index) => (
-        <article
-          className={`w-[78vw] max-w-[290px] shrink-0 snap-center sm:w-auto sm:max-w-none ${
-            index % 2 === 1 ? 'sm:translate-y-8' : ''
+    <div className="-mx-5 mt-14 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pt-2 pb-8 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+      {inspirationProfiles.map((profile, index) => (
+        <Link
+          className={`group w-[82vw] max-w-[340px] shrink-0 snap-center rounded-[2rem] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#3157ff] sm:w-auto sm:max-w-none ${
+            index === 1 ? 'sm:translate-y-8' : ''
           }`}
+          href="/inspiration"
           key={profile.name}
         >
-          <div className="group relative aspect-[9/14] overflow-hidden rounded-[1.6rem] border-[5px] border-[#151515] bg-[#151515] shadow-[0_18px_40px_rgba(20,20,20,0.16)]">
-            <Image
-              alt={`${profile.name}'s public athlete profile`}
-              className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.025]"
-              fill
-              placeholder="blur"
-              quality={86}
-              sizes="(min-width: 1280px) 280px, (min-width: 640px) 22vw, 44vw"
-              src={profile.image}
-            />
-          </div>
-          <div className="mt-4 flex items-start justify-between gap-3 px-1">
-            <div>
-              <p className="text-sm font-black">{profile.name}</p>
-              <p className="mt-1 text-[10px] font-bold text-black/42">
-                {profile.sport} · {profile.template}
-              </p>
+          <article className="rounded-[2rem] border border-black/10 bg-white p-2.5 shadow-[0_18px_45px_rgba(20,20,20,0.1)] transition duration-300 group-hover:-translate-y-2 group-hover:shadow-[0_28px_65px_rgba(20,20,20,0.18)]">
+            <div className="flex h-10 items-center gap-2 px-2">
+              <span className="flex gap-1.5" aria-hidden="true">
+                <span className="h-2 w-2 rounded-full bg-[#ff6b61]" />
+                <span className="h-2 w-2 rounded-full bg-[#ffc64c]" />
+                <span className="h-2 w-2 rounded-full bg-[#45c86b]" />
+              </span>
+              <span className="min-w-0 flex-1 truncate rounded-full bg-[#f3f3ef] px-3 py-1.5 text-center text-[9px] font-bold text-black/40">
+                griit.me/{profile.name.toLowerCase().replaceAll(' ', '-')}
+              </span>
             </div>
-            <span
-              className={`rounded-full px-2.5 py-1 text-[8px] font-black tracking-[0.12em] uppercase ${
-                profile.pro
-                  ? 'bg-[#151515] text-white'
-                  : 'bg-[#e8edff] text-[#3157ff]'
-              }`}
-            >
-              {profile.pro ? 'Pro' : 'Free'}
-            </span>
-          </div>
-        </article>
+            <div className="relative aspect-[9/12] overflow-hidden rounded-[1.45rem] bg-[#151515]">
+              <Image
+                alt={`${profile.name}'s public athlete profile`}
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.025]"
+                fill
+                placeholder="blur"
+                quality={86}
+                sizes="(min-width: 1280px) 390px, (min-width: 640px) 31vw, 82vw"
+                src={profile.image}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3 px-2 pt-4 pb-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black">{profile.name}</p>
+                <p className="mt-1 truncate text-[10px] font-bold text-black/42">
+                  {profile.sport} · {profile.template}
+                </p>
+              </div>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#151515] text-white transition-transform group-hover:rotate-6">
+                <ArrowRightIcon className="h-4 w-4" weight="bold" />
+              </span>
+            </div>
+          </article>
+        </Link>
       ))}
     </div>
   );

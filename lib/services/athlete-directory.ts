@@ -18,6 +18,7 @@ export type AthleteDirectoryEntry = {
   location: string;
   avatarUrl: string;
   coverUrl: string;
+  previewImageUrl: string;
   theme: Record<string, unknown>;
   sports: AthleteDirectorySport[];
   goal: string;
@@ -36,6 +37,7 @@ type ProfileRow = {
   location: string | null;
   avatar_url: string | null;
   cover_url: string | null;
+  preview_image_url: string | null;
   theme: Record<string, unknown> | null;
 };
 
@@ -131,7 +133,7 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
     ? await supabase
         .from('public_profiles')
         .select(
-          'id, username, display_name, bio, location, avatar_url, cover_url, theme',
+          'id, username, display_name, bio, location, avatar_url, cover_url, preview_image_url, theme',
         )
         .in('id', approvedProfileIds)
         .eq('is_published', true)
@@ -193,6 +195,7 @@ async function loadAthleteDirectory(): Promise<AthleteDirectoryData> {
       location: profile.location ?? '',
       avatarUrl: profile.avatar_url ?? '',
       coverUrl: profile.cover_url ?? '',
+      previewImageUrl: profile.preview_image_url ?? '',
       theme: profile.theme ?? {},
       sports: sportsByProfile.get(profile.id) ?? [],
       goal: goalByProfile.get(profile.id) ?? '',
