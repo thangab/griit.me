@@ -18,7 +18,9 @@ import { getRequestLocale } from '@/lib/i18n/server';
 import { getMarketingHomeContent } from '@/lib/i18n/marketing-home';
 import { HeroProfileCollage } from './athlete-profile-showcase';
 import { PublicProfilePreviewCard } from '@/components/marketing/public-profile-preview-card';
+import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import { getInspirationProfiles } from '@/lib/services/inspiration-gallery';
+import type { AthleteDirectoryEntry } from '@/lib/services/athlete-directory';
 import { EditorShowcase } from './editor-showcase';
 import { LazyAnalyticsShowcase } from './lazy-analytics-showcase';
 import { HomePricingCards } from './home-pricing-cards';
@@ -86,9 +88,93 @@ const featureCards = [
   },
 ] as const;
 
+function colorChannels(color: string) {
+  const normalized = color.trim().replace('#', '');
+  const hex =
+    normalized.length === 3
+      ? normalized
+          .split('')
+          .map((character) => character + character)
+          .join('')
+      : normalized;
+
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return [127, 127, 127] as const;
+
+  return [
+    Number.parseInt(hex.slice(0, 2), 16),
+    Number.parseInt(hex.slice(2, 4), 16),
+    Number.parseInt(hex.slice(4, 6), 16),
+  ] as const;
+}
+
+function colorDistance(first: string, second: string) {
+  const firstChannels = colorChannels(first);
+  const secondChannels = colorChannels(second);
+
+  return firstChannels.reduce((distance, channel, index) => {
+    const difference = channel - secondChannels[index];
+    return distance + difference * difference;
+  }, 0);
+}
+
+function profilePaletteDistance(
+  first: AthleteDirectoryEntry,
+  second: AthleteDirectoryEntry,
+) {
+  const firstTheme = getThemeRuntime(first.theme);
+  const secondTheme = getThemeRuntime(second.theme);
+
+  return (
+    colorDistance(
+      firstTheme.palette.background,
+      secondTheme.palette.background,
+    ) + colorDistance(firstTheme.palette.accent, secondTheme.palette.accent)
+  );
+}
+
+function selectRandomDiverseProfiles(
+  profiles: AthleteDirectoryEntry[],
+  count: number,
+) {
+  const profilesWithPreviews = profiles.filter(
+    (profile) => profile.previewImageUrl,
+  );
+  const pool =
+    profilesWithPreviews.length >= count ? profilesWithPreviews : profiles;
+  if (pool.length <= count) return pool;
+
+  const firstProfile = pool[Math.floor(Math.random() * pool.length)];
+  const selected = [firstProfile];
+
+  while (selected.length < count) {
+    const candidates = pool.filter(
+      (profile) => !selected.some((item) => item.id === profile.id),
+    );
+    const nextProfile = candidates.reduce((best, candidate) => {
+      const candidateDistance = Math.min(
+        ...selected.map((profile) =>
+          profilePaletteDistance(profile, candidate),
+        ),
+      );
+      const bestDistance = Math.min(
+        ...selected.map((profile) => profilePaletteDistance(profile, best)),
+      );
+
+      return candidateDistance > bestDistance ? candidate : best;
+    });
+
+    selected.push(nextProfile);
+  }
+
+  return selected;
+}
+
 export default async function HomePage() {
   const locale = await getRequestLocale();
-  const inspirationProfiles = (await getInspirationProfiles()).slice(0, 3);
+  const inspirationProfiles = selectRandomDiverseProfiles(
+    await getInspirationProfiles(),
+    3,
+  );
   const content = getMarketingHomeContent(locale);
   const siteUrl = getSiteUrl();
   const localizedFeatures = featureCards.map((feature, index) => ({
