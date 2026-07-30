@@ -342,6 +342,15 @@ const frenchUiCopy: Record<string, string> = {
   Annual: 'Annuel',
   'Active plan': 'Plan actif',
   'Annual billing': 'Facturation annuelle',
+  'Griit Partner': 'Partenaire Griit',
+  'Complimentary Pro access': 'Accès Pro offert',
+  'Welcome to the Griit Partner team.':
+    'Bienvenue dans la team des partenaires Griit.',
+  'Your collaboration includes every Pro feature, offered by Griit.':
+    'Votre collaboration inclut toutes les fonctionnalités Pro, offertes par Griit.',
+  'Partner access': 'Accès partenaire',
+  'Offered by Griit': 'Offert par Griit',
+  'Access until': 'Accès jusqu’au',
   'Monthly billing': 'Facturation mensuelle',
   "You're on Griit Pro.": 'Vous profitez de Griit Pro.',
   'Every premium template, design control, advanced insight, and priority support tool is ready for your profiles.':

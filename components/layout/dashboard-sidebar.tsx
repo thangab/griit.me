@@ -9,6 +9,7 @@ import {
   CaretDownIcon as ChevronDown,
   CheckIcon,
   GearIcon as Settings,
+  GiftIcon,
   LayoutIcon as PanelsTopLeft,
   LockSimpleIcon as LockSimple,
   SignOutIcon as LogOut,
@@ -33,6 +34,7 @@ const iconMap = {
   Settings,
   LockSimple,
   ShieldCheck: ShieldCheckIcon,
+  Gift: GiftIcon,
 };
 
 export function DashboardSidebar({
@@ -64,6 +66,11 @@ export function DashboardSidebar({
             href: '/dashboard/admin/athletes',
             labelKey: 'dashboard.nav.athleteReviews' as const,
             icon: 'ShieldCheck' as const,
+          },
+          {
+            href: '/dashboard/admin/pro-access',
+            labelKey: 'dashboard.nav.partnerAccess' as const,
+            icon: 'Gift' as const,
           },
         ]
       : []),

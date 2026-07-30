@@ -70,6 +70,28 @@ export const subscriptions = pgTable(
   }),
 );
 
+export const complimentary_pro_access = pgTable(
+  'complimentary_pro_access',
+  {
+    user_id: varchar('user_id', { length: 36 })
+      .primaryKey()
+      .references(() => profiles.id, { onDelete: 'cascade' }),
+    expires_at: timestamp('expires_at'),
+    note: text('note'),
+    granted_by: varchar('granted_by', { length: 36 }).references(
+      () => profiles.id,
+      { onDelete: 'set null' },
+    ),
+    created_at: timestamp('created_at').defaultNow().notNull(),
+    updated_at: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    expiresAtIdx: index('complimentary_pro_access_expires_at_idx').on(
+      table.expires_at,
+    ),
+  }),
+);
+
 export const public_profiles = pgTable(
   'public_profiles',
   {
@@ -89,6 +111,7 @@ export const public_profiles = pgTable(
       .notNull(),
     is_published: boolean('is_published').default(false).notNull(),
     show_branding: boolean('show_branding').default(true).notNull(),
+    complimentary_pro_expires_at: timestamp('complimentary_pro_expires_at'),
     is_discoverable: boolean('is_discoverable').default(true).notNull(),
     allow_indexing: boolean('allow_indexing').default(true).notNull(),
     seo_title: varchar('seo_title', { length: 70 }),

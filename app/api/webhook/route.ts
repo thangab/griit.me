@@ -148,9 +148,25 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
     return;
   }
 
+  const { data: complimentaryAccess } = await supabase
+    .from('complimentary_pro_access')
+    .select('expires_at')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const complimentaryExpiresAt = complimentaryAccess?.expires_at ?? null;
+  const hasComplimentaryPro =
+    Boolean(complimentaryAccess) &&
+    (!complimentaryExpiresAt ||
+      new Date(complimentaryExpiresAt).getTime() > Date.now());
+  const hasPaidPro = status === 'pro';
+
   const { data: profiles, error: brandingError } = await supabase
     .from('public_profiles')
-    .update({ show_branding: status !== 'pro' })
+    .update({
+      show_branding: !hasPaidPro && !hasComplimentaryPro,
+      complimentary_pro_expires_at:
+        !hasPaidPro && hasComplimentaryPro ? complimentaryExpiresAt : null,
+    })
     .eq('user_id', userId)
     .select('username');
 

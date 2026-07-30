@@ -37,6 +37,7 @@ interface PublicProfileRow {
   theme: Record<string, unknown> | null;
   is_published: boolean;
   show_branding: boolean;
+  complimentary_pro_expires_at: string | null;
   is_discoverable: boolean;
   allow_indexing: boolean;
   seo_title: string | null;
@@ -174,6 +175,7 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     coverUrl: hasThemeCoverUrl ? themeCoverUrl || '' : row.cover_url || '',
     isPublished: row.is_published,
     showBranding: row.show_branding,
+    complimentaryProExpiresAt: row.complimentary_pro_expires_at ?? null,
     isDiscoverable: row.is_discoverable ?? true,
     allowIndexing: row.allow_indexing ?? true,
     seoTitle: row.seo_title ?? '',

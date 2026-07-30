@@ -33,9 +33,10 @@ export function SubscriptionCard({
   );
 
   const currentPlan = subscription.plan === 'pro' ? 'pro' : 'free';
+  const hasComplimentaryAccess = subscription.accessSource === 'complimentary';
   const currentPlanData = subscriptionPlans[currentPlan];
   const currentPriceLabel =
-    currentPlan === 'pro'
+    currentPlan === 'pro' && !hasComplimentaryAccess
       ? proPriceLabels[subscription.billingInterval ?? 'month']
       : currentPlanData.price;
   const selectedPriceLabel = proPriceLabels[billingInterval];
@@ -81,31 +82,50 @@ export function SubscriptionCard({
           <div className="max-w-xl">
             <div className="flex flex-wrap items-center gap-3">
               <span className="rounded-full bg-[#a9ed35] px-3 py-1 text-[10px] font-black tracking-[0.12em] text-[#151515] uppercase">
-                {ui('Active plan')}
+                {hasComplimentaryAccess
+                  ? ui('Griit Partner')
+                  : ui('Active plan')}
               </span>
               <span className="text-xs font-semibold text-white/45">
-                {subscription.billingInterval === 'year'
-                  ? ui('Annual billing')
-                  : ui('Monthly billing')}
+                {hasComplimentaryAccess
+                  ? ui('Complimentary Pro access')
+                  : subscription.billingInterval === 'year'
+                    ? ui('Annual billing')
+                    : ui('Monthly billing')}
               </span>
             </div>
             <h2 className="mt-5 text-4xl font-black tracking-[-0.055em]">
-              {ui("You're on Griit Pro.")}
+              {hasComplimentaryAccess
+                ? ui('Welcome to the Griit Partner team.')
+                : ui("You're on Griit Pro.")}
             </h2>
             <p className="mt-3 text-sm leading-6 text-white/55">
-              {ui(
-                'Every premium template, design control, advanced insight, and priority support tool is ready for your profiles.',
-              )}
+              {hasComplimentaryAccess
+                ? ui(
+                    'Your collaboration includes every Pro feature, offered by Griit.',
+                  )
+                : ui(
+                    'Every premium template, design control, advanced insight, and priority support tool is ready for your profiles.',
+                  )}
             </p>
           </div>
           <div className="min-w-52 rounded-2xl border border-white/10 bg-white/8 p-5">
             <p className="text-xs font-bold text-white/45">
-              {ui('Your subscription')}
+              {hasComplimentaryAccess
+                ? ui('Partner access')
+                : ui('Your subscription')}
             </p>
-            <p className="mt-2 text-2xl font-black">{currentPriceLabel}</p>
+            <p className="mt-2 text-2xl font-black">
+              {hasComplimentaryAccess
+                ? ui('Offered by Griit')
+                : currentPriceLabel}
+            </p>
             <p className="mt-2 flex items-center gap-2 text-xs font-semibold text-[#a9ed35]">
               <ShieldCheckIcon className="h-4 w-4" weight="fill" />
-              {ui('Pro access enabled')}
+              {hasComplimentaryAccess &&
+              subscription.complimentaryAccessExpiresAt
+                ? `${ui('Access until')} ${subscription.complimentaryAccessExpiresAt.slice(0, 10)}`
+                : ui('Pro access enabled')}
             </p>
           </div>
         </div>

@@ -47,9 +47,15 @@ core model.
 
 - `stripe_customers`: one Stripe customer per user.
 - `subscriptions`: one current subscription state per user.
+- `complimentary_pro_access`: a Pro entitlement offered by Griit to a partner
+  account. It stays separate from Stripe and records the granting admin and an
+  internal collaboration note. `expires_at` is optional; when present, feature
+  gating and public branding automatically return to Free after that instant.
 
 Stripe remains the billing source of truth. The app stores the current
-subscription snapshot for server-side gating and dashboard display.
+subscription snapshot for server-side gating and dashboard display. An active
+paid subscription takes priority; otherwise a complimentary entitlement grants
+the exact same Pro feature set without creating a Stripe customer charge.
 
 ## Profile limits and dashboard routing
 

@@ -6,6 +6,7 @@ import { ProfileAnalyticsTracker } from '@/components/profile/profile-analytics-
 import { JsonLd } from '@/components/seo/json-ld';
 import { getPublicProfileBuilderState } from '@/lib/services/profile-builder';
 import { getAbsoluteUrl } from '@/lib/seo/metadata';
+import { isPastDate } from '@/lib/utils/date-status';
 
 type PublicProfilePageProps = {
   params: Promise<{
@@ -76,6 +77,13 @@ export default async function PublicProfilePage({
     notFound();
   }
 
+  const complimentaryAccessExpired = Boolean(
+    builder.profile.complimentaryProExpiresAt &&
+    isPastDate(builder.profile.complimentaryProExpiresAt),
+  );
+  const showBranding =
+    builder.profile.showBranding || complimentaryAccessExpired;
+
   return (
     <>
       <JsonLd
@@ -104,7 +112,7 @@ export default async function PublicProfilePage({
         <ProfileAnalyticsTracker profileId={builder.profile.id} />
       ) : null}
       <PublicProfileView builder={builder} />
-      {builder.profile.showBranding ? (
+      {showBranding ? (
         <GriitBranding className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 sm:bottom-5" />
       ) : null}
     </>

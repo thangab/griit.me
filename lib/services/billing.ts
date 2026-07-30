@@ -7,6 +7,8 @@ const defaultSubscriptionState: SubscriptionState = {
   status: 'free',
   isActive: false,
   billingInterval: null,
+  accessSource: 'free',
+  complimentaryAccessExpiresAt: null,
   features: subscriptionPlans.free.features,
 };
 
@@ -19,37 +21,64 @@ export async function getSubscriptionState(): Promise<SubscriptionState> {
   }
 
   const userId = userData.user.id;
-  const { data, error } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .limit(1)
-    .single();
+  const [{ data: subscription }, { data: complimentaryAccess }] =
+    await Promise.all([
+      supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('complimentary_pro_access')
+        .select('expires_at')
+        .eq('user_id', userId)
+        .maybeSingle(),
+    ]);
 
-  if (error || !data) {
-    return defaultSubscriptionState;
+  if (subscription) {
+    const plan = subscription.plan === 'pro' ? 'pro' : 'free';
+    const status = ['past_due', 'cancelled'].includes(subscription.status)
+      ? subscription.status
+      : plan;
+    const isActive =
+      plan === 'pro' && status !== 'past_due' && status !== 'cancelled';
+
+    if (isActive) {
+      return {
+        plan,
+        status,
+        isActive,
+        billingInterval:
+          subscription.price_id === process.env.STRIPE_PRICE_ID_PRO_ANNUAL
+            ? 'year'
+            : 'month',
+        accessSource: 'stripe',
+        complimentaryAccessExpiresAt: null,
+        features: subscriptionPlans.pro.features,
+      };
+    }
   }
 
-  const plan = data.plan === 'pro' ? 'pro' : 'free';
-  const status = ['past_due', 'cancelled'].includes(data.status)
-    ? data.status
-    : plan;
+  const complimentaryAccessExpiresAt = complimentaryAccess?.expires_at ?? null;
+  const hasActiveComplimentaryAccess =
+    Boolean(complimentaryAccess) &&
+    (!complimentaryAccessExpiresAt ||
+      new Date(complimentaryAccessExpiresAt).getTime() > Date.now());
 
-  return {
-    plan,
-    status,
-    isActive: plan === 'pro' && status !== 'past_due' && status !== 'cancelled',
-    billingInterval:
-      plan === 'pro' && data.price_id === process.env.STRIPE_PRICE_ID_PRO_ANNUAL
-        ? 'year'
-        : plan === 'pro'
-          ? 'month'
-          : null,
-    features:
-      plan === 'pro'
-        ? subscriptionPlans.pro.features
-        : subscriptionPlans.free.features,
-  };
+  if (hasActiveComplimentaryAccess) {
+    return {
+      plan: 'pro',
+      status: 'pro',
+      isActive: true,
+      billingInterval: null,
+      accessSource: 'complimentary',
+      complimentaryAccessExpiresAt,
+      features: subscriptionPlans.pro.features,
+    };
+  }
+
+  return defaultSubscriptionState;
 }
 
 export async function canAccessFeature(
