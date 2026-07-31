@@ -33,11 +33,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return createMarketingMetadata({
     title: isFrench
-      ? 'Griit — Le lien en bio des sportifs'
-      : 'Griit — The link in bio built for athletes',
+      ? 'Griit — Votre parcours mérite plus de visibilité'
+      : 'Griit — Your journey deserves more visibility',
     description: isFrench
-      ? 'Créez un profil sportif public autour de vos objectifs, réussites, contenus, sponsors et prochaines opportunités.'
-      : 'Build a public athlete profile around your goals, achievements, content, sponsors, and next opportunities.',
+      ? 'Créez un profil sportif public, quel que soit votre niveau. Présentez votre parcours, vos objectifs ou votre expertise de coach.'
+      : 'Build a public sports profile at any level. Showcase your journey, goals, or coaching expertise.',
     path: '/',
     locale,
   });

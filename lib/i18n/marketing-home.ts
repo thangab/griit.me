@@ -1,13 +1,13 @@
 import type { Locale } from '@/lib/i18n/config';
 
 const en = {
-  badge: 'The link in bio built for athletes',
-  heroLine1: 'Your next goal.',
-  heroLine2: 'Your athlete',
-  heroAccent: 'story.',
+  badge: 'More than a link in bio for athletes',
+  heroLine1: 'Your journey deserves',
+  heroLine2: 'more',
+  heroAccent: 'visibility.',
   heroDescription:
-    'Build a powerful public profile around what you are chasing, what you have achieved, and where you are going next.',
-  createProfile: 'Create your athlete profile',
+    'Whether you are getting started, chasing a record, or coaching others, build a powerful public profile around your journey and expertise.',
+  createProfile: 'Create your profile',
   exploreTemplates: 'Explore templates',
   launchAnnual: 'Pro Annual',
   firstAthletes: 'athletes',
@@ -28,16 +28,16 @@ const en = {
   editorTitle2: 'One clear editor.',
   editorDescription:
     'Shape your profile, organize your content, and see every change as it happens. No code, no disconnected tools, and no guessing what visitors will see.',
-  editorCta: 'Build your athlete profile',
+  editorCta: 'Build your profile',
   featuresEyebrow: 'More than a link in bio',
-  featuresTitle: 'Everything an athlete needs to tell the full story.',
+  featuresTitle: 'Everything you need to show your journey and expertise.',
   features: [
     [
       'Put your next goal first',
       'Make the objective you are chasing obvious from the first screen, with a date, countdown, and dedicated link.',
     ],
     [
-      'Build your athlete identity',
+      'Build your sporting identity',
       'Choose a complete visual direction, then customize every detail to match your personality and discipline.',
     ],
     [
@@ -53,16 +53,16 @@ const en = {
       'Show existing sponsors, promote affiliate offers, and make it clear when you are open to partnerships.',
     ],
     [
-      'Made for every sport',
-      'Running, HYROX, gym, cycling, combat sports, team sports, coaching, and everything in between.',
+      'Every sport. Every level.',
+      'From first-time athletes to experienced coaches: running, HYROX, gym, cycling, combat sports, team sports, and everything in between.',
     ],
   ],
-  templatesEyebrow: 'Every athlete is different',
+  templatesEyebrow: 'Every journey is different',
   templatesTitle: 'A profile that looks like your ambition.',
   templatesDescription:
     'These are real Griit profile layouts. Start with a complete visual direction, then adapt every word, color, and block to your story.',
   templatesCta: 'Explore all templates',
-  analyticsEyebrow: 'Grow your athlete presence',
+  analyticsEyebrow: 'Grow your sporting presence',
   analyticsTitle: 'See what moves your audience.',
   analyticsDescription:
     'Track views, clicks, traffic sources, and audience behavior. See which goals, partnerships, and stories create real engagement.',
@@ -86,11 +86,11 @@ const en = {
   faq: [
     [
       'Can I build and publish a profile for free?',
-      'Yes. The Free plan includes one public athlete profile, every core block, four templates, essential styles, and the key analytics you need to get started.',
+      'Yes. The Free plan includes one public profile, every core block, four templates, essential styles, and the key analytics you need to get started.',
     ],
     [
       'Is Griit only for professional athletes?',
-      'Not at all. Griit is built for athletes at every level—from someone preparing for a first race to a professional building a stronger public presence.',
+      'Not at all. Griit is for athletes at every level, from a first goal to the professional circuit, as well as coaches who want to share their expertise and services.',
     ],
     [
       'Can I use Griit for any sport?',
@@ -105,7 +105,7 @@ const en = {
       'Free includes profile views, unique visitors, clicks, and click-through rate. Pro adds deeper audience, campaign, social, and individual block analytics.',
     ],
     [
-      'Can I manage more than one athlete profile?',
+      'Can I manage more than one public profile?',
       'Yes. Pro lets you create and manage up to five independent public profiles from the same account, each with its own content, design, URL, and analytics.',
     ],
     [
@@ -125,12 +125,12 @@ const en = {
 } as const;
 
 const fr = {
-  badge: 'Le lien en bio des sportifs.',
-  heroLine1: 'Votre prochain objectif.',
-  heroLine2: 'Votre parcours',
-  heroAccent: 'sportif.',
+  badge: 'Bien plus qu’un link in bio pour les sportifs.',
+  heroLine1: 'Votre parcours mérite',
+  heroLine2: 'plus de',
+  heroAccent: 'visibilité.',
   heroDescription:
-    'Objectifs, résultats, entraînements, sponsors : réunissez tout votre parcours sur un profil qui vous ressemble et donne envie de suivre la suite.',
+    'Que vous débutiez, visiez un record ou accompagniez d’autres sportifs, réunissez votre parcours et votre expertise sur un profil qui vous ressemble.',
   createProfile: 'Créer mon profil',
   exploreTemplates: 'Voir les templates',
   launchAnnual: 'Pro Annual',
@@ -167,7 +167,7 @@ const fr = {
   editorCta: 'Lancer mon profil',
   featuresEyebrow: "Plus qu'un link in bio",
   featuresTitle:
-    'Tout le nécessaire pour montrer l’athlète derrière la performance.',
+    'Tout le nécessaire pour montrer votre parcours et votre expertise.',
   features: [
     [
       'Votre prochain objectif, dès le premier écran',
@@ -190,8 +190,8 @@ const fr = {
       'Mettez vos sponsors en avant, partagez vos offres et indiquez clairement que vous êtes ouvert aux collaborations.',
     ],
     [
-      'Tous sports. Tous niveaux. Une seule ambition.',
-      'Running, HYROX, gym, cycling, sports de combat, sports collectifs, coaching et tout ce qui vous fait bouger.',
+      'Tous les sports. Tous les niveaux.',
+      'Du premier objectif au coaching confirmé : running, HYROX, gym, cycling, sports de combat, sports collectifs et tout ce qui vous fait bouger.',
     ],
   ],
   templatesEyebrow: 'Votre énergie, votre direction',
@@ -227,7 +227,7 @@ const fr = {
     ],
     [
       'Griit est-il réservé aux athlètes professionnels ?',
-      'Non. Griit est fait pour tous les niveaux : du premier dossard au circuit pro, tant qu’il y a un objectif à poursuivre et une histoire à partager.',
+      'Non. Griit est fait pour les sportifs de tous niveaux, du premier objectif au circuit pro, ainsi que pour les coachs qui veulent présenter leur expertise et leurs services.',
     ],
     [
       'Puis-je utiliser Griit pour n’importe quel sport ?',

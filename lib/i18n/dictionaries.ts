@@ -24,12 +24,13 @@ const en = {
   'marketing.privacy': 'Privacy',
   'marketing.terms': 'Terms',
   'marketing.footerDescription':
-    'A beautiful public profile for your next goal, your athlete story, and the opportunities ahead.',
-  'marketing.footerCopyright': 'Built for every athlete and every sport.',
-  'auth.identity': 'Your athlete identity',
+    'A beautiful public profile for your next goal, your sporting journey, and the opportunities ahead.',
+  'marketing.footerCopyright':
+    'Built for every athlete, every coach, and every level.',
+  'auth.identity': 'Your sporting identity',
   'auth.signIn.title': 'Welcome back',
   'auth.signIn.description':
-    'Welcome back. Continue building your athlete profile.',
+    'Welcome back. Continue building your public profile.',
   'auth.signIn.newHere': 'New here?',
   'auth.signIn.createAccount': 'Create an account',
   'auth.signUp.title': 'Create your account',
@@ -59,7 +60,7 @@ const en = {
   'auth.javascript.description':
     'Enable JavaScript in your browser, then reload this page to use GRIIT Studio.',
   'onboarding.step1.eyebrow': 'Profile setup',
-  'onboarding.step1.title': 'Claim your athlete identity.',
+  'onboarding.step1.title': 'Claim your sporting identity.',
   'onboarding.step1.description':
     'Choose how your name appears and claim the public URL you’ll share with your audience.',
   'onboarding.step2.eyebrow': 'Your world',
@@ -145,12 +146,12 @@ const fr: Dictionary = {
   'marketing.privacy': 'Confidentialité',
   'marketing.terms': "Conditions d'utilisation",
   'marketing.footerDescription':
-    'Objectifs, résultats, entraînements et sponsors réunis sur un profil qui raconte vraiment votre parcours.',
+    'Votre parcours, vos objectifs ou votre expertise réunis sur un profil qui vous ressemble.',
   'marketing.footerCopyright':
-    'Pensé pour tous les sports, construit pour chaque ambition.',
-  'auth.identity': "Votre identité d'athlète",
+    'Pensé pour tous les sports, tous les niveaux et les coachs.',
+  'auth.identity': 'Votre identité sportive',
   'auth.signIn.title': 'Bon retour',
-  'auth.signIn.description': "Continuez à construire votre profil d'athlète.",
+  'auth.signIn.description': 'Continuez à construire votre profil public.',
   'auth.signIn.newHere': 'Nouveau ici ?',
   'auth.signIn.createAccount': 'Créer un compte',
   'auth.signUp.title': 'Créez votre compte',
@@ -180,7 +181,7 @@ const fr: Dictionary = {
   'auth.javascript.description':
     'Activez JavaScript dans votre navigateur, puis rechargez cette page pour utiliser GRIIT Studio.',
   'onboarding.step1.eyebrow': 'Configuration du profil',
-  'onboarding.step1.title': "Créez votre identité d'athlète.",
+  'onboarding.step1.title': 'Créez votre identité sportive.',
   'onboarding.step1.description':
     "Choisissez le nom affiché et réservez l'URL publique que vous partagerez avec votre audience.",
   'onboarding.step2.eyebrow': 'Votre univers',
