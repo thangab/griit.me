@@ -13,6 +13,7 @@ import {
   TargetIcon as Target,
 } from '@phosphor-icons/react/ssr';
 import { MobileProfileFrame } from '@/components/dashboard/mobile-profile-frame';
+import type { GriitBrandingVariant } from '@/components/profile/griit-branding';
 import { PublicAddressCard } from '@/components/dashboard/public-address-card';
 import { DirectoryReviewStatusCard } from '@/components/dashboard/directory-review-status-card';
 import { Button } from '@/components/ui/button';
@@ -35,11 +36,13 @@ function ProfilePreview({
   builder,
   profileId,
   showBranding,
+  brandingVariant,
   locale,
 }: {
   builder: ProfileBuilderState;
   profileId: number;
   showBranding: boolean;
+  brandingVariant?: GriitBrandingVariant;
   locale: 'en' | 'fr';
 }) {
   return (
@@ -71,6 +74,7 @@ function ProfilePreview({
           className="h-full"
           fillHeight
           showBranding={showBranding}
+          brandingVariant={brandingVariant}
         />
       </div>
     </aside>
@@ -312,7 +316,15 @@ export default async function ProfileOverviewPage({
         <ProfilePreview
           builder={builder}
           profileId={profileId}
-          showBranding={!subscription.isActive}
+          showBranding={
+            !subscription.isActive ||
+            subscription.accessSource === 'complimentary'
+          }
+          brandingVariant={
+            subscription.accessSource === 'complimentary'
+              ? 'partner'
+              : 'made-with'
+          }
           locale={locale}
         />
       </div>

@@ -111,6 +111,9 @@ export const public_profiles = pgTable(
       .notNull(),
     is_published: boolean('is_published').default(false).notNull(),
     show_branding: boolean('show_branding').default(true).notNull(),
+    is_complimentary_pro: boolean('is_complimentary_pro')
+      .default(false)
+      .notNull(),
     complimentary_pro_expires_at: timestamp('complimentary_pro_expires_at'),
     is_discoverable: boolean('is_discoverable').default(true).notNull(),
     allow_indexing: boolean('allow_indexing').default(true).notNull(),

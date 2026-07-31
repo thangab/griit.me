@@ -1,5 +1,8 @@
 import { PublicProfileView } from '@/components/profile/public-profile-view';
-import { GriitBranding } from '@/components/profile/griit-branding';
+import {
+  GriitBranding,
+  type GriitBrandingVariant,
+} from '@/components/profile/griit-branding';
 import { cn } from '@/lib/utils/cn';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 
@@ -8,6 +11,7 @@ type MobileProfileFrameProps = {
   className?: string;
   fillHeight?: boolean;
   showBranding?: boolean;
+  brandingVariant?: GriitBrandingVariant;
   viewportClassName?: string;
 };
 
@@ -16,6 +20,7 @@ export function MobileProfileFrame({
   className,
   fillHeight = false,
   showBranding = false,
+  brandingVariant = 'made-with',
   viewportClassName,
 }: MobileProfileFrameProps) {
   return (
@@ -41,7 +46,10 @@ export function MobileProfileFrame({
       >
         <PublicProfileView builder={builder} variant="mobile-preview" />
         {showBranding ? (
-          <GriitBranding className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2" />
+          <GriitBranding
+            className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2"
+            variant={brandingVariant}
+          />
         ) : null}
       </div>
     </div>
@@ -52,6 +60,7 @@ type DesktopProfileFrameProps = {
   builder: ProfileBuilderState;
   className?: string;
   showBranding?: boolean;
+  brandingVariant?: GriitBrandingVariant;
   viewportClassName?: string;
 };
 
@@ -59,6 +68,7 @@ export function DesktopProfileFrame({
   builder,
   className,
   showBranding = false,
+  brandingVariant = 'made-with',
   viewportClassName,
 }: DesktopProfileFrameProps) {
   return (
@@ -88,7 +98,10 @@ export function DesktopProfileFrame({
       >
         <PublicProfileView builder={builder} variant="desktop-preview" />
         {showBranding ? (
-          <GriitBranding className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2" />
+          <GriitBranding
+            className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2"
+            variant={brandingVariant}
+          />
         ) : null}
       </div>
     </div>

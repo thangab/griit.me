@@ -164,6 +164,7 @@ async function upsertSubscription(subscription: Stripe.Subscription) {
     .from('public_profiles')
     .update({
       show_branding: !hasPaidPro && !hasComplimentaryPro,
+      is_complimentary_pro: !hasPaidPro && hasComplimentaryPro,
       complimentary_pro_expires_at:
         !hasPaidPro && hasComplimentaryPro ? complimentaryExpiresAt : null,
     })

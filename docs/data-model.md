@@ -51,6 +51,8 @@ core model.
   account. It stays separate from Stripe and records the granting admin and an
   internal collaboration note. `expires_at` is optional; when present, feature
   gating and public branding automatically return to Free after that instant.
+  Active complimentary profiles carry a `GRIIT. Partner` signature; paid Pro
+  profiles remain unbranded.
 
 Stripe remains the billing source of truth. The app stores the current
 subscription snapshot for server-side gating and dashboard display. An active

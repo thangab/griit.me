@@ -37,6 +37,7 @@ interface PublicProfileRow {
   theme: Record<string, unknown> | null;
   is_published: boolean;
   show_branding: boolean;
+  is_complimentary_pro: boolean;
   complimentary_pro_expires_at: string | null;
   is_discoverable: boolean;
   allow_indexing: boolean;
@@ -175,6 +176,7 @@ function mapProfile(row: PublicProfileRow): ProfileBuilderState['profile'] {
     coverUrl: hasThemeCoverUrl ? themeCoverUrl || '' : row.cover_url || '',
     isPublished: row.is_published,
     showBranding: row.show_branding,
+    isComplimentaryPro: row.is_complimentary_pro ?? false,
     complimentaryProExpiresAt: row.complimentary_pro_expires_at ?? null,
     isDiscoverable: row.is_discoverable ?? true,
     allowIndexing: row.allow_indexing ?? true,
@@ -514,7 +516,7 @@ export function getPublicProfileBuilderState(username: string) {
 
   return unstable_cache(
     () => loadPublicProfileBuilderState(normalizedUsername),
-    ['public-profile-builder', normalizedUsername],
+    ['public-profile-builder-v2', normalizedUsername],
     {
       revalidate: 300,
       tags: [getPublicProfileCacheTag(normalizedUsername)],

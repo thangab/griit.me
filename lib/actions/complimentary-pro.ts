@@ -85,6 +85,7 @@ export async function manageComplimentaryProAction(
       .from('public_profiles')
       .update({
         show_branding: !hasPaidPro,
+        is_complimentary_pro: false,
         complimentary_pro_expires_at: null,
       })
       .eq('user_id', userId);
@@ -126,6 +127,7 @@ export async function manageComplimentaryProAction(
     .from('public_profiles')
     .update({
       show_branding: false,
+      is_complimentary_pro: !hasPaidPro,
       complimentary_pro_expires_at: hasPaidPro ? null : expiresAt,
     })
     .eq('user_id', userId);

@@ -83,6 +83,8 @@ export default async function PublicProfilePage({
   );
   const showBranding =
     builder.profile.showBranding || complimentaryAccessExpired;
+  const showPartnerBranding =
+    builder.profile.isComplimentaryPro && !complimentaryAccessExpired;
 
   return (
     <>
@@ -112,8 +114,11 @@ export default async function PublicProfilePage({
         <ProfileAnalyticsTracker profileId={builder.profile.id} />
       ) : null}
       <PublicProfileView builder={builder} />
-      {showBranding ? (
-        <GriitBranding className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 sm:bottom-5" />
+      {showBranding || showPartnerBranding ? (
+        <GriitBranding
+          className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 sm:bottom-5"
+          variant={showPartnerBranding ? 'partner' : 'made-with'}
+        />
       ) : null}
     </>
   );

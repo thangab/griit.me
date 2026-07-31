@@ -63,7 +63,8 @@ Features:
 - Up to 50 gallery images, 50 achievements, and 50 activities per profile
 - Advanced analytics for locations, traffic sources, referrers, devices,
   browsers, campaigns, social clicks, and block interactions
-- No Griit branding on profile previews or public pages
+- No Griit branding on paid Pro profile previews or public pages
+- Complimentary Pro profiles use the `GRIIT. Partner` signature
 - Priority support
 
 Coming soon features must not be advertised as currently included:

@@ -34,6 +34,7 @@ import {
   type AutosaveStatus,
 } from '@/components/dashboard/content-editor';
 import { DesignPreview } from '@/components/dashboard/design-preview';
+import type { GriitBrandingVariant } from '@/components/profile/griit-branding';
 import { ImageUploadField } from '@/components/dashboard/image-upload-field';
 import {
   setProfilePublishedAction,
@@ -703,12 +704,14 @@ function ContentPanel({
 const PreviewPanel = memo(function PreviewPanel({
   builder,
   showBranding,
+  brandingVariant,
   onPublishChange,
   publishMessage,
   publishPending,
 }: {
   builder: ProfileBuilderState;
   showBranding: boolean;
+  brandingVariant?: GriitBrandingVariant;
   onPublishChange: (isPublished: boolean) => void;
   publishMessage: string;
   publishPending: boolean;
@@ -718,6 +721,7 @@ const PreviewPanel = memo(function PreviewPanel({
       <DesignPreview
         builder={builder}
         showBranding={showBranding}
+        brandingVariant={brandingVariant}
         onPublishChange={onPublishChange}
         publishMessage={publishMessage}
         publishPending={publishPending}
@@ -2764,7 +2768,15 @@ export function DesignWorkspace({
         >
           <PreviewPanel
             builder={previewBuilder}
-            showBranding={!subscription.isActive}
+            showBranding={
+              !subscription.isActive ||
+              subscription.accessSource === 'complimentary'
+            }
+            brandingVariant={
+              subscription.accessSource === 'complimentary'
+                ? 'partner'
+                : 'made-with'
+            }
             onPublishChange={handlePublishChange}
             publishMessage={publishMessage}
             publishPending={publishPending}

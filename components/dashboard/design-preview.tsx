@@ -13,6 +13,7 @@ import {
   DesktopProfileFrame,
   MobileProfileFrame,
 } from '@/components/dashboard/mobile-profile-frame';
+import type { GriitBrandingVariant } from '@/components/profile/griit-branding';
 import { useUiCopy } from '@/components/i18n/use-ui-copy';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
@@ -31,12 +32,14 @@ const previewStyles = {
 export function DesignPreview({
   builder,
   showBranding,
+  brandingVariant,
   onPublishChange,
   publishMessage,
   publishPending,
 }: {
   builder: ProfileBuilderState;
   showBranding: boolean;
+  brandingVariant?: GriitBrandingVariant;
   onPublishChange: (isPublished: boolean) => void;
   publishMessage: string;
   publishPending: boolean;
@@ -187,6 +190,7 @@ export function DesignPreview({
             className="mx-auto sm:max-w-[360px] xl:h-full xl:max-h-full"
             fillHeight
             showBranding={showBranding}
+            brandingVariant={brandingVariant}
             viewportClassName={previewStyles.mobile.frame}
           />
         ) : (
@@ -194,6 +198,7 @@ export function DesignPreview({
             builder={builder}
             className="mx-auto xl:h-full"
             showBranding={showBranding}
+            brandingVariant={brandingVariant}
             viewportClassName={previewStyles.desktop.frame}
           />
         )}

@@ -85,8 +85,9 @@ Pro is the complete creator toolkit. It includes up to five profiles, all eight
 templates, every typography style, custom colors, advanced header decorations
 and profile picture shapes, editorial and carousel galleries, solid shadows,
 up to three goals, up to 50 gallery images, achievements, and activities, and
-detailed audience, campaign, social, and block analytics. Pro members also
-receive priority support and profiles without Griit branding.
+detailed audience, campaign, social, and block analytics. Paid Pro members also
+receive priority support and profiles without Griit branding; complimentary Pro
+profiles carry the `GRIIT. Partner` signature instead.
 
 Custom domains and downloadable QR codes are visible as coming-soon features;
 they are not part of the currently delivered entitlement.

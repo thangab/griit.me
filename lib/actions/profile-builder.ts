@@ -1544,6 +1544,11 @@ export async function createProfileAction(
       },
       is_published: false,
       show_branding: !subscription.isActive,
+      is_complimentary_pro: subscription.accessSource === 'complimentary',
+      complimentary_pro_expires_at:
+        subscription.accessSource === 'complimentary'
+          ? subscription.complimentaryAccessExpiresAt
+          : null,
     })
     .select('id')
     .single();

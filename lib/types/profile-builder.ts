@@ -10,6 +10,7 @@ export interface BuilderProfile {
   coverUrl: string;
   isPublished: boolean;
   showBranding: boolean;
+  isComplimentaryPro?: boolean;
   complimentaryProExpiresAt?: string | null;
   isDiscoverable: boolean;
   allowIndexing: boolean;
