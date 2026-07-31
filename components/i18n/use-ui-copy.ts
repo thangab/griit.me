@@ -453,29 +453,37 @@ const frenchUiCopy: Record<string, string> = {
     'Publiez votre profil lorsque vous êtes prêt à le partager.',
   'Copy URL': 'Copier l’URL',
   Open: 'Ouvrir',
+  'Move to draft': 'Mettre en brouillon',
   'Athlete directory': 'Annuaire des athlètes',
-  'Approved for the athlete directory': 'Validé pour l’annuaire des athlètes',
-  'A few updates are needed': 'Quelques ajustements sont nécessaires',
-  'Your profile is being reviewed': 'Votre profil est en cours de vérification',
-  'Athlete directory is disabled': 'L’affichage dans l’annuaire est désactivé',
-  'Ready to request a review': 'Prêt à être envoyé pour vérification',
-  'Publish your profile when it is ready':
-    'Publiez votre profil lorsqu’il est prêt',
-  'Your profile can now appear on the Athletes page and in its sport filters. You stay in control and can remove it from the directory at any time from Settings.':
-    'Votre profil peut maintenant apparaître sur la page Athlètes et dans les filtres par sport. Vous gardez le contrôle et pouvez le retirer de l’annuaire à tout moment depuis les paramètres.',
+  'Visibility on the Athletes page': 'Visibilité sur la page Athlètes',
+  'Visible on the Athletes page': 'Visible sur la page Athlètes',
+  'Update your profile to return to Athletes':
+    'Mettez votre profil à jour pour apparaître sur la page Athlètes',
+  'Approval in progress for the Athletes page':
+    'Validation en cours pour apparaître sur la page Athlètes',
+  'Enable directory visibility to appear on Athletes':
+    'Activez l’annuaire pour apparaître sur la page Athlètes',
+  'One last step to appear on Athletes':
+    'Une dernière étape pour apparaître sur la page Athlètes',
+  'Publish your profile to appear on Athletes':
+    'Publiez votre profil pour apparaître sur la page Athlètes',
+  'Your profile is listed on the Athletes page and in its sport filters. You can remove it at any time from Settings.':
+    'Votre profil est visible sur la page Athlètes et dans les filtres par sport. Vous pouvez le retirer à tout moment depuis les paramètres.',
   'Update your profile, then send it back when it is ready.':
     'Mettez votre profil à jour, puis renvoyez-le lorsqu’il est prêt.',
   'The GRIIT team will check that it is complete and compliant before adding it to the Athletes page. Your public page remains live during the review.':
     'L’équipe GRIIT vérifie que votre profil est complet et conforme avant de l’ajouter à la page Athlètes. Votre page publique reste en ligne pendant cette vérification.',
-  'Enable “Show in athlete directory” in Settings to submit this profile.':
-    'Activez « Afficher dans l’annuaire des athlètes » dans les paramètres pour envoyer ce profil.',
-  'Send this live profile to the GRIIT team for directory approval.':
-    'Envoyez ce profil en ligne à l’équipe GRIIT pour vérification.',
-  'Once it is Live and directory discovery is enabled, it will be sent to the GRIIT team for approval.':
-    'Lorsqu’il sera en ligne et visible dans l’annuaire, il pourra être envoyé à l’équipe GRIIT pour vérification.',
+  'Open visibility settings and enable “Show in athlete directory”. Your profile will then be sent to GRIIT for approval.':
+    'Ouvrez les paramètres de visibilité et activez « Afficher dans l’annuaire des athlètes ». Votre profil sera ensuite envoyé à GRIIT pour validation.',
+  'Request GRIIT approval now. Once approved, your profile will be listed publicly on the Athletes page.':
+    'Demandez maintenant la validation de GRIIT. Une fois accepté, votre profil sera affiché publiquement sur la page Athlètes.',
+  'Make your profile public and keep “Show in athlete directory” enabled. It will then be sent automatically to GRIIT for approval.':
+    'Publiez votre profil et laissez l’option « Afficher dans l’annuaire des athlètes » activée. Il sera alors envoyé automatiquement à GRIIT pour validation.',
+  'How it works: 1. Publish your profile · 2. Enable athlete directory visibility · 3. Wait for GRIIT approval.':
+    'Comment ça marche : 1. Publiez votre profil · 2. Activez la visibilité dans l’annuaire · 3. Attendez la validation de GRIIT.',
   'Send updated profile': 'Renvoyer le profil mis à jour',
-  'Send for review': 'Envoyer pour vérification',
-  'Open visibility settings': 'Ouvrir les paramètres de visibilité',
+  'Request listing on Athletes': 'Demander l’ajout à la page Athlètes',
+  'Configure visibility': 'Configurer la visibilité',
   'Profile not found or no analytics are available yet.':
     'Profil introuvable ou aucune statistique n’est encore disponible.',
   Free: 'Gratuit',

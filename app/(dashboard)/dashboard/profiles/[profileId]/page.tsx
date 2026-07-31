@@ -183,6 +183,7 @@ export default async function ProfileOverviewPage({
 
         <PublicAddressCard
           isPublished={builder.profile.isPublished}
+          profileId={profileId}
           username={builder.profile.username}
         />
 

@@ -59,20 +59,20 @@ export function DirectoryReviewStatusCard({
           : EyeSlashIcon;
 
   const title = approved
-    ? ui('Approved for the athlete directory')
+    ? ui('Visible on the Athletes page')
     : rejected
-      ? ui('A few updates are needed')
+      ? ui('Update your profile to return to Athletes')
       : awaitingReview
-        ? ui('Your profile is being reviewed')
+        ? ui('Approval in progress for the Athletes page')
         : isPublished && !isDiscoverable
-          ? ui('Athlete directory is disabled')
+          ? ui('Enable directory visibility to appear on Athletes')
           : isPublished
-            ? ui('Ready to request a review')
-            : ui('Publish your profile when it is ready');
+            ? ui('One last step to appear on Athletes')
+            : ui('Publish your profile to appear on Athletes');
 
   const description = approved
     ? ui(
-        'Your profile can now appear on the Athletes page and in its sport filters. You stay in control and can remove it from the directory at any time from Settings.',
+        'Your profile is listed on the Athletes page and in its sport filters. You can remove it at any time from Settings.',
       )
     : rejected
       ? review?.rejectionReason ||
@@ -83,14 +83,14 @@ export function DirectoryReviewStatusCard({
           )
         : isPublished && !isDiscoverable
           ? ui(
-              'Enable “Show in athlete directory” in Settings to submit this profile.',
+              'Open visibility settings and enable “Show in athlete directory”. Your profile will then be sent to GRIIT for approval.',
             )
           : isPublished
             ? ui(
-                'Send this live profile to the GRIIT team for directory approval.',
+                'Request GRIIT approval now. Once approved, your profile will be listed publicly on the Athletes page.',
               )
             : ui(
-                'Once it is Live and directory discovery is enabled, it will be sent to the GRIIT team for approval.',
+                'Make your profile public and keep “Show in athlete directory” enabled. It will then be sent automatically to GRIIT for approval.',
               );
 
   return (
@@ -111,7 +111,7 @@ export function DirectoryReviewStatusCard({
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-black tracking-[0.18em] text-black/40 uppercase">
-            {ui('Athlete directory')}
+            {ui('Visibility on the Athletes page')}
           </p>
           <h2 className="mt-2 text-lg font-black tracking-[-0.025em]">
             {title}
@@ -119,6 +119,14 @@ export function DirectoryReviewStatusCard({
           <p className="mt-2 max-w-3xl text-sm leading-6 text-black/55">
             {description}
           </p>
+
+          {!approved ? (
+            <p className="mt-4 rounded-2xl bg-black/[0.045] px-4 py-3 text-xs leading-5 font-semibold text-black/60">
+              {ui(
+                'How it works: 1. Publish your profile · 2. Enable athlete directory visibility · 3. Wait for GRIIT approval.',
+              )}
+            </p>
+          ) : null}
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {canSubmit ? (
@@ -137,7 +145,7 @@ export function DirectoryReviewStatusCard({
                   )}
                   {rejected
                     ? ui('Send updated profile')
-                    : ui('Send for review')}
+                    : ui('Request listing on Athletes')}
                 </Button>
               </form>
             ) : null}
@@ -151,7 +159,7 @@ export function DirectoryReviewStatusCard({
                 <Link
                   href={`/dashboard/profiles/${profileId}/settings` as Route}
                 >
-                  {ui('Open visibility settings')}
+                  {ui('Configure visibility')}
                 </Link>
               </Button>
             ) : null}

@@ -211,6 +211,26 @@ const templateWordingKeys = [
   'secondaryGoalLabel',
 ] as const satisfies readonly (keyof TemplateWording)[];
 
+export function normalizeTemplateWordingOverrides(
+  overrides: Partial<TemplateWording>,
+  templateId: string,
+  locale: TemplateWordingLocale = 'en',
+): Partial<TemplateWording> {
+  const defaults = getDefaultTemplateWording(templateId, locale);
+
+  return Object.fromEntries(
+    templateWordingKeys.flatMap((key) => {
+      if (!Object.prototype.hasOwnProperty.call(overrides, key)) return [];
+
+      const value = overrides[key];
+      if (typeof value !== 'string') return [];
+      if (value.trim() === defaults[key].trim()) return [];
+
+      return [[key, value]];
+    }),
+  ) as Partial<TemplateWording>;
+}
+
 export function getDefaultTemplateWording(
   templateId: string,
   locale: TemplateWordingLocale = 'en',
@@ -304,8 +324,8 @@ export function getTemplateWordingOverrides(
       );
 
       if (
-        !hasExplicitOverrides &&
-        (normalizedValue === defaults[key] || isKnownDefault)
+        normalizedValue === defaults[key] ||
+        (!hasExplicitOverrides && isKnownDefault)
       ) {
         return [];
       }

@@ -127,7 +127,10 @@ export function PublicProfileSettings({
   );
   const [visibilityState, visibilityFormAction, visibilityPending] =
     useActionState(updateProfileVisibilityAction, initialState);
-  const savedUsername = builder.profile.username;
+  const savedUsername =
+    urlState.success && urlState.username
+      ? urlState.username
+      : builder.profile.username;
   const [username, setUsername] = useState(savedUsername);
   const [seoTitle, setSeoTitle] = useState(builder.profile.seoTitle);
   const [seoDescription, setSeoDescription] = useState(
@@ -214,6 +217,11 @@ export function PublicProfileSettings({
     router.replace('/' as Route);
     router.refresh();
   }, [accountState.success, router]);
+
+  useEffect(() => {
+    if (!urlState.success || !urlState.username) return;
+    router.refresh();
+  }, [router, urlState.success, urlState.username]);
 
   const scheduleVisibilitySave = () => {
     setVisibilityDirty(true);

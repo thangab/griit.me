@@ -44,11 +44,13 @@ import { goalDateDisplays } from '@/lib/utils/goal-date';
 import { createSportSlug } from '@/lib/constants/sports';
 import { submitProfileForDirectoryReview } from '@/lib/services/athlete-directory-review';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { normalizeTemplateWordingOverrides } from '@/lib/constants/template-wording';
 
 export interface ProfileBuilderActionState {
   success: boolean;
   message: string;
   profileId?: number;
+  username?: string;
 }
 
 export interface UsernameAvailabilityResult {
@@ -1781,7 +1783,7 @@ export async function updateProfileUrlAction(
     };
   }
 
-  revalidatePath('/dashboard');
+  revalidatePath('/dashboard', 'layout');
   revalidatePath(`/dashboard/profiles/${profileId}`);
   revalidatePath(`/dashboard/profiles/${profileId}/design`);
   revalidatePath(`/dashboard/profiles/${profileId}/settings`);
@@ -1797,6 +1799,7 @@ export async function updateProfileUrlAction(
   return {
     success: true,
     message: 'Public URL updated.',
+    username,
   };
 }
 
@@ -2131,7 +2134,7 @@ export async function updateProfileTemplateAction(
   const wordingOverrideKeys = new Set(
     parsed.data.templateWordingOverrideKeys.split(',').filter(Boolean),
   );
-  const templateWordingOverrides = {
+  const submittedTemplateWordingOverrides = {
     ...(wordingOverrideKeys.has('discipline')
       ? { discipline: parsed.data.templateWordingDiscipline }
       : {}),
@@ -2164,6 +2167,11 @@ export async function updateProfileTemplateAction(
         }
       : {}),
   };
+  const templateWordingOverrides = normalizeTemplateWordingOverrides(
+    submittedTemplateWordingOverrides,
+    templateId,
+    parsed.data.templateWordingLocale,
+  );
 
   const { error } = await serviceSupabase
     .from('public_profiles')

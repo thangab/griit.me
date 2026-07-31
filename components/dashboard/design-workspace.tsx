@@ -71,6 +71,7 @@ import {
 } from '@/lib/constants/profile-theme';
 import {
   getTemplateWordingOverrides,
+  normalizeTemplateWordingOverrides,
   resolveTemplateWording,
   type TemplateWording,
 } from '@/lib/constants/template-wording';
@@ -2715,12 +2716,15 @@ export function DesignWorkspace({
   }, []);
   const handleTemplateWordingChange = useCallback(
     (key: keyof TemplateWording, value: string) => {
-      setTemplateWordingOverrides((current) => ({
-        ...current,
-        [key]: value,
-      }));
+      setTemplateWordingOverrides((current) =>
+        normalizeTemplateWordingOverrides(
+          { ...current, [key]: value },
+          selectedTemplateId,
+          locale,
+        ),
+      );
     },
-    [],
+    [locale, selectedTemplateId],
   );
   const handleContentAutosaveStatusChange = useCallback(
     (status: AutosaveStatus, message?: string) => {
