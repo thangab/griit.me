@@ -46,7 +46,7 @@ export function LinkBlock({
       data-analytics-target-type="block"
       className={cn(
         theme.radiusClass,
-        'group flex items-center gap-4 border p-4 transition hover:-translate-y-0.5',
+        'group flex w-full max-w-full min-w-0 items-center gap-4 overflow-hidden border p-4 transition hover:-translate-y-0.5',
       )}
       href={url}
       rel="noreferrer"
@@ -87,21 +87,21 @@ export function LinkBlock({
       )}
       <span className="min-w-0 flex-1">
         <span
-          className="block truncate text-sm font-bold"
+          className="block break-words text-sm font-bold [overflow-wrap:anywhere]"
           style={{ color: theme.palette.blockTitle }}
         >
           {title}
         </span>
         {description ? (
           <span
-            className="mt-1 line-clamp-2 block text-xs leading-5"
+            className="mt-1 block break-words text-xs leading-5 [overflow-wrap:anywhere]"
             style={{ color: theme.palette.description }}
           >
             {description}
           </span>
         ) : hostname && hostname !== title ? (
           <span
-            className="mt-1 block truncate text-xs"
+            className="mt-1 block break-words text-xs [overflow-wrap:anywhere]"
             style={{ color: theme.palette.description }}
           >
             {hostname}

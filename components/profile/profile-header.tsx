@@ -266,7 +266,7 @@ export function ProfileHeader({
       ) : null}
       <h1
         className={cn(
-          'leading-[0.98] font-black tracking-[-0.04em]',
+          'max-w-full break-words leading-[0.98] font-black tracking-[-0.04em] [overflow-wrap:anywhere]',
           wording.eyebrow && 'mt-3',
           isMobilePreview ? 'text-5xl' : 'text-5xl sm:text-7xl',
         )}
@@ -277,13 +277,13 @@ export function ProfileHeader({
             data-analytics-event="goal_click"
             data-analytics-target-key={targetKey}
             data-analytics-target-type="goal"
-            className="inline-flex items-start gap-2 transition-opacity hover:opacity-75"
+            className="transition-opacity hover:opacity-75"
             href={url}
             rel="noreferrer"
             target="_blank"
           >
             <span>{title}</span>
-            <ArrowUpRight className="mt-1 h-[0.42em] w-[0.42em] shrink-0" />
+            <ArrowUpRight className="ml-2 inline-block h-[0.42em] w-[0.42em] align-top" />
           </a>
         ) : (
           title
