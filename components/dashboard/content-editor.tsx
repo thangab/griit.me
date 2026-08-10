@@ -503,6 +503,12 @@ type ActiveContentBlock = {
   id: number | null;
 };
 
+const standaloneContentBlockTypes = new Set<ContentBlockType>([
+  'media',
+  'offer',
+  'link',
+]);
+
 type PartnershipMode = 'sponsors' | 'seeking' | 'both';
 
 const partnershipModes = [
@@ -1062,6 +1068,7 @@ function ContentBlocksEditor({
       .filter(
         (block) =>
           blocksWithContent.has(block.type as ContentBlockType) ||
+          standaloneContentBlockTypes.has(block.type as ContentBlockType) ||
           block.content.builderManaged === true,
       )
       .map((block) => {
@@ -1283,6 +1290,12 @@ function ContentBlocksEditor({
                               previewShape="wide"
                               value={galleryItems[slot]?.imageUrl ?? ''}
                               onValueChange={onStructureChange}
+                            />
+                            <Field
+                              label="Description (optional)"
+                              name={`galleryCaption${slot + 1}`}
+                              defaultValue={galleryItems[slot]?.caption ?? ''}
+                              placeholder="Add context about this image."
                             />
                             <input
                               name={`galleryId${slot + 1}`}

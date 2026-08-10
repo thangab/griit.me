@@ -319,12 +319,14 @@ CROSS JOIN LATERAL (
     ('activities'::varchar, 'Training log'::varchar, '{}'::jsonb, 1),
     ('gallery'::varchar, 'In motion'::varchar, '{}'::jsonb, 2),
     ('link'::varchar, 'Follow the full journey'::varchar, jsonb_build_object(
+      'builderManaged', true,
       'title', 'Follow the full journey',
       'description', 'Training notes, competition updates, and the work between milestones.',
       'url', 'https://griit.me/' || profile.username,
       'imageUrl', CASE WHEN profile.seq % 2 = 0 THEN profile.cover_url ELSE '' END
     ), 3),
     ('offer'::varchar, 'Training notes'::varchar, jsonb_build_object(
+      'builderManaged', true,
       'title', 'Training notes',
       'description', 'A practical look at this season''s preparation and lessons.',
       'url', 'https://griit.me/' || profile.username,

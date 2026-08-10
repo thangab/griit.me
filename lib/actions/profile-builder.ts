@@ -234,6 +234,7 @@ const builderSchema = z.object({
       z.object({
         id: persistedIdSchema,
         url: urlSchema,
+        caption: z.string().trim().max(500).optional(),
       }),
     )
     .max(50),
@@ -443,6 +444,7 @@ function getGalleryItems(formData: FormData) {
       return {
         id: getPersistedId(formData, `galleryId${index}`),
         url: String(value).trim(),
+        caption: getString(formData, `galleryCaption${index}`),
       };
     });
 }
@@ -803,8 +805,8 @@ async function replaceGalleryItems(
       id: item.id,
       values: {
         image_url: item.url,
-        caption: `Gallery image ${index + 1}`,
-        alt_text: 'Athlete gallery image',
+        caption: item.caption || null,
+        alt_text: item.caption || `Athlete gallery image ${index + 1}`,
       },
     }));
 

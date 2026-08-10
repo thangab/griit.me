@@ -583,6 +583,7 @@ const frenchUiCopy: Record<string, string> = {
   medium: 'moyen',
   large: 'grand',
   'Description (optional)': 'Description (facultative)',
+  'Add context about this image.': 'Ajoutez du contexte à cette image.',
   'Promo code (optional)': 'Code promo (facultatif)',
   'Button label': 'Libellé du bouton',
   'Promo text (optional)': 'Texte promotionnel (facultatif)',

@@ -206,6 +206,7 @@ CROSS JOIN LATERAL (
       ('gallery'::varchar, 'En mouvement'::varchar, '{}'::jsonb, 2),
       ('link'::varchar, 'Suivre le projet'::varchar,
         jsonb_build_object(
+          'builderManaged', true,
           'title', CASE p.username WHEN 'demo_antoine_mercier' THEN 'Des conseils simples, chaque semaine' ELSE 'Mon bilan mensuel, sans filtre' END,
           'description', CASE p.username WHEN 'demo_antoine_mercier' THEN 'Entraînement, récupération et habitudes applicables dès la prochaine séance.' ELSE 'Ce qui a fonctionné, ce qui a été difficile et ce que j’ajuste pour la suite.' END,
           'url', 'https://griit.me/' || p.username,
@@ -213,6 +214,7 @@ CROSS JOIN LATERAL (
         ), 3),
       ('offer'::varchar, 'Accompagnement'::varchar,
         jsonb_build_object(
+          'builderManaged', true,
           'title', CASE p.username WHEN 'demo_antoine_mercier' THEN 'Bilan forme de 45 minutes' ELSE 'Mon cadre pour rester régulière' END,
           'description', CASE p.username WHEN 'demo_antoine_mercier' THEN 'Un échange concret pour faire le point sur vos contraintes, votre niveau et vos prochaines étapes.' ELSE 'Planifier les repas, marcher au quotidien et protéger trois créneaux de mouvement par semaine.' END,
           'url', 'https://griit.me/' || p.username,

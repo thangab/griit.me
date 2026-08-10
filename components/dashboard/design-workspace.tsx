@@ -409,7 +409,7 @@ function createLivePreviewState(
         id: builder.galleryItems[sourceIndex]?.id ?? null,
         analyticsKey: builder.galleryItems[sourceIndex]?.analyticsKey ?? '',
         imageUrl,
-        caption: builder.galleryItems[sourceIndex]?.caption ?? '',
+        caption: getValue(`galleryCaption${sourceIndex + 1}`),
         altText: builder.galleryItems[sourceIndex]?.altText ?? '',
         sortOrder: index,
         isEnabled: true,
