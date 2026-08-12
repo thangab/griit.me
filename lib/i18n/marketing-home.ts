@@ -1,20 +1,21 @@
 import type { Locale } from '@/lib/i18n/config';
 
 const en = {
-  badge: 'More than a link in bio for athletes',
+  badge: 'Create and publish your sports profile for free',
   heroLine1: 'Your journey deserves',
   heroLine2: 'more',
   heroAccent: 'visibility.',
   heroDescription:
-    'Whether you are getting started, chasing a record, or coaching others, build a powerful public profile around your journey and expertise.',
-  createProfile: 'Create your profile',
+    'Whether you are getting started, chasing a record, or coaching others, build and publish a powerful public profile for free.',
+  createProfile: 'Create my free profile',
+  freeNote: 'Free forever · No card required · Publish when you are ready',
   exploreTemplates: 'Explore templates',
   launchAnnual: 'Pro Annual',
   firstAthletes: 'athletes',
   benefits: [
-    'Free to start',
+    'One free profile forever',
+    'No card required',
     'Works for every sport',
-    'Mobile first',
     'No code',
   ],
   journey: [
@@ -28,7 +29,7 @@ const en = {
   editorTitle2: 'One clear editor.',
   editorDescription:
     'Shape your profile, organize your content, and see every change as it happens. No code, no disconnected tools, and no guessing what visitors will see.',
-  editorCta: 'Build your profile',
+  editorCta: 'Build your profile for free',
   featuresEyebrow: 'More than a link in bio',
   featuresTitle: 'Everything you need to show your journey and expertise.',
   features: [
@@ -74,6 +75,8 @@ const en = {
   ],
   pricingEyebrow: 'Simple pricing',
   pricingTitle: 'Start free. Grow with your goals.',
+  pricingFreeDescription:
+    'Your first complete public profile is free forever. No trial and no card required.',
   launchOffer: 'Launch offer for the first',
   withCode: 'with code',
   saveCompared: 'Save',
@@ -125,20 +128,22 @@ const en = {
 } as const;
 
 const fr = {
-  badge: 'Bien plus qu’un link in bio pour les sportifs.',
+  badge: 'Créez et publiez votre profil sportif gratuitement',
   heroLine1: 'Votre parcours mérite',
   heroLine2: 'plus de',
   heroAccent: 'visibilité.',
   heroDescription:
-    'Que vous débutiez, visiez un record ou accompagniez d’autres sportifs, réunissez votre parcours et votre expertise sur un profil qui vous ressemble.',
-  createProfile: 'Créer mon profil',
+    'Que vous débutiez, visiez un record ou accompagniez d’autres sportifs, créez et publiez gratuitement un profil qui vous ressemble.',
+  createProfile: 'Créer mon profil gratuitement',
+  freeNote:
+    'Gratuit pour toujours · Sans carte bancaire · Publiez quand vous êtes prêt',
   exploreTemplates: 'Voir les templates',
   launchAnnual: 'Pro Annual',
   firstAthletes: 'premiers athlètes',
   benefits: [
-    '0 $ pour se lancer',
+    '1 profil gratuit pour toujours',
+    'Sans carte bancaire',
     'Tous sports, tous niveaux',
-    'Mobile-first',
     'Zéro code',
   ],
   journey: [
@@ -164,7 +169,7 @@ const fr = {
   editorTitle2: 'Un seul studio.',
   editorDescription:
     'Ajoutez vos contenus, construisez votre identité visuelle et voyez chaque changement en live. Aucun code, aucun outil dispersé, juste votre parcours au bon format.',
-  editorCta: 'Lancer mon profil',
+  editorCta: 'Créer gratuitement mon profil',
   featuresEyebrow: "Plus qu'un link in bio",
   featuresTitle:
     'Tout le nécessaire pour montrer votre parcours et votre expertise.',
@@ -211,6 +216,8 @@ const fr = {
   ],
   pricingEyebrow: 'Des offres sans prise de tête',
   pricingTitle: 'Start free. Passez Pro quand votre ambition grandit.',
+  pricingFreeDescription:
+    'Votre premier profil public complet est gratuit pour toujours, sans période d’essai ni carte bancaire.',
   launchOffer: 'Offre de lancement pour les',
   withCode: 'avec le code',
   saveCompared: 'Économisez',

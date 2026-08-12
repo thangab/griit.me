@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next';
 import { createPublicSupabaseClient } from '@/lib/config/supabase-server';
-import { getAthleteDirectory } from '@/lib/services/athlete-directory';
 import { getAbsoluteUrl } from '@/lib/seo/metadata';
 
 export const revalidate = 3600;
@@ -13,11 +12,6 @@ type IndexedProfileRow = {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: getAbsoluteUrl('/'), changeFrequency: 'weekly', priority: 1 },
-    {
-      url: getAbsoluteUrl('/athletes'),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
     {
       url: getAbsoluteUrl('/inspiration'),
       changeFrequency: 'weekly',
@@ -47,13 +41,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const supabase = createPublicSupabaseClient();
-    const [directory, reviewsResult] = await Promise.all([
-      getAthleteDirectory(),
-      supabase
-        .from('athlete_directory_reviews')
-        .select('profile_id')
-        .eq('status', 'approved'),
-    ]);
+    const reviewsResult = await supabase
+      .from('athlete_directory_reviews')
+      .select('profile_id')
+      .eq('status', 'approved');
     if (reviewsResult.error) throw reviewsResult.error;
 
     const approvedProfileIds = (reviewsResult.data ?? []).map(
@@ -70,18 +61,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       : { data: [] as IndexedProfileRow[], error: null };
     if (profilesResult.error) throw profilesResult.error;
 
-    const sportsWithAthletes = new Set(
-      directory.athletes.flatMap((athlete) =>
-        athlete.sports.map((sport) => sport.slug),
-      ),
-    );
-    const sportPages: MetadataRoute.Sitemap = directory.sports
-      .filter((sport) => sportsWithAthletes.has(sport.slug))
-      .map((sport) => ({
-        url: getAbsoluteUrl(`/athletes/${sport.slug}`),
-        changeFrequency: 'weekly',
-        priority: 0.7,
-      }));
     const profilePages: MetadataRoute.Sitemap = (
       (profilesResult.data ?? []) as IndexedProfileRow[]
     ).map((profile) => ({
@@ -91,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticPages, ...sportPages, ...profilePages];
+    return [...staticPages, ...profilePages];
   } catch {
     return staticPages;
   }

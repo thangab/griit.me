@@ -7,18 +7,18 @@ const notFoundCopy = {
     badge: '404 · Off course',
     title: 'This page missed the starting line.',
     description:
-      'The link may have changed or the page may no longer exist. Head home or discover athlete profiles that are still moving forward.',
+      'The link may have changed or the page may no longer exist. Head home or explore profiles built with Griit.',
     home: 'Back to home',
-    athletes: 'Explore athletes',
+    athletes: 'Explore inspiration',
     caption: 'Wrong turn. Same momentum.',
   },
   fr: {
     badge: '404 · Hors parcours',
     title: "Cette page n'est plus sur la ligne de départ.",
     description:
-      'Le lien a peut-être changé ou la page n’existe plus. Revenez à l’accueil ou découvrez les profils de sportifs qui avancent vers leur prochain objectif.',
+      'Le lien a peut-être changé ou la page n’existe plus. Revenez à l’accueil ou explorez des profils créés avec Griit.',
     home: 'Retour à l’accueil',
-    athletes: 'Découvrir les sportifs',
+    athletes: 'Voir les inspirations',
     caption: 'Mauvaise direction. Même élan.',
   },
 } as const;
@@ -65,7 +65,7 @@ export default async function NotFound() {
               </Link>
               <Link
                 className="inline-flex h-13 items-center justify-center gap-2 rounded-full border border-black/15 bg-white/60 px-7 text-sm font-bold transition-colors hover:bg-white"
-                href="/athletes"
+                href="/inspiration"
               >
                 {copy.athletes}
                 <ArrowRightIcon className="h-4 w-4" weight="bold" />

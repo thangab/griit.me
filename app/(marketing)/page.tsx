@@ -36,8 +36,8 @@ export async function generateMetadata(): Promise<Metadata> {
       ? 'Griit — Votre parcours mérite plus de visibilité'
       : 'Griit — Your journey deserves more visibility',
     description: isFrench
-      ? 'Créez un profil sportif public, quel que soit votre niveau. Présentez votre parcours, vos objectifs ou votre expertise de coach.'
-      : 'Build a public sports profile at any level. Showcase your journey, goals, or coaching expertise.',
+      ? 'Créez et publiez gratuitement un profil sportif public, quel que soit votre niveau. Sans carte bancaire.'
+      : 'Build and publish a free public sports profile at any level. No card required.',
     path: '/',
     locale,
   });
@@ -272,20 +272,10 @@ export default async function HomePage() {
               </a>
             </div>
 
-            <Link
-              className="mt-5 inline-flex items-center gap-2 text-xs font-black text-[#3157ff] hover:underline"
-              href="/pricing#launch-offer"
-            >
-              <span className="rounded-full bg-[#a9ed35] px-2 py-1 text-[9px] tracking-[0.12em] text-[#151515] uppercase">
-                Launch
-              </span>
-              {content.launchAnnual}{' '}
-              <span className="text-black/35 line-through">
-                {launchOffer.regularAnnualPrice}
-              </span>{' '}
-              {launchOffer.firstYearPrice} · {launchOffer.athleteLimit}{' '}
-              {content.firstAthletes}
-            </Link>
+            <p className="mt-5 flex items-center gap-2 text-xs font-black text-[#3157ff]">
+              <CheckIcon className="h-4 w-4" weight="bold" />
+              {content.freeNote}
+            </p>
 
             <div className="mt-9 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-black/48">
               {content.benefits.map((item) => (
@@ -483,7 +473,10 @@ export default async function HomePage() {
             <h2 className="mt-5 text-4xl font-black tracking-[-0.055em] sm:text-6xl">
               {content.pricingTitle}
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-black/50">
+            <p className="mx-auto mt-5 max-w-xl text-sm leading-6 font-bold text-black">
+              {content.pricingFreeDescription}
+            </p>
+            <p className="mx-auto mt-2 max-w-xl text-xs leading-5 text-black/45">
               {content.launchOffer} {launchOffer.athleteLimit}{' '}
               {content.firstAthletes}: Pro Annual{' '}
               <span className="line-through">
@@ -567,13 +560,18 @@ export default async function HomePage() {
               {content.finalTitle}
             </h2>
           </div>
-          <Link
-            className="inline-flex h-13 shrink-0 items-center gap-2 rounded-full bg-[#151515] px-7 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
-            href="/sign-up"
-          >
-            {content.createProfile}
-            <ArrowRightIcon className="h-4 w-4" weight="bold" />
-          </Link>
+          <div className="shrink-0">
+            <Link
+              className="inline-flex h-13 items-center gap-2 rounded-full bg-[#151515] px-7 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              href="/sign-up"
+            >
+              {content.createProfile}
+              <ArrowRightIcon className="h-4 w-4" weight="bold" />
+            </Link>
+            <p className="mt-3 text-center text-xs font-bold text-black/55">
+              {content.freeNote}
+            </p>
+          </div>
         </div>
       </section>
     </main>

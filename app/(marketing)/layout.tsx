@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
 import { createServerSupabaseClient } from '@/lib/config/supabase-server';
-import { launchOffer } from '@/lib/constants/billing';
 import { MarketingAnalytics } from '@/components/marketing/marketing-analytics';
 import { I18nProvider } from '@/components/i18n/i18n-provider';
 import { LanguageSwitcher } from '@/components/i18n/language-switcher';
@@ -32,26 +31,14 @@ export default async function MarketingLayout({
         <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f6f1]/90 backdrop-blur-xl">
           <Link
             className="group flex min-h-9 items-center justify-center gap-2 bg-[#151515] px-4 py-2 text-center text-[10px] font-bold text-white sm:text-xs"
-            href="/pricing#launch-offer"
+            href="/sign-up"
           >
             <span className="rounded-full bg-[#a9ed35] px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-[#151515] uppercase">
-              {t('marketing.launch')}
+              {t('marketing.freeLabel')}
             </span>
-            <span>
-              {t('marketing.launchAnnual')}{' '}
-              <span className="text-white/40 line-through">
-                {launchOffer.regularAnnualPrice}
-              </span>{' '}
-              <strong>{launchOffer.firstYearPrice}</strong>{' '}
-              {t('marketing.launchForFirst')} {launchOffer.athleteLimit}{' '}
-              {t('marketing.launchAthletes')}
-              <span className="hidden text-white/55 sm:inline">
-                {' '}
-                · {launchOffer.savingsVsMonthly} {t('marketing.launchSavings')}
-              </span>
-            </span>
+            <span>{t('marketing.freeBanner')}</span>
             <span className="font-black text-[#a9ed35] group-hover:underline">
-              {launchOffer.code} →
+              {t('marketing.freeBannerCta')} →
             </span>
           </Link>
           <div className="mx-auto flex h-18 max-w-[1380px] items-center justify-between px-5 sm:px-8 lg:px-12">
@@ -62,9 +49,9 @@ export default async function MarketingLayout({
             <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">
               <Link
                 className="transition-opacity hover:opacity-55"
-                href="/athletes"
+                href="/inspiration"
               >
-                {t('marketing.athletes')}
+                {t('marketing.inspiration')}
               </Link>
               <Link
                 className="transition-opacity hover:opacity-55"
@@ -128,8 +115,8 @@ export default async function MarketingLayout({
                 <p className="text-xs font-black tracking-[0.14em] text-white/35 uppercase">
                   {t('marketing.product')}
                 </p>
-                <Link className="hover:text-white" href="/athletes">
-                  {t('marketing.athletes')}
+                <Link className="hover:text-white" href="/inspiration">
+                  {t('marketing.inspiration')}
                 </Link>
                 <Link className="hover:text-white" href="/#features">
                   {t('marketing.features')}

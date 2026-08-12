@@ -319,7 +319,7 @@ export async function AthleteDirectoryPage({
             href="/sign-up"
           >
             <SparkleIcon className="h-4 w-4 text-[#3157ff]" weight="fill" />
-            {isFrench ? 'Créer mon profil' : 'Create your own'}
+            {isFrench ? 'Créer gratuitement' : 'Create yours for free'}
             <ArrowUpRightIcon className="h-3.5 w-3.5" weight="bold" />
           </Link>
           <h1 className="mt-7 text-[clamp(3.5rem,8vw,6.8rem)] leading-[0.88] font-black tracking-[-0.07em]">
@@ -402,7 +402,9 @@ export async function AthleteDirectoryPage({
                 className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-[#151515] px-5 text-sm font-bold text-white"
                 href="/sign-up"
               >
-                {isFrench ? 'Prendre le départ' : 'Create your profile'}
+                {isFrench
+                  ? 'Créer mon profil gratuitement'
+                  : 'Create your free profile'}
                 <ArrowRightIcon className="h-4 w-4" weight="bold" />
               </Link>
             </div>
@@ -426,7 +428,9 @@ export async function AthleteDirectoryPage({
             className="inline-flex h-13 shrink-0 items-center gap-2 rounded-full bg-[#151515] px-7 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
             href="/sign-up"
           >
-            {isFrench ? 'Créer mon profil' : 'Build your athlete profile'}
+            {isFrench
+              ? 'Créer mon profil gratuitement'
+              : 'Build your athlete profile for free'}
             <ArrowRightIcon className="h-4 w-4" weight="bold" />
           </Link>
         </div>

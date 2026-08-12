@@ -76,7 +76,9 @@ export default async function InspirationPage() {
                 className="inline-flex h-13 shrink-0 items-center justify-center gap-2 self-start rounded-full bg-[#a9ed35] px-7 text-sm font-black text-[#151515] transition hover:-translate-y-0.5"
                 href="/sign-up"
               >
-                {isFrench ? 'Créer mon profil' : 'Create my profile'}
+                {isFrench
+                  ? 'Créer mon profil gratuitement'
+                  : 'Create my free profile'}
                 <ArrowRightIcon className="h-4 w-4" weight="bold" />
               </Link>
             </div>
@@ -166,7 +168,7 @@ export default async function InspirationPage() {
               className="inline-flex h-13 shrink-0 items-center gap-2 rounded-full bg-white px-7 text-sm font-black text-[#151515] transition hover:-translate-y-0.5"
               href="/sign-up"
             >
-              {isFrench ? 'Prendre le départ' : 'Start building'}
+              {isFrench ? 'Créer gratuitement' : 'Start building for free'}
               <ArrowRightIcon className="h-4 w-4" weight="bold" />
             </Link>
           </div>
