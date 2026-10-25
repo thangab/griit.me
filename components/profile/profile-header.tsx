@@ -35,6 +35,18 @@ export function ProfileHeader({
   targetKey?: string;
 }) {
   const { profile } = builder;
+  const profileHeadline =
+    typeof profile.theme.profileHeadline === 'string'
+      ? profile.theme.profileHeadline.trim()
+      : '';
+  const hasProfileHeadline = Boolean(profileHeadline);
+  const headline = profileHeadline || title;
+  const introduction = hasProfileHeadline
+    ? typeof profile.theme.profileIntroduction === 'string'
+      ? profile.theme.profileIntroduction.trim()
+      : ''
+    : description;
+  const headlineUrl = hasProfileHeadline ? undefined : url;
   const theme = getThemeRuntime(profile.theme);
   const isPreview = variant !== 'full';
   const isMobilePreview = variant === 'mobile-preview';
@@ -266,30 +278,30 @@ export function ProfileHeader({
       ) : null}
       <h1
         className={cn(
-          'max-w-full break-words leading-[0.98] font-black tracking-[-0.04em] [overflow-wrap:anywhere]',
+          'max-w-full leading-[0.98] font-black tracking-[-0.04em] [overflow-wrap:anywhere] break-words',
           wording.eyebrow && 'mt-3',
           isMobilePreview ? 'text-5xl' : 'text-5xl sm:text-7xl',
         )}
         style={{ fontFamily: theme.fontFamilies.heading }}
       >
-        {url ? (
+        {headlineUrl ? (
           <a
             data-analytics-event="goal_click"
             data-analytics-target-key={targetKey}
             data-analytics-target-type="goal"
             className="transition-opacity hover:opacity-75"
-            href={url}
+            href={headlineUrl}
             rel="noreferrer"
             target="_blank"
           >
-            <span>{title}</span>
+            <span>{headline}</span>
             <ArrowUpRight className="ml-2 inline-block h-[0.42em] w-[0.42em] align-top" />
           </a>
         ) : (
-          title
+          headline
         )}
       </h1>
-      {description ? (
+      {introduction ? (
         <p
           className={cn(
             'mt-4 leading-6',
@@ -297,10 +309,10 @@ export function ProfileHeader({
           )}
           style={{ color: theme.palette.mutedHeaderText }}
         >
-          {description}
+          {introduction}
         </p>
       ) : null}
-      {target ? (
+      {!hasProfileHeadline && target ? (
         <GoalDateBadge
           builder={builder}
           className="mt-5"
