@@ -148,9 +148,11 @@ export default async function PublicProfilePage({
           <ArrowRightIcon className="h-4 w-4 shrink-0" weight="bold" />
         </Link>
       ) : null}
-      {showBranding || showPartnerBranding ? (
+      {(!isDemo || preview === '1') && (showBranding || showPartnerBranding) ? (
         <GriitBranding
           className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 sm:bottom-5"
+          locale={locale}
+          username={builder.profile.username}
           variant={showPartnerBranding ? 'partner' : 'made-with'}
         />
       ) : null}
