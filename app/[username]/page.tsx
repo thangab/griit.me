@@ -13,6 +13,7 @@ import { getPublicProfileBuilderState } from '@/lib/services/profile-builder';
 import { getAbsoluteUrl } from '@/lib/seo/metadata';
 import { isPastDate } from '@/lib/utils/date-status';
 import { getRequestLocale } from '@/lib/i18n/server';
+import { isLocale } from '@/lib/i18n/config';
 import {
   getProfileTemplate,
   resolveProfileTemplateId,
@@ -96,7 +97,10 @@ export default async function PublicProfilePage({
   const showPartnerBranding =
     builder.profile.isComplimentaryPro && !complimentaryAccessExpired;
   const isDemo = builder.profile.username.startsWith('demo_');
-  const locale = await getRequestLocale();
+  const profileLocale = builder.profile.theme.templateWordingLocale;
+  const locale = isLocale(profileLocale)
+    ? profileLocale
+    : await getRequestLocale();
   const templateId = resolveProfileTemplateId(builder.profile.theme);
   const demoSignupHref = !getProfileTemplate(templateId)?.proOnly
     ? `/sign-up?template=${templateId}&source=demo_profile&profile=${builder.profile.username}`
@@ -114,7 +118,7 @@ export default async function PublicProfilePage({
   });
 
   return (
-    <>
+    <div lang={locale}>
       {preview !== '1' ? (
         <>
           <MarketingAnalytics measurementId={measurementId} locale={locale} />
@@ -226,6 +230,6 @@ export default async function PublicProfilePage({
           variant={showPartnerBranding ? 'partner' : 'made-with'}
         />
       ) : null}
-    </>
+    </div>
   );
 }
