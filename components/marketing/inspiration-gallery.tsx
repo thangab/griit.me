@@ -20,6 +20,31 @@ import type { Locale } from '@/lib/i18n/config';
 import type { AthleteDirectoryEntry } from '@/lib/services/athlete-directory';
 
 const PAGE_SIZE = 12;
+type GalleryFocus = 'all' | 'athletes' | 'coaches' | 'transformations';
+
+function getProfileFocus(
+  athlete: AthleteDirectoryEntry,
+): Exclude<GalleryFocus, 'all'> {
+  const text = [
+    athlete.displayName,
+    athlete.username,
+    athlete.bio,
+    athlete.goal,
+  ]
+    .join(' ')
+    .toLocaleLowerCase();
+
+  if (/coach|coaching|trainer|préparat|personal training/.test(text))
+    return 'coaches';
+  if (
+    /perdre|perdu|poids|weight|masse|muscle|transformation|body recomposition|bulk/.test(
+      text,
+    )
+  ) {
+    return 'transformations';
+  }
+  return 'athletes';
+}
 
 function withoutUnsplash(url: string) {
   if (!url) return '';
@@ -349,13 +374,16 @@ function AthleteCard({
 
 export function InspirationGallery({
   athletes,
+  initialFocus = 'all',
   locale,
 }: {
   athletes: AthleteDirectoryEntry[];
+  initialFocus?: GalleryFocus;
   locale: Locale;
 }) {
   const isFrench = locale === 'fr';
   const [query, setQuery] = useState('');
+  const [focus, setFocus] = useState<GalleryFocus>(initialFocus);
   const [sport, setSport] = useState('all');
   const [template, setTemplate] = useState('all');
   const [tone, setTone] = useState('all');
@@ -396,20 +424,53 @@ export function InspirationGallery({
 
       return (
         (!normalizedQuery || searchableText.includes(normalizedQuery)) &&
+        (focus === 'all' || getProfileFocus(athlete) === focus) &&
         (sport === 'all' ||
           athlete.sports.some((item) => item.slug === sport)) &&
         (template === 'all' || getTemplateName(athlete) === template) &&
         (tone === 'all' || getColorTone(theme.palette.background) === tone)
       );
     });
-  }, [athletes, locale, query, sport, template, tone]);
+  }, [athletes, focus, locale, query, sport, template, tone]);
   const hasActiveFilters = Boolean(
-    query || sport !== 'all' || template !== 'all' || tone !== 'all',
+    query ||
+    focus !== 'all' ||
+    sport !== 'all' ||
+    template !== 'all' ||
+    tone !== 'all',
   );
 
   return (
     <>
       <div className="rounded-[2rem] border border-black/10 bg-[#f7f7f3] p-4 sm:p-5">
+        <div
+          className="mb-4 flex flex-wrap gap-2"
+          aria-label={isFrench ? 'Type de profil' : 'Profile type'}
+        >
+          {(
+            [
+              ['all', isFrench ? 'Tous les profils' : 'All profiles'],
+              ['athletes', isFrench ? 'Athlètes' : 'Athletes'],
+              ['coaches', isFrench ? 'Coachs' : 'Coaches'],
+              [
+                'transformations',
+                isFrench ? 'Transformations' : 'Transformations',
+              ],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              className={`rounded-full px-4 py-2 text-xs font-black transition ${focus === value ? 'bg-[#151515] text-white' : 'border border-black/10 bg-white text-black/55 hover:text-black'}`}
+              key={value}
+              onClick={() => {
+                setFocus(value);
+                setVisibleCount(PAGE_SIZE);
+              }}
+              type="button"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_190px_210px_180px]">
           <label className="relative block">
             <span className="sr-only">
@@ -518,6 +579,7 @@ export function InspirationGallery({
             className="text-sm font-bold text-[#3157ff] hover:underline"
             onClick={() => {
               setQuery('');
+              setFocus('all');
               setSport('all');
               setTemplate('all');
               setTone('all');

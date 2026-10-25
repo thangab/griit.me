@@ -32,6 +32,8 @@ export default async function MarketingLayout({
           <Link
             className="group flex min-h-9 items-center justify-center gap-2 bg-[#151515] px-4 py-2 text-center text-[10px] font-bold text-white sm:text-xs"
             href="/sign-up"
+            data-marketing-cta="create_free_profile"
+            data-marketing-source="free_banner"
           >
             <span className="rounded-full bg-[#a9ed35] px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-[#151515] uppercase">
               {t('marketing.freeLabel')}
@@ -87,6 +89,8 @@ export default async function MarketingLayout({
                   <Link
                     className="inline-flex h-10 items-center gap-2 rounded-full bg-[#151515] px-4 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 sm:px-5"
                     href="/sign-up"
+                    data-marketing-cta="create_free_profile"
+                    data-marketing-source="header"
                   >
                     {t('marketing.getStarted')}
                     <ArrowRightIcon className="h-4 w-4" weight="bold" />

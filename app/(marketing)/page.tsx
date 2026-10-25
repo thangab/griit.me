@@ -12,6 +12,7 @@ import {
   PaletteIcon,
   SparkleIcon,
   SquaresFourIcon,
+  TargetIcon,
 } from '@phosphor-icons/react/ssr';
 import { launchOffer } from '@/lib/constants/billing';
 import { getRequestLocale } from '@/lib/i18n/server';
@@ -259,6 +260,8 @@ export default async function HomePage() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
                 className="inline-flex h-13 items-center justify-center gap-2 rounded-full bg-[#151515] px-7 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+                data-marketing-cta="create_free_profile"
+                data-marketing-source="home_hero"
                 href="/sign-up"
               >
                 {content.createProfile}
@@ -319,6 +322,101 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="border-b border-black/10 bg-white px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+        <div className="mx-auto max-w-[1280px]">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
+              {locale === 'fr'
+                ? 'Un profil qui vous ressemble'
+                : 'A profile built around you'}
+            </p>
+            <h2 className="mt-4 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-5xl">
+              {locale === 'fr'
+                ? 'Commencez par votre objectif.'
+                : 'Start with what you want to achieve.'}
+            </h2>
+          </div>
+          <div className="mt-9 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                href: '/inspiration?focus=athletes',
+                icon: LightningIcon,
+                title: locale === 'fr' ? 'Je suis athlète' : 'I am an athlete',
+                text:
+                  locale === 'fr'
+                    ? 'Amateur, intermédiaire ou pro : montrez vos performances et votre prochain défi.'
+                    : 'Amateur, intermediate, or pro: showcase your results and next challenge.',
+              },
+              {
+                href: '/inspiration?focus=coaches',
+                icon: SquaresFourIcon,
+                title: locale === 'fr' ? 'Je suis coach' : 'I am a coach',
+                text:
+                  locale === 'fr'
+                    ? 'Présentez votre méthode, vos spécialités et les transformations de vos clients.'
+                    : 'Present your method, specialties, and client transformations.',
+              },
+              {
+                href: '/inspiration?focus=transformations',
+                icon: TargetIcon,
+                title:
+                  locale === 'fr' ? 'Je me transforme' : 'I am transforming',
+                text:
+                  locale === 'fr'
+                    ? 'Perte de poids ou prise de masse : rendez votre progression visible et motivante.'
+                    : 'Weight loss or muscle gain: make your progress visible and motivating.',
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  className="group rounded-[1.75rem] border border-black/10 bg-[#f7f6f1] p-6 transition hover:-translate-y-1 hover:border-[#3157ff]/30"
+                  data-marketing-cta="explore_audience"
+                  data-marketing-source="home_audiences"
+                  href={item.href as '/inspiration'}
+                  key={item.href}
+                >
+                  <Icon className="h-7 w-7 text-[#3157ff]" weight="duotone" />
+                  <h3 className="mt-7 text-xl font-black">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-black/50">
+                    {item.text}
+                  </p>
+                  <span className="mt-6 inline-flex items-center gap-2 text-xs font-black text-[#3157ff]">
+                    {locale === 'fr' ? 'Voir des exemples' : 'See examples'}
+                    <ArrowRightIcon
+                      className="h-3.5 w-3.5 transition group-hover:translate-x-1"
+                      weight="bold"
+                    />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mt-6 flex flex-col gap-4 rounded-[1.75rem] bg-[#eaf8d1] p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-lg font-black">
+                {locale === 'fr'
+                  ? 'Gratuit pour publier votre profil complet.'
+                  : 'Free to publish your complete profile.'}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-black/55">
+                {locale === 'fr'
+                  ? '1 profil public, 4 templates, objectifs, activités, résultats, galerie, liens et statistiques essentielles. Sans carte bancaire.'
+                  : '1 public profile, 4 templates, goals, activities, results, gallery, links, and essential analytics. No card required.'}
+              </p>
+            </div>
+            <Link
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-[#151515] px-6 text-sm font-black text-white"
+              data-marketing-cta="create_free_profile"
+              data-marketing-source="home_audiences"
+              href="/sign-up"
+            >
+              {locale === 'fr' ? 'Créer gratuitement' : 'Create for free'}
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section className="px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
         <div className="mx-auto grid max-w-[1280px] items-center gap-14 lg:grid-cols-[0.72fr_1.28fr]">
           <div>
@@ -336,6 +434,8 @@ export default async function HomePage() {
             <Link
               className="mt-7 inline-flex items-center gap-2 text-sm font-black"
               href="/sign-up"
+              data-marketing-cta="create_free_profile"
+              data-marketing-source="home_editor"
             >
               {content.editorCta}
               <ArrowRightIcon className="h-4 w-4" weight="bold" />
@@ -564,6 +664,8 @@ export default async function HomePage() {
             <Link
               className="inline-flex h-13 items-center gap-2 rounded-full bg-[#151515] px-7 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
               href="/sign-up"
+              data-marketing-cta="create_free_profile"
+              data-marketing-source="home_final"
             >
               {content.createProfile}
               <ArrowRightIcon className="h-4 w-4" weight="bold" />

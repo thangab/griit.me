@@ -28,10 +28,21 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function InspirationPage() {
+export default async function InspirationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ focus?: string }>;
+}) {
   const locale = await getRequestLocale();
   const isFrench = locale === 'fr';
   const profiles = await getInspirationProfiles();
+  const requestedFocus = (await searchParams).focus;
+  const initialFocus =
+    requestedFocus === 'athletes' ||
+    requestedFocus === 'coaches' ||
+    requestedFocus === 'transformations'
+      ? requestedFocus
+      : 'all';
 
   return (
     <>
@@ -75,6 +86,8 @@ export default async function InspirationPage() {
               <Link
                 className="inline-flex h-13 shrink-0 items-center justify-center gap-2 self-start rounded-full bg-[#a9ed35] px-7 text-sm font-black text-[#151515] transition hover:-translate-y-0.5"
                 href="/sign-up"
+                data-marketing-cta="create_free_profile"
+                data-marketing-source="inspiration_hero"
               >
                 {isFrench
                   ? 'Créer mon profil gratuitement'
@@ -146,7 +159,11 @@ export default async function InspirationPage() {
                   : 'Search by discipline, compare templates, and open any page to see the complete experience.'}
               </p>
             </div>
-            <InspirationGallery athletes={profiles} locale={locale} />
+            <InspirationGallery
+              athletes={profiles}
+              initialFocus={initialFocus}
+              locale={locale}
+            />
           </div>
         </section>
 
@@ -167,6 +184,8 @@ export default async function InspirationPage() {
             <Link
               className="inline-flex h-13 shrink-0 items-center gap-2 rounded-full bg-white px-7 text-sm font-black text-[#151515] transition hover:-translate-y-0.5"
               href="/sign-up"
+              data-marketing-cta="create_free_profile"
+              data-marketing-source="inspiration_footer"
             >
               {isFrench ? 'Créer gratuitement' : 'Start building for free'}
               <ArrowRightIcon className="h-4 w-4" weight="bold" />

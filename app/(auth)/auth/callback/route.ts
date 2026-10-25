@@ -49,6 +49,11 @@ export async function GET(request: NextRequest) {
 
   const onboardingUrl = request.nextUrl.clone();
   onboardingUrl.pathname = '/dashboard/onboard';
-  onboardingUrl.search = '';
+  const context = new URLSearchParams();
+  for (const key of ['template', 'source', 'profile'] as const) {
+    const value = request.nextUrl.searchParams.get(key);
+    if (value && /^[a-z0-9_-]{1,64}$/i.test(value)) context.set(key, value);
+  }
+  onboardingUrl.search = context.toString();
   return NextResponse.redirect(onboardingUrl);
 }

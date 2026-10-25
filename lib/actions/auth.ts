@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import type { Route } from 'next';
 import { revalidatePath, updateTag } from 'next/cache';
 import { headers } from 'next/headers';
 import {
@@ -16,6 +17,10 @@ import {
   athleteDirectoryCacheTag,
   getPublicProfileCacheTag,
 } from '@/lib/cache/profile-cache';
+import {
+  getProfileTemplate,
+  isProfileTemplateId,
+} from '@/lib/constants/profile-templates';
 
 export interface AuthActionState {
   success: boolean;
@@ -41,6 +46,30 @@ async function getAppOrigin() {
     (host.startsWith('localhost') ? 'http' : 'https');
 
   return `${protocol}://${host}`;
+}
+
+function getSignupContext(formData: FormData) {
+  const requestedTemplate = String(formData.get('template') ?? '');
+  const template =
+    isProfileTemplateId(requestedTemplate) &&
+    !getProfileTemplate(requestedTemplate)?.proOnly
+      ? requestedTemplate
+      : '';
+  const clean = (key: 'source' | 'profile') => {
+    const value = String(formData.get(key) ?? '').slice(0, 64);
+    return /^[a-z0-9_-]+$/i.test(value) ? value : '';
+  };
+  return { template, source: clean('source'), profile: clean('profile') };
+}
+
+function appendSignupContext(
+  url: URL,
+  context: ReturnType<typeof getSignupContext>,
+) {
+  if (context.template) url.searchParams.set('template', context.template);
+  if (context.source) url.searchParams.set('source', context.source);
+  if (context.profile) url.searchParams.set('profile', context.profile);
+  return url;
 }
 
 export async function signInAction(
@@ -76,6 +105,7 @@ export async function signUpAction(
 ): Promise<AuthActionState> {
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '').trim();
+  const signupContext = getSignupContext(formData);
 
   if (!email || !password) {
     return {
@@ -88,11 +118,15 @@ export async function signUpAction(
     getServerSupabaseClient(),
     getAppOrigin(),
   ]);
+  const callbackUrl = appendSignupContext(
+    new URL('/auth/callback', appOrigin),
+    signupContext,
+  );
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${appOrigin}/auth/callback`,
+      emailRedirectTo: callbackUrl.toString(),
     },
   });
 
@@ -115,7 +149,11 @@ export async function signUpAction(
     };
   }
 
-  redirect('/dashboard');
+  const onboardingUrl = appendSignupContext(
+    new URL('/dashboard/onboard', appOrigin),
+    signupContext,
+  );
+  redirect(`${onboardingUrl.pathname}${onboardingUrl.search}` as Route);
 }
 
 export async function signOutAction() {
@@ -162,7 +200,9 @@ export async function deleteAccountAction(
   _prevState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
-  if (String(formData.get('confirmation') ?? '').trim() !== 'DELETE MY ACCOUNT') {
+  if (
+    String(formData.get('confirmation') ?? '').trim() !== 'DELETE MY ACCOUNT'
+  ) {
     return {
       success: false,
       message: 'Type DELETE MY ACCOUNT exactly to confirm.',
@@ -182,20 +222,20 @@ export async function deleteAccountAction(
     subscriptionResult,
     customerResult,
   ] = await Promise.all([
-      serviceSupabase
-        .from('public_profiles')
-        .select('username')
-        .eq('user_id', userId),
-      serviceSupabase
-        .from('subscriptions')
-        .select('stripe_subscription_id')
-        .eq('user_id', userId),
-      serviceSupabase
-        .from('stripe_customers')
-        .select('stripe_customer_id')
-        .eq('user_id', userId)
-        .maybeSingle(),
-    ]);
+    serviceSupabase
+      .from('public_profiles')
+      .select('username')
+      .eq('user_id', userId),
+    serviceSupabase
+      .from('subscriptions')
+      .select('stripe_subscription_id')
+      .eq('user_id', userId),
+    serviceSupabase
+      .from('stripe_customers')
+      .select('stripe_customer_id')
+      .eq('user_id', userId)
+      .maybeSingle(),
+  ]);
 
   if (profilesError || subscriptionResult.error || customerResult.error) {
     return {

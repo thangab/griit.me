@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button';
 import { AuthFormMessage } from '@/components/auth/auth-form-message';
 import { useI18n } from '@/components/i18n/i18n-provider';
+import { trackMarketingFunnelEvent } from '@/lib/analytics/marketing-funnel';
 
 const initialState: AuthActionState = { success: false, message: '' };
 
@@ -26,13 +27,39 @@ function SubmitButton() {
   );
 }
 
-export function SignUpForm() {
+export function SignUpForm({
+  profile,
+  source,
+  templateId,
+}: {
+  profile?: string;
+  source?: string;
+  templateId?: string;
+}) {
   const { t } = useI18n();
   const [state, formAction] = useActionState(signUpAction, initialState);
 
   return (
-    <form action={formAction} className="space-y-4">
-      <GoogleSignInButton />
+    <form
+      action={formAction}
+      className="space-y-4"
+      onSubmit={() =>
+        trackMarketingFunnelEvent('signup_submit', {
+          method: 'email',
+          profile,
+          source,
+          template: templateId,
+        })
+      }
+    >
+      <input name="profile" type="hidden" value={profile ?? ''} />
+      <input name="source" type="hidden" value={source ?? ''} />
+      <input name="template" type="hidden" value={templateId ?? ''} />
+      <GoogleSignInButton
+        profile={profile}
+        source={source}
+        templateId={templateId}
+      />
       <div className="flex items-center gap-4 py-1">
         <span className="h-px flex-1 bg-black/10" />
         <span className="text-[11px] font-bold tracking-[0.12em] text-black/35 uppercase">

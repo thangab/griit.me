@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import type { Route } from 'next';
+import { ArrowRightIcon } from '@phosphor-icons/react/ssr';
 import { GriitBranding } from '@/components/profile/griit-branding';
 import { PublicProfileView } from '@/components/profile/public-profile-view';
 import { ProfileAnalyticsTracker } from '@/components/profile/profile-analytics-tracker';
@@ -7,6 +10,11 @@ import { JsonLd } from '@/components/seo/json-ld';
 import { getPublicProfileBuilderState } from '@/lib/services/profile-builder';
 import { getAbsoluteUrl } from '@/lib/seo/metadata';
 import { isPastDate } from '@/lib/utils/date-status';
+import { getRequestLocale } from '@/lib/i18n/server';
+import {
+  getProfileTemplate,
+  resolveProfileTemplateId,
+} from '@/lib/constants/profile-templates';
 
 type PublicProfilePageProps = {
   params: Promise<{
@@ -85,6 +93,12 @@ export default async function PublicProfilePage({
     builder.profile.showBranding || complimentaryAccessExpired;
   const showPartnerBranding =
     builder.profile.isComplimentaryPro && !complimentaryAccessExpired;
+  const isDemo = builder.profile.username.startsWith('demo_');
+  const locale = await getRequestLocale();
+  const templateId = resolveProfileTemplateId(builder.profile.theme);
+  const demoSignupHref = !getProfileTemplate(templateId)?.proOnly
+    ? `/sign-up?template=${templateId}&source=demo_profile&profile=${builder.profile.username}`
+    : `/sign-up?source=demo_profile&profile=${builder.profile.username}`;
 
   return (
     <>
@@ -114,6 +128,26 @@ export default async function PublicProfilePage({
         <ProfileAnalyticsTracker profileId={builder.profile.id} />
       ) : null}
       <PublicProfileView builder={builder} />
+      {isDemo && preview !== '1' ? (
+        <Link
+          className="fixed right-3 bottom-3 left-3 z-50 mx-auto flex max-w-md items-center justify-between gap-4 rounded-2xl border border-white/15 bg-[#151515] px-5 py-3.5 text-sm font-black text-white shadow-[0_18px_60px_rgba(0,0,0,0.3)] transition hover:-translate-y-0.5 hover:bg-[#3157ff] sm:right-auto sm:bottom-5 sm:left-1/2 sm:-translate-x-1/2 sm:hover:-translate-x-1/2"
+          data-marketing-cta="create_from_demo"
+          data-marketing-profile={builder.profile.username}
+          data-marketing-source="demo_profile"
+          data-marketing-template={templateId}
+          href={demoSignupHref as Route}
+        >
+          <span>
+            {locale === 'fr'
+              ? 'Créer mon profil gratuitement'
+              : 'Create my profile for free'}
+            <span className="mt-0.5 block text-[10px] font-bold text-white/55">
+              {locale === 'fr' ? 'Sans carte bancaire' : 'No card required'}
+            </span>
+          </span>
+          <ArrowRightIcon className="h-4 w-4 shrink-0" weight="bold" />
+        </Link>
+      ) : null}
       {showBranding || showPartnerBranding ? (
         <GriitBranding
           className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 sm:bottom-5"

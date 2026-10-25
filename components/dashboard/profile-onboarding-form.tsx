@@ -33,6 +33,7 @@ import type { ProfileBuilderState } from '@/lib/types/profile-builder';
 import { cn } from '@/lib/utils/cn';
 import { useI18n } from '@/components/i18n/i18n-provider';
 import type { DictionaryKey } from '@/lib/i18n/dictionaries';
+import { trackMarketingFunnelEvent } from '@/lib/analytics/marketing-funnel';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -113,7 +114,15 @@ function TemplateThumbnail({ templateId }: { templateId: ProfileTemplateId }) {
   );
 }
 
-export function ProfileOnboardingForm() {
+export function ProfileOnboardingForm({
+  attributionProfile,
+  attributionSource,
+  initialTemplateId = 'spotlight',
+}: {
+  attributionProfile?: string;
+  attributionSource?: string;
+  initialTemplateId?: ProfileTemplateId;
+}) {
   const { locale, t } = useI18n();
   const router = useRouter();
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -127,7 +136,8 @@ export function ProfileOnboardingForm() {
   const [selectedSports, setSelectedSports] = useState<string[]>([]);
   const [customSports, setCustomSports] = useState<SportOption[]>([]);
   const [objective, setObjective] = useState('');
-  const [templateId, setTemplateId] = useState<ProfileTemplateId>('spotlight');
+  const [templateId, setTemplateId] =
+    useState<ProfileTemplateId>(initialTemplateId);
   const [availability, setAvailability] = useState<AvailabilityState>({
     status: 'idle',
     message: t('onboarding.usernameHelp'),
@@ -135,10 +145,25 @@ export function ProfileOnboardingForm() {
 
   useEffect(() => {
     if (state.success && state.profileId) {
+      trackMarketingFunnelEvent('profile_created', {
+        profile_id: state.profileId,
+        source: attributionSource,
+        inspiration_profile: attributionProfile,
+        template: templateId,
+      });
       router.replace(`/dashboard/profiles/${state.profileId}/design` as Route);
       router.refresh();
     }
-  }, [router, state]);
+  }, [attributionProfile, attributionSource, router, state, templateId]);
+
+  useEffect(() => {
+    trackMarketingFunnelEvent('onboarding_step_view', {
+      step,
+      source: attributionSource,
+      inspiration_profile: attributionProfile,
+      template: templateId,
+    });
+  }, [attributionProfile, attributionSource, step, templateId]);
 
   useEffect(() => {
     if (step > 1) headingRef.current?.focus();
@@ -317,6 +342,11 @@ export function ProfileOnboardingForm() {
           </h1>
           <p className="mt-4 max-w-md text-sm leading-6 text-black/48 sm:text-base">
             {t(currentStep.description)}
+          </p>
+          <p className="mt-3 text-xs font-bold text-[#3157ff]">
+            {locale === 'fr'
+              ? 'Votre profil complet reste gratuit, sans carte bancaire.'
+              : 'Your complete profile stays free, with no card required.'}
           </p>
 
           <form

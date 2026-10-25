@@ -49,6 +49,7 @@ import {
 import { cn } from '@/lib/utils/cn';
 import type { SubscriptionState } from '@/lib/types/billing';
 import type { ProfileBuilderState } from '@/lib/types/profile-builder';
+import { trackMarketingFunnelEvent } from '@/lib/analytics/marketing-funnel';
 import {
   avatarShapes,
   blockShadowStyles,
@@ -2691,6 +2692,12 @@ export function DesignWorkspace({
           isPublished,
         );
         setPublishMessage(result.message);
+
+        if (result.success && isPublished) {
+          trackMarketingFunnelEvent('profile_published', {
+            profile_id: builder.profile.id ?? 0,
+          });
+        }
 
         if (!result.success) {
           setDraftBuilder((current) => ({

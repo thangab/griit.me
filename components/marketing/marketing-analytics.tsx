@@ -1,9 +1,10 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { useI18n } from '@/components/i18n/i18n-provider';
+import { trackMarketingFunnelEvent } from '@/lib/analytics/marketing-funnel';
 
 const consentStorageKey = 'griit_marketing_analytics_consent';
 const consentChangeEvent = 'griit-marketing-analytics-consent-change';
@@ -45,6 +46,27 @@ export function MarketingAnalytics({
     window.dispatchEvent(new Event(consentChangeEvent));
   };
 
+  useEffect(() => {
+    if (consent !== 'accepted') return;
+
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const link = target.closest<HTMLElement>('[data-marketing-cta]');
+      if (!link) return;
+
+      trackMarketingFunnelEvent('marketing_cta_click', {
+        cta: link.dataset.marketingCta,
+        source: link.dataset.marketingSource,
+        template: link.dataset.marketingTemplate,
+        profile: link.dataset.marketingProfile,
+      });
+    };
+
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [consent]);
+
   if (!measurementId || consent === 'loading') return null;
 
   return (
@@ -69,8 +91,8 @@ export function MarketingAnalytics({
               </p>
               <p className="mt-1 text-xs leading-5 text-white/55">
                 {isFrench
-                  ? 'Nous utilisons Google Analytics sur le site vitrine pour comprendre les visites et améliorer votre expérience. '
-                  : 'We use Google Analytics on the marketing site to understand visits and improve the experience. '}
+                  ? 'Nous utilisons Google Analytics pour comprendre le parcours d’inscription et améliorer votre expérience. '
+                  : 'We use Google Analytics to understand the signup journey and improve your experience. '}
                 <Link className="text-white underline" href="/privacy">
                   {isFrench ? 'Politique de confidentialité' : 'Privacy policy'}
                 </Link>
