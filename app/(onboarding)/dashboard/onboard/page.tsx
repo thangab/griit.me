@@ -1,3 +1,4 @@
+import { MarketingFunnelEvent } from '@/components/marketing/marketing-funnel-event';
 import { redirect } from 'next/navigation';
 import type { Route } from 'next';
 import { ProfileOnboardingForm } from '@/components/dashboard/profile-onboarding-form';
@@ -31,10 +32,16 @@ export default async function ProfileOnboardingPage({
       : 'spotlight';
 
   return (
-    <ProfileOnboardingForm
-      attributionProfile={profile}
-      attributionSource={source}
-      initialTemplateId={initialTemplateId}
-    />
+    <>
+      <MarketingFunnelEvent
+        name="onboarding_started"
+        parameters={{ source, profile, template: initialTemplateId }}
+      />
+      <ProfileOnboardingForm
+        attributionProfile={profile}
+        attributionSource={source}
+        initialTemplateId={initialTemplateId}
+      />
+    </>
   );
 }

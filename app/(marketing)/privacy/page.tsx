@@ -73,8 +73,12 @@ function FrenchPrivacyContent() {
         requêtes, événements de sécurité et journaux de diagnostic.
       </p>
       <p>
-        Sur le site vitrine, Google Analytics ne collecte des données de
-        navigation qu’après votre accord. Il n’est pas chargé si vous refusez.
+        Sur les profils publics, les pages de présentation, l’inscription et le
+        tableau de bord, Google Analytics mesure les visites et les étapes de
+        création et de publication d’un profil uniquement après votre accord. La
+        provenance de la visite peut être conservée dans le stockage de session
+        de votre onglet après cet accord. Google Analytics n’est pas chargé si
+        vous refusez.
       </p>
 
       <h2>4. Utilisation des informations</h2>
@@ -103,10 +107,10 @@ function FrenchPrivacyContent() {
       <p>
         Nous utilisons notamment Supabase pour l’authentification, la base de
         données et le stockage ; Stripe pour la facturation ; Google Analytics
-        pour la mesure consentie du site vitrine ; ainsi que nos prestataires
-        d’hébergement et de diffusion. Google traite également des informations
-        si vous choisissez la connexion Google. Chaque prestataire applique ses
-        propres engagements de confidentialité.
+        pour la mesure consentie des visites et du parcours d’inscription ;
+        ainsi que nos prestataires d’hébergement et de diffusion. Google traite
+        également des informations si vous choisissez la connexion Google.
+        Chaque prestataire applique ses propres engagements de confidentialité.
       </p>
       <p>
         Un profil peut contenir des liens ou intégrations YouTube, Vimeo,
@@ -147,9 +151,9 @@ function FrenchPrivacyContent() {
         d’identité peut être nécessaire.
       </p>
       <p>
-        Vous pouvez refuser la mesure d’audience du site vitrine. Ce choix est
-        enregistré dans votre navigateur et peut être réinitialisé en effaçant
-        les données du site Griit.
+        Vous pouvez refuser la mesure d’audience et du parcours d’inscription.
+        Ce choix est enregistré dans votre navigateur et peut être réinitialisé
+        en effaçant les données du site Griit.
       </p>
 
       <h2>10. Mineurs</h2>
@@ -257,11 +261,13 @@ export default async function PrivacyPage() {
         diagnostic logs.
       </p>
       <p>
-        On Griit&apos;s marketing pages, and only after you accept analytics
-        cookies, Google Analytics may collect page views, referral information,
-        approximate location, and browser or device information. We use this to
-        understand how the website is used and improve it. Google Analytics is
-        not loaded when you decline.
+        On public profiles, marketing pages, signup, and dashboard pages, and
+        only after you accept analytics cookies, Google Analytics may collect
+        page views, signup and profile creation or publication events, referral
+        information, approximate location, and browser or device information. We
+        use this to understand how the website is used and improve it. After
+        consent, referral context may be retained in session storage in your
+        browser tab. Google Analytics is not loaded when you decline.
       </p>
 
       <h2>4. How we use information</h2>
@@ -290,11 +296,11 @@ export default async function PrivacyPage() {
       <p>
         We use specialist providers to operate Griit. These currently include
         Supabase for authentication, database, and storage; Stripe for billing;
-        Google Analytics for consented marketing-site measurement; and our
-        hosting and delivery providers for serving the application and deriving
-        approximate request location. Google also processes information if you
-        choose Google sign-in. Those providers process information under their
-        own terms and privacy commitments.
+        Google Analytics for consented audience and signup journey measurement;
+        and our hosting and delivery providers for serving the application and
+        deriving approximate request location. Google also processes information
+        if you choose Google sign-in. Those providers process information under
+        their own terms and privacy commitments.
       </p>
       <p>
         A profile can contain links or embeds from services such as YouTube,

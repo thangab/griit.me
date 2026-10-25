@@ -29,7 +29,7 @@ export default async function AuthLayout({
       >
         {children}
       </JavaScriptRequired>
-      <MarketingAnalytics measurementId={measurementId} />
+      <MarketingAnalytics measurementId={measurementId} locale={locale} />
     </I18nProvider>
   );
 }

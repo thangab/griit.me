@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils/cn';
 import { useI18n } from '@/components/i18n/i18n-provider';
 import type { DictionaryKey } from '@/lib/i18n/dictionaries';
 import { trackMarketingFunnelEvent } from '@/lib/analytics/marketing-funnel';
+import { useMarketingFunnelEvent } from '@/components/marketing/marketing-funnel-event';
 
 const initialState: ProfileBuilderActionState = {
   success: false,
@@ -156,14 +157,12 @@ export function ProfileOnboardingForm({
     }
   }, [attributionProfile, attributionSource, router, state, templateId]);
 
-  useEffect(() => {
-    trackMarketingFunnelEvent('onboarding_step_view', {
-      step,
-      source: attributionSource,
-      inspiration_profile: attributionProfile,
-      template: templateId,
-    });
-  }, [attributionProfile, attributionSource, step, templateId]);
+  useMarketingFunnelEvent('onboarding_step_view', {
+    step,
+    source: attributionSource,
+    inspiration_profile: attributionProfile,
+    template: templateId,
+  });
 
   useEffect(() => {
     if (step > 1) headingRef.current?.focus();

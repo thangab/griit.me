@@ -2,17 +2,26 @@
 
 import { useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { GoogleAnalytics } from '@next/third-parties/google';
-import { useI18n } from '@/components/i18n/i18n-provider';
-import { trackMarketingFunnelEvent } from '@/lib/analytics/marketing-funnel';
-
-const consentStorageKey = 'griit_marketing_analytics_consent';
-const consentChangeEvent = 'griit-marketing-analytics-consent-change';
+import Script from 'next/script';
+import { usePathname } from 'next/navigation';
+import type { Locale } from '@/lib/i18n/config';
+import {
+  trackMarketingFunnelEvent,
+  markMarketingAnalyticsReady,
+  analyticsReadyEvent,
+  consentStorageKey,
+  consentChangeEvent,
+} from '@/lib/analytics/marketing-funnel';
 
 type AnalyticsConsent = 'accepted' | 'declined' | 'loading' | null;
 
 function readConsent(): AnalyticsConsent {
-  const storedConsent = window.localStorage.getItem(consentStorageKey);
+  let storedConsent: string | null = null;
+  try {
+    storedConsent = window.localStorage.getItem(consentStorageKey);
+  } catch {
+    return 'declined';
+  }
   return storedConsent === 'accepted' || storedConsent === 'declined'
     ? storedConsent
     : null;
@@ -30,10 +39,12 @@ function subscribeToConsent(onStoreChange: () => void) {
 
 export function MarketingAnalytics({
   measurementId,
+  locale,
 }: {
   measurementId?: string;
+  locale: Locale;
 }) {
-  const { locale } = useI18n();
+  const pathname = usePathname();
   const isFrench = locale === 'fr';
   const consent = useSyncExternalStore(
     subscribeToConsent,
@@ -42,12 +53,16 @@ export function MarketingAnalytics({
   );
 
   const saveConsent = (value: 'accepted' | 'declined') => {
-    window.localStorage.setItem(consentStorageKey, value);
+    try {
+      window.localStorage.setItem(consentStorageKey, value);
+    } catch {
+      return;
+    }
     window.dispatchEvent(new Event(consentChangeEvent));
   };
 
   useEffect(() => {
-    if (consent !== 'accepted') return;
+    if (consent !== 'accepted' || !measurementId) return;
 
     const handleClick = (event: MouseEvent) => {
       const target = event.target;
@@ -65,13 +80,46 @@ export function MarketingAnalytics({
 
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [consent]);
+  }, [consent, measurementId]);
+
+  useEffect(() => {
+    if (consent !== 'accepted' || !measurementId) return;
+    let tracked = false;
+    const trackView = () => {
+      if (!tracked)
+        tracked = trackMarketingFunnelEvent('marketing_page_view', {
+          page_path: pathname,
+        });
+    };
+    trackView();
+    window.addEventListener(analyticsReadyEvent, trackView);
+    return () => window.removeEventListener(analyticsReadyEvent, trackView);
+  }, [consent, measurementId, pathname]);
 
   if (!measurementId || consent === 'loading') return null;
 
   return (
     <>
-      {consent === 'accepted' ? <GoogleAnalytics gaId={measurementId} /> : null}
+      {consent === 'accepted' ? (
+        <>
+          <Script
+            id="griit-ga-init"
+            onReady={markMarketingAnalyticsReady}
+            dangerouslySetInnerHTML={{
+              __html: `
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function(){window.dataLayer.push(arguments);};
+          window.gtag('js', new Date());
+          window.gtag('config', ${JSON.stringify(measurementId)});
+        `,
+            }}
+          />
+          <Script
+            id="griit-ga"
+            src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`}
+          />
+        </>
+      ) : null}
 
       {consent === null ? (
         <aside

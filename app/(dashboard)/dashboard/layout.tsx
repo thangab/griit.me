@@ -33,7 +33,7 @@ export default async function DashboardLayout({
           <AppShell>{children}</AppShell>
         </ProtectedLayout>
       </JavaScriptRequired>
-      <MarketingAnalytics measurementId={measurementId} />
+      <MarketingAnalytics measurementId={measurementId} locale={locale} />
     </I18nProvider>
   );
 }

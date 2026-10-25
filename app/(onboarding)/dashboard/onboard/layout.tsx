@@ -30,7 +30,7 @@ export default async function OnboardingLayout({
       >
         <ProtectedLayout>{children}</ProtectedLayout>
       </JavaScriptRequired>
-      <MarketingAnalytics measurementId={measurementId} />
+      <MarketingAnalytics measurementId={measurementId} locale={locale} />
     </I18nProvider>
   );
 }

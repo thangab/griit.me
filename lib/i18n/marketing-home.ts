@@ -2,14 +2,14 @@ import type { Locale } from '@/lib/i18n/config';
 
 const en = {
   badge: 'Create and publish your sports profile for free',
-  heroLine1: 'Your journey deserves',
-  heroLine2: 'more',
-  heroAccent: 'visibility.',
+  heroLine1: 'Your sporting journey.',
+  heroLine2: 'One link',
+  heroAccent: 'in your bio.',
   heroDescription:
-    'Whether you are getting started, chasing a record, or coaching others, build and publish a powerful public profile for free.',
+    'Bring your goals, results, photos, and links together on a page that feels like you. Every sport. Every level.',
   createProfile: 'Create my free profile',
   freeNote: 'Free forever · No card required · Publish when you are ready',
-  exploreTemplates: 'Explore templates',
+  exploreTemplates: 'See examples',
   launchAnnual: 'Pro Annual',
   firstAthletes: 'athletes',
   benefits: [
@@ -19,10 +19,12 @@ const en = {
     'No code',
   ],
   journey: [
-    ['Lead with the goal', 'Give people a reason to follow the journey.'],
-    ['Own your identity', 'Build a profile that feels unmistakably yours.'],
-    ['Show the work', 'Bring results, training, and content together.'],
-    ['Create opportunities', 'Turn attention into partnerships and support.'],
+    ['Choose your style', 'Start with one of the free profile templates.'],
+    ['Make it yours', 'Add your goals, results, photos, and favorite links.'],
+    [
+      'Share your link',
+      'Publish your profile and add it to your Instagram bio.',
+    ],
   ],
   editorEyebrow: 'Built around your story',
   editorTitle1: 'Everything you need.',
@@ -129,15 +131,15 @@ const en = {
 
 const fr = {
   badge: 'Créez et publiez votre profil sportif gratuitement',
-  heroLine1: 'Votre parcours mérite',
-  heroLine2: 'plus de',
-  heroAccent: 'visibilité.',
+  heroLine1: 'Votre parcours sportif.',
+  heroLine2: 'Un seul lien',
+  heroAccent: 'dans votre bio.',
   heroDescription:
-    'Que vous débutiez, visiez un record ou accompagniez d’autres sportifs, créez et publiez gratuitement un profil qui vous ressemble.',
+    'Réunissez vos objectifs, résultats, photos et liens sur une page qui vous ressemble. Tous sports, tous niveaux.',
   createProfile: 'Créer mon profil gratuitement',
   freeNote:
     'Gratuit pour toujours · Sans carte bancaire · Publiez quand vous êtes prêt',
-  exploreTemplates: 'Voir les templates',
+  exploreTemplates: 'Voir des exemples',
   launchAnnual: 'Pro Annual',
   firstAthletes: 'premiers athlètes',
   benefits: [
@@ -148,46 +150,42 @@ const fr = {
   ],
   journey: [
     [
-      'Annoncez votre prochain objectif',
-      'Donnez à votre audience une raison de suivre la progression.',
+      'Choisissez votre style',
+      'Commencez avec un des modèles de profil gratuits.',
     ],
     [
-      'Posez votre identité',
-      'Créez un profil reconnaissable au premier regard.',
+      'Racontez votre parcours',
+      'Ajoutez vos objectifs, résultats, photos et liens.',
     ],
     [
-      'Montrez le travail derrière le résultat',
-      'Rassemblez entraînements, performances et contenus au même endroit.',
-    ],
-    [
-      'Ouvrez le jeu',
-      'Transformez votre visibilité en contacts, soutien et partenariats.',
+      'Partagez votre lien',
+      'Publiez votre profil et ajoutez-le à votre bio Instagram.',
     ],
   ],
   editorEyebrow: 'Votre parcours, votre espace',
   editorTitle1: 'Tout votre profil.',
   editorTitle2: 'Un seul studio.',
   editorDescription:
-    'Ajoutez vos contenus, construisez votre identité visuelle et voyez chaque changement en live. Aucun code, aucun outil dispersé, juste votre parcours au bon format.',
+    'Ajoutez vos contenus, construisez votre identité visuelle et voyez chaque changement en direct. Aucun code, aucun outil dispersé, juste votre parcours au bon format.',
   editorCta: 'Créer gratuitement mon profil',
-  featuresEyebrow: "Plus qu'un link in bio",
+  featuresEyebrow: 'Plus qu’un lien dans votre bio',
   featuresTitle:
     'Tout le nécessaire pour montrer votre parcours et votre expertise.',
   features: [
     [
       'Votre prochain objectif, dès le premier écran',
-      'Affichez clairement la performance que vous visez avec une date, un countdown et un lien dédié.',
+      'Affichez clairement la performance que vous visez avec une date, un compte à rebours et un lien dédié.',
     ],
     [
-      'Un personal branding qui vous ressemble',
-      'Choisissez un template fort, puis adaptez chaque détail à votre personnalité, votre discipline et votre énergie.',
+      'Une identité sportive qui vous ressemble',
+      'Choisissez un modèle qui vous plaît, puis adaptez chaque détail à votre personnalité, votre discipline et votre énergie.',
     ],
     [
       'Montrez plus que le résultat final',
-      'Réunissez achievements, activités, photos, vidéos et coulisses de votre progression.',
+      'Réunissez performances, activités, photos, vidéos et coulisses de votre progression.',
     ],
     [
-      'Pilotez votre progression avec les analytics',
+      'Pilotez votre progression avec les statistiques',
       'Suivez les vues, les clics, les sources de trafic et les contenus qui font vraiment réagir votre audience.',
     ],
     [
@@ -196,14 +194,14 @@ const fr = {
     ],
     [
       'Tous les sports. Tous les niveaux.',
-      'Du premier objectif au coaching confirmé : running, HYROX, gym, cycling, sports de combat, sports collectifs et tout ce qui vous fait bouger.',
+      'Du premier objectif au coaching confirmé : course à pied, HYROX, musculation, cyclisme, sports de combat, sports collectifs et tout ce qui vous fait bouger.',
     ],
   ],
   templatesEyebrow: 'Votre énergie, votre direction',
-  templatesTitle: 'Un template aussi fort que votre ambition.',
+  templatesTitle: 'Un modèle aussi fort que votre ambition.',
   templatesDescription:
     'Choisissez une base qui donne le ton, puis personnalisez chaque mot, couleur et bloc pour construire un profil vraiment à vous.',
-  templatesCta: 'Explorer les templates',
+  templatesCta: 'Explorer les modèles',
   analyticsEyebrow: 'Pilotez votre présence',
   analyticsTitle: 'Voyez ce qui fait bouger votre audience.',
   analyticsDescription:
@@ -215,7 +213,7 @@ const fr = {
     'Clics sur les blocs',
   ],
   pricingEyebrow: 'Des offres sans prise de tête',
-  pricingTitle: 'Start free. Passez Pro quand votre ambition grandit.',
+  pricingTitle: 'Commencez gratuitement. Passez Pro selon vos besoins.',
   pricingFreeDescription:
     'Votre premier profil public complet est gratuit pour toujours, sans période d’essai ni carte bancaire.',
   launchOffer: 'Offre de lancement pour les',
@@ -230,7 +228,7 @@ const fr = {
   faq: [
     [
       'Puis-je créer et publier un profil gratuitement ?',
-      'Oui. Le plan Free inclut un profil public, tous les blocs essentiels, quatre templates, les styles de base et les analytics nécessaires pour prendre le départ.',
+      'Oui. Le plan Free inclut un profil public, tous les blocs essentiels, quatre modèles, les styles de base et les statistiques nécessaires pour prendre le départ.',
     ],
     [
       'Griit est-il réservé aux athlètes professionnels ?',
@@ -242,11 +240,11 @@ const fr = {
     ],
     [
       'Jusqu’où puis-je personnaliser mon profil ?',
-      'Vous pouvez modifier le contenu, les textes, le template et toute la direction visuelle. Pro débloque l’ensemble des templates, typographies, couleurs, formes, textures et réglages avancés.',
+      'Vous pouvez modifier le contenu, les textes, le modèle et toute la direction visuelle. Pro débloque l’ensemble des modèles, typographies, couleurs, formes, textures et réglages avancés.',
     ],
     [
       'Quelles statistiques sont incluses ?',
-      'Free inclut les vues, visiteurs uniques, clics et taux de clic. Pro ajoute des analytics détaillées sur l’audience, les campagnes, les réseaux et chaque bloc.',
+      'Free inclut les vues, visiteurs uniques, clics et taux de clic. Pro ajoute des statistiques détaillées sur l’audience, les campagnes, les réseaux et chaque bloc.',
     ],
     [
       'Puis-je gérer plusieurs profils ?',

@@ -161,7 +161,7 @@ export default async function MarketingLayout({
           </div>
         </footer>
       </div>
-      <MarketingAnalytics measurementId={measurementId} />
+      <MarketingAnalytics measurementId={measurementId} locale={locale} />
     </I18nProvider>
   );
 }

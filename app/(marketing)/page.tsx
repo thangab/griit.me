@@ -12,9 +12,7 @@ import {
   PaletteIcon,
   SparkleIcon,
   SquaresFourIcon,
-  TargetIcon,
 } from '@phosphor-icons/react/ssr';
-import { launchOffer } from '@/lib/constants/billing';
 import { getRequestLocale } from '@/lib/i18n/server';
 import { getMarketingHomeContent } from '@/lib/i18n/marketing-home';
 import { HeroProfileCollage } from './athlete-profile-showcase';
@@ -23,8 +21,6 @@ import { getThemeRuntime } from '@/lib/constants/profile-theme';
 import { getInspirationProfiles } from '@/lib/services/inspiration-gallery';
 import type { AthleteDirectoryEntry } from '@/lib/services/athlete-directory';
 import { EditorShowcase } from './editor-showcase';
-import { LazyAnalyticsShowcase } from './lazy-analytics-showcase';
-import { HomePricingCards } from './home-pricing-cards';
 import { JsonLd } from '@/components/seo/json-ld';
 import { createMarketingMetadata, getSiteUrl } from '@/lib/seo/metadata';
 
@@ -34,8 +30,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return createMarketingMetadata({
     title: isFrench
-      ? 'Griit — Votre parcours mérite plus de visibilité'
-      : 'Griit — Your journey deserves more visibility',
+      ? 'Griit — Votre parcours sportif, un seul lien dans votre bio'
+      : 'Griit — Your sporting journey, one link in your bio',
     description: isFrench
       ? 'Créez et publiez gratuitement un profil sportif public, quel que soit votre niveau. Sans carte bancaire.'
       : 'Build and publish a free public sports profile at any level. No card required.',
@@ -178,11 +174,13 @@ export default async function HomePage() {
   );
   const content = getMarketingHomeContent(locale);
   const siteUrl = getSiteUrl();
-  const localizedFeatures = featureCards.map((feature, index) => ({
-    ...feature,
-    title: content.features[index][0],
-    description: content.features[index][1],
-  }));
+  const localizedFeatures = featureCards
+    .map((feature, index) => ({
+      ...feature,
+      title: content.features[index][0],
+      description: content.features[index][1],
+    }))
+    .filter((_, index) => [0, 2, 5].includes(index));
 
   return (
     <main className="overflow-hidden">
@@ -241,13 +239,13 @@ export default async function HomePage() {
       />
       <section className="relative border-b border-black/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_16%,rgba(169,237,53,0.35),transparent_25%),radial-gradient(circle_at_85%_30%,rgba(49,87,255,0.18),transparent_28%)]" />
-        <div className="relative mx-auto grid min-h-[calc(100svh-4.5rem)] max-w-[1380px] items-center gap-14 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-12 lg:py-20">
+        <div className="relative mx-auto grid max-w-[1380px] items-center gap-14 px-5 py-16 sm:px-8 lg:min-h-[calc(100svh-4.5rem)] lg:grid-cols-[1.05fr_0.95fr] lg:px-12 lg:py-20">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1.5 text-xs font-bold backdrop-blur">
               <SparkleIcon className="h-4 w-4 text-[#3157ff]" weight="fill" />
               {content.badge}
             </div>
-            <h1 className="mt-7 text-[clamp(3.6rem,8vw,7.5rem)] leading-[0.86] font-black tracking-[-0.075em]">
+            <h1 className="mt-7 text-[clamp(2.75rem,6vw,6rem)] leading-[0.98] font-black tracking-[-0.075em]">
               {content.heroLine1}
               <br />
               {content.heroLine2}{' '}
@@ -270,6 +268,8 @@ export default async function HomePage() {
               <a
                 className="inline-flex h-13 items-center justify-center rounded-full border border-black/15 bg-white/55 px-7 text-sm font-bold transition-colors hover:bg-white"
                 href="#templates"
+                data-marketing-cta="explore_examples"
+                data-marketing-source="home_hero"
               >
                 {content.exploreTemplates}
               </a>
@@ -297,15 +297,83 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="px-5 py-14 sm:px-8 lg:px-12 lg:py-20" id="templates">
+        <div className="mx-auto max-w-[1280px]">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
+                {locale === 'fr' ? 'Inspiration' : 'Built with Griit'}
+              </p>
+              <h2 className="mt-5 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
+                {locale === 'fr'
+                  ? 'Chaque parcours mérite sa propre direction.'
+                  : 'Every athlete. A different way to stand out.'}
+              </h2>
+            </div>
+            <p className="max-w-sm text-sm leading-6 text-black/50">
+              {locale === 'fr'
+                ? 'Explorez des profils complets, des identités visuelles et des façons concrètes de raconter un objectif sportif.'
+                : 'Explore complete profiles, visual identities, and real ways to turn an athletic goal into a memorable story.'}
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {[
+              [
+                'athletes',
+                locale === 'fr'
+                  ? 'Sportifs, tous niveaux'
+                  : 'Athletes, every level',
+              ],
+              ['coaches', locale === 'fr' ? 'Coachs' : 'Coaches'],
+              [
+                'transformations',
+                locale === 'fr' ? 'Transformations' : 'Transformations',
+              ],
+            ].map(([focus, label]) => (
+              <Link
+                key={focus}
+                href={`/inspiration?focus=${focus}` as '/inspiration'}
+                className="rounded-full border border-black/15 px-4 py-2 text-xs font-bold transition hover:bg-[#151515] hover:text-white"
+                data-marketing-cta="explore_audience"
+                data-marketing-source="home_examples"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+          <div className="-mx-5 mt-14 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pt-2 pb-8 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+            {inspirationProfiles.map((athlete, index) => (
+              <div
+                className={`w-[82vw] max-w-[340px] shrink-0 snap-center sm:w-auto sm:max-w-none ${
+                  index === 1 ? 'sm:translate-y-8' : ''
+                }`}
+                key={athlete.id}
+              >
+                <PublicProfilePreviewCard athlete={athlete} locale={locale} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-14 text-center sm:mt-20">
+            <Link
+              className="inline-flex h-12 items-center gap-2 rounded-full bg-[#151515] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              href="/inspiration"
+            >
+              {locale === 'fr'
+                ? 'Explorer la galerie d’inspiration'
+                : 'Explore the inspiration gallery'}
+              <ArrowRightIcon className="h-4 w-4" weight="bold" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section className="border-b border-black/10 bg-[#151515] text-white">
-        <div className="mx-auto grid max-w-[1380px] grid-cols-1 px-5 sm:grid-cols-2 sm:px-8 lg:grid-cols-4 lg:px-12">
+        <div className="mx-auto grid max-w-[1380px] grid-cols-1 px-5 sm:grid-cols-3 sm:px-8 lg:grid-cols-3 lg:px-12">
           {content.journey.map((point, index) => (
             <div
               className={`flex gap-4 border-white/10 py-6 sm:px-6 lg:py-7 ${
                 index > 0 ? 'border-t sm:border-t-0' : ''
-              } ${index % 2 === 1 ? 'sm:border-l' : ''} ${
-                index > 1 ? 'sm:border-t lg:border-t-0' : ''
-              } ${index > 0 ? 'lg:border-l' : ''}`}
+              } ${index > 0 ? 'sm:border-l' : ''}`}
               key={point[0]}
             >
               <span className="pt-0.5 text-[10px] font-black tracking-[0.14em] text-[#a9ed35]">
@@ -322,102 +390,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-black/10 bg-white px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="max-w-3xl">
-            <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
-              {locale === 'fr'
-                ? 'Un profil qui vous ressemble'
-                : 'A profile built around you'}
-            </p>
-            <h2 className="mt-4 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-5xl">
-              {locale === 'fr'
-                ? 'Commencez par votre objectif.'
-                : 'Start with what you want to achieve.'}
-            </h2>
-          </div>
-          <div className="mt-9 grid gap-4 md:grid-cols-3">
-            {[
-              {
-                href: '/inspiration?focus=athletes',
-                icon: LightningIcon,
-                title: locale === 'fr' ? 'Je suis athlète' : 'I am an athlete',
-                text:
-                  locale === 'fr'
-                    ? 'Amateur, intermédiaire ou pro : montrez vos performances et votre prochain défi.'
-                    : 'Amateur, intermediate, or pro: showcase your results and next challenge.',
-              },
-              {
-                href: '/inspiration?focus=coaches',
-                icon: SquaresFourIcon,
-                title: locale === 'fr' ? 'Je suis coach' : 'I am a coach',
-                text:
-                  locale === 'fr'
-                    ? 'Présentez votre méthode, vos spécialités et les transformations de vos clients.'
-                    : 'Present your method, specialties, and client transformations.',
-              },
-              {
-                href: '/inspiration?focus=transformations',
-                icon: TargetIcon,
-                title:
-                  locale === 'fr' ? 'Je me transforme' : 'I am transforming',
-                text:
-                  locale === 'fr'
-                    ? 'Perte de poids ou prise de masse : rendez votre progression visible et motivante.'
-                    : 'Weight loss or muscle gain: make your progress visible and motivating.',
-              },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  className="group rounded-[1.75rem] border border-black/10 bg-[#f7f6f1] p-6 transition hover:-translate-y-1 hover:border-[#3157ff]/30"
-                  data-marketing-cta="explore_audience"
-                  data-marketing-source="home_audiences"
-                  href={item.href as '/inspiration'}
-                  key={item.href}
-                >
-                  <Icon className="h-7 w-7 text-[#3157ff]" weight="duotone" />
-                  <h3 className="mt-7 text-xl font-black">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-black/50">
-                    {item.text}
-                  </p>
-                  <span className="mt-6 inline-flex items-center gap-2 text-xs font-black text-[#3157ff]">
-                    {locale === 'fr' ? 'Voir des exemples' : 'See examples'}
-                    <ArrowRightIcon
-                      className="h-3.5 w-3.5 transition group-hover:translate-x-1"
-                      weight="bold"
-                    />
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-          <div className="mt-6 flex flex-col gap-4 rounded-[1.75rem] bg-[#eaf8d1] p-6 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-lg font-black">
-                {locale === 'fr'
-                  ? 'Gratuit pour publier votre profil complet.'
-                  : 'Free to publish your complete profile.'}
-              </p>
-              <p className="mt-1 text-sm leading-6 text-black/55">
-                {locale === 'fr'
-                  ? '1 profil public, 4 templates, objectifs, activités, résultats, galerie, liens et statistiques essentielles. Sans carte bancaire.'
-                  : '1 public profile, 4 templates, goals, activities, results, gallery, links, and essential analytics. No card required.'}
-              </p>
-            </div>
-            <Link
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-[#151515] px-6 text-sm font-black text-white"
-              data-marketing-cta="create_free_profile"
-              data-marketing-source="home_audiences"
-              href="/sign-up"
-            >
-              {locale === 'fr' ? 'Créer gratuitement' : 'Create for free'}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
+      <section className="px-5 py-14 sm:px-8 lg:px-12 lg:py-20">
         <div className="mx-auto grid max-w-[1280px] items-center gap-14 lg:grid-cols-[0.72fr_1.28fr]">
           <div>
             <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
@@ -447,7 +420,7 @@ export default async function HomePage() {
       </section>
 
       <section
-        className="bg-[#eeede7] px-5 py-24 sm:px-8 lg:px-12 lg:py-32"
+        className="bg-[#eeede7] px-5 py-14 sm:px-8 lg:px-12 lg:py-20"
         id="features"
       >
         <div className="mx-auto max-w-[1280px]">
@@ -485,129 +458,85 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="px-5 py-24 sm:px-8 lg:px-12 lg:py-32" id="templates">
-        <div className="mx-auto max-w-[1280px]">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
-                {locale === 'fr' ? 'Inspiration' : 'Built with Griit'}
-              </p>
-              <h2 className="mt-5 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
-                {locale === 'fr'
-                  ? 'Chaque parcours mérite sa propre direction.'
-                  : 'Every athlete. A different way to stand out.'}
-              </h2>
-            </div>
-            <p className="max-w-sm text-sm leading-6 text-black/50">
-              {locale === 'fr'
-                ? 'Explorez des profils complets, des identités visuelles et des façons concrètes de raconter un objectif sportif.'
-                : 'Explore complete profiles, visual identities, and real ways to turn an athletic goal into a memorable story.'}
-            </p>
-          </div>
-          <div className="-mx-5 mt-14 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto px-5 pt-2 pb-8 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
-            {inspirationProfiles.map((athlete, index) => (
-              <div
-                className={`w-[82vw] max-w-[340px] shrink-0 snap-center sm:w-auto sm:max-w-none ${
-                  index === 1 ? 'sm:translate-y-8' : ''
-                }`}
-                key={athlete.id}
-              >
-                <PublicProfilePreviewCard athlete={athlete} locale={locale} />
-              </div>
-            ))}
-          </div>
-          <div className="mt-14 text-center sm:mt-20">
-            <Link
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-[#151515] px-6 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
-              href="/inspiration"
-            >
-              {locale === 'fr'
-                ? 'Explorer la galerie d’inspiration'
-                : 'Explore the inspiration gallery'}
-              <ArrowRightIcon className="h-4 w-4" weight="bold" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       <section
-        className="bg-[#3157ff] px-5 py-24 text-white sm:px-8 lg:px-12 lg:py-32"
+        className="bg-[#3157ff] px-5 py-10 text-white sm:px-8 lg:px-12"
         id="analytics"
       >
-        <div className="mx-auto grid max-w-[1280px] items-center gap-14 lg:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <p className="text-xs font-black tracking-[0.18em] text-[#b9cdff] uppercase">
-              {content.analyticsEyebrow}
-            </p>
-            <h2 className="mt-5 text-4xl leading-[0.95] font-black tracking-[-0.055em] sm:text-6xl">
-              {content.analyticsTitle}
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-2xl">
+            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
+              {locale === 'fr'
+                ? 'Découvrez ce qui intéresse votre audience.'
+                : 'See what interests your audience.'}
             </h2>
-            <p className="mt-6 max-w-lg text-base leading-7 text-white/65">
-              {content.analyticsDescription}
+            <p className="mt-3 text-sm leading-6 text-white/80">
+              {locale === 'fr'
+                ? 'Vues, visiteurs et clics : les statistiques essentielles sont incluses pour comprendre comment votre profil est consulté.'
+                : 'Views, visitors, and clicks: essential analytics are included to understand how people use your profile.'}
             </p>
-            <div className="mt-8 grid max-w-md grid-cols-2 gap-3">
-              {['2.4K', '18.6%', '742', '186'].map((value, index) => (
-                <div
-                  className="rounded-2xl bg-white/10 p-4"
-                  key={content.analyticsStats[index]}
-                >
-                  <p className="text-2xl font-black">{value}</p>
-                  <p className="mt-1 text-[10px] font-bold text-white/50 uppercase">
-                    {content.analyticsStats[index]}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
-
-          <LazyAnalyticsShowcase />
+          <Link
+            className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-[#151515]"
+            href="/sign-up"
+            data-marketing-cta="create_free_profile"
+            data-marketing-source="home_analytics"
+          >
+            {content.createProfile}
+            <ArrowRightIcon className="h-4 w-4" weight="bold" />
+          </Link>
         </div>
       </section>
 
-      <section className="px-5 py-24 sm:px-8 lg:px-12 lg:py-32" id="pricing">
-        <div className="mx-auto max-w-[1050px]">
-          <div className="text-center">
-            <p className="text-xs font-black tracking-[0.18em] text-[#3157ff] uppercase">
-              {content.pricingEyebrow}
+      <section className="px-5 py-14 sm:px-8 lg:px-12 lg:py-20" id="pricing">
+        <div className="mx-auto grid max-w-[1050px] gap-8 rounded-[2rem] bg-[#eaf8d1] p-7 sm:p-12 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <p className="text-xs font-black tracking-[0.14em] text-[#3157ff] uppercase">
+              {locale === 'fr'
+                ? 'Tout pour commencer'
+                : 'Everything to get started'}
             </p>
-            <h2 className="mt-5 text-4xl font-black tracking-[-0.055em] sm:text-6xl">
-              {content.pricingTitle}
+            <h2 className="mt-4 text-4xl font-black tracking-tight">
+              {locale === 'fr'
+                ? 'Votre profil complet. Gratuit.'
+                : 'Your complete profile. Free.'}
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-6 font-bold text-black">
-              {content.pricingFreeDescription}
+            <p className="mt-4 max-w-xl text-sm leading-6 text-black/65">
+              {locale === 'fr'
+                ? 'Un profil public, 4 modèles, vos objectifs, résultats, photos, liens et statistiques essentielles. Sans période d’essai ni carte bancaire.'
+                : 'One public profile, 4 templates, your goals, results, photos, links, and essential analytics. No trial or card required.'}
             </p>
-            <p className="mx-auto mt-2 max-w-xl text-xs leading-5 text-black/45">
-              {content.launchOffer} {launchOffer.athleteLimit}{' '}
-              {content.firstAthletes}: Pro Annual{' '}
-              <span className="line-through">
-                {launchOffer.regularAnnualPrice}
-              </span>{' '}
-              <strong className="text-black">
-                {launchOffer.firstYearPrice}
-              </strong>{' '}
-              {content.withCode}{' '}
-              <strong className="font-mono text-[#3157ff]">
-                {launchOffer.code}
-              </strong>
-              . {content.saveCompared} {launchOffer.savingsVsMonthly}{' '}
-              {content.comparedMonthly}
+            <p className="mt-3 text-xs leading-5 text-black/55">
+              {locale === 'fr'
+                ? 'Envie de plus de personnalisation ? Vous pourrez passer Pro plus tard.'
+                : 'Want more customization? You can upgrade to Pro later.'}
             </p>
           </div>
-          <HomePricingCards />
-          <div className="mt-8 text-center">
+          <div className="flex flex-col gap-4">
             <Link
-              className="inline-flex h-11 items-center gap-2 rounded-full border border-black/15 bg-white px-5 text-sm font-bold transition-colors hover:bg-black hover:text-white"
-              href="/pricing"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#151515] px-6 text-sm font-black text-white"
+              href="/sign-up"
+              data-marketing-cta="create_free_profile"
+              data-marketing-source="home_free_offer"
             >
-              {content.compareFeatures}
+              {content.createProfile}
               <ArrowRightIcon className="h-4 w-4" weight="bold" />
+            </Link>
+            <Link
+              className="text-center text-xs font-bold underline underline-offset-4"
+              href="/pricing"
+              data-marketing-cta="compare_plans"
+              data-marketing-source="home_free_offer"
+            >
+              {locale === 'fr'
+                ? 'Comparer les offres Free et Pro'
+                : 'Compare Free and Pro'}
             </Link>
           </div>
         </div>
       </section>
 
       <section
-        className="border-t border-black/10 bg-white px-5 py-24 sm:px-8 lg:px-12 lg:py-32"
+        className="border-t border-black/10 bg-white px-5 py-14 sm:px-8 lg:px-12 lg:py-20"
         id="faq"
       >
         <div className="mx-auto grid max-w-[1180px] gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
